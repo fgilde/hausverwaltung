@@ -12,7 +12,9 @@ import {
   Lightbulb,
   X,
   Check,
+  ChevronRight,
 } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, date } from "@/lib/format";
@@ -110,12 +112,12 @@ export default async function DashboardPage() {
     { key: "dueMaintenance", value: String(dueMaintenance), icon: CalendarClock },
   ];
 
-  const insights: string[] = [];
-  if (overdueCount > 0) insights.push(t("dashboard.insightOverdue", { count: overdueCount }));
-  if (expiringLeases.length > 0) insights.push(t("dashboard.insightExpiring", { count: expiringLeases.length }));
-  if (openTickets > 0) insights.push(t("dashboard.insightTickets", { count: openTickets }));
-  if (dueMaintenance > 0) insights.push(t("dashboard.insightMaintenance", { count: dueMaintenance }));
-  if (upcomingMaint > 0) insights.push(t("dashboard.insightUpcomingMaint", { count: upcomingMaint }));
+  const insights: { text: string; href: string }[] = [];
+  if (overdueCount > 0) insights.push({ text: t("dashboard.insightOverdue", { count: overdueCount }), href: "/finances?status=OVERDUE" });
+  if (expiringLeases.length > 0) insights.push({ text: t("dashboard.insightExpiring", { count: expiringLeases.length }), href: "/leases" });
+  if (openTickets > 0) insights.push({ text: t("dashboard.insightTickets", { count: openTickets }), href: "/tickets" });
+  if (dueMaintenance > 0) insights.push({ text: t("dashboard.insightMaintenance", { count: dueMaintenance }), href: "/tickets" });
+  if (upcomingMaint > 0) insights.push({ text: t("dashboard.insightUpcomingMaint", { count: upcomingMaint }), href: "/calendar" });
 
   // 6-Monats-Verlauf: Sollstellung vs. Zahlungseingang
   const monthly = Array.from({ length: 6 }, (_, k) => {
@@ -201,9 +203,14 @@ export default async function DashboardPage() {
               <p className="text-sm text-muted-foreground">{t("dashboard.allGood")}</p>
             ) : (
               insights.map((i, idx) => (
-                <div key={idx} className="rounded-md border-l-2 border-primary bg-muted/40 px-3 py-2 text-sm">
-                  {i}
-                </div>
+                <Link
+                  key={idx}
+                  href={i.href}
+                  className="flex items-center justify-between gap-2 rounded-md border-l-2 border-primary bg-muted/40 px-3 py-2 text-sm transition-colors hover:bg-muted"
+                >
+                  <span>{i.text}</span>
+                  <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                </Link>
               ))
             )}
           </CardContent>
