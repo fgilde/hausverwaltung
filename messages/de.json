@@ -26,7 +26,10 @@
     "deleteDesc": "Dieser Vorgang kann nicht rückgängig gemacht werden. Verknüpfte Daten werden mitgelöscht.",
     "none": "—",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "saved": "Gespeichert",
+    "deleted": "Gelöscht",
+    "deleteFailed": "Löschen fehlgeschlagen"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -566,13 +569,17 @@
     "title": "Postausgang",
     "subtitle": "E-Mails an Mieter und Eigentümer erfassen und versenden",
     "compose": "Neue E-Mail",
-    "to": "Empfänger",
+    "to": "An",
+    "toPlaceholder": "adresse@example.de, mehrere mit Komma",
+    "addPerson": "Person hinzufügen",
+    "attachments": "Anhänge (Dokumente)",
+    "saveToOutbox": "In Postausgang",
     "subject": "Betreff",
     "body": "Nachricht",
     "status": "Status",
     "send": "Senden",
     "empty": "Keine E-Mails im Postausgang.",
-    "noSmtp": "Kein SMTP konfiguriert (SMTP_HOST fehlt) — E-Mails werden erfasst und im Postausgang als versendet markiert, aber nicht real zugestellt."
+    "noSmtp": "Kein SMTP konfiguriert — E-Mails werden erfasst und als versendet markiert, aber nicht real zugestellt. Zugangsdaten unter Einstellungen eintragen."
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",

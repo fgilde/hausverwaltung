@@ -40,17 +40,33 @@ function transporter(cfg?: SmtpConfig) {
   };
 }
 
+export interface MailAttachment {
+  filename: string;
+  content: Buffer;
+}
+
 export interface OutgoingMail {
-  to: string;
+  to: string | string[];
+  cc?: string | string[];
+  bcc?: string | string[];
   subject: string;
   body: string;
+  attachments?: MailAttachment[];
 }
 
 /** Versendet eine Mail über den konfigurierten SMTP-Server. Wirft bei Fehler. */
 export async function sendMail(mail: OutgoingMail, cfg?: SmtpConfig): Promise<void> {
   if (!isMailerConfigured(cfg)) return; // ohne Konfiguration: lokale Queue, kein Versand
   const { transport, from } = transporter(cfg);
-  await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.body });
+  await transport.sendMail({
+    from,
+    to: mail.to,
+    cc: mail.cc,
+    bcc: mail.bcc,
+    subject: mail.subject,
+    text: mail.body,
+    attachments: mail.attachments,
+  });
 }
 
 /** Prüft die SMTP-Verbindung (für den Test-Button in den Einstellungen). */

@@ -230,8 +230,16 @@ export const appointmentSchema = z.object({
   note: optionalStr,
 });
 
+// Eine oder mehrere Adressen, komma-/semikolongetrennt.
+const emailList = z
+  .string()
+  .trim()
+  .refine((v) => v.split(/[,;]/).every((e) => /.+@.+\..+/.test(e.trim())), "Ungültige E-Mail-Adresse");
+
 export const emailSchema = z.object({
-  toAddress: z.string().trim().email(),
+  toAddress: emailList,
+  cc: optionalStr,
+  bcc: optionalStr,
   subject: z.string().trim().min(1),
   body: z.string().trim().min(1),
 });

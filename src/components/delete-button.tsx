@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -23,9 +25,25 @@ export function DeleteButton({
   id: string;
 }) {
   const t = useTranslations("common");
+  const [open, setOpen] = useState(false);
+  const [pending, start] = useTransition();
+
+  function confirm() {
+    const fd = new FormData();
+    fd.set("id", id);
+    start(async () => {
+      try {
+        await action(fd);
+        setOpen(false);
+        toast.success(t("deleted"));
+      } catch {
+        toast.error(t("deleteFailed"));
+      }
+    });
+  }
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
           <Button variant="ghost" size="icon" aria-label={t("delete")}>
@@ -38,18 +56,17 @@ export function DeleteButton({
           <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
           <AlertDialogDescription>{t("deleteDesc")}</AlertDialogDescription>
         </AlertDialogHeader>
-        <form action={action}>
-          <input type="hidden" name="id" value={id} />
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              type="submit"
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              {t("delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </form>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+          <AlertDialogAction
+            type="button"
+            onClick={confirm}
+            disabled={pending}
+            className="bg-destructive text-white hover:bg-destructive/90"
+          >
+            {t("delete")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

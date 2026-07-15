@@ -1,5 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
-import { Send, Mail } from "lucide-react";
+import { Send, Mail, Paperclip } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EmailDialog } from "@/components/email-dialog";
+import { EmailCompose } from "@/components/email-compose";
 import { DeleteButton } from "@/components/delete-button";
 import { sendEmail, deleteEmail } from "@/server/actions/email";
 
@@ -24,13 +24,29 @@ export default async function EmailPage() {
   const t = await getTranslations();
   const locale = await getLocale();
 
-  const [messages, tenant] = await Promise.all([
-    prisma.emailMessage.findMany({ where: { tenantId: user.tenantId }, orderBy: { createdAt: "desc" } }),
+  const [messages, tenant, persons, documents] = await Promise.all([
+    prisma.emailMessage.findMany({
+      where: { tenantId: user.tenantId },
+      include: { _count: { select: { attachments: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
     prisma.tenant.findUnique({
       where: { id: user.tenantId },
       select: { smtpHost: true, smtpPort: true, smtpUser: true, smtpFrom: true, smtpSecure: true },
     }),
+    prisma.person.findMany({
+      where: { tenantId: user.tenantId, email: { not: null } },
+      orderBy: { lastName: "asc" },
+      select: { id: true, firstName: true, lastName: true, email: true },
+    }),
+    prisma.document.findMany({
+      where: { tenantId: user.tenantId },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      select: { id: true, name: true },
+    }),
   ]);
+  const personOpts = persons.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName}`, email: p.email! }));
   const configured = isMailerConfigured({
     host: tenant?.smtpHost,
     port: tenant?.smtpPort,
@@ -49,7 +65,7 @@ export default async function EmailPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("email.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("email.subtitle")}</p>
         </div>
-        <EmailDialog />
+        <EmailCompose persons={personOpts} documents={documents} />
       </div>
 
       {!configured && (
@@ -81,8 +97,19 @@ export default async function EmailPage() {
                         <Mail className="size-4 text-muted-foreground" />
                         {m.toAddress}
                       </span>
+                      {m.cc ? <div className="text-xs text-muted-foreground">Cc: {m.cc}</div> : null}
                     </TableCell>
-                    <TableCell>{m.subject}</TableCell>
+                    <TableCell>
+                      <span className="flex items-center gap-2">
+                        {m.subject}
+                        {m._count.attachments > 0 && (
+                          <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                            <Paperclip className="size-3" />
+                            {m._count.attachments}
+                          </span>
+                        )}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={statusVariant(m.status)}>{t(`emailStatus.${m.status}`)}</Badge>
                       {m.error ? <span className="ml-2 text-xs text-destructive">{m.error}</span> : null}

@@ -26,7 +26,10 @@
     "deleteDesc": "This action cannot be undone. Linked data will be deleted too.",
     "none": "—",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "deleteFailed": "Delete failed"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -566,13 +569,17 @@
     "title": "Outbox",
     "subtitle": "Compose and send emails to tenants and owners",
     "compose": "New email",
-    "to": "Recipient",
+    "to": "To",
+    "toPlaceholder": "address@example.com, separate multiple with commas",
+    "addPerson": "Add person",
+    "attachments": "Attachments (documents)",
+    "saveToOutbox": "Save to outbox",
     "subject": "Subject",
     "body": "Message",
     "status": "Status",
     "send": "Send",
     "empty": "No emails in the outbox.",
-    "noSmtp": "No SMTP configured (SMTP_HOST missing) — emails are recorded and marked as sent in the outbox, but not actually delivered."
+    "noSmtp": "No SMTP configured — emails are recorded and marked as sent, but not actually delivered. Enter credentials under Settings."
   },
   "emailStatus": {
     "ENTWURF": "Draft",

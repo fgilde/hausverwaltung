@@ -49,7 +49,7 @@ export function UserMenu({
           <div className="grid">
             <span className="truncate font-medium">{name}</span>
             <span className="truncate text-xs font-normal text-muted-foreground">{email}</span>
-            <span className="mt-1 text-xs font-normal text-muted-foreground">{role}</span>
+            <span className="mt-1 text-xs font-normal text-muted-foreground">{t(`userRole.${role}`)}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useActionState, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import type { ActionState } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +35,11 @@ export function CrudDialog({
   const [state, formAction, pending] = useActionState<ActionState, FormData>(action, {});
 
   useEffect(() => {
-    if (state.ok) setOpen(false);
-  }, [state]);
+    if (state.ok) {
+      setOpen(false);
+      toast.success(t("saved"));
+    }
+  }, [state, t]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

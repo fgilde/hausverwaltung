@@ -4,15 +4,32 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { sendMail, isMailerConfigured } from "@/lib/adapters/mailer";
+import { sendMail, isMailerConfigured, type MailAttachment } from "@/lib/adapters/mailer";
+import { readFile } from "@/lib/storage";
 import { emailSchema, type ActionState } from "@/lib/schemas";
+
+const addrList = (s: string | undefined | null) =>
+  (s ?? "").split(/[,;]/).map((a) => a.trim()).filter(Boolean);
 
 export async function createEmail(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const r = emailSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
+
+  // Angehängte Dokumente (documentId je Checkbox) — auf Mandant prüfen.
+  const docIds = fd.getAll("documentIds").map(String).filter(Boolean);
+  if (docIds.length) {
+    const count = await prisma.document.count({ where: { id: { in: docIds }, tenantId: user.tenantId } });
+    if (count !== docIds.length) return { error: "Dokument nicht gefunden" };
+  }
+
   const msg = await prisma.emailMessage.create({
-    data: { ...r.data, tenantId: user.tenantId, status: "ENTWURF" },
+    data: {
+      ...r.data,
+      tenantId: user.tenantId,
+      status: "ENTWURF",
+      attachments: { create: docIds.map((documentId) => ({ documentId })) },
+    },
   });
   await audit(user, "CREATE", "EmailMessage", msg.id, r.data.subject);
   revalidatePath("/", "layout");
@@ -36,12 +53,34 @@ async function smtpConfig(tenantId: string) {
 export async function sendEmail(fd: FormData): Promise<void> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
-  const msg = await prisma.emailMessage.findFirst({ where: { id, tenantId: user.tenantId } });
+  const msg = await prisma.emailMessage.findFirst({
+    where: { id, tenantId: user.tenantId },
+    include: { attachments: { include: { document: true } } },
+  });
   if (!msg) return;
 
   const cfg = await smtpConfig(user.tenantId);
   try {
-    await sendMail({ to: msg.toAddress, subject: msg.subject, body: msg.body }, cfg);
+    // Anhänge aus der Dokumentenablage laden.
+    const attachments: MailAttachment[] = [];
+    for (const a of msg.attachments) {
+      try {
+        attachments.push({ filename: a.document.name, content: await readFile(a.document.storageKey) });
+      } catch {
+        // fehlende Datei überspringen
+      }
+    }
+    await sendMail(
+      {
+        to: addrList(msg.toAddress),
+        cc: addrList(msg.cc),
+        bcc: addrList(msg.bcc),
+        subject: msg.subject,
+        body: msg.body,
+        attachments,
+      },
+      cfg,
+    );
     await prisma.emailMessage.update({
       where: { id: msg.id },
       data: { status: "GESENDET", sentAt: new Date(), error: null },

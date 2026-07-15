@@ -523,6 +523,7 @@ model Document {
   eInvoice   Boolean          @default(false)
   invoiceNo   String? // aus E-Rechnung extrahiert
   invoiceTotal Decimal?       @db.Decimal(12, 2) // aus E-Rechnung extrahiert
+  emailAttachments EmailAttachment[]
   createdAt  DateTime         @default(now())
 
   @@index([tenantId])
@@ -698,17 +699,31 @@ enum EmailStatus {
 }
 
 model EmailMessage {
-  id        String      @id @default(cuid())
-  tenantId  String
-  toAddress String
-  subject   String
-  body      String
-  status    EmailStatus @default(ENTWURF)
-  error     String?
-  sentAt    DateTime?
-  createdAt DateTime    @default(now())
+  id          String            @id @default(cuid())
+  tenantId    String
+  toAddress   String // eine oder mehrere Adressen, kommagetrennt
+  cc          String?
+  bcc         String?
+  subject     String
+  body        String
+  status      EmailStatus       @default(ENTWURF)
+  error       String?
+  sentAt      DateTime?
+  attachments EmailAttachment[]
+  createdAt   DateTime          @default(now())
 
   @@index([tenantId])
+}
+
+// Angehängtes Dokument aus der Dokumentenablage.
+model EmailAttachment {
+  id         String       @id @default(cuid())
+  emailId    String
+  email      EmailMessage @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  documentId String
+  document   Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
 }
 
 // Kostenposition je Objekt und Abrechnungsjahr (BetrKV).
