@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HaVeWa — Hausverwaltung
 
-## Getting Started
+Vollständige Immobilienverwaltungssoftware für **Miet- und WEG-Verwaltung**.
+Mandantenfähig, rollenbasiert, zweisprachig (DE/EN).
 
-First, run the development server:
+## Funktionsumfang
+
+Objekte/Einheiten/Personen/Zähler · Mietverwaltung (Verträge, Staffel-/Indexmiete,
+Kaution) · Finanzen (Sollstellung, Zahlungen, offene Posten, SEPA-Mandate,
+Mahnwesen) · Betriebskostenabrechnung (BetrKV, Verteilerschlüssel-Engine) ·
+WEG (MEA, Wirtschaftsplan, Hausgeld, Jahresabrechnung, Rücklagen, Vermögensbericht) ·
+Eigentümerversammlung (Agenda, Abstimmung, Beschlusssammlung §24) ·
+Dokumente (GoBD, E-Rechnung) · Instandhaltung (Tickets, Handwerker, Wartung) ·
+Mieter-/Eigentümer-Portale · camt.053-Import + DATEV-/SEPA-Export · Dashboard.
+
+## Tech-Stack
+
+Next.js 16 (App Router) · TypeScript · PostgreSQL · Prisma · shadcn/ui + Tailwind ·
+next-intl · Auth.js · Vitest.
+
+## Lokale Entwicklung
+
+Voraussetzungen: Node 20+, Docker (für Postgres).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 1. Abhängigkeiten
+npm install
+
+# 2. Umgebungsvariablen
+cp .env.example .env        # DATABASE_URL zeigt auf localhost:5432
+
+# 3. Datenbank starten
+npm run db:up               # Postgres via docker-compose.yml
+
+# 4. Schema + Demo-Daten
+npm run db:migrate          # Migrationen anwenden
+npm run db:seed             # Demo-Mandant + Logins
+
+# 5. Dev-Server
+npm run dev                 # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Demo-Logins** (nach Seed): `admin@havewa.de / admin` (Verwalter),
+`mieter@havewa.de / mieter`, `eigentuemer@havewa.de / eigentuemer` (Portale).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | Zweck |
+|---|---|
+| `npm run dev` | Dev-Server |
+| `npm run build` / `npm start` | Produktions-Build / -Start |
+| `npm test` | Vitest (Allocation-Engine, Abrechnung, camt-Parser) |
+| `npm run db:up` | Postgres-Container (lokal) |
+| `npm run db:migrate` | Prisma-Migration (dev) |
+| `npm run db:seed` | Demo-Daten |
+| `npm run db:studio` | Prisma Studio |
 
-## Learn More
+## Projektstruktur
 
-To learn more about Next.js, take a look at the following resources:
+```
+prisma/schema.prisma          Datenmodell + Migrationen
+messages/{de,en}.json         Übersetzungen (neue Sprache = neue Datei)
+src/
+  app/[locale]/(admin)/...     Verwalter-App (interne Rollen)
+  app/[locale]/portal/...      Mieter-/Eigentümer-Portal
+  app/api/...                  Auth, Dokument-Download, Exporte
+  lib/allocation/              Verteilerschlüssel-Engine (Miet + WEG geteilt)
+  lib/adapters/                camt.053 / DATEV / SEPA / E-Rechnung
+  lib/storage.ts               Datei-Ablage (Dokumente)
+  server/actions/              Server Actions je Fachmodul (tenant-scoped, RBAC)
+  components/                  UI + Formular-Dialoge
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Persistenz
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Datenbank**: PostgreSQL (Prisma). Lokal im Docker-Volume `havewa-db`.
+- **Dokumente**: Dateisystem unter `storage/documents/` (bzw. Volume in Produktion),
+  gekapselt in `src/lib/storage.ts` — für Objektspeicher (S3/Blob) nur diese Datei tauschen.
 
-## Deploy on Vercel
+## Deployment (VPS + Docker)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ein einzelner Server mit Docker. App + Postgres + Volumes laufen per Compose.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# auf dem VPS
+git clone https://github.com/fgilde/hausverwaltung.git
+cd hausverwaltung
+
+# Secrets setzen
+cp .env.prod.example .env
+#   DB_PASSWORD  = starkes Passwort
+#   AUTH_SECRET  = openssl rand -base64 32
+
+# Build + Start (Migrationen laufen automatisch beim Container-Start)
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+- App: `http://<server>:3000` (davor idealerweise Reverse-Proxy wie Caddy/nginx für TLS).
+- **Persistenz**: `havewa-db` (Datenbank) + `havewa-storage` (Dokumente) als Docker-Volumes.
+- **Updates**: `git pull && docker compose -f docker-compose.prod.yml up -d --build`
+  (Migrationen werden beim Start via `prisma migrate deploy` angewandt).
+- **Demo-Daten** einmalig optional: `docker compose -f docker-compose.prod.yml exec app npx tsx prisma/seed.ts`
+
+### Umgebungsvariablen (Produktion)
+
+| Variable | Beschreibung |
+|---|---|
+| `DB_PASSWORD` | Postgres-Passwort (Compose baut daraus `DATABASE_URL`) |
+| `AUTH_SECRET` | Session-Secret (`openssl rand -base64 32`) |
+
+## Bekannte Vereinfachungen
+
+Als `ponytail:`-Kommentare im Code markiert: HeizkostenV-Verbrauchsumlage fällt
+mangels Zählerintegration auf Fläche zurück · DATEV-Export ist vereinfachtes CSV
+(kein zertifiziertes EXTF) · E-Rechnung wird erkannt, aber XML-Felder noch nicht
+geparst · KI-Features sind regelbasierte Hinweise (keine LLM-Anbindung).

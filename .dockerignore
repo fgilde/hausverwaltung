@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+storage
+.env
+.env.*
+!.env.prod.example
+npm-debug.log*
+docs
+*.md
