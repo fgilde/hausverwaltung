@@ -48,6 +48,8 @@ export default async function CalendarPage({
     prisma.property.findMany({ where: { tenantId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
+  const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
+
   const events: CalEvent[] = [
     ...appointments.map((a) => ({
       day: new Date(a.start).getUTCDate(),
@@ -101,7 +103,7 @@ export default async function CalendarPage({
           <h1 className="text-2xl font-semibold tracking-tight">{t("calendar.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("calendar.subtitle")}</p>
         </div>
-        <AppointmentDialog properties={properties.map((p) => ({ value: p.id, label: p.name }))} />
+        <AppointmentDialog properties={propertyOpts} />
       </div>
 
       <Card>
@@ -183,7 +185,22 @@ export default async function CalendarPage({
                     </div>
                   </div>
                 </div>
-                <DeleteButton action={deleteAppointment} id={a.id} />
+                <div className="flex items-center gap-1">
+                  <AppointmentDialog
+                    properties={propertyOpts}
+                    appointment={{
+                      id: a.id,
+                      title: a.title,
+                      type: a.type,
+                      start: a.start.toISOString(),
+                      end: a.end ? a.end.toISOString() : null,
+                      location: a.location,
+                      propertyId: a.propertyId,
+                      note: a.note,
+                    }}
+                  />
+                  <DeleteButton action={deleteAppointment} id={a.id} />
+                </div>
               </div>
             ))
           )}

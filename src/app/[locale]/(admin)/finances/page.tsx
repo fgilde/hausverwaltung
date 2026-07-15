@@ -14,7 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download } from "lucide-react";
+import { Download, Printer } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import {
   AccountDialog,
   GenerateDialog,
@@ -163,6 +164,16 @@ export default async function FinancesPage() {
                               <Bell className="size-4" />
                             </Button>
                           </form>
+                        )}
+                        {dunLevel > 0 && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t("print.printPdf")}
+                            render={<Link href={`/print/dunning?chargeId=${c.id}`} target="_blank" />}
+                          >
+                            <Printer className="size-4" />
+                          </Button>
                         )}
                         <DeleteButton action={deleteCharge} id={c.id} />
                       </div>

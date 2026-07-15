@@ -72,7 +72,7 @@ export default async function PortalPage() {
         <h1 className="text-2xl font-semibold tracking-tight">
           {t("portal.welcome")}, {user.name}
         </h1>
-        <p className="text-sm text-muted-foreground">{user.role}</p>
+        <p className="text-sm text-muted-foreground">{t(`userRole.${user.role}`)}</p>
       </div>
 
       {/* Mieter: Mietverhältnisse */}

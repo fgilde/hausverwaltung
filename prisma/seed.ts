@@ -1,7 +1,56 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 
 const prisma = new PrismaClient();
+
+const STORAGE = path.join(process.cwd(), "storage", "documents");
+
+/** Minimales, gültiges einseitiges PDF (ASCII) mit Titel + Textzeilen. */
+function simplePdf(title: string, lines: string[]): Buffer {
+  const esc = (s: string) => s.replace(/([()\\])/g, "\\$1");
+  const content =
+    `BT /F1 20 Tf 60 780 Td (${esc(title)}) Tj ET ` +
+    `BT /F1 11 Tf 60 740 Td 16 TL ` +
+    lines.map((l) => `(${esc(l)}) Tj T*`).join(" ") +
+    ` ET`;
+  const objs: string[] = [];
+  objs[1] = `<< /Type /Catalog /Pages 2 0 R >>`;
+  objs[2] = `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`;
+  objs[3] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>`;
+  objs[4] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`;
+  objs[5] = `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`;
+  let pdf = "%PDF-1.4\n";
+  const offsets: number[] = [];
+  for (let i = 1; i <= 5; i++) {
+    offsets[i] = Buffer.byteLength(pdf, "latin1");
+    pdf += `${i} 0 obj\n${objs[i]}\nendobj\n`;
+  }
+  const xrefStart = Buffer.byteLength(pdf, "latin1");
+  pdf += `xref\n0 6\n0000000000 65535 f \n`;
+  for (let i = 1; i <= 5; i++) pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
+  pdf += `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+  return Buffer.from(pdf, "latin1");
+}
+
+// Echte ZUGFeRD/CII-Beispielrechnung (passt zu invoiceNo/invoiceTotal unten).
+const ZUGFERD_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryInvoice xmlns:rsm="urn:un:cefact" xmlns:ram="urn:ram" xmlns:udt="urn:udt">
+  <rsm:ExchangedDocument><ram:ID>RE-2026-0042</ram:ID>
+    <ram:IssueDateTime><udt:DateTimeString format="102">20260114</udt:DateTimeString></ram:IssueDateTime></rsm:ExchangedDocument>
+  <rsm:SupplyChainTradeTransaction>
+    <ram:ApplicableHeaderTradeAgreement><ram:SellerTradeParty><ram:Name>Hausmeister Service GmbH</ram:Name></ram:SellerTradeParty></ram:ApplicableHeaderTradeAgreement>
+    <ram:ApplicableHeaderTradeSettlement><ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+      <ram:SpecifiedTradeSettlementHeaderMonetarySummation><ram:GrandTotalAmount>8400.00</ram:GrandTotalAmount></ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+    </ram:ApplicableHeaderTradeSettlement>
+  </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>`;
+
+async function writeStorage(key: string, buf: Buffer) {
+  await fs.mkdir(STORAGE, { recursive: true });
+  await fs.writeFile(path.join(STORAGE, key), buf);
+}
 
 async function main() {
   const tenant = await prisma.tenant.create({
@@ -286,12 +335,29 @@ async function main() {
     ],
   });
 
-  // Dokumente (inkl. E-Rechnung mit extrahierten Feldern)
+  // Dokumente — echte Dateien in den Storage schreiben (Demo)
+  const vertragPdf = simplePdf("Mietvertrag", [
+    "Mieter: Erika Mustermann",
+    "Objekt: Wohnanlage Lindenstrasse, EG links",
+    "Kaltmiete: 780,00 EUR / Monat",
+    "Beginn: 01.01.2024, unbefristet",
+  ]);
+  const protokollPdf = simplePdf("Protokoll Eigentuemerversammlung 2025", [
+    "WEG Parkblick, Am Park 5, Muenchen",
+    "TOP 1: Genehmigung der Jahresabrechnung 2025 - angenommen",
+    "TOP 2: Wirtschaftsplan 2026 - angenommen",
+    "TOP 3: Fassadensanierung - vertagt",
+  ]);
+  const erechnungXml = Buffer.from(ZUGFERD_XML, "utf-8");
+  await writeStorage("seed-vertrag.pdf", vertragPdf);
+  await writeStorage("seed-protokoll.pdf", protokollPdf);
+  await writeStorage("seed-erechnung.xml", erechnungXml);
+
   await prisma.document.createMany({
     data: [
-      { tenantId: tenant.id, propertyId: mietProp.id, name: "Mietvertrag Mustermann.pdf", category: "VERTRAG", mime: "application/pdf", size: 245000, storageKey: "seed-vertrag.pdf" },
-      { tenantId: tenant.id, propertyId: mietProp.id, name: "Heizkostenrechnung 2025 (ZUGFeRD)", category: "ERECHNUNG", mime: "application/xml", size: 18400, storageKey: "seed-erechnung.xml", eInvoice: true, invoiceNo: "RE-2026-0042", invoiceTotal: 8400.0 },
-      { tenantId: tenant.id, propertyId: wegProp.id, name: "Protokoll ETV 2025.pdf", category: "PROTOKOLL", mime: "application/pdf", size: 512000, storageKey: "seed-protokoll.pdf" },
+      { tenantId: tenant.id, propertyId: mietProp.id, name: "Mietvertrag Mustermann.pdf", category: "VERTRAG", mime: "application/pdf", size: vertragPdf.length, storageKey: "seed-vertrag.pdf" },
+      { tenantId: tenant.id, propertyId: mietProp.id, name: "Heizkostenrechnung 2025 (ZUGFeRD).xml", category: "ERECHNUNG", mime: "application/xml", size: erechnungXml.length, storageKey: "seed-erechnung.xml", eInvoice: true, invoiceNo: "RE-2026-0042", invoiceTotal: 8400.0 },
+      { tenantId: tenant.id, propertyId: wegProp.id, name: "Protokoll ETV 2025.pdf", category: "PROTOKOLL", mime: "application/pdf", size: protokollPdf.length, storageKey: "seed-protokoll.pdf" },
     ],
   });
 

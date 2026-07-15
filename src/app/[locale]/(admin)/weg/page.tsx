@@ -17,6 +17,8 @@ import {
 import { OwnerDialog, PlanDialog, ReserveDialog, ReserveTxDialog } from "@/components/weg-dialogs";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteOwner, deleteReserve, deleteReserveTx } from "@/server/actions/weg";
+import { Link } from "@/i18n/navigation";
+import { Printer } from "lucide-react";
 
 export default async function WegPage({
   searchParams,
@@ -87,9 +89,21 @@ export default async function WegPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("weg.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("weg.subtitle")}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("weg.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("weg.subtitle")}</p>
+        </div>
+        {actualTotal > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href={`/print/weg?propertyId=${propertyId}&year=${year}`} target="_blank" />}
+          >
+            <Printer className="size-4" />
+            {t("print.printPdf")}
+          </Button>
+        )}
       </div>
 
       <form className="flex flex-wrap items-end gap-3">

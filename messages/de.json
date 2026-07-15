@@ -365,7 +365,11 @@
     "arrears": "Nachzahlung",
     "total": "Summe umlagefähig",
     "noUnits": "Objekt hat keine Einheiten.",
-    "hint": "Saldo positiv = Guthaben (Rückzahlung), negativ = Nachzahlung. Heiz-/Warmwasserkosten werden nach HeizkostenV zu 30 % nach Fläche und 70 % nach gemessenem Verbrauch verteilt."
+    "hint": "Saldo positiv = Guthaben (Rückzahlung), negativ = Nachzahlung. Heiz-/Warmwasserkosten werden nach HeizkostenV zu 30 % nach Fläche und 70 % nach gemessenem Verbrauch verteilt.",
+    "bookCharges": "Nachzahlungen buchen",
+    "mailTenants": "An Mieter mailen",
+    "charged": "Nachzahlungen als Sollstellung gebucht.",
+    "mailed": "Abrechnungs-Entwürfe im Postausgang erstellt."
   },
   "costType": {
     "GRUNDSTEUER": "Grundsteuer",
@@ -588,7 +592,14 @@
   },
   "print": {
     "printPdf": "Druckansicht / PDF",
-    "heatingNote": "Heiz- und Warmwasserkosten wurden gemäß HeizkostenV zu 30 % nach Wohnfläche und 70 % nach gemessenem Verbrauch verteilt."
+    "heatingNote": "Heiz- und Warmwasserkosten wurden gemäß HeizkostenV zu 30 % nach Wohnfläche und 70 % nach gemessenem Verbrauch verteilt.",
+    "reminderTitle": "Zahlungserinnerung",
+    "dunningTitle": "Mahnung",
+    "dunningIntro": "für die Einheit {unit} ist folgender Betrag noch offen:",
+    "dunningFee": "Mahngebühr",
+    "dunningTotal": "Offener Gesamtbetrag",
+    "dunningRequest": "Wir bitten Sie, den offenen Betrag innerhalb von 14 Tagen auf unser Konto zu überweisen. Sollten Sie die Zahlung bereits veranlasst haben, betrachten Sie dieses Schreiben als gegenstandslos.",
+    "regards": "Mit freundlichen Grüßen"
   },
   "search": {
     "title": "Suche",

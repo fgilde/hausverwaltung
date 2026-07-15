@@ -365,7 +365,11 @@
     "arrears": "Arrears",
     "total": "Total allocatable",
     "noUnits": "Property has no units.",
-    "hint": "Positive balance = credit (refund), negative = arrears. Heating and hot-water costs are split per the German HeizkostenV: 30% by area, 70% by metered consumption."
+    "hint": "Positive balance = credit (refund), negative = arrears. Heating and hot-water costs are split per the German HeizkostenV: 30% by area, 70% by metered consumption.",
+    "bookCharges": "Book arrears",
+    "mailTenants": "Email to tenants",
+    "charged": "Arrears booked as charges.",
+    "mailed": "Statement drafts created in the outbox."
   },
   "costType": {
     "GRUNDSTEUER": "Property tax",
@@ -588,7 +592,14 @@
   },
   "print": {
     "printPdf": "Print / PDF",
-    "heatingNote": "Heating and hot-water costs were split per the German HeizkostenV: 30% by living area and 70% by metered consumption."
+    "heatingNote": "Heating and hot-water costs were split per the German HeizkostenV: 30% by living area and 70% by metered consumption.",
+    "reminderTitle": "Payment reminder",
+    "dunningTitle": "Dunning notice",
+    "dunningIntro": "the following amount is still outstanding for unit {unit}:",
+    "dunningFee": "Dunning fee",
+    "dunningTotal": "Total amount due",
+    "dunningRequest": "Please transfer the outstanding amount to our account within 14 days. If you have already made the payment, please disregard this letter.",
+    "regards": "Kind regards"
   },
   "search": {
     "title": "Search",

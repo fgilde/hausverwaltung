@@ -1,9 +1,9 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import { Printer } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money } from "@/lib/format";
-import { buildStatement, type UnitInput, type CostInput } from "@/lib/allocation/statement";
-import type { AllocationMethod } from "@/lib/allocation";
+import { computeStatement } from "@/server/statements";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,8 +18,8 @@ import {
 import { CostDialog } from "@/components/cost-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteCost } from "@/server/actions/costs";
+import { StatementActions } from "@/components/statement-actions";
 import { Link } from "@/i18n/navigation";
-import { Printer } from "lucide-react";
 
 export default async function StatementsPage({
   searchParams,
@@ -41,80 +41,10 @@ export default async function StatementsPage({
   const propertyId = sp.propertyId || properties[0]?.id;
   const year = Number(sp.year) || new Date().getFullYear();
 
-  let units: UnitInput[] = [];
-  let costRows: { id: string; type: string; amount: number; method: string; umlagefaehig: boolean; note: string | null }[] = [];
-
-  if (propertyId) {
-    const [dbUnits, costs] = await Promise.all([
-      prisma.unit.findMany({
-        where: { tenantId, building: { propertyId } },
-        include: {
-          leases: {
-            where: {
-              startDate: { lte: new Date(Date.UTC(year, 11, 31)) },
-              OR: [{ endDate: null }, { endDate: { gte: new Date(Date.UTC(year, 0, 1)) } }],
-            },
-            include: { components: true },
-            orderBy: { startDate: "desc" },
-            take: 1,
-          },
-          meters: {
-            where: { type: { in: ["WAERME", "WASSER_WARM"] } },
-            include: {
-              readings: {
-                where: {
-                  date: { gte: new Date(Date.UTC(year, 0, 1)), lte: new Date(Date.UTC(year, 11, 31)) },
-                },
-                orderBy: { value: "asc" },
-              },
-            },
-          },
-        },
-      }),
-      prisma.costEntry.findMany({ where: { tenantId, propertyId, year }, orderBy: { type: "asc" } }),
-    ]);
-
-    units = dbUnits.map((u) => {
-      const lease = u.leases[0];
-      const prepaymentMonthly = lease
-        ? lease.components
-            .filter((c) => c.type === "NEBENKOSTEN" || c.type === "HEIZKOSTEN")
-            .reduce((a, c) => a + Number(c.amount), 0)
-        : 0;
-      // Jahresverbrauch je Wärme-/Warmwasserzähler = höchster minus niedrigster Stand im Jahr.
-      const consumption = u.meters.reduce((sum, m) => {
-        const vals = m.readings.map((r) => Number(r.value));
-        return sum + (vals.length >= 2 ? vals[vals.length - 1] - vals[0] : 0);
-      }, 0);
-      return {
-        id: u.id,
-        label: u.label,
-        area: Number(u.area),
-        persons: lease?.personCount ?? 1,
-        mea: u.mea ?? undefined,
-        prepayment: prepaymentMonthly * 12,
-        consumption,
-      };
-    });
-
-    costRows = costs.map((c) => ({
-      id: c.id,
-      type: c.type,
-      amount: Number(c.amount),
-      method: c.method,
-      umlagefaehig: c.umlagefaehig,
-      note: c.note,
-    }));
-  }
-
-  const costInputs: CostInput[] = costRows.map((c) => ({
-    id: c.id,
-    amount: c.amount,
-    method: c.method as AllocationMethod,
-    umlagefaehig: c.umlagefaehig,
-    heating: c.type === "HEIZUNG" || c.type === "WARMWASSER",
-  }));
-  const { lines, totalUmlage } = buildStatement(units, costInputs);
+  const st = propertyId ? await computeStatement(tenantId, propertyId, year) : null;
+  const costRows = st?.costs ?? [];
+  const lines = st?.units ?? [];
+  const totalUmlage = st?.totalUmlage ?? 0;
   const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
   return (
@@ -140,29 +70,17 @@ export default async function StatementsPage({
       <form className="flex flex-wrap items-end gap-3">
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">{t("statements.selectProperty")}</label>
-          <select
-            name="propertyId"
-            defaultValue={propertyId}
-            className="flex h-9 rounded-lg border border-input bg-transparent px-3 text-sm dark:bg-input/30"
-          >
+          <select name="propertyId" defaultValue={propertyId} className="flex h-9 rounded-lg border border-input bg-transparent px-3 text-sm dark:bg-input/30">
             {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
+              <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
         </div>
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">{t("statements.year")}</label>
-          <select
-            name="year"
-            defaultValue={year}
-            className="flex h-9 rounded-lg border border-input bg-transparent px-3 text-sm dark:bg-input/30"
-          >
+          <select name="year" defaultValue={year} className="flex h-9 rounded-lg border border-input bg-transparent px-3 text-sm dark:bg-input/30">
             {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
+              <option key={y} value={y}>{y}</option>
             ))}
           </select>
         </div>
@@ -218,12 +136,15 @@ export default async function StatementsPage({
 
       {/* Ergebnis */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("statements.result")}</CardTitle>
-          <p className="text-xs text-muted-foreground">{t("statements.hint")}</p>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="text-base">{t("statements.result")}</CardTitle>
+            <p className="text-xs text-muted-foreground">{t("statements.hint")}</p>
+          </div>
+          {propertyId && lines.length > 0 && <StatementActions propertyId={propertyId} year={year} />}
         </CardHeader>
         <CardContent className="p-0">
-          {units.length === 0 ? (
+          {lines.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">{t("statements.noUnits")}</p>
           ) : (
             <Table>
@@ -237,7 +158,7 @@ export default async function StatementsPage({
               </TableHeader>
               <TableBody>
                 {lines.map((l) => (
-                  <TableRow key={l.unitId}>
+                  <TableRow key={l.id}>
                     <TableCell className="font-medium">{l.label}</TableCell>
                     <TableCell className="text-right">{money(l.allocated, locale)}</TableCell>
                     <TableCell className="text-right">{money(l.prepayment, locale)}</TableCell>
