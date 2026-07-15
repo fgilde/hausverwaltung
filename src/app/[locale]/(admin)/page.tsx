@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField } from "@/components/form-fields";
 import { createTask, toggleTask, deleteTask } from "@/server/actions/tasks";
+import { AiAssistant } from "@/components/ai-assistant";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -204,6 +205,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <AiAssistant />
 
       <Card>
         <CardHeader>

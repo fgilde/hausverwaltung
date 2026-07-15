@@ -18,6 +18,8 @@ import {
 import { CostDialog } from "@/components/cost-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteCost } from "@/server/actions/costs";
+import { Link } from "@/i18n/navigation";
+import { Printer } from "lucide-react";
 
 export default async function StatementsPage({
   searchParams,
@@ -56,6 +58,17 @@ export default async function StatementsPage({
             orderBy: { startDate: "desc" },
             take: 1,
           },
+          meters: {
+            where: { type: { in: ["WAERME", "WASSER_WARM"] } },
+            include: {
+              readings: {
+                where: {
+                  date: { gte: new Date(Date.UTC(year, 0, 1)), lte: new Date(Date.UTC(year, 11, 31)) },
+                },
+                orderBy: { value: "asc" },
+              },
+            },
+          },
         },
       }),
       prisma.costEntry.findMany({ where: { tenantId, propertyId, year }, orderBy: { type: "asc" } }),
@@ -68,6 +81,11 @@ export default async function StatementsPage({
             .filter((c) => c.type === "NEBENKOSTEN" || c.type === "HEIZKOSTEN")
             .reduce((a, c) => a + Number(c.amount), 0)
         : 0;
+      // Jahresverbrauch je Wärme-/Warmwasserzähler = höchster minus niedrigster Stand im Jahr.
+      const consumption = u.meters.reduce((sum, m) => {
+        const vals = m.readings.map((r) => Number(r.value));
+        return sum + (vals.length >= 2 ? vals[vals.length - 1] - vals[0] : 0);
+      }, 0);
       return {
         id: u.id,
         label: u.label,
@@ -75,6 +93,7 @@ export default async function StatementsPage({
         persons: lease?.personCount ?? 1,
         mea: u.mea ?? undefined,
         prepayment: prepaymentMonthly * 12,
+        consumption,
       };
     });
 
@@ -93,15 +112,28 @@ export default async function StatementsPage({
     amount: c.amount,
     method: c.method as AllocationMethod,
     umlagefaehig: c.umlagefaehig,
+    heating: c.type === "HEIZUNG" || c.type === "WARMWASSER",
   }));
   const { lines, totalUmlage } = buildStatement(units, costInputs);
   const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("statements.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("statements.subtitle")}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("statements.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("statements.subtitle")}</p>
+        </div>
+        {propertyId && costRows.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href={`/print/statement?propertyId=${propertyId}&year=${year}`} target="_blank" />}
+          >
+            <Printer className="size-4" />
+            {t("print.printPdf")}
+          </Button>
+        )}
       </div>
 
       {/* Selektor */}

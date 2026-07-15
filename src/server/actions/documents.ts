@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { saveFile, deleteFile } from "@/lib/storage";
-import { isEInvoice } from "@/lib/adapters/erechnung";
+import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import type { ActionState } from "@/lib/schemas";
 
 const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -29,6 +29,9 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
   const storageKey = await saveFile(buffer, file.name);
   const eInvoice = isEInvoice(file.type, file.name) || category === "ERECHNUNG";
 
+  // E-Rechnung automatisch auslesen (nur XML-Syntaxen; PDF/A-3-Einbettung = Ceiling).
+  const parsed = eInvoice ? parseEInvoice(buffer, file.type) : null;
+
   await prisma.document.create({
     data: {
       tenantId: user.tenantId,
@@ -39,6 +42,8 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
       size: file.size,
       storageKey,
       eInvoice,
+      invoiceNo: parsed?.invoiceNumber ?? null,
+      invoiceTotal: parsed?.total ?? null,
     },
   });
   revalidatePath("/", "layout");

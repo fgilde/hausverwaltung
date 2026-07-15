@@ -41,9 +41,13 @@
     "tickets": "Maintenance",
     "documents": "Documents",
     "settings": "Settings",
+    "calendar": "Calendar",
+    "email": "Outbox",
+    "audit": "Audit log",
     "groupManagement": "Management",
     "groupFinance": "Finance & Statements",
-    "groupOperations": "Operations"
+    "groupOperations": "Operations",
+    "groupAdmin": "Administration"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -110,7 +114,8 @@
     "iban": "IBAN",
     "mandateRef": "Mandate reference",
     "signedDate": "Signed on",
-    "amount": "Amount"
+    "amount": "Amount",
+    "note": "Note"
   },
   "properties": {
     "title": "Properties",
@@ -315,7 +320,7 @@
     "arrears": "Arrears",
     "total": "Total allocatable",
     "noUnits": "Property has no units.",
-    "hint": "Positive balance = credit (refund), negative = arrears."
+    "hint": "Positive balance = credit (refund), negative = arrears. Heating and hot-water costs are split per the German HeizkostenV: 30% by area, 70% by metered consumption."
   },
   "costType": {
     "GRUNDSTEUER": "Property tax",
@@ -472,5 +477,75 @@
     "annual": "Annual statement",
     "actualTotal": "Total actual cost",
     "noActual": "No actual costs (cost items) for this year."
+  },
+  "assistant": {
+    "title": "AI assistant",
+    "placeholder": "Ask about your portfolio…",
+    "ask": "Ask",
+    "thinking": "Thinking…",
+    "notConfigured": "Without ANTHROPIC_API_KEY the assistant only shows a metrics summary. Set the key for real AI answers."
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Appointments, deadlines, maintenance and meetings at a glance",
+    "add": "Appointment",
+    "start": "Start",
+    "end": "End",
+    "today": "Today",
+    "upcoming": "This month's appointments",
+    "empty": "No appointments this month.",
+    "legendAppointment": "Appointment",
+    "legendMaintenance": "Maintenance",
+    "legendMeeting": "Meeting"
+  },
+  "appointmentType": {
+    "BESICHTIGUNG": "Viewing",
+    "VERSAMMLUNG": "Meeting",
+    "WARTUNG": "Maintenance",
+    "FRIST": "Deadline",
+    "SONSTIGES": "Other"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Traceability of all changes (GoBD)",
+    "empty": "No entries yet.",
+    "time": "Time",
+    "user": "User",
+    "action": "Action",
+    "entity": "Entity",
+    "summary": "Description"
+  },
+  "auditAction": {
+    "CREATE": "Created",
+    "UPDATE": "Updated",
+    "DELETE": "Deleted"
+  },
+  "email": {
+    "title": "Outbox",
+    "subtitle": "Compose and send emails to tenants and owners",
+    "compose": "New email",
+    "to": "Recipient",
+    "subject": "Subject",
+    "body": "Message",
+    "status": "Status",
+    "send": "Send",
+    "empty": "No emails in the outbox.",
+    "noSmtp": "No SMTP configured (SMTP_HOST missing) — emails are recorded and marked as sent in the outbox, but not actually delivered."
+  },
+  "emailStatus": {
+    "ENTWURF": "Draft",
+    "GESENDET": "Sent",
+    "FEHLER": "Error"
+  },
+  "print": {
+    "printPdf": "Print / PDF",
+    "heatingNote": "Heating and hot-water costs were split per the German HeizkostenV: 30% by living area and 70% by metered consumption."
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Properties, units, people…",
+    "prompt": "Enter a search term to search properties, units, people and leases.",
+    "resultsFor": "{count, plural, one {# result} other {# results}} for “{q}”",
+    "noResults": "No results."
   }
 }

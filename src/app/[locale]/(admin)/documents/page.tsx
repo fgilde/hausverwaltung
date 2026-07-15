@@ -2,7 +2,7 @@ import { Download, FileText } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { date } from "@/lib/format";
+import { date, money } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,6 +75,13 @@ export default async function DocumentsPage() {
                         {d.name}
                         {d.eInvoice && <Badge variant="secondary">{t("documents.eInvoice")}</Badge>}
                       </span>
+                      {(d.invoiceNo || d.invoiceTotal) && (
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          {d.invoiceNo ? `Nr. ${d.invoiceNo}` : ""}
+                          {d.invoiceNo && d.invoiceTotal ? " · " : ""}
+                          {d.invoiceTotal ? money(Number(d.invoiceTotal), locale) : ""}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell>{t(`documentCategory.${d.category}`)}</TableCell>
                     <TableCell className="text-muted-foreground">

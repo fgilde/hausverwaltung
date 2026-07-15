@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HaVeWa — Hausverwaltung für Miet- und WEG-Verwaltung</title>
+<meta name="description" content="HaVeWa ist die moderne Software für Miet- und WEG-Verwaltung: Betriebskostenabrechnung, HeizkostenV 30/70, WEG-Jahresabrechnung, Versammlungen, Finanzen, Portale und KI-Assistent — DSGVO- und GoBD-orientiert." />
+<style>
+/* ============ Design Tokens ============ */
+:root{
+  --paper:#F6F3EC;
+  --surface:#FFFFFF;
+  --surface-2:#FBF9F4;
+  --ink:#16130E;
+  --ink-soft:#413B31;
+  --muted:#6E675B;
+  --border:#E6E0D5;
+  --border-strong:#D6CEBF;
+  --pine:#1E4E3C;
+  --pine-600:#20583F;
+  --pine-050:#E9F0EB;
+  --brass:#A9772E;
+  --brass-050:#F5ECDC;
+  --danger:#B23A34;
+  --shadow-sm:0 1px 2px rgba(24,20,12,.05), 0 1px 3px rgba(24,20,12,.04);
+  --shadow-md:0 8px 24px -12px rgba(24,20,12,.20), 0 2px 6px rgba(24,20,12,.05);
+  --shadow-lg:0 40px 80px -32px rgba(24,20,12,.35), 0 12px 32px -16px rgba(24,20,12,.18);
+  --radius:18px;
+  --radius-sm:12px;
+  --radius-lg:26px;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --maxw:1180px;
+}
+:root[data-theme="dark"]{
+  --paper:#100E0B;
+  --surface:#191712;
+  --surface-2:#211E18;
+  --ink:#F3EFE6;
+  --ink-soft:#D8D2C5;
+  --muted:#9A9284;
+  --border:#2C2820;
+  --border-strong:#3A362C;
+  --pine:#5FB894;
+  --pine-600:#6FC5A2;
+  --pine-050:#182420;
+  --brass:#D6A85C;
+  --brass-050:#241d10;
+  --danger:#E27a72;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow-md:0 10px 30px -14px rgba(0,0,0,.7);
+  --shadow-lg:0 50px 90px -34px rgba(0,0,0,.8), 0 14px 34px -18px rgba(0,0,0,.6);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#100E0B;--surface:#191712;--surface-2:#211E18;--ink:#F3EFE6;--ink-soft:#D8D2C5;--muted:#9A9284;
+    --border:#2C2820;--border-strong:#3A362C;--pine:#5FB894;--pine-600:#6FC5A2;--pine-050:#182420;
+    --brass:#D6A85C;--brass-050:#241d10;--danger:#E27a72;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 10px 30px -14px rgba(0,0,0,.7);
+    --shadow-lg:0 50px 90px -34px rgba(0,0,0,.8), 0 14px 34px -18px rgba(0,0,0,.6);
+  }
+}
+
+/* ============ Base ============ */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;line-height:1.08;margin:0}
+p{margin:0}
+::selection{background:var(--pine);color:#fff}
+:focus-visible{outline:2.5px solid var(--pine);outline-offset:3px;border-radius:6px}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.eyebrow{
+  font-family:var(--sans);font-size:12.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--pine);margin-bottom:16px;display:inline-flex;gap:8px;align-items:center;
+}
+.eyebrow::before{content:"";width:22px;height:1.5px;background:var(--pine);display:inline-block}
+.section{padding:104px 0}
+.section-head{max-width:660px;margin-bottom:52px}
+.section-head h2{font-size:clamp(30px,4vw,46px);margin-bottom:18px}
+.section-head p{color:var(--muted);font-size:19px}
+.muted{color:var(--muted)}
+
+/* ============ Buttons ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--sans);font-size:15.5px;font-weight:600;
+  padding:13px 22px;border-radius:12px;border:1px solid transparent;cursor:pointer;
+  transition:transform .18s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease;
+  white-space:nowrap;
+}
+.btn svg{width:17px;height:17px}
+.btn-primary{background:var(--ink);color:var(--paper);box-shadow:var(--shadow-sm)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-accent{background:var(--pine);color:#fff}
+.btn-accent:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);background:var(--pine-600)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--border-strong)}
+.btn-ghost:hover{background:var(--surface);border-color:var(--muted);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
+
+/* ============ Header ============ */
+header.site{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb,var(--paper) 82%,transparent);
+  backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .3s,background .3s;
+}
+header.site.scrolled{border-bottom-color:var(--border);background:color-mix(in srgb,var(--paper) 94%,transparent)}
+.nav{display:flex;align-items:center;gap:28px;height:72px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700}
+.brand .mark{width:38px;height:38px;border-radius:11px;background:var(--ink);color:var(--paper);display:grid;place-items:center;flex:none}
+.brand .mark svg{width:21px;height:21px}
+.brand .name{font-family:var(--serif);font-size:21px;letter-spacing:-.01em;line-height:1}
+.brand .sub{font-size:11px;color:var(--muted);letter-spacing:.02em;font-weight:500}
+.nav-links{display:flex;gap:6px;margin-left:14px}
+.nav-links a{padding:9px 14px;border-radius:9px;font-size:15px;font-weight:500;color:var(--ink-soft);transition:background .18s,color .18s}
+.nav-links a:hover{background:var(--surface);color:var(--ink)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.icon-btn{
+  width:40px;height:40px;border-radius:11px;border:1px solid var(--border-strong);
+  background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;
+  transition:transform .18s,border-color .18s;flex:none;
+}
+.icon-btn:hover{transform:translateY(-1px);border-color:var(--muted)}
+.icon-btn svg{width:19px;height:19px}
+.theme-sun{display:none}
+:root[data-theme="dark"] .theme-sun{display:block}
+:root[data-theme="dark"] .theme-moon{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .theme-sun{display:block}:root:not([data-theme="light"]) .theme-moon{display:none}}
+.menu-btn{display:none}
+@media(max-width:920px){
+  .nav-links{display:none}
+  .nav-links.open{display:flex;position:absolute;top:72px;left:0;right:0;flex-direction:column;background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px 20px;gap:2px;box-shadow:var(--shadow-md)}
+  .nav-links.open a{padding:12px 10px}
+  .menu-btn{display:grid}
+  .nav-cta-desktop{display:none}
+}
+
+/* ============ Hero ============ */
+.hero{position:relative;padding:74px 0 40px;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(60% 55% at 80% -5%,var(--pine-050) 0%,transparent 60%),
+    radial-gradient(50% 45% at 8% 8%,var(--brass-050) 0%,transparent 55%);
+  opacity:.9;
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:36px}}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink-soft);
+  background:var(--surface);border:1px solid var(--border);padding:7px 14px;border-radius:999px;box-shadow:var(--shadow-sm);margin-bottom:24px;
+}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--pine);box-shadow:0 0 0 3px var(--pine-050)}
+.hero h1{font-size:clamp(38px,5.6vw,62px);letter-spacing:-.025em}
+.hero h1 em{font-style:italic;color:var(--pine)}
+.hero .lead{font-size:20px;color:var(--muted);margin:24px 0 32px;max-width:540px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:20px 26px;margin-top:32px;font-size:14px;color:var(--muted)}
+.hero-meta span{display:inline-flex;align-items:center;gap:8px}
+.hero-meta svg{width:16px;height:16px;color:var(--pine)}
+
+/* ============ Browser frame ============ */
+.frame{
+  border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow-lg);overflow:hidden;
+}
+.frame-bar{display:flex;align-items:center;gap:7px;padding:12px 15px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.frame-bar .dots{display:flex;gap:6px}
+.frame-bar .dots i{width:11px;height:11px;border-radius:50%;background:var(--border-strong);display:block}
+.frame-bar .url{
+  flex:1;margin-left:10px;height:26px;border-radius:8px;background:var(--paper);border:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--muted);gap:7px;max-width:340px;
+}
+.frame-bar .url svg{width:12px;height:12px}
+.frame img{width:100%;display:block}
+.hero-frame{position:relative}
+.hero-float{
+  position:absolute;left:-26px;bottom:34px;background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;box-shadow:var(--shadow-md);padding:13px 16px;display:flex;gap:12px;align-items:center;max-width:230px;
+}
+.hero-float .ic{width:36px;height:36px;border-radius:10px;background:var(--pine-050);color:var(--pine);display:grid;place-items:center;flex:none}
+.hero-float .ic svg{width:19px;height:19px}
+.hero-float b{font-size:14px;display:block}
+.hero-float small{color:var(--muted);font-size:12px}
+@media(max-width:1080px){.hero-float{display:none}}
+
+/* ============ Trust / stats ============ */
+.trust{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface-2)}
+.trust-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:44px 0}
+@media(max-width:760px){.trust-inner{grid-template-columns:repeat(2,1fr);gap:28px 20px}}
+.stat .num{font-family:var(--serif);font-size:clamp(34px,4vw,46px);color:var(--ink);letter-spacing:-.02em;line-height:1}
+.stat .num em{color:var(--pine);font-style:normal}
+.stat .lbl{font-size:14.5px;color:var(--muted);margin-top:8px}
+
+/* ============ Feature groups ============ */
+.group{margin-bottom:56px}
+.group:last-child{margin-bottom:0}
+.group-head{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.group-head .tag{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border-radius:8px}
+.tag.miet{background:var(--pine-050);color:var(--pine)}
+.tag.weg{background:var(--brass-050);color:var(--brass)}
+.tag.betrieb{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink-soft)}
+.group-head h3{font-size:24px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.cards{grid-template-columns:1fr}}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 24px;
+  box-shadow:var(--shadow-sm);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+@media (prefers-reduced-motion:reduce){.card:hover{transform:none}}
+.card .ic{width:44px;height:44px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border);color:var(--pine);display:grid;place-items:center;margin-bottom:18px}
+.card .ic svg{width:22px;height:22px}
+.card h4{font-family:var(--sans);font-size:17px;font-weight:700;margin:0 0 8px}
+.card p{font-size:14.5px;color:var(--muted);line-height:1.55}
+
+/* ============ Showcase (tabs) ============ */
+.showcase{background:var(--surface-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.tab{
+  font-family:var(--sans);font-size:14.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+  padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+  transition:all .18s;
+}
+.tab:hover{border-color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.panel{display:none}
+.panel.active{display:grid;grid-template-columns:1fr;gap:0;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.panel.active{animation:none}}
+.panel .cap{display:flex;gap:18px;align-items:flex-start;margin-top:22px;flex-wrap:wrap}
+.panel .cap h4{font-family:var(--serif);font-size:22px;margin:0}
+.panel .cap p{color:var(--muted);font-size:15.5px;max-width:640px;margin-top:6px}
+.panel .cap .num{font-family:var(--serif);font-size:15px;color:var(--brass);flex:none;padding-top:4px}
+
+/* ============ Split (Miet + WEG) ============ */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.split{grid-template-columns:1fr}}
+.split .col{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 34px;box-shadow:var(--shadow-sm);
+  position:relative;overflow:hidden;
+}
+.split .col.miet{border-top:3px solid var(--pine)}
+.split .col.weg{border-top:3px solid var(--brass)}
+.split .col h3{font-size:26px;margin-bottom:10px}
+.split .col > p{color:var(--muted);margin-bottom:22px}
+.split ul{list-style:none;margin:0;padding:0;display:grid;gap:13px}
+.split li{display:flex;gap:12px;font-size:15.5px;align-items:flex-start}
+.split li svg{width:20px;height:20px;flex:none;margin-top:2px}
+.split .miet li svg{color:var(--pine)}
+.split .weg li svg{color:var(--brass)}
+.unite{text-align:center;max-width:720px;margin:0 auto 46px}
+
+/* ============ KI Assistant ============ */
+.ai{
+  background:linear-gradient(160deg,var(--ink) 0%,#231d14 100%);color:#F3EFE6;border-radius:var(--radius-lg);
+  padding:60px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg);
+}
+:root[data-theme="dark"] .ai{background:linear-gradient(160deg,#211d15 0%,#12100b 100%);border:1px solid var(--border)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ai{background:linear-gradient(160deg,#211d15 0%,#12100b 100%);border:1px solid var(--border)}}
+.ai::after{content:"";position:absolute;width:420px;height:420px;right:-120px;top:-140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(95,184,148,.28),transparent 70%)}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;position:relative;z-index:1}
+@media(max-width:860px){.ai-grid{grid-template-columns:1fr;gap:32px}.ai{padding:38px 28px}}
+.ai .eyebrow{color:#8FD3B4}
+.ai .eyebrow::before{background:#8FD3B4}
+.ai h2{font-size:clamp(28px,3.6vw,40px);color:#fff}
+.ai p{color:#C9C3B7;margin-top:18px;font-size:17px}
+.ai-demo{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px;backdrop-filter:blur(4px)}
+.ai-q{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:12px 14px;font-size:14.5px;color:#EDE8DF}
+.ai-q svg{width:17px;height:17px;color:#8FD3B4;flex:none}
+.ai-a{margin-top:16px;font-size:14.5px;color:#D6D0C4;line-height:1.6;padding-left:4px;border-left:2px solid rgba(143,211,180,.5);padding:2px 0 2px 16px}
+.ai-a b{color:#fff}
+.ai-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.ai-tags span{font-size:12.5px;color:#B9E3CD;background:rgba(143,211,180,.12);border:1px solid rgba(143,211,180,.2);padding:6px 11px;border-radius:8px}
+
+/* ============ Pricing ============ */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
+@media(max-width:900px){.price-grid{grid-template-columns:1fr;max-width:460px;margin:0 auto}}
+.price{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 30px;box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;transition:transform .22s,box-shadow .22s;
+}
+.price:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+@media (prefers-reduced-motion:reduce){.price:hover{transform:none}}
+.price.pop{border-color:var(--pine);box-shadow:var(--shadow-md);position:relative}
+.price.pop::before{
+  content:"Beliebt";position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:var(--pine);color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 15px;border-radius:999px;box-shadow:var(--shadow-sm);
+}
+.price .pname{font-family:var(--serif);font-size:23px;margin-bottom:6px}
+.price .pfor{font-size:14px;color:var(--muted);min-height:40px}
+.price .amt{margin:18px 0 4px;display:flex;align-items:baseline;gap:6px}
+.price .amt .v{font-family:var(--serif);font-size:46px;letter-spacing:-.02em;line-height:1}
+.price .amt .p{color:var(--muted);font-size:15px}
+.price .units{font-size:13.5px;color:var(--brass);font-weight:600;margin-bottom:22px}
+.price .btn{width:100%;margin-bottom:24px}
+.price ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.price li{display:flex;gap:11px;font-size:14.5px;align-items:flex-start;color:var(--ink-soft)}
+.price li svg{width:18px;height:18px;flex:none;margin-top:2px;color:var(--pine)}
+.price li.head{font-weight:700;color:var(--ink);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.price-note{text-align:center;color:var(--muted);font-size:14.5px;margin-top:30px;display:flex;gap:10px 22px;justify-content:center;flex-wrap:wrap}
+.price-note span{display:inline-flex;gap:8px;align-items:center}
+.price-note svg{width:16px;height:16px;color:var(--pine)}
+
+/* ============ FAQ ============ */
+.faq{max-width:800px;margin:0 auto}
+.faq details{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;
+  overflow:hidden;transition:border-color .2s;
+}
+.faq details[open]{border-color:var(--border-strong)}
+.faq summary{
+  list-style:none;cursor:pointer;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  font-family:var(--sans);font-weight:600;font-size:16.5px;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .chev{width:20px;height:20px;flex:none;color:var(--muted);transition:transform .25s}
+.faq details[open] summary .chev{transform:rotate(180deg);color:var(--pine)}
+.faq .ans{padding:0 24px 22px;color:var(--muted);font-size:15.5px;line-height:1.65}
+
+/* ============ CTA ============ */
+.cta-band{
+  background:var(--pine);color:#fff;border-radius:var(--radius-lg);padding:64px 48px;text-align:center;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+.cta-band::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 50% -20%,rgba(255,255,255,.14),transparent 60%)}
+.cta-band > *{position:relative;z-index:1}
+.cta-band h2{font-size:clamp(28px,4vw,44px);color:#fff;max-width:660px;margin:0 auto 16px}
+.cta-band p{color:rgba(255,255,255,.85);font-size:18px;max-width:520px;margin:0 auto 30px}
+.cta-band .btn-primary{background:#fff;color:var(--pine)}
+.cta-band .btn-ghost{color:#fff;border-color:rgba(255,255,255,.4)}
+.cta-band .btn-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff}
+
+/* ============ Footer ============ */
+footer.site{padding:70px 0 40px;border-top:1px solid var(--border);background:var(--surface-2)}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px;margin-bottom:48px}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr 1fr;gap:32px}}
+.foot-brand p{color:var(--muted);font-size:14.5px;margin-top:16px;max-width:280px}
+.foot-col h5{font-family:var(--sans);font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink);margin:0 0 16px}
+.foot-col a{display:block;color:var(--muted);font-size:14.5px;padding:5px 0;transition:color .18s}
+.foot-col a:hover{color:var(--pine)}
+.foot-bottom{border-top:1px solid var(--border);padding-top:26px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.foot-bottom .lic{font-size:13.5px;color:var(--muted)}
+.by-gilde{
+  display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:var(--ink);
+  background:var(--surface);border:1px solid var(--border-strong);padding:10px 18px;border-radius:12px;
+  box-shadow:var(--shadow-sm);transition:transform .18s,border-color .18s,color .18s;
+}
+.by-gilde:hover{transform:translateY(-2px);border-color:var(--pine);color:var(--pine)}
+.by-gilde svg{width:16px;height:16px;color:var(--brass)}
+
+/* ============ Reveal on scroll ============ */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site" id="top">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="HaVeWa Startseite">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/></svg>
+      </span>
+      <span>
+        <span class="name">HaVeWa</span><br>
+        <span class="sub">Hausverwaltung</span>
+      </span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Hauptnavigation">
+      <a href="#funktionen">Funktionen</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#ki">KI-Assistent</a>
+      <a href="#preise">Preise</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <button class="icon-btn" id="themeToggle" aria-label="Farbschema wechseln" title="Hell / Dunkel">
+        <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a href="#demo" class="btn btn-accent nav-cta-desktop">Demo starten</a>
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menü öffnen" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="badge"><span class="dot"></span>Miet- &amp; WEG-Verwaltung in einem System</span>
+      <h1>Ihre Immobilien&shy;verwaltung — <em>klar, konform, komplett.</em></h1>
+      <p class="lead">HaVeWa vereint Mietverwaltung und WEG in einer modernen Software: von der Betriebskostenabrechnung nach HeizkostenV bis zur Eigentümerversammlung — DSGVO- und GoBD-orientiert, mit KI-Assistent.</p>
+      <div class="hero-cta">
+        <a href="#demo" class="btn btn-accent">Demo starten
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#funktionen" class="btn btn-ghost">Funktionen ansehen</a>
+      </div>
+      <div class="hero-meta">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>30 Tage kostenlos testen</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Keine Einrichtungsgebühr</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Server in der EU</span>
+      </div>
+    </div>
+    <div class="hero-frame reveal">
+      <div class="frame">
+        <div class="frame-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            app.havewa.de/dashboard
+          </div>
+        </div>
+        <img src="./screenshots/dashboard.png" alt="HaVeWa Dashboard mit Kennzahlen zu Objekten, Einheiten, Sollmiete, offenen Posten sowie Aufgaben, Fristen und KI-Assistent" loading="eager" width="2880" height="1800">
+      </div>
+      <div class="hero-float">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6L17 18l-5-3.7L7 18l1.9-5.6L4 8.8h6.1z"/></svg></span>
+        <div><b>KI-Assistent</b><small>Fragen zum Bestand in Sekunden</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST / STATS ============ -->
+<section class="trust">
+  <div class="wrap trust-inner">
+    <div class="stat reveal"><div class="num">2<em>-in-1</em></div><div class="lbl">Miet- &amp; WEG-Verwaltung vereint</div></div>
+    <div class="stat reveal"><div class="num"><em>30/70</em></div><div class="lbl">HeizkostenV-konforme Verteilung</div></div>
+    <div class="stat reveal"><div class="num">15<em>+</em></div><div class="lbl">integrierte Fachmodule</div></div>
+    <div class="stat reveal"><div class="num">100<em>%</em></div><div class="lbl">DSGVO- &amp; GoBD-orientiert, EU-Hosting</div></div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="section" id="funktionen">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Funktionen</span>
+      <h2>Alles, was eine Verwaltung wirklich braucht</h2>
+      <p>Ein durchgängiges System vom Stammdatensatz bis zur Jahresabrechnung — statt fünf Insellösungen, die nicht miteinander sprechen.</p>
+    </div>
+
+    <!-- Miet -->
+    <div class="group reveal">
+      <div class="group-head">
+        <span class="tag miet">Mietverwaltung</span>
+        <h3>Vom Vertrag bis zur Mahnung</h3>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg></span>
+          <h4>Objekte, Einheiten &amp; Personen</h4>
+          <p>Gebäude, Wohn- und Gewerbeeinheiten, Mieter, Eigentümer und Zähler — sauber strukturiert und jederzeit auffindbar.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <h4>Mietverträge</h4>
+          <p>Staffel- und Indexmiete, Kaution, Laufzeiten und Fristen — Anpassungen werden automatisch fortgeschrieben.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+          <h4>Finanzen &amp; Sollstellung</h4>
+          <p>Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen — der Zahlungsstatus stets im Blick.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <h4>Betriebskostenabrechnung</h4>
+          <p>BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong> — prüfsicher und nachvollziehbar.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v4H3zM3 10h18v10H3z"/><path d="M8 14h8M8 17h5"/></svg></span>
+          <h4>Bankimport &amp; Export</h4>
+          <p>camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export — die Buchhaltung bleibt anschlussfähig.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="m4 6 8 5 8-5"/><path d="M2 20h20"/></svg></span>
+          <h4>Postausgang</h4>
+          <p>E-Mails an Mieter und Eigentümer direkt aus dem System — mit Vorlagen, Anhängen und lückenloser Historie.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEG -->
+    <div class="group reveal">
+      <div class="group-head">
+        <span class="tag weg">WEG-Verwaltung</span>
+        <h3>Wohnungseigentum rechtssicher managen</h3>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M6 21h12"/><path d="M12 5v16"/></svg></span>
+          <h4>MEA &amp; Wirtschaftsplan</h4>
+          <p>Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr — als Basis für jede Abrechnung.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3M16 3v3M4 8h16"/><rect x="4" y="6" width="16" height="15" rx="2"/><path d="M9 14l2 2 4-4"/></svg></span>
+          <h4>Jahresabrechnung</h4>
+          <p>Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden — transparent bis auf die einzelne Einheit.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M6 8h12l-1 5H7z"/><path d="M5 21h14"/><path d="M9 13v8M15 13v8"/></svg></span>
+          <h4>Erhaltungsrücklagen</h4>
+          <p>Rücklagen führen, Zuführungen und Entnahmen buchen und den Vermögensbericht auf Knopfdruck erzeugen.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="m6 21 6-16 6 16"/><path d="M12 5 4 9m8-4 8 4"/><circle cx="12" cy="4" r="1.5"/></svg></span>
+          <h4>Eigentümerversammlung</h4>
+          <p>Tagesordnung, Einladungen und Abstimmungen — mit rechtssicherer Beschlusssammlung nach §24 WEG.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13A4 4 0 0 1 16 11"/></svg></span>
+          <h4>Eigentümer-Portal</h4>
+          <p>Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar — weniger Rückfragen.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.5 8 9 9 5.5-1 9-4 9-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span>
+          <h4>Vermögensbericht</h4>
+          <p>Rücklagenbestände und Vermögensübersicht gemäß WEG-Reform — vorbereitet für Prüfung und Beirat.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Betrieb -->
+    <div class="group reveal">
+      <div class="group-head">
+        <span class="tag betrieb">Betrieb &amp; Compliance</span>
+        <h3>Der Alltag, digital &amp; prüfsicher</h3>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15h.01M12 15h.01M16 15h.01"/></svg></span>
+          <h4>Kalender, Termine &amp; Fristen</h4>
+          <p>Monatsübersicht für Wartungen, Versammlungen und gesetzliche Fristen — nichts läuft mehr unbemerkt aus.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6l-6 6 2 2 6-6a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2z"/></svg></span>
+          <h4>Instandhaltung &amp; Tickets</h4>
+          <p>Tickets, Handwerker und Wartungsverträge mit Fristen — von der Meldung bis zur erledigten Reparatur.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6a2 2 0 0 1 2-2h5l2 2h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg></span>
+          <h4>Dokumente &amp; E-Rechnung</h4>
+          <p>GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong> — revisionssicher archiviert.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+          <h4>Globale Suche</h4>
+          <p>Objekt, Einheit, Person oder Beleg in Sekunden gefunden — eine Suche über den gesamten Bestand.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v5h5"/><path d="M8 17h8v3H8zM8 12h8"/></svg></span>
+          <h4>Druck &amp; PDF-Ausgabe</h4>
+          <p>Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF — im Corporate-Layout der Verwaltung.</p>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5z"/><path d="M9 12h6M12 9v6"/></svg></span>
+          <h4>Audit-Log &amp; RBAC</h4>
+          <p>Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit — DE/EN zweisprachig.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREENSHOT SHOWCASE ============ -->
+<section class="section showcase" id="screenshots">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Einblicke</span>
+      <h2>Eine Oberfläche, die man gerne benutzt</h2>
+      <p>Ruhig, aufgeräumt, schnell. Echte Ansichten aus HaVeWa — vom Dashboard bis zur druckfertigen Abrechnung.</p>
+    </div>
+    <div class="tabs reveal" role="tablist" aria-label="Screenshot-Auswahl">
+      <button class="tab" role="tab" aria-selected="true" data-tab="s1">Objekte</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s2">Finanzen</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s3">Betriebskosten</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s4">Versammlung</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s5">Instandhaltung</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s6">Dokumente</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s7">Kalender</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s8">Portal</button>
+    </div>
+
+    <div class="panel active" id="s1" role="tabpanel">
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/objekte</div></div>
+        <img src="./screenshots/properties.png" alt="Objekt-, Gebäude- und Einheitenverwaltung in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">01</span><div><h4>Objekte, Gebäude &amp; Einheiten</h4><p>Der komplette Bestand auf einen Blick — Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.</p></div></div>
+    </div>
+    <div class="panel" id="s2" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/finanzen</div></div>
+        <img src="./screenshots/finances.png" alt="Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">02</span><div><h4>Finanzen &amp; Mahnwesen</h4><p>Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen — der Zahlungsstatus jederzeit aktuell.</p></div></div>
+    </div>
+    <div class="panel" id="s3" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/abrechnungen</div></div>
+        <img src="./screenshots/statements.png" alt="Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">03</span><div><h4>Betriebskostenabrechnung</h4><p>Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch — prüfsicher aufbereitet für jeden Mieter.</p></div></div>
+    </div>
+    <div class="panel" id="s4" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/versammlungen</div></div>
+        <img src="./screenshots/meetings.png" alt="Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">04</span><div><h4>Eigentümerversammlung</h4><p>Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG — vollständig dokumentiert.</p></div></div>
+    </div>
+    <div class="panel" id="s5" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/instandhaltung</div></div>
+        <img src="./screenshots/tickets.png" alt="Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">05</span><div><h4>Instandhaltung &amp; Tickets</h4><p>Von der Schadensmeldung bis zum beauftragten Handwerker — inklusive Wartungsfristen und Historie.</p></div></div>
+    </div>
+    <div class="panel" id="s6" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/dokumente</div></div>
+        <img src="./screenshots/documents.png" alt="GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">06</span><div><h4>Dokumente &amp; E-Rechnung</h4><p>GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD) — revisionssicher.</p></div></div>
+    </div>
+    <div class="panel" id="s7" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.de/kalender</div></div>
+        <img src="./screenshots/calendar.png" alt="Kalender mit Monatsansicht für Termine und Fristen in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">07</span><div><h4>Kalender &amp; Fristen</h4><p>Wartungen, Versammlungen und gesetzliche Fristen in einer übersichtlichen Monatsansicht.</p></div></div>
+    </div>
+    <div class="panel" id="s8" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">portal.havewa.de</div></div>
+        <img src="./screenshots/portal.png" alt="Self-Service-Portal für Mieter und Eigentümer in HaVeWa" loading="lazy"></div>
+      <div class="cap"><span class="num">08</span><div><h4>Mieter- &amp; Eigentümer-Portal</h4><p>Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen — rund um die Uhr, ohne Rückfragen.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ UNITE: Miet + WEG ============ -->
+<section class="section" id="einssystem">
+  <div class="wrap">
+    <div class="unite reveal">
+      <span class="eyebrow" style="justify-content:center">Ein System</span>
+      <h2 style="font-size:clamp(30px,4vw,46px);margin-bottom:16px">Miet- <span style="font-style:italic">und</span> WEG-Verwaltung — endlich vereint</h2>
+      <p class="muted" style="font-size:19px">Die meisten Verwaltungen betreuen beides. HaVeWa auch. Gleiche Objekte, gleiche Personen, gleiche Belege — ohne Datensilos und doppelte Pflege.</p>
+    </div>
+    <div class="split reveal">
+      <div class="col miet">
+        <h3>Mietverwaltung</h3>
+        <p>Für Eigentümer und Verwalter von vermieteten Objekten.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Miet- &amp; Gewerbeverträge, Staffel-/Indexmiete, Kaution</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sollstellung, offene Posten &amp; dreistufiges Mahnwesen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Betriebskostenabrechnung nach BetrKV &amp; HeizkostenV 30/70</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Mieterportal für Self-Service &amp; Kommunikation</li>
+        </ul>
+      </div>
+      <div class="col weg">
+        <h3>WEG-Verwaltung</h3>
+        <p>Für Wohnungseigentümergemeinschaften und Beiräte.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>MEA, Wirtschaftsplan, Hausgeld &amp; Jahresabrechnung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Erhaltungsrücklagen &amp; Vermögensbericht (WEG-Reform)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Eigentümerversammlung &amp; Beschlusssammlung §24 WEG</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Eigentümerportal für Abrechnungen &amp; Beschlüsse</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KI ASSISTANT ============ -->
+<section class="section" id="ki">
+  <div class="wrap">
+    <div class="ai reveal">
+      <div class="ai-grid">
+        <div>
+          <span class="eyebrow">KI-Assistent · powered by Claude</span>
+          <h2>Fragen Sie Ihren Bestand — in Ihrer Sprache</h2>
+          <p>Der integrierte KI-Assistent beantwortet Fragen zu Objekten, Mietern, Finanzen und Fristen in natürlicher Sprache. Kein Filtern, kein Suchen durch Menüs — einfach fragen.</p>
+          <div class="ai-tags">
+            <span>Offene Posten je Objekt</span>
+            <span>Fällige Wartungen</span>
+            <span>Auslaufende Verträge</span>
+            <span>Leerstandsquote</span>
+          </div>
+        </div>
+        <div class="ai-demo">
+          <div class="ai-q">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6L17 18l-5-3.7L7 18l1.9-5.6L4 8.8h6.1z"/></svg>
+            „Welche Mietverträge laufen dieses Jahr aus und wo droht Leerstand?“
+          </div>
+          <div class="ai-a">
+            Drei Verträge enden 2026 — davon <b>Whg 4 (Objekt Parkblick)</b> ohne Nachmieter. Für zwei Einheiten liegen bereits Verlängerungen vor. Die Leerstandsquote läge bei Auszug bei <b>29 %</b>.
+          </div>
+          <p style="font-size:12.5px;color:#9A9284;margin-top:16px">Beispielhafte Darstellung. Der Assistent greift nur auf Ihren eigenen Mandanten zu.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="section" id="preise">
+  <div class="wrap">
+    <div class="section-head reveal" style="max-width:660px;margin-left:auto;margin-right:auto;text-align:center">
+      <span class="eyebrow" style="justify-content:center">Preise</span>
+      <h2>Faire Staffelung nach Einheiten</h2>
+      <p>Ein Preis, alle Updates inklusive. Wachsen Sie in Ruhe — der Tarif wächst mit.</p>
+    </div>
+    <div class="price-grid reveal">
+      <!-- Starter -->
+      <div class="price">
+        <div class="pname">Starter</div>
+        <div class="pfor">Für kleine Verwalter und Selbstverwalter mit überschaubarem Bestand.</div>
+        <div class="amt"><span class="v">49&nbsp;€</span><span class="p">/ Monat</span></div>
+        <div class="units">bis 50 Einheiten</div>
+        <a href="#demo" class="btn btn-ghost">Kostenlos testen</a>
+        <ul>
+          <li class="head">Kernmodule</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Objekte, Einheiten &amp; Personen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Mietverwaltung &amp; Verträge</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Finanzen &amp; Sollstellung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Betriebskostenabrechnung (HeizkostenV)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Dokumente (GoBD)</li>
+        </ul>
+      </div>
+      <!-- Professional -->
+      <div class="price pop">
+        <div class="pname">Professional</div>
+        <div class="pfor">Für professionelle Verwaltungen mit Miet- und WEG-Beständen.</div>
+        <div class="amt"><span class="v">149&nbsp;€</span><span class="p">/ Monat</span></div>
+        <div class="units">bis 500 Einheiten</div>
+        <a href="#demo" class="btn btn-accent">Demo starten</a>
+        <ul>
+          <li class="head">Alles aus Starter, plus</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>WEG-Verwaltung &amp; Jahresabrechnung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Eigentümerversammlungen &amp; Beschlüsse</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Mieter- &amp; Eigentümerportale</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Instandhaltung &amp; Kalender</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Bankimport, DATEV- &amp; SEPA-Export</li>
+        </ul>
+      </div>
+      <!-- Enterprise -->
+      <div class="price">
+        <div class="pname">Enterprise</div>
+        <div class="pfor">Für große Verwaltungen mit mehreren Mandanten und eigenen Prozessen.</div>
+        <div class="amt"><span class="v">Auf Anfrage</span></div>
+        <div class="units">unbegrenzte Einheiten &amp; Mandanten</div>
+        <a href="#kontakt" class="btn btn-ghost">Kontakt aufnehmen</a>
+        <ul>
+          <li class="head">Alles aus Professional, plus</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>KI-Assistent (Claude)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>SSO &amp; erweiterte RBAC-Rollen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Self-Hosting (Docker, EU)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Individuelle Schnittstellen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Priorisierter Support &amp; SLA</li>
+        </ul>
+      </div>
+    </div>
+    <div class="price-note">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Alle Preise zzgl. MwSt.</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>30 Tage kostenlos testen</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Monatlich, jederzeit kündbar</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section" id="faq" style="background:var(--surface-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="section-head reveal" style="max-width:660px;margin:0 auto 46px;text-align:center">
+      <span class="eyebrow" style="justify-content:center">FAQ</span>
+      <h2>Häufige Fragen</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Deckt HaVeWa sowohl Miet- als auch WEG-Verwaltung ab?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans">Ja. HaVeWa ist von Grund auf für beide Welten gebaut. Sie verwalten vermietete Objekte und Wohnungseigentümergemeinschaften in einem System — mit gemeinsamen Stammdaten für Objekte, Einheiten und Personen, ohne doppelte Pflege.</div>
+      </details>
+      <details>
+        <summary>Ist die Betriebskostenabrechnung rechtssicher?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans">Die Abrechnung folgt der BetrKV, unterstützt frei konfigurierbare Verteilerschlüssel und rechnet Heizkosten nach der HeizkostenV im Verhältnis 30/70 (Grundkosten/Verbrauch) ab. Jede Abrechnung ist nachvollziehbar aufgeschlüsselt und druck- bzw. PDF-fertig.</div>
+      </details>
+      <details>
+        <summary>Wie steht es um Datenschutz, GoBD und Hosting?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans">HaVeWa ist DSGVO- und GoBD-orientiert: revisionssichere Dokumentenablage, lückenloses Änderungsprotokoll und rollenbasierte Rechte. Betrieben wird die Software auf Servern in der EU; auf Wunsch ist Self-Hosting per Docker mit automatischem HTTPS möglich.</div>
+      </details>
+      <details>
+        <summary>Kann ich Bankdaten importieren und an DATEV übergeben?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans">Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit — inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.</div>
+      </details>
+      <details>
+        <summary>Was leistet der KI-Assistent genau?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans">Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache — etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.</div>
+      </details>
+      <details>
+        <summary>Wie starte ich, und bin ich langfristig gebunden?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans">Sie testen HaVeWa 30 Tage kostenlos und ohne Einrichtungsgebühr. Die Abrechnung erfolgt monatlich und ist jederzeit kündbar. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="section" id="demo">
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <h2>Bereit für eine ruhigere Verwaltung?</h2>
+      <p>Starten Sie Ihre kostenlose Demo — in wenigen Minuten eingerichtet, ohne Risiko.</p>
+      <div class="hero-cta" style="justify-content:center">
+        <a href="mailto:florian.gilde@cargonerds.com?subject=HaVeWa%20Demo" class="btn btn-primary">Demo starten
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#kontakt" class="btn btn-ghost">Beratung anfragen</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site" id="kontakt">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="HaVeWa">
+          <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/></svg></span>
+          <span><span class="name">HaVeWa</span><br><span class="sub">Hausverwaltung</span></span>
+        </a>
+        <p>Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer — DSGVO- und GoBD-orientiert.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Produkt</h5>
+        <a href="#funktionen">Funktionen</a>
+        <a href="#screenshots">Screenshots</a>
+        <a href="#ki">KI-Assistent</a>
+        <a href="#preise">Preise</a>
+      </div>
+      <div class="foot-col">
+        <h5>Lösungen</h5>
+        <a href="#einssystem">Mietverwaltung</a>
+        <a href="#einssystem">WEG-Verwaltung</a>
+        <a href="#screenshots">Betriebskostenabrechnung</a>
+        <a href="#preise">Self-Hosting</a>
+      </div>
+      <div class="foot-col">
+        <h5>Ressourcen</h5>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:florian.gilde@cargonerds.com">Kontakt</a>
+        <a href="#demo">Demo starten</a>
+        <a href="#top">Nach oben</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span class="lic">© 2026 HaVeWa · Next.js &middot; PostgreSQL &middot; Docker · Server in der EU</span>
+      <a class="by-gilde" href="https://gilde.org" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.6 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg>
+        by gilde.org
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  /* Theme toggle (persisted) */
+  try{var saved=localStorage.getItem('havewa-theme');if(saved)root.setAttribute('data-theme',saved);}catch(e){}
+  document.getElementById('themeToggle').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var isDark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;
+    var next=isDark?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('havewa-theme',next);}catch(e){}
+  });
+
+  /* Mobile menu */
+  var menuBtn=document.getElementById('menuBtn'),navLinks=document.getElementById('navLinks');
+  menuBtn.addEventListener('click',function(){
+    var open=navLinks.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded',open);
+  });
+  navLinks.addEventListener('click',function(e){if(e.target.tagName==='A'){navLinks.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');}});
+
+  /* Header shadow on scroll */
+  var hdr=document.querySelector('header.site');
+  var onScroll=function(){hdr.classList.toggle('scrolled',window.scrollY>8);};
+  onScroll();window.addEventListener('scroll',onScroll,{passive:true});
+
+  /* Screenshot tabs */
+  var tabs=document.querySelectorAll('.tab');
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.setAttribute('aria-selected','false');});
+      t.setAttribute('aria-selected','true');
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');p.hidden=true;});
+      var p=document.getElementById(t.dataset.tab);p.classList.add('active');p.hidden=false;
+    });
+  });
+
+  /* Reveal on scroll */
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if('IntersectionObserver' in window && !reduce){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+    },{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  }else{
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  }
+})();
+</script>
+</body>
+</html>

@@ -92,6 +92,7 @@ model Property {
   documents     Document[]
   tickets       Ticket[]
   maintenance   MaintenanceContract[]
+  appointments  Appointment[]
   createdAt     DateTime       @default(now())
 
   @@index([tenantId])
@@ -508,6 +509,8 @@ model Document {
   size       Int
   storageKey String // Dateiname im Storage
   eInvoice   Boolean          @default(false)
+  invoiceNo   String? // aus E-Rechnung extrahiert
+  invoiceTotal Decimal?       @db.Decimal(12, 2) // aus E-Rechnung extrahiert
   createdAt  DateTime         @default(now())
 
   @@index([tenantId])
@@ -622,6 +625,78 @@ model ReserveTransaction {
 
   @@index([tenantId])
   @@index([reserveId])
+}
+
+// ---------- Kalender / Termine ----------
+
+enum AppointmentType {
+  BESICHTIGUNG
+  VERSAMMLUNG
+  WARTUNG
+  FRIST
+  SONSTIGES
+}
+
+model Appointment {
+  id         String          @id @default(cuid())
+  tenantId   String
+  title      String
+  type       AppointmentType @default(SONSTIGES)
+  start      DateTime
+  end        DateTime?
+  location   String?
+  note       String?
+  propertyId String?
+  property   Property?       @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  createdAt  DateTime        @default(now())
+
+  @@index([tenantId])
+  @@index([start])
+}
+
+// ---------- Audit-Log (GoBD-Nachvollziehbarkeit) ----------
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model AuditLog {
+  id       String      @id @default(cuid())
+  tenantId String
+  userId   String?
+  userName String?
+  action   AuditAction
+  entity   String // Modellname, z. B. "Property"
+  entityId String?
+  summary  String? // menschenlesbare Kurzbeschreibung
+  createdAt DateTime   @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+// ---------- E-Mail-Postausgang ----------
+
+enum EmailStatus {
+  ENTWURF
+  GESENDET
+  FEHLER
+}
+
+model EmailMessage {
+  id        String      @id @default(cuid())
+  tenantId  String
+  toAddress String
+  subject   String
+  body      String
+  status    EmailStatus @default(ENTWURF)
+  error     String?
+  sentAt    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([tenantId])
 }
 
 // Kostenposition je Objekt und Abrechnungsjahr (BetrKV).

@@ -220,6 +220,22 @@ export const taskSchema = z.object({
   dueDate: optionalDate,
 });
 
+export const appointmentSchema = z.object({
+  title: z.string().trim().min(1),
+  type: z.enum(["BESICHTIGUNG", "VERSAMMLUNG", "WARTUNG", "FRIST", "SONSTIGES"]),
+  start: z.coerce.date(),
+  end: optionalDate,
+  location: optionalStr,
+  propertyId: optionalStr,
+  note: optionalStr,
+});
+
+export const emailSchema = z.object({
+  toAddress: z.string().trim().email(),
+  subject: z.string().trim().min(1),
+  body: z.string().trim().min(1),
+});
+
 export const contractorSchema = z.object({
   name: z.string().trim().min(1),
   trade: z.string().trim().min(1),

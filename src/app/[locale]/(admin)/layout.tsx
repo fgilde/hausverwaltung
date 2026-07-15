@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
+import { SearchBox } from "@/components/search-box";
 
 export default async function AdminLayout({
   children,
@@ -27,6 +28,7 @@ export default async function AdminLayout({
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-6" />
+          <SearchBox />
           <div className="ml-auto flex items-center gap-1">
             <LanguageSwitcher />
             <ThemeToggle />

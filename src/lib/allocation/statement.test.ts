@@ -42,4 +42,25 @@ describe("buildStatement", () => {
     const sum = lines.reduce((a, l) => a + l.allocated, 0);
     expect(Math.round(sum * 100) / 100).toBe(1400);
   });
+
+  it("HeizkostenV: 30% Fläche + 70% Verbrauch", () => {
+    const heizUnits = [
+      { id: "a", label: "A", area: 50, persons: 1, prepayment: 0, consumption: 30 },
+      { id: "b", label: "B", area: 50, persons: 1, prepayment: 0, consumption: 70 },
+    ];
+    const { lines } = buildStatement(heizUnits, [
+      { id: "h", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true },
+    ]);
+    // Grundkosten 300 → 150/150 (Fläche gleich), Verbrauch 700 → 210/490 (30:70)
+    expect(lines[0].allocated).toBe(360);
+    expect(lines[1].allocated).toBe(640);
+  });
+
+  it("HeizkostenV: ohne Verbrauchsdaten Fallback auf Fläche", () => {
+    const { lines } = buildStatement(units, [
+      { id: "h", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true },
+    ]);
+    expect(lines[0].allocated).toBe(500);
+    expect(lines[1].allocated).toBe(500);
+  });
 });

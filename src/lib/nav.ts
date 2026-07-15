@@ -11,6 +11,9 @@ import {
   Wrench,
   FolderOpen,
   Settings,
+  CalendarDays,
+  Mail,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,8 +44,16 @@ export const navGroups: NavGroup[] = [
   {
     labelKey: "nav.groupOperations",
     items: [
+      { key: "nav.calendar", href: "/calendar", icon: CalendarDays },
       { key: "nav.tickets", href: "/tickets", icon: Wrench },
       { key: "nav.documents", href: "/documents", icon: FolderOpen },
+      { key: "nav.email", href: "/email", icon: Mail },
+    ],
+  },
+  {
+    labelKey: "nav.groupAdmin",
+    items: [
+      { key: "nav.audit", href: "/audit", icon: ScrollText },
       { key: "nav.settings", href: "/settings", icon: Settings },
     ],
   },

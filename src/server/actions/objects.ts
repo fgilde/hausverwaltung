@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
+import { audit } from "@/lib/audit";
 import {
   propertySchema,
   buildingSchema,
@@ -25,7 +26,8 @@ export async function createProperty(_p: ActionState, fd: FormData): Promise<Act
   const user = await requireWriter();
   const r = propertySchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
-  await prisma.property.create({ data: { ...r.data, tenantId: user.tenantId } });
+  const created = await prisma.property.create({ data: { ...r.data, tenantId: user.tenantId } });
+  await audit(user, "CREATE", "Property", created.id, r.data.name);
   return done();
 }
 
@@ -35,14 +37,15 @@ export async function updateProperty(_p: ActionState, fd: FormData): Promise<Act
   const r = propertySchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
   await prisma.property.updateMany({ where: { id, tenantId: user.tenantId }, data: r.data });
+  await audit(user, "UPDATE", "Property", id, r.data.name);
   return done();
 }
 
 export async function deleteProperty(fd: FormData): Promise<void> {
   const user = await requireWriter();
-  await prisma.property.deleteMany({
-    where: { id: String(fd.get("id") ?? ""), tenantId: user.tenantId },
-  });
+  const id = String(fd.get("id") ?? "");
+  const res = await prisma.property.deleteMany({ where: { id, tenantId: user.tenantId } });
+  if (res.count > 0) await audit(user, "DELETE", "Property", id);
   revalidatePath("/", "layout");
 }
 
