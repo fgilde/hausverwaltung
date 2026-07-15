@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { money } from "@/lib/format";
+import { simplePdf } from "@/lib/pdf";
+import { saveFile } from "@/lib/storage";
 import { computeStatement } from "@/server/statements";
 import type { ActionState } from "@/lib/schemas";
 
@@ -69,6 +71,31 @@ export async function emailStatementToTenants(_p: ActionState, fd: FormData): Pr
       `Vorauszahlungen: ${money(u.prepayment)}\n` +
       `Ergebnis: ${money(Math.abs(u.balance))} ${kind}\n\n` +
       `Mit freundlichen Grüßen\n${st.property?.tenantName ?? ""}`;
+
+    // PDF erzeugen, im Storage ablegen und als Dokument (Kategorie ABRECHNUNG) archivieren.
+    const pdf = simplePdf(`Betriebskostenabrechnung ${year}`, [
+      `${propName} - ${u.label}`,
+      "",
+      `Umgelegte Kosten: ${money(u.allocated)}`,
+      `Vorauszahlungen:  ${money(u.prepayment)}`,
+      `Ergebnis: ${money(Math.abs(u.balance))} ${kind}`,
+      "",
+      "Heiz-/Warmwasserkosten nach HeizkostenV (30% Flaeche / 70% Verbrauch).",
+    ]);
+    const name = `Abrechnung ${year} - ${u.label}.pdf`;
+    const storageKey = await saveFile(pdf, name);
+    const doc = await prisma.document.create({
+      data: {
+        tenantId: user.tenantId,
+        propertyId,
+        name,
+        category: "ABRECHNUNG",
+        mime: "application/pdf",
+        size: pdf.length,
+        storageKey,
+      },
+    });
+
     await prisma.emailMessage.create({
       data: {
         tenantId: user.tenantId,
@@ -76,11 +103,12 @@ export async function emailStatementToTenants(_p: ActionState, fd: FormData): Pr
         subject: `Betriebskostenabrechnung ${year} · ${u.label}`,
         body,
         status: "ENTWURF",
+        attachments: { create: [{ documentId: doc.id }] },
       },
     });
     created++;
   }
-  if (created > 0) await audit(user, "CREATE", "EmailMessage", null, `${created}× Abrechnung ${year}`);
+  if (created > 0) await audit(user, "CREATE", "EmailMessage", null, `${created}× Abrechnung ${year} (PDF)`);
   revalidatePath("/", "layout");
   return created > 0 ? { ok: true } : { error: "Keine Mieter mit E-Mail-Adresse gefunden." };
 }

@@ -1,11 +1,30 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { UserPlus } from "lucide-react";
-import { createUser } from "@/server/actions/users";
+import { UserPlus, KeyRound } from "lucide-react";
+import { createUser, resetPassword } from "@/server/actions/users";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField } from "@/components/form-fields";
+
+export function ResetPasswordDialog({ id }: { id: string }) {
+  const t = useTranslations();
+  return (
+    <CrudDialog
+      trigger={
+        <Button variant="ghost" size="icon" aria-label={t("settings.resetPassword")}>
+          <KeyRound className="size-4" />
+        </Button>
+      }
+      title={t("settings.resetPassword")}
+      action={resetPassword}
+      submitLabel={t("common.save")}
+    >
+      <input type="hidden" name="id" value={id} />
+      <TextField name="password" label={t("fields.password")} type="password" />
+    </CrudDialog>
+  );
+}
 
 export function UserDialog({
   roles,

@@ -1,8 +1,10 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { useState } from "react";
+import { LogOut, KeyRound } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +36,10 @@ export function UserMenu({
   role: string;
 }) {
   const t = useTranslations();
+  const [pwOpen, setPwOpen] = useState(false);
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger
         render={<Button variant="ghost" className="relative size-9 rounded-full p-0" />}
@@ -53,11 +57,17 @@ export function UserMenu({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setPwOpen(true)}>
+          <KeyRound className="size-4" />
+          {t("account.changePassword")}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
           <LogOut className="size-4" />
           {t("common.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <ChangePasswordDialog open={pwOpen} onOpenChange={setPwOpen} />
+    </>
   );
 }

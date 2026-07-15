@@ -12,6 +12,10 @@ import {
   type ActionState,
 } from "@/lib/schemas";
 import { parseCamt053 } from "@/lib/adapters/bankImport";
+import { audit } from "@/lib/audit";
+import { simplePdf } from "@/lib/pdf";
+import { saveFile } from "@/lib/storage";
+import { money, date } from "@/lib/format";
 
 function fail(msg?: string): ActionState {
   return { error: msg ?? "Ungültige Eingabe" };
@@ -190,5 +194,72 @@ export async function createDunning(fd: FormData): Promise<void> {
       data: { tenantId: user.tenantId, chargeId, level, fee: DUNNING_FEE[level] ?? 0 },
     });
   }
+  revalidatePath("/", "layout");
+}
+
+// --- Mahnung als PDF an den Mieter mailen (Entwurf im Postausgang) + Ablage ---
+export async function emailDunning(fd: FormData): Promise<void> {
+  const user = await requireWriter();
+  const chargeId = String(fd.get("chargeId") ?? "");
+  const charge = await prisma.charge.findFirst({
+    where: { id: chargeId, tenantId: user.tenantId },
+    include: {
+      payments: { select: { amount: true } },
+      dunnings: { orderBy: { level: "desc" }, take: 1 },
+      lease: {
+        include: {
+          unit: { include: { building: { include: { property: { include: { tenant: true } } } } } },
+          renters: { include: { person: true } },
+        },
+      },
+    },
+  });
+  if (!charge || !charge.lease) return;
+
+  const paid = charge.payments.reduce((a, p) => a + Number(p.amount), 0);
+  const open = Number(charge.amount) - paid;
+  const dun = charge.dunnings[0];
+  const fee = dun ? Number(dun.fee) : 0;
+  const total = open + fee;
+  const level = dun?.level ?? 1;
+  const property = charge.lease.unit.building.property;
+  const renter = charge.lease.renters[0]?.person;
+  if (!renter?.email) return; // ohne E-Mail kein Entwurf
+
+  const title = level >= 2 ? `${level}. Mahnung` : "Zahlungserinnerung";
+  const pdf = simplePdf(title, [
+    `${property.name} - ${charge.lease.unit.label}`,
+    `Mieter: ${renter.firstName} ${renter.lastName}`,
+    "",
+    `Offener Posten (faellig ${date(charge.dueDate)}): ${money(open)}`,
+    fee > 0 ? `Mahngebuehr: ${money(fee)}` : "",
+    `Offener Gesamtbetrag: ${money(total)}`,
+    "",
+    "Wir bitten um Ausgleich innerhalb von 14 Tagen.",
+  ].filter(Boolean));
+  const name = `${title} - ${charge.lease.unit.label}.pdf`;
+  const storageKey = await saveFile(pdf, name);
+  const doc = await prisma.document.create({
+    data: {
+      tenantId: user.tenantId,
+      propertyId: property.id,
+      name,
+      category: "SONSTIGES",
+      mime: "application/pdf",
+      size: pdf.length,
+      storageKey,
+    },
+  });
+  await prisma.emailMessage.create({
+    data: {
+      tenantId: user.tenantId,
+      toAddress: renter.email,
+      subject: `${title} · ${property.name}`,
+      body: `Sehr geehrte/r ${renter.firstName} ${renter.lastName},\n\nanbei ${title.toLowerCase()} über ${money(total)}.\n\nMit freundlichen Grüßen\n${property.tenant.name}`,
+      status: "ENTWURF",
+      attachments: { create: [{ documentId: doc.id }] },
+    },
+  });
+  await audit(user, "CREATE", "EmailMessage", null, `${title} ${charge.lease.unit.label}`);
   revalidatePath("/", "layout");
 }

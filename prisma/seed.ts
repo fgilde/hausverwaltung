@@ -2,37 +2,11 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { simplePdf } from "../src/lib/pdf";
 
 const prisma = new PrismaClient();
 
 const STORAGE = path.join(process.cwd(), "storage", "documents");
-
-/** Minimales, gültiges einseitiges PDF (ASCII) mit Titel + Textzeilen. */
-function simplePdf(title: string, lines: string[]): Buffer {
-  const esc = (s: string) => s.replace(/([()\\])/g, "\\$1");
-  const content =
-    `BT /F1 20 Tf 60 780 Td (${esc(title)}) Tj ET ` +
-    `BT /F1 11 Tf 60 740 Td 16 TL ` +
-    lines.map((l) => `(${esc(l)}) Tj T*`).join(" ") +
-    ` ET`;
-  const objs: string[] = [];
-  objs[1] = `<< /Type /Catalog /Pages 2 0 R >>`;
-  objs[2] = `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`;
-  objs[3] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>`;
-  objs[4] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`;
-  objs[5] = `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`;
-  let pdf = "%PDF-1.4\n";
-  const offsets: number[] = [];
-  for (let i = 1; i <= 5; i++) {
-    offsets[i] = Buffer.byteLength(pdf, "latin1");
-    pdf += `${i} 0 obj\n${objs[i]}\nendobj\n`;
-  }
-  const xrefStart = Buffer.byteLength(pdf, "latin1");
-  pdf += `xref\n0 6\n0000000000 65535 f \n`;
-  for (let i = 1; i <= 5; i++) pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
-  pdf += `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
-  return Buffer.from(pdf, "latin1");
-}
 
 // Echte ZUGFeRD/CII-Beispielrechnung (passt zu invoiceNo/invoiceTotal unten).
 const ZUGFERD_XML = `<?xml version="1.0" encoding="UTF-8"?>

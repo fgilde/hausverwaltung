@@ -48,6 +48,26 @@ export async function createUser(_p: ActionState, fd: FormData): Promise<ActionS
   return { ok: true };
 }
 
+export async function resetPassword(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const actor = await requireRole([...MANAGE_ROLES]);
+  const id = String(fd.get("id") ?? "");
+  const password = String(fd.get("password") ?? "");
+  if (password.length < 6) return { error: "Passwort zu kurz (min. 6 Zeichen)." };
+
+  const target = await prisma.user.findFirst({
+    where: { id, tenantId: actor.tenantId },
+    select: { id: true, role: true, name: true },
+  });
+  if (!target) return { error: "Benutzer nicht gefunden." };
+  // Eigenes Passwort oder eine vom Actor verwaltbare Rolle.
+  if (target.id !== actor.id && !assignableRoles(actor.role).includes(target.role)) {
+    return { error: "Keine Berechtigung." };
+  }
+  await prisma.user.update({ where: { id: target.id }, data: { passwordHash: await bcrypt.hash(password, 10) } });
+  await audit(actor, "UPDATE", "User", target.id, `Passwort zurückgesetzt: ${target.name}`);
+  return { ok: true };
+}
+
 export async function deleteUser(fd: FormData): Promise<void> {
   const actor = await requireRole([...MANAGE_ROLES]);
   const id = String(fd.get("id") ?? "");

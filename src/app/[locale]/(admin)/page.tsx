@@ -37,6 +37,8 @@ import { CrudDialog } from "@/components/crud-dialog";
 import { TextField } from "@/components/form-fields";
 import { createTask, toggleTask, deleteTask } from "@/server/actions/tasks";
 import { AiAssistant } from "@/components/ai-assistant";
+import { MonthlyBars, OccupancyDonut } from "@/components/dashboard-charts";
+import { ReminderButton } from "@/components/reminder-button";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -45,7 +47,11 @@ export default async function DashboardPage() {
   const tenantId = user.tenantId;
   const now = new Date();
 
-  const [properties, units, leases, charges, openTickets, maintenance, tasks] = await Promise.all([
+  const sixMonthsAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
+  const in90 = new Date(now.getTime() + 90 * 864e5);
+  const in30 = new Date(now.getTime() + 30 * 864e5);
+
+  const [properties, units, leases, charges, openTickets, maintenance, tasks, paymentsRecent, expiringLeases, upcomingMaint] = await Promise.all([
     prisma.property.findMany({
       where: { tenantId },
       include: { buildings: { include: { _count: { select: { units: true } } } } },
@@ -63,6 +69,9 @@ export default async function DashboardPage() {
     prisma.ticket.count({ where: { tenantId, status: { not: "ERLEDIGT" } } }),
     prisma.maintenanceContract.findMany({ where: { tenantId, nextDue: { lt: now } }, select: { id: true } }),
     prisma.task.findMany({ where: { tenantId, done: false }, orderBy: [{ dueDate: "asc" }], take: 8 }),
+    prisma.payment.findMany({ where: { tenantId, direction: "EINGANG", date: { gte: sixMonthsAgo } }, select: { date: true, amount: true } }),
+    prisma.lease.findMany({ where: { tenantId, endDate: { gte: now, lte: in90 } }, select: { id: true } }),
+    prisma.maintenanceContract.count({ where: { tenantId, nextDue: { gte: now, lte: in30 } } }),
   ]);
 
   const isOccupied = (ls: { startDate: Date; endDate: Date | null }[]) =>
@@ -103,8 +112,26 @@ export default async function DashboardPage() {
 
   const insights: string[] = [];
   if (overdueCount > 0) insights.push(t("dashboard.insightOverdue", { count: overdueCount }));
+  if (expiringLeases.length > 0) insights.push(t("dashboard.insightExpiring", { count: expiringLeases.length }));
   if (openTickets > 0) insights.push(t("dashboard.insightTickets", { count: openTickets }));
   if (dueMaintenance > 0) insights.push(t("dashboard.insightMaintenance", { count: dueMaintenance }));
+  if (upcomingMaint > 0) insights.push(t("dashboard.insightUpcomingMaint", { count: upcomingMaint }));
+
+  // 6-Monats-Verlauf: Sollstellung vs. Zahlungseingang
+  const monthly = Array.from({ length: 6 }, (_, k) => {
+    const i = 5 - k;
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const y = d.getUTCFullYear();
+    const m = d.getUTCMonth();
+    const soll = charges
+      .filter((c) => { const p = new Date(c.period); return p.getUTCFullYear() === y && p.getUTCMonth() === m; })
+      .reduce((a, c) => a + Number(c.amount), 0);
+    const zahlung = paymentsRecent
+      .filter((p) => { const x = new Date(p.date); return x.getUTCFullYear() === y && x.getUTCMonth() === m; })
+      .reduce((a, p) => a + Number(p.amount), 0);
+    const label = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", { month: "short" }).format(d);
+    return { label, soll, zahlung };
+  });
 
   return (
     <div className="space-y-6">
@@ -130,14 +157,44 @@ export default async function DashboardPage() {
         ))}
       </div>
 
+      {/* Diagramme */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">{t("dashboard.chartCashflow")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MonthlyBars
+              data={monthly}
+              locale={locale}
+              labels={{ soll: t("dashboard.chartSoll"), zahlung: t("dashboard.chartZahlung") }}
+            />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("dashboard.chartOccupancy")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OccupancyDonut
+              occupied={occupied}
+              vacant={vacant}
+              rate={rate}
+              labels={{ occupied: t("dashboard.occupied"), vacant: t("dashboard.vacant") }}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Hinweise */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2 text-base">
               <Lightbulb className="size-4" />
               {t("dashboard.insights")}
             </CardTitle>
+            <ReminderButton />
           </CardHeader>
           <CardContent className="space-y-2">
             {insights.length === 0 ? (

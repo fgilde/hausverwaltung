@@ -25,7 +25,8 @@ import {
   CamtDialog,
 } from "@/components/finance-dialogs";
 import { DeleteButton } from "@/components/delete-button";
-import { deleteCharge, deleteAccount, deleteMandate, createDunning } from "@/server/actions/finances";
+import { Mail } from "lucide-react";
+import { deleteCharge, deleteAccount, deleteMandate, createDunning, emailDunning } from "@/server/actions/finances";
 
 export default async function FinancesPage() {
   const user = await requireUser();
@@ -166,14 +167,22 @@ export default async function FinancesPage() {
                           </form>
                         )}
                         {dunLevel > 0 && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label={t("print.printPdf")}
-                            render={<Link href={`/print/dunning?chargeId=${c.id}`} target="_blank" />}
-                          >
-                            <Printer className="size-4" />
-                          </Button>
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={t("print.printPdf")}
+                              render={<Link href={`/print/dunning?chargeId=${c.id}`} target="_blank" />}
+                            >
+                              <Printer className="size-4" />
+                            </Button>
+                            <form action={emailDunning}>
+                              <input type="hidden" name="chargeId" value={c.id} />
+                              <Button type="submit" variant="ghost" size="icon" aria-label={t("finances.mailDunning")}>
+                                <Mail className="size-4" />
+                              </Button>
+                            </form>
+                          </>
                         )}
                         <DeleteButton action={deleteCharge} id={c.id} />
                       </div>

@@ -77,7 +77,15 @@
     "allGood": "Alles im grünen Bereich.",
     "insightOverdue": "{count, plural, one {# überfällige Sollstellung} other {# überfällige Sollstellungen}}",
     "insightTickets": "{count, plural, one {# offenes Ticket} other {# offene Tickets}}",
-    "insightMaintenance": "{count, plural, one {# fällige Wartung} other {# fällige Wartungen}}"
+    "insightMaintenance": "{count, plural, one {# überfällige Wartung} other {# überfällige Wartungen}}",
+    "insightExpiring": "{count, plural, one {# Vertrag läuft in 90 Tagen aus} other {# Verträge laufen in 90 Tagen aus}}",
+    "insightUpcomingMaint": "{count, plural, one {# Wartung in 30 Tagen fällig} other {# Wartungen in 30 Tagen fällig}}",
+    "chartCashflow": "Sollstellung & Zahlungseingang (6 Monate)",
+    "chartSoll": "Sollstellung",
+    "chartZahlung": "Zahlungseingang",
+    "chartOccupancy": "Auslastung",
+    "generateReminders": "Erinnerungen erzeugen",
+    "remindersCreated": "Fristen als Aufgaben erfasst."
   },
   "settings": {
     "title": "Einstellungen",
@@ -88,7 +96,14 @@
     "newUser": "Benutzer anlegen",
     "linkedPerson": "Verknüpfte Person (für Portal)",
     "usersHint": "Legen Sie Zugänge für Mitarbeiter sowie Mieter- und Eigentümer-Portale an.",
-    "you": "Sie"
+    "you": "Sie",
+    "resetPassword": "Passwort zurücksetzen"
+  },
+  "account": {
+    "changePassword": "Passwort ändern",
+    "current": "Aktuelles Passwort",
+    "new": "Neues Passwort",
+    "changed": "Passwort geändert"
   },
   "userRole": {
     "ADMIN": "Administrator",
@@ -321,6 +336,7 @@
     "account": "Konto",
     "charge": "Sollstellung",
     "dun": "Mahnen",
+    "mailDunning": "Mahnung per E-Mail",
     "dunLevel": "Mahnstufe",
     "statusOPEN": "Offen",
     "statusPARTIAL": "Teilzahlung",

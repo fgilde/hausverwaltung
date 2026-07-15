@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserDialog } from "@/components/user-dialogs";
+import { UserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
 import { SettingsConfig } from "@/components/settings-config";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
@@ -97,7 +97,10 @@ export default async function SettingsPage() {
                   </TableCell>
                   {canManage && (
                     <TableCell>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end gap-1">
+                        {(u.id === user.id || assignableRoles(user.role).includes(u.role)) && (
+                          <ResetPasswordDialog id={u.id} />
+                        )}
                         {canDeleteUser(user, u.role, u.id) && (
                           <DeleteButton action={deleteUser} id={u.id} />
                         )}

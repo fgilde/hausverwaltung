@@ -77,7 +77,15 @@
     "allGood": "All clear.",
     "insightOverdue": "{count, plural, one {# overdue charge} other {# overdue charges}}",
     "insightTickets": "{count, plural, one {# open ticket} other {# open tickets}}",
-    "insightMaintenance": "{count, plural, one {# due maintenance} other {# due maintenance items}}"
+    "insightMaintenance": "{count, plural, one {# overdue maintenance} other {# overdue maintenance items}}",
+    "insightExpiring": "{count, plural, one {# lease expires within 90 days} other {# leases expire within 90 days}}",
+    "insightUpcomingMaint": "{count, plural, one {# maintenance due within 30 days} other {# maintenance items due within 30 days}}",
+    "chartCashflow": "Charges & payments received (6 months)",
+    "chartSoll": "Charges",
+    "chartZahlung": "Payments received",
+    "chartOccupancy": "Occupancy",
+    "generateReminders": "Generate reminders",
+    "remindersCreated": "Deadlines added as tasks."
   },
   "settings": {
     "title": "Settings",
@@ -88,7 +96,14 @@
     "newUser": "Add user",
     "linkedPerson": "Linked person (for portal)",
     "usersHint": "Create logins for staff as well as tenant and owner portals.",
-    "you": "you"
+    "you": "you",
+    "resetPassword": "Reset password"
+  },
+  "account": {
+    "changePassword": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "changed": "Password changed"
   },
   "userRole": {
     "ADMIN": "Administrator",
@@ -321,6 +336,7 @@
     "account": "Account",
     "charge": "Charge",
     "dun": "Dun",
+    "mailDunning": "Email dunning notice",
     "dunLevel": "Dunning level",
     "statusOPEN": "Open",
     "statusPARTIAL": "Partial",
