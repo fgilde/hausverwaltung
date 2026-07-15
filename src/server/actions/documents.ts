@@ -17,12 +17,21 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
 
   const category = String(fd.get("category") ?? "SONSTIGES");
   const name = String(fd.get("name") ?? "").trim() || file.name;
-  const propertyIdRaw = String(fd.get("propertyId") ?? "");
-  const propertyId = propertyIdRaw || null;
+  const propertyId = String(fd.get("propertyId") ?? "") || null;
+  const unitId = String(fd.get("unitId") ?? "") || null;
+  const personId = String(fd.get("personId") ?? "") || null;
 
   if (propertyId) {
     const prop = await prisma.property.findFirst({ where: { id: propertyId, tenantId: user.tenantId }, select: { id: true } });
     if (!prop) return { error: "Objekt nicht gefunden" };
+  }
+  if (unitId) {
+    const u = await prisma.unit.findFirst({ where: { id: unitId, tenantId: user.tenantId }, select: { id: true } });
+    if (!u) return { error: "Einheit nicht gefunden" };
+  }
+  if (personId) {
+    const pn = await prisma.person.findFirst({ where: { id: personId, tenantId: user.tenantId }, select: { id: true } });
+    if (!pn) return { error: "Person nicht gefunden" };
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -36,6 +45,8 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
     data: {
       tenantId: user.tenantId,
       propertyId,
+      unitId,
+      personId,
       name,
       category: category as never,
       mime: file.type || "application/octet-stream",

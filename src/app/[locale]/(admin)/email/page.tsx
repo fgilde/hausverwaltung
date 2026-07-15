@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmailCompose } from "@/components/email-compose";
+import { BulkEmailDialog } from "@/components/bulk-email-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { sendEmail, deleteEmail } from "@/server/actions/email";
 
@@ -24,7 +25,7 @@ export default async function EmailPage() {
   const t = await getTranslations();
   const locale = await getLocale();
 
-  const [messages, tenant, persons, documents] = await Promise.all([
+  const [messages, tenant, persons, documents, properties] = await Promise.all([
     prisma.emailMessage.findMany({
       where: { tenantId: user.tenantId },
       include: { _count: { select: { attachments: true } } },
@@ -45,8 +46,10 @@ export default async function EmailPage() {
       take: 100,
       select: { id: true, name: true },
     }),
+    prisma.property.findMany({ where: { tenantId: user.tenantId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
   const personOpts = persons.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName}`, email: p.email! }));
+  const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
   const configured = isMailerConfigured({
     host: tenant?.smtpHost,
     port: tenant?.smtpPort,
@@ -65,7 +68,10 @@ export default async function EmailPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("email.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("email.subtitle")}</p>
         </div>
-        <EmailCompose persons={personOpts} documents={documents} />
+        <div className="flex gap-2">
+          {propertyOpts.length > 0 && <BulkEmailDialog properties={propertyOpts} />}
+          <EmailCompose persons={personOpts} documents={documents} />
+        </div>
       </div>
 
       {!configured && (

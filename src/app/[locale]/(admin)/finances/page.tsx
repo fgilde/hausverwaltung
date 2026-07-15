@@ -28,7 +28,13 @@ import { DeleteButton } from "@/components/delete-button";
 import { Mail } from "lucide-react";
 import { deleteCharge, deleteAccount, deleteMandate, createDunning, emailDunning } from "@/server/actions/finances";
 
-export default async function FinancesPage() {
+export default async function FinancesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const sp = await searchParams;
+  const statusFilter = sp.status ?? "";
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
@@ -62,6 +68,8 @@ export default async function FinancesPage() {
     return { c, paid, open, status, dunLevel };
   });
   const totalOpen = rows.reduce((a, r) => a + Math.max(0, r.open), 0);
+  const STATUSES = ["OPEN", "PARTIAL", "PAID", "OVERDUE"];
+  const visibleRows = statusFilter ? rows.filter((r) => r.status === statusFilter) : rows;
 
   const accountOpts = accounts.map((a) => ({ value: a.id, label: a.name }));
   const leaseOpts = leases.map((l) => ({
@@ -113,16 +121,33 @@ export default async function FinancesPage() {
               <Download className="size-4" />
               {t("finances.sepaExport")}
             </Button>
+            <Button size="sm" variant="outline" render={<a href="/api/export/openitems" />}>
+              <Download className="size-4" />
+              {t("finances.openItemsCsv")}
+            </Button>
           </CardContent>
         </Card>
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("finances.openItems")}</CardTitle>
+          <form className="flex items-center gap-2">
+            <select
+              name="status"
+              defaultValue={statusFilter}
+              className="flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30"
+            >
+              <option value="">{t("common.all")}</option>
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>{t(`finances.status${s}`)}</option>
+              ))}
+            </select>
+            <Button type="submit" size="sm" variant="outline">{t("common.search")}</Button>
+          </form>
         </CardHeader>
         <CardContent className="p-0">
-          {rows.length === 0 ? (
+          {visibleRows.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">{t("finances.noOpenItems")}</p>
           ) : (
             <Table>
@@ -139,7 +164,7 @@ export default async function FinancesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map(({ c, open, status, dunLevel }) => (
+                {visibleRows.map(({ c, open, status, dunLevel }) => (
                   <TableRow key={c.id}>
                     <TableCell>{date(c.period, locale)}</TableCell>
                     <TableCell>{t(`chargeType.${c.type}`)}</TableCell>

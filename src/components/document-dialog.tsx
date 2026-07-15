@@ -8,7 +8,15 @@ import { uploadDocument } from "@/server/actions/documents";
 type Opt = { value: string; label: string };
 const CATS = ["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "SONSTIGES"];
 
-export async function DocumentDialog({ properties }: { properties: Opt[] }) {
+export async function DocumentDialog({
+  properties,
+  units,
+  persons,
+}: {
+  properties: Opt[];
+  units: Opt[];
+  persons: Opt[];
+}) {
   const t = await getTranslations();
   const catOpts = await getTranslations("documentCategory").then((tt) =>
     CATS.map((k) => ({ value: k, label: tt(k) })),
@@ -32,6 +40,16 @@ export async function DocumentDialog({ properties }: { properties: Opt[] }) {
         name="propertyId"
         label={t("documents.property")}
         options={[{ value: "", label: t("documents.allProperties") }, ...properties]}
+      />
+      <SelectField
+        name="unitId"
+        label={t("documents.unit")}
+        options={[{ value: "", label: t("common.none") }, ...units]}
+      />
+      <SelectField
+        name="personId"
+        label={t("documents.person")}
+        options={[{ value: "", label: t("common.none") }, ...persons]}
       />
     </CrudDialog>
   );

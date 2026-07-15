@@ -1,9 +1,11 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { Download } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { money, date } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -65,7 +67,13 @@ export default async function LeasesPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("leases.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("leases.subtitle")}</p>
         </div>
-        <LeaseDialog units={unitOpts} persons={personOpts} />
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" render={<a href="/api/export/tenants" />}>
+            <Download className="size-4" />
+            {t("common.exportCsv")}
+          </Button>
+          <LeaseDialog units={unitOpts} persons={personOpts} />
+        </div>
       </div>
 
       <Card>

@@ -25,11 +25,13 @@
     "deleteTitle": "Wirklich löschen?",
     "deleteDesc": "Dieser Vorgang kann nicht rückgängig gemacht werden. Verknüpfte Daten werden mitgelöscht.",
     "none": "—",
+    "all": "Alle",
     "yes": "Ja",
     "no": "Nein",
     "saved": "Gespeichert",
     "deleted": "Gelöscht",
-    "deleteFailed": "Löschen fehlgeschlagen"
+    "deleteFailed": "Löschen fehlgeschlagen",
+    "exportCsv": "CSV-Export"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -345,7 +347,8 @@
     "importExport": "Import / Export",
     "importCamt": "camt.053 importieren",
     "datevExport": "DATEV-Export",
-    "sepaExport": "SEPA-Lastschrift (pain.008)"
+    "sepaExport": "SEPA-Lastschrift (pain.008)",
+    "openItemsCsv": "Offene Posten (CSV)"
   },
   "accountType": {
     "BANK": "Bankkonto",
@@ -385,7 +388,10 @@
     "bookCharges": "Nachzahlungen buchen",
     "mailTenants": "An Mieter mailen",
     "charged": "Nachzahlungen als Sollstellung gebucht.",
-    "mailed": "Abrechnungs-Entwürfe im Postausgang erstellt."
+    "mailed": "Abrechnungs-Entwürfe im Postausgang erstellt.",
+    "explain": "KI: Abrechnung erklären",
+    "explaining": "Erkläre…",
+    "explainHint": "Ohne ANTHROPIC_API_KEY wird nur eine Kurzfassung gezeigt."
   },
   "costType": {
     "GRUNDSTEUER": "Grundsteuer",
@@ -473,7 +479,12 @@
     "download": "Herunterladen",
     "eInvoice": "E-Rechnung",
     "size": "Größe",
-    "allProperties": "Alle Objekte"
+    "allProperties": "Alle Objekte",
+    "unit": "Einheit (optional)",
+    "person": "Person (optional)",
+    "preview": "Vorschau",
+    "linkedTo": "Verknüpft mit",
+    "searchPlaceholder": "Name suchen…"
   },
   "documentCategory": {
     "VERTRAG": "Vertrag",
@@ -578,7 +589,8 @@
     "user": "Benutzer",
     "action": "Aktion",
     "entity": "Objekt",
-    "summary": "Beschreibung"
+    "summary": "Beschreibung",
+    "pageOf": "Seite {page} von {pages}"
   },
   "auditAction": {
     "CREATE": "Angelegt",
@@ -599,7 +611,28 @@
     "status": "Status",
     "send": "Senden",
     "empty": "Keine E-Mails im Postausgang.",
-    "noSmtp": "Kein SMTP konfiguriert — E-Mails werden erfasst und als versendet markiert, aber nicht real zugestellt. Zugangsdaten unter Einstellungen eintragen."
+    "noSmtp": "Kein SMTP konfiguriert — E-Mails werden erfasst und als versendet markiert, aber nicht real zugestellt. Zugangsdaten unter Einstellungen eintragen.",
+    "template": "Vorlage",
+    "templateChoose": "Vorlage wählen",
+    "bulk": "Serien-Mail",
+    "audience": "Empfängerkreis",
+    "tpl": {
+      "reminder": {
+        "name": "Zahlungserinnerung",
+        "subject": "Zahlungserinnerung",
+        "body": "Sehr geehrte Damen und Herren,\n\nauf Ihrem Mietkonto ist noch ein Betrag offen. Wir bitten um Ausgleich innerhalb von 14 Tagen.\n\nMit freundlichen Grüßen\nIhre Hausverwaltung"
+      },
+      "info": {
+        "name": "Info an Mieter",
+        "subject": "Information Ihrer Hausverwaltung",
+        "body": "Sehr geehrte Mieterinnen und Mieter,\n\nwir möchten Sie über Folgendes informieren:\n\n...\n\nMit freundlichen Grüßen\nIhre Hausverwaltung"
+      },
+      "statement": {
+        "name": "Abrechnung angekündigt",
+        "subject": "Ihre Betriebskostenabrechnung",
+        "body": "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie Ihre Betriebskostenabrechnung. Bei Rückfragen stehen wir gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhre Hausverwaltung"
+      }
+    }
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",

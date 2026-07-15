@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/rbac";
 import { isAiConfigured, askAssistant } from "@/lib/ai";
+import { computeStatement } from "@/server/statements";
+import { money } from "@/lib/format";
 
 export type AssistantState = { answer?: string; configured?: boolean; error?: string };
 
@@ -78,6 +80,45 @@ export async function askAssistantAction(_prev: AssistantState, fd: FormData): P
 
   try {
     const answer = await askAssistant(JSON.stringify(ctx), question, aiCfg);
+    return { answer, configured: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "KI-Anfrage fehlgeschlagen", configured: true };
+  }
+}
+
+/** Erklärt die Betriebskostenabrechnung eines Objekts/Jahres in Klartext. */
+export async function explainStatement(_p: AssistantState, fd: FormData): Promise<AssistantState> {
+  const user = await requireUser();
+  const propertyId = String(fd.get("propertyId") ?? "");
+  const year = Number(fd.get("year")) || new Date().getFullYear();
+  if (!propertyId) return { error: "Kein Objekt" };
+
+  const st = await computeStatement(user.tenantId, propertyId, year);
+  const tenant = await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { aiApiKey: true, aiModel: true } });
+  const aiCfg = { apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
+
+  const ctx = {
+    objekt: st.property?.name,
+    jahr: year,
+    summeUmlagefaehig: st.totalUmlage,
+    kosten: st.costs.map((c) => ({ typ: c.type, betrag: c.amount, schluessel: c.method, umlagefaehig: c.umlagefaehig })),
+    einheiten: st.units.map((u) => ({ einheit: u.label, umgelegt: u.allocated, vorauszahlung: u.prepayment, saldo: u.balance })),
+  };
+
+  if (!isAiConfigured(aiCfg)) {
+    const answer =
+      `KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt). Kurzfassung der Abrechnung ${year}:\n` +
+      `• Objekt: ${ctx.objekt}\n` +
+      `• Umlagefähige Kosten gesamt: ${money(st.totalUmlage)}\n` +
+      st.units.map((u) => `• ${u.label}: umgelegt ${money(u.allocated)}, VZ ${money(u.prepayment)}, Saldo ${money(u.balance)} ${u.balance >= 0 ? "(Guthaben)" : "(Nachzahlung)"}`).join("\n");
+    return { answer, configured: false };
+  }
+  try {
+    const answer = await askAssistant(
+      JSON.stringify(ctx),
+      "Erkläre diese Betriebskostenabrechnung einem Mieter in einfachen, freundlichen Worten: was wurde nach welchem Schlüssel umgelegt, und wie kommt der Saldo je Einheit zustande. Kurz und verständlich.",
+      aiCfg,
+    );
     return { answer, configured: true };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "KI-Anfrage fehlgeschlagen", configured: true };

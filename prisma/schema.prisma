@@ -137,6 +137,7 @@ model Unit {
   owners     Owner[]
   meters     Meter[]
   tickets    Ticket[]
+  documents  Document[]
   createdAt  DateTime @default(now())
 
   @@index([tenantId])
@@ -182,6 +183,7 @@ model Person {
   renters   Renter[]
   mandates  SepaMandate[]
   users     User[]
+  documents Document[]
   createdAt DateTime @default(now())
 
   @@index([tenantId])
@@ -517,6 +519,10 @@ model Document {
   property   Property?        @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   name       String
   category   DocumentCategory @default(SONSTIGES)
+  unitId     String?
+  unit       Unit?            @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  personId   String?
+  person     Person?          @relation(fields: [personId], references: [id], onDelete: SetNull)
   mime       String
   size       Int
   storageKey String // Dateiname im Storage

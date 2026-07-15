@@ -25,11 +25,13 @@
     "deleteTitle": "Delete for good?",
     "deleteDesc": "This action cannot be undone. Linked data will be deleted too.",
     "none": "—",
+    "all": "All",
     "yes": "Yes",
     "no": "No",
     "saved": "Saved",
     "deleted": "Deleted",
-    "deleteFailed": "Delete failed"
+    "deleteFailed": "Delete failed",
+    "exportCsv": "Export CSV"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -345,7 +347,8 @@
     "importExport": "Import / Export",
     "importCamt": "Import camt.053",
     "datevExport": "DATEV export",
-    "sepaExport": "SEPA direct debit (pain.008)"
+    "sepaExport": "SEPA direct debit (pain.008)",
+    "openItemsCsv": "Open items (CSV)"
   },
   "accountType": {
     "BANK": "Bank account",
@@ -385,7 +388,10 @@
     "bookCharges": "Book arrears",
     "mailTenants": "Email to tenants",
     "charged": "Arrears booked as charges.",
-    "mailed": "Statement drafts created in the outbox."
+    "mailed": "Statement drafts created in the outbox.",
+    "explain": "AI: explain statement",
+    "explaining": "Explaining…",
+    "explainHint": "Without ANTHROPIC_API_KEY only a short summary is shown."
   },
   "costType": {
     "GRUNDSTEUER": "Property tax",
@@ -473,7 +479,12 @@
     "download": "Download",
     "eInvoice": "E-invoice",
     "size": "Size",
-    "allProperties": "All properties"
+    "allProperties": "All properties",
+    "unit": "Unit (optional)",
+    "person": "Person (optional)",
+    "preview": "Preview",
+    "linkedTo": "Linked to",
+    "searchPlaceholder": "Search name…"
   },
   "documentCategory": {
     "VERTRAG": "Contract",
@@ -578,7 +589,8 @@
     "user": "User",
     "action": "Action",
     "entity": "Entity",
-    "summary": "Description"
+    "summary": "Description",
+    "pageOf": "Page {page} of {pages}"
   },
   "auditAction": {
     "CREATE": "Created",
@@ -599,7 +611,28 @@
     "status": "Status",
     "send": "Send",
     "empty": "No emails in the outbox.",
-    "noSmtp": "No SMTP configured — emails are recorded and marked as sent, but not actually delivered. Enter credentials under Settings."
+    "noSmtp": "No SMTP configured — emails are recorded and marked as sent, but not actually delivered. Enter credentials under Settings.",
+    "template": "Template",
+    "templateChoose": "Choose template",
+    "bulk": "Bulk email",
+    "audience": "Recipients",
+    "tpl": {
+      "reminder": {
+        "name": "Payment reminder",
+        "subject": "Payment reminder",
+        "body": "Dear Sir or Madam,\n\nan amount is still outstanding on your rent account. Please settle it within 14 days.\n\nKind regards\nYour property management"
+      },
+      "info": {
+        "name": "Info to tenants",
+        "subject": "Information from your property management",
+        "body": "Dear tenants,\n\nwe would like to inform you of the following:\n\n...\n\nKind regards\nYour property management"
+      },
+      "statement": {
+        "name": "Statement announced",
+        "subject": "Your service-charge statement",
+        "body": "Dear Sir or Madam,\n\nplease find attached your service-charge statement. We are happy to answer any questions.\n\nKind regards\nYour property management"
+      }
+    }
   },
   "emailStatus": {
     "ENTWURF": "Draft",

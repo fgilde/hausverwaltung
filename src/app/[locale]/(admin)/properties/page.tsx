@@ -1,8 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { Download } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -36,7 +38,13 @@ export default async function PropertiesPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("properties.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("properties.subtitle")}</p>
         </div>
-        <PropertyDialog />
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" render={<a href="/api/export/properties" />}>
+            <Download className="size-4" />
+            {t("common.exportCsv")}
+          </Button>
+          <PropertyDialog />
+        </div>
       </div>
 
       <Card>

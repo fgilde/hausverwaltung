@@ -101,6 +101,39 @@ export async function sendEmail(fd: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
+/** Serien-Mail: Entwurf je Mieter oder Eigentümer eines Objekts. */
+export async function bulkEmail(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const propertyId = String(fd.get("propertyId") ?? "");
+  const audience = String(fd.get("audience") ?? "");
+  const subject = String(fd.get("subject") ?? "").trim();
+  const body = String(fd.get("body") ?? "").trim();
+  if (!propertyId || !subject || !body) return { error: "Objekt, Betreff und Nachricht erforderlich." };
+
+  const emails = new Set<string>();
+  if (audience === "EIGENTUEMER") {
+    const owners = await prisma.owner.findMany({
+      where: { tenantId: user.tenantId, unit: { building: { propertyId } } },
+      include: { person: { select: { email: true } } },
+    });
+    owners.forEach((o) => o.person.email && emails.add(o.person.email));
+  } else {
+    const renters = await prisma.renter.findMany({
+      where: { tenantId: user.tenantId, lease: { unit: { building: { propertyId } } } },
+      include: { person: { select: { email: true } } },
+    });
+    renters.forEach((r) => r.person.email && emails.add(r.person.email));
+  }
+  if (emails.size === 0) return { error: "Keine Empfänger mit E-Mail-Adresse gefunden." };
+
+  await prisma.emailMessage.createMany({
+    data: [...emails].map((to) => ({ tenantId: user.tenantId, toAddress: to, subject, body, status: "ENTWURF" as const })),
+  });
+  await audit(user, "CREATE", "EmailMessage", null, `Serien-Mail (${emails.size})`);
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 export async function deleteEmail(fd: FormData): Promise<void> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");

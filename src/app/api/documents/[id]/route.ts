@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { readFile } from "@/lib/storage";
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
@@ -37,10 +37,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (!doc) return new Response("Not found", { status: 404 });
 
   const buf = await readFile(doc.storageKey);
+  // ?inline=1 → im Browser anzeigen statt herunterladen (Vorschau)
+  const inline = new URL(req.url).searchParams.get("inline") === "1";
   return new Response(new Uint8Array(buf), {
     headers: {
       "Content-Type": doc.mime,
-      "Content-Disposition": `attachment; filename="${encodeURIComponent(doc.name)}"`,
+      "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${encodeURIComponent(doc.name)}"`,
     },
   });
 }
