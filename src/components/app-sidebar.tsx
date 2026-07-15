@@ -1,6 +1,5 @@
 "use client";
 
-import { Building2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { navGroups } from "@/lib/nav";
@@ -24,9 +23,8 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Building2 className="size-5" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.png" alt="HaVeWa" className="size-8 rounded-md" />
           <div className="grid leading-tight">
             <span className="font-semibold">{t("app.name")}</span>
             <span className="text-xs text-muted-foreground">{t("app.tagline")}</span>
