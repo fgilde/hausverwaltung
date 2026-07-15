@@ -80,8 +80,8 @@ header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--
 header.site.scrolled{border-bottom-color:var(--border);background:color-mix(in srgb,var(--paper) 94%,transparent)}
 .nav{display:flex;align-items:center;gap:28px;height:72px}
 .brand{display:flex;align-items:center;gap:11px;font-weight:700}
-.brand .mark{width:38px;height:38px;border-radius:11px;background:var(--ink);color:var(--paper);display:grid;place-items:center;flex:none;overflow:hidden}
-.brand .mark img{width:100%;height:100%;object-fit:cover;display:block}
+.brand .mark{width:38px;height:38px;display:grid;place-items:center;flex:none}
+.brand .mark img{width:100%;height:100%;object-fit:contain;display:block}
 .brand .mark svg{width:21px;height:21px}
 .brand .name{font-family:var(--serif);font-size:21px;letter-spacing:-.01em;line-height:1}
 .brand .sub{font-size:11px;color:var(--muted);letter-spacing:.02em;font-weight:500}
@@ -715,7 +715,7 @@ dialog[open]{animation:modalpop .24s ease}
     </div>
     <div class="foot-bottom">
       <span class="lic" data-i18n="foot.lic">© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Server in der EU</span>
-      <a class="by-gilde" href="https://gilde.org" target="_blank" rel="noopener">
+      <a class="by-gilde" href="https://www.gilde.org" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.6 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg>
         by gilde.org
       </a>
