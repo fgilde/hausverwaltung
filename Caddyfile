@@ -1,0 +1,5 @@
+# Automatisches HTTPS via Let's Encrypt. DOMAIN kommt aus der Umgebung.
+{$DOMAIN} {
+	reverse_proxy app:3000
+	encode zstd gzip
+}

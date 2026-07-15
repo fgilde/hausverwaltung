@@ -12,10 +12,26 @@ services:
       DATABASE_URL: "postgresql://havewa:${DB_PASSWORD}@db:5432/havewa?schema=public"
       AUTH_SECRET: "${AUTH_SECRET}"
       AUTH_TRUST_HOST: "true"
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     volumes:
       - havewa-storage:/app/storage
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: havewa-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: "${DOMAIN}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
 
   db:
     image: postgres:16-alpine
@@ -36,3 +52,5 @@ services:
 volumes:
   havewa-db:
   havewa-storage:
+  caddy-data:
+  caddy-config:

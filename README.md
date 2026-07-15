@@ -79,24 +79,31 @@ src/
 
 ## Deployment (VPS + Docker)
 
-Ein einzelner Server mit Docker. App + Postgres + Volumes laufen per Compose.
+Ein einzelner Server mit Docker. Caddy (automatisches HTTPS via Let's Encrypt) +
+App + Postgres + Volumes laufen per Compose.
+
+**Voraussetzungen:** Domain mit DNS-A-Record auf den Server, Ports **80 + 443** offen.
 
 ```bash
 # auf dem VPS
 git clone https://github.com/fgilde/hausverwaltung.git
 cd hausverwaltung
 
-# Secrets setzen
+# Secrets + Domain setzen
 cp .env.prod.example .env
 #   DB_PASSWORD  = starkes Passwort
 #   AUTH_SECRET  = openssl rand -base64 32
+#   DOMAIN       = deine-domain.de
 
 # Build + Start (Migrationen laufen automatisch beim Container-Start)
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-- App: `http://<server>:3000` (davor idealerweise Reverse-Proxy wie Caddy/nginx für TLS).
-- **Persistenz**: `havewa-db` (Datenbank) + `havewa-storage` (Dokumente) als Docker-Volumes.
+- **Zugriff**: `https://<DOMAIN>` — Caddy holt/erneuert das TLS-Zertifikat automatisch
+  und leitet HTTP→HTTPS um. Die App selbst ist nicht direkt nach außen exponiert
+  (nur intern über Caddy erreichbar).
+- **Persistenz**: `havewa-db` (Datenbank) + `havewa-storage` (Dokumente) +
+  `caddy-data` (Zertifikate) als Docker-Volumes.
 - **Updates**: `git pull && docker compose -f docker-compose.prod.yml up -d --build`
   (Migrationen werden beim Start via `prisma migrate deploy` angewandt).
 - **Demo-Daten** einmalig optional: `docker compose -f docker-compose.prod.yml exec app npx tsx prisma/seed.ts`
@@ -107,6 +114,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 |---|---|
 | `DB_PASSWORD` | Postgres-Passwort (Compose baut daraus `DATABASE_URL`) |
 | `AUTH_SECRET` | Session-Secret (`openssl rand -base64 32`) |
+| `DOMAIN` | Domain für Caddy/HTTPS (DNS muss auf den Server zeigen) |
 
 ## Bekannte Vereinfachungen
 
