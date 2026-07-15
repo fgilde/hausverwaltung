@@ -1,0 +1,641 @@
+// HaVeWa — Kern-Schema (Phase 1). Spätere Phasen erweitern hier.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  VERWALTER
+  BUCHHALTUNG
+  BEIRAT
+  EIGENTUEMER
+  MIETER
+  HANDWERKER
+}
+
+enum ManagementType {
+  MIET
+  WEG
+}
+
+enum PropertyType {
+  WOHNEN
+  GEWERBE
+  GEMISCHT
+}
+
+enum UnitType {
+  WOHNUNG
+  GEWERBE
+  STELLPLATZ
+  KELLER
+  SONSTIGES
+}
+
+enum MeterType {
+  STROM
+  GAS
+  WASSER_KALT
+  WASSER_WARM
+  WAERME
+}
+
+// Mandant = Verwaltungsfirma. Jede Domänen-Zeile trägt tenantId.
+model Tenant {
+  id         String     @id @default(cuid())
+  name       String
+  createdAt  DateTime   @default(now())
+  users      User[]
+  properties Property[]
+  persons    Person[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole @default(VERWALTER)
+  locale       String   @default("de")
+  personId     String?
+  person       Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model Property {
+  id         String         @id @default(cuid())
+  tenantId   String
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name       String
+  street     String
+  zip        String
+  city       String
+  type          PropertyType   @default(WOHNEN)
+  management    ManagementType @default(MIET)
+  buildings     Building[]
+  costEntries   CostEntry[]
+  economicPlans EconomicPlan[]
+  reserves      Reserve[]
+  meetings      Meeting[]
+  resolutions   Resolution[]
+  documents     Document[]
+  tickets       Ticket[]
+  maintenance   MaintenanceContract[]
+  createdAt     DateTime       @default(now())
+
+  @@index([tenantId])
+}
+
+model Building {
+  id         String   @id @default(cuid())
+  tenantId   String
+  name       String
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  units      Unit[]
+  createdAt  DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([propertyId])
+}
+
+model Unit {
+  id         String   @id @default(cuid())
+  tenantId   String
+  label      String
+  type       UnitType @default(WOHNUNG)
+  area       Decimal  @db.Decimal(10, 2)
+  rooms      Decimal? @db.Decimal(4, 1)
+  mea        Int? // Miteigentumsanteile (Tausendstel) für WEG
+  buildingId String
+  building   Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  leases     Lease[]
+  owners     Owner[]
+  meters     Meter[]
+  tickets    Ticket[]
+  createdAt  DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([buildingId])
+}
+
+model Meter {
+  id        String         @id @default(cuid())
+  tenantId  String
+  unitId    String
+  unit      Unit           @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  type      MeterType
+  serialNo  String
+  readings  MeterReading[]
+  createdAt DateTime       @default(now())
+
+  @@index([tenantId])
+  @@index([unitId])
+}
+
+model MeterReading {
+  id        String   @id @default(cuid())
+  tenantId  String
+  meterId   String
+  meter     Meter    @relation(fields: [meterId], references: [id], onDelete: Cascade)
+  date      DateTime
+  value     Decimal  @db.Decimal(12, 3)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([meterId])
+}
+
+model Person {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  owners    Owner[]
+  renters   Renter[]
+  mandates  SepaMandate[]
+  users     User[]
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+// Eigentümer einer Einheit (WEG / Mietobjekt-Eigentümer)
+model Owner {
+  id       String  @id @default(cuid())
+  tenantId String
+  personId String
+  person   Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  unitId   String
+  unit     Unit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  share    Int     @default(1000) // Anteil an der Einheit (Tausendstel)
+
+  @@index([tenantId])
+}
+
+model Lease {
+  id            String           @id @default(cuid())
+  tenantId      String
+  unitId        String
+  unit          Unit             @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  startDate     DateTime
+  endDate       DateTime?
+  rentCold      Decimal          @db.Decimal(10, 2)
+  personCount   Int              @default(1)
+  noticePeriodM Int? // Kündigungsfrist in Monaten
+  renters       Renter[]
+  components    RentComponent[]
+  adjustments   RentAdjustment[]
+  deposit       Deposit?
+  charges       Charge[]
+  createdAt     DateTime         @default(now())
+
+  @@index([tenantId])
+  @@index([unitId])
+}
+
+model Renter {
+  id       String @id @default(cuid())
+  tenantId String
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  leaseId  String
+  lease    Lease  @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+enum RentComponentType {
+  NEBENKOSTEN
+  HEIZKOSTEN
+  STELLPLATZ
+  MODERNISIERUNG
+  SONSTIGES
+}
+
+// Wiederkehrende Miet-Bestandteile zusätzlich zur Kaltmiete.
+model RentComponent {
+  id       String            @id @default(cuid())
+  tenantId String
+  leaseId  String
+  lease    Lease             @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  type     RentComponentType
+  amount   Decimal           @db.Decimal(10, 2)
+  note     String?
+
+  @@index([tenantId])
+  @@index([leaseId])
+}
+
+enum AdjustmentType {
+  STAFFEL
+  INDEX
+}
+
+// Staffel-/Indexmiete: geplante oder erfolgte Kaltmieten-Anpassung.
+model RentAdjustment {
+  id            String         @id @default(cuid())
+  tenantId      String
+  leaseId       String
+  lease         Lease          @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  type          AdjustmentType
+  effectiveDate DateTime
+  newRentCold   Decimal        @db.Decimal(10, 2)
+  indexBase     Decimal?       @db.Decimal(8, 2) // VPI Basiswert (INDEX)
+  indexNew      Decimal?       @db.Decimal(8, 2) // VPI neuer Wert (INDEX)
+  applied       Boolean        @default(false)
+  note          String?
+
+  @@index([tenantId])
+  @@index([leaseId])
+}
+
+enum DepositType {
+  BAR
+  BUERGSCHAFT
+  VERPFAENDET
+  KAUTIONSKONTO
+}
+
+model Deposit {
+  id           String      @id @default(cuid())
+  tenantId     String
+  leaseId      String      @unique
+  lease        Lease       @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  type         DepositType
+  amount       Decimal     @db.Decimal(10, 2)
+  receivedDate DateTime?
+  returnedDate DateTime?
+  note         String?
+
+  @@index([tenantId])
+}
+
+// ---------- Finanzen ----------
+
+enum AccountType {
+  BANK
+  KAUTION
+  RUECKLAGE
+  SACHKONTO
+}
+
+model Account {
+  id        String      @id @default(cuid())
+  tenantId  String
+  name      String
+  type      AccountType @default(BANK)
+  iban      String?
+  payments  Payment[]
+  createdAt DateTime    @default(now())
+
+  @@index([tenantId])
+}
+
+enum ChargeType {
+  MIETE
+  NEBENKOSTEN
+  HAUSGELD
+  SONSTIGES
+}
+
+// Sollstellung: Forderung gegen Mieter/Eigentümer.
+model Charge {
+  id          String         @id @default(cuid())
+  tenantId    String
+  leaseId     String?
+  lease       Lease?         @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  type        ChargeType     @default(MIETE)
+  period      DateTime // Monatserster des Abrechnungsmonats
+  dueDate     DateTime
+  amount      Decimal        @db.Decimal(10, 2)
+  description String?
+  payments    Payment[]
+  dunnings    DunningNotice[]
+  createdAt   DateTime       @default(now())
+
+  @@index([tenantId])
+  @@index([leaseId])
+}
+
+enum PaymentDirection {
+  EINGANG
+  AUSGANG
+}
+
+model Payment {
+  id        String           @id @default(cuid())
+  tenantId  String
+  accountId String?
+  account   Account?         @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  chargeId  String?
+  charge    Charge?          @relation(fields: [chargeId], references: [id], onDelete: SetNull)
+  date      DateTime
+  amount    Decimal          @db.Decimal(10, 2)
+  direction PaymentDirection @default(EINGANG)
+  reference String?
+  createdAt DateTime         @default(now())
+
+  @@index([tenantId])
+  @@index([chargeId])
+}
+
+model SepaMandate {
+  id         String   @id @default(cuid())
+  tenantId   String
+  personId   String
+  person     Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  iban       String
+  mandateRef String
+  signedDate DateTime
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model DunningNotice {
+  id       String   @id @default(cuid())
+  tenantId String
+  chargeId String
+  charge   Charge   @relation(fields: [chargeId], references: [id], onDelete: Cascade)
+  level    Int      @default(1)
+  date     DateTime @default(now())
+  fee      Decimal  @default(0) @db.Decimal(10, 2)
+  note     String?
+
+  @@index([tenantId])
+  @@index([chargeId])
+}
+
+// ---------- Betriebskostenabrechnung ----------
+
+enum CostType {
+  GRUNDSTEUER
+  WASSER
+  ENTWAESSERUNG
+  HEIZUNG
+  WARMWASSER
+  AUFZUG
+  STRASSENREINIGUNG
+  MUELL
+  GEBAEUDEREINIGUNG
+  GARTENPFLEGE
+  BELEUCHTUNG
+  SCHORNSTEIN
+  VERSICHERUNG
+  HAUSWART
+  KABEL
+  SONSTIGE
+}
+
+enum AllocationMethodDb {
+  AREA
+  UNITS
+  PERSONS
+  CONSUMPTION
+  MEA
+}
+
+// ---------- Aufgaben / Fristen ----------
+
+model Task {
+  id        String    @id @default(cuid())
+  tenantId  String
+  title     String
+  dueDate   DateTime?
+  done      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@index([tenantId])
+}
+
+// ---------- Instandhaltung ----------
+
+model Contractor {
+  id          String                @id @default(cuid())
+  tenantId    String
+  name        String
+  trade       String // Gewerk
+  email       String?
+  phone       String?
+  tickets     Ticket[]
+  contracts   MaintenanceContract[]
+  createdAt   DateTime              @default(now())
+
+  @@index([tenantId])
+}
+
+enum TicketStatus {
+  OFFEN
+  IN_ARBEIT
+  ERLEDIGT
+}
+
+enum TicketPriority {
+  NIEDRIG
+  MITTEL
+  HOCH
+}
+
+model Ticket {
+  id           String         @id @default(cuid())
+  tenantId     String
+  propertyId   String?
+  property     Property?      @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  unitId       String?
+  unit         Unit?          @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  contractorId String?
+  contractor   Contractor?    @relation(fields: [contractorId], references: [id], onDelete: SetNull)
+  title        String
+  description  String?
+  status       TicketStatus   @default(OFFEN)
+  priority     TicketPriority @default(MITTEL)
+  createdAt    DateTime       @default(now())
+
+  @@index([tenantId])
+}
+
+model MaintenanceContract {
+  id             String      @id @default(cuid())
+  tenantId       String
+  propertyId     String
+  property       Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  contractorId   String?
+  contractor     Contractor? @relation(fields: [contractorId], references: [id], onDelete: SetNull)
+  title          String
+  intervalMonths Int
+  nextDue        DateTime
+  note           String?
+  createdAt      DateTime    @default(now())
+
+  @@index([tenantId])
+}
+
+// ---------- Dokumente (GoBD) ----------
+
+enum DocumentCategory {
+  VERTRAG
+  RECHNUNG
+  ERECHNUNG
+  PROTOKOLL
+  ABRECHNUNG
+  SONSTIGES
+}
+
+model Document {
+  id         String           @id @default(cuid())
+  tenantId   String
+  propertyId String?
+  property   Property?        @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  name       String
+  category   DocumentCategory @default(SONSTIGES)
+  mime       String
+  size       Int
+  storageKey String // Dateiname im Storage
+  eInvoice   Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  @@index([tenantId])
+  @@index([propertyId])
+}
+
+// ---------- Eigentümerversammlung ----------
+
+enum MeetingStatus {
+  GEPLANT
+  DURCHGEFUEHRT
+}
+
+model Meeting {
+  id          String        @id @default(cuid())
+  tenantId    String
+  propertyId  String
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  title       String
+  date        DateTime
+  location    String?
+  status      MeetingStatus @default(GEPLANT)
+  protocol    String? // Protokolltext
+  agendaItems AgendaItem[]
+  resolutions Resolution[]
+  createdAt   DateTime      @default(now())
+
+  @@index([tenantId])
+  @@index([propertyId])
+}
+
+model AgendaItem {
+  id          String  @id @default(cuid())
+  tenantId    String
+  meetingId   String
+  meeting     Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  position    Int
+  title       String
+  description String?
+
+  @@index([tenantId])
+  @@index([meetingId])
+}
+
+enum ResolutionResult {
+  ANGENOMMEN
+  ABGELEHNT
+  VERTAGT
+}
+
+// Beschluss + Beschlusssammlung (§24 Abs. 7 WEG): fortlaufende Nummer je Objekt.
+model Resolution {
+  id            String           @id @default(cuid())
+  tenantId      String
+  propertyId    String
+  property      Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  meetingId     String?
+  meeting       Meeting?         @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  number        Int // fortlaufend je Objekt
+  title         String
+  text          String
+  date          DateTime
+  result        ResolutionResult @default(ANGENOMMEN)
+  votesYes      Int              @default(0)
+  votesNo       Int              @default(0)
+  votesAbstain  Int              @default(0)
+  createdAt     DateTime         @default(now())
+
+  @@index([tenantId])
+  @@index([propertyId])
+}
+
+// ---------- WEG ----------
+
+// Wirtschaftsplan (§28 WEG): geplante Gesamtkosten je WEG-Objekt und Jahr.
+// Hausgeld je Eigentümer = Umlage nach MEA, monatlich = /12.
+model EconomicPlan {
+  id          String   @id @default(cuid())
+  tenantId    String
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  year        Int
+  totalAmount Decimal  @db.Decimal(12, 2)
+  note        String?
+  createdAt   DateTime @default(now())
+
+  @@unique([propertyId, year])
+  @@index([tenantId])
+}
+
+// Erhaltungsrücklage (WEG-Reform 2020).
+model Reserve {
+  id           String              @id @default(cuid())
+  tenantId     String
+  propertyId   String
+  property     Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name         String
+  transactions ReserveTransaction[]
+  createdAt    DateTime            @default(now())
+
+  @@index([tenantId])
+}
+
+model ReserveTransaction {
+  id        String   @id @default(cuid())
+  tenantId  String
+  reserveId String
+  reserve   Reserve  @relation(fields: [reserveId], references: [id], onDelete: Cascade)
+  date      DateTime
+  amount    Decimal  @db.Decimal(12, 2) // + Zuführung, - Entnahme
+  note      String?
+
+  @@index([tenantId])
+  @@index([reserveId])
+}
+
+// Kostenposition je Objekt und Abrechnungsjahr (BetrKV).
+model CostEntry {
+  id           String             @id @default(cuid())
+  tenantId     String
+  propertyId   String
+  property     Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  year         Int
+  type         CostType
+  amount       Decimal            @db.Decimal(12, 2)
+  method       AllocationMethodDb @default(AREA)
+  umlagefaehig Boolean            @default(true)
+  note         String?
+  createdAt    DateTime           @default(now())
+
+  @@index([tenantId])
+  @@index([propertyId, year])
+}

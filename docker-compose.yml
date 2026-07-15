@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: havewa-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: havewa
+      POSTGRES_PASSWORD: havewa
+      POSTGRES_DB: havewa
+    ports:
+      - "5432:5432"
+    volumes:
+      - havewa-db:/var/lib/postgresql/data
+
+volumes:
+  havewa-db:
