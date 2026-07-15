@@ -236,6 +236,14 @@ export const emailSchema = z.object({
   body: z.string().trim().min(1),
 });
 
+export const userCreateSchema = z.object({
+  name: z.string().trim().min(1),
+  email: z.string().trim().email(),
+  password: z.string().min(6),
+  role: z.enum(["ADMIN", "VERWALTER", "BUCHHALTUNG", "BEIRAT", "EIGENTUEMER", "MIETER", "HANDWERKER"]),
+  personId: optionalStr,
+});
+
 export const contractorSchema = z.object({
   name: z.string().trim().min(1),
   trade: z.string().trim().min(1),

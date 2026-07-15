@@ -19,14 +19,29 @@ export async function createEmail(_p: ActionState, fd: FormData): Promise<Action
   return { ok: true };
 }
 
+async function smtpConfig(tenantId: string) {
+  const t = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: {
+      smtpHost: true, smtpPort: true, smtpUser: true,
+      smtpPassword: true, smtpFrom: true, smtpSecure: true,
+    },
+  });
+  return {
+    host: t?.smtpHost, port: t?.smtpPort, user: t?.smtpUser,
+    password: t?.smtpPassword, from: t?.smtpFrom, secure: t?.smtpSecure,
+  };
+}
+
 export async function sendEmail(fd: FormData): Promise<void> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
   const msg = await prisma.emailMessage.findFirst({ where: { id, tenantId: user.tenantId } });
   if (!msg) return;
 
+  const cfg = await smtpConfig(user.tenantId);
   try {
-    await sendMail({ to: msg.toAddress, subject: msg.subject, body: msg.body });
+    await sendMail({ to: msg.toAddress, subject: msg.subject, body: msg.body }, cfg);
     await prisma.emailMessage.update({
       where: { id: msg.id },
       data: { status: "GESENDET", sentAt: new Date(), error: null },
@@ -36,7 +51,7 @@ export async function sendEmail(fd: FormData): Promise<void> {
       "UPDATE",
       "EmailMessage",
       msg.id,
-      isMailerConfigured() ? "gesendet" : "in Postausgang gestellt (kein SMTP)",
+      isMailerConfigured(cfg) ? "gesendet" : "in Postausgang gestellt (kein SMTP)",
     );
   } catch (e) {
     await prisma.emailMessage.update({

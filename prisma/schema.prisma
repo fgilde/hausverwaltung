@@ -55,6 +55,18 @@ model Tenant {
   users      User[]
   properties Property[]
   persons    Person[]
+
+  // KI-Konfiguration (überschreibt ENV, wenn gesetzt)
+  aiApiKey String?
+  aiModel  String?
+
+  // SMTP-Konfiguration für den Postausgang
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  smtpPassword String?
+  smtpFrom     String?
+  smtpSecure   Boolean @default(false)
 }
 
 model User {

@@ -40,8 +40,27 @@ npm run db:seed             # Demo-Mandant + Logins
 npm run dev                 # http://localhost:3000
 ```
 
-**Demo-Logins** (nach Seed): `admin@havewa.de / admin` (Verwalter),
-`mieter@havewa.de / mieter`, `eigentuemer@havewa.de / eigentuemer` (Portale).
+### Demo-Zugänge (nach `db:seed`)
+
+| Rolle | E-Mail | Passwort | Bereich |
+|---|---|---|---|
+| Administrator | `admin@havewa.de` | `admin` | Verwalter-App (Vollzugriff, Benutzerverwaltung, Konfiguration) |
+| Mieter | `mieter@havewa.de` | `mieter` | Mieter-Portal (`/portal`) |
+| Eigentümer | `eigentuemer@havewa.de` | `eigentuemer` | Eigentümer-Portal (`/portal`) |
+
+Weitere Zugänge (Verwalter, Buchhaltung, Beirat, Handwerker …) legt man als
+Administrator unter **Einstellungen → Benutzer** an. Administratoren dürfen alle
+Rollen vergeben, Verwalter alle außer Administrator/Verwalter.
+
+## Konfiguration (KI & E-Mail)
+
+KI-Assistent (Claude) und der SMTP-Postausgangsserver werden pro Mandant unter
+**Einstellungen** (nur Administrator) eingetragen und getestet — der API-Schlüssel
+bzw. die SMTP-Zugangsdaten müssen also nicht als Umgebungsvariablen gesetzt werden.
+Alternativ greifen die Adapter auf `ANTHROPIC_API_KEY` / `AI_MODEL` bzw.
+`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` aus der
+Umgebung zurück. Ohne KI-Schlüssel liefert der Assistent eine regelbasierte
+Kennzahlen-Zusammenfassung; ohne SMTP wird der Postausgang nur lokal geführt.
 
 ## Scripts
 

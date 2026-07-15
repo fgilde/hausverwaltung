@@ -55,7 +55,6 @@ export function LoginForm() {
       <Button type="submit" className="w-full" disabled={loading}>
         {t("submit")}
       </Button>
-      <p className="text-center text-xs text-muted-foreground">{t("demoHint")}</p>
     </form>
   );
 }

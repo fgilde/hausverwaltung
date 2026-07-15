@@ -24,11 +24,20 @@ export default async function EmailPage() {
   const t = await getTranslations();
   const locale = await getLocale();
 
-  const messages = await prisma.emailMessage.findMany({
-    where: { tenantId: user.tenantId },
-    orderBy: { createdAt: "desc" },
+  const [messages, tenant] = await Promise.all([
+    prisma.emailMessage.findMany({ where: { tenantId: user.tenantId }, orderBy: { createdAt: "desc" } }),
+    prisma.tenant.findUnique({
+      where: { id: user.tenantId },
+      select: { smtpHost: true, smtpPort: true, smtpUser: true, smtpFrom: true, smtpSecure: true },
+    }),
+  ]);
+  const configured = isMailerConfigured({
+    host: tenant?.smtpHost,
+    port: tenant?.smtpPort,
+    user: tenant?.smtpUser,
+    from: tenant?.smtpFrom,
+    secure: tenant?.smtpSecure,
   });
-  const configured = isMailerConfigured();
 
   const statusVariant = (s: string) =>
     s === "GESENDET" ? "secondary" : s === "FEHLER" ? "destructive" : "outline";

@@ -81,7 +81,43 @@
     "subtitle": "Mandant und Benutzer",
     "tenant": "Mandant",
     "users": "Benutzer",
-    "role": "Rolle"
+    "role": "Rolle",
+    "newUser": "Benutzer anlegen",
+    "linkedPerson": "Verknüpfte Person (für Portal)",
+    "usersHint": "Legen Sie Zugänge für Mitarbeiter sowie Mieter- und Eigentümer-Portale an.",
+    "you": "Sie"
+  },
+  "userRole": {
+    "ADMIN": "Administrator",
+    "VERWALTER": "Verwalter",
+    "BUCHHALTUNG": "Buchhaltung",
+    "BEIRAT": "Beirat",
+    "EIGENTUEMER": "Eigentümer",
+    "MIETER": "Mieter",
+    "HANDWERKER": "Handwerker"
+  },
+  "config": {
+    "aiTitle": "KI-Assistent",
+    "aiHint": "API-Schlüssel für Claude. Ohne Schlüssel zeigt der Assistent nur eine Kennzahlen-Zusammenfassung.",
+    "apiKey": "API-Schlüssel",
+    "model": "Modell",
+    "smtpTitle": "Postausgangsserver (SMTP)",
+    "smtpHint": "Für den echten Versand von E-Mails aus dem Postausgang.",
+    "host": "Server",
+    "port": "Port",
+    "user": "Benutzer",
+    "password": "Passwort",
+    "from": "Absender",
+    "secure": "Verschlüsselung (SSL/TLS)",
+    "secureYes": "SSL/TLS (Port 465)",
+    "secureNo": "STARTTLS/keine (Port 587/25)",
+    "save": "Speichern",
+    "saved": "Gespeichert",
+    "test": "Verbindung testen",
+    "testing": "Teste…",
+    "aiOk": "KI erreichbar",
+    "smtpOk": "SMTP-Verbindung OK",
+    "keySet": "•••••••• (gesetzt)"
   },
   "login": {
     "title": "Anmelden",
@@ -90,7 +126,12 @@
     "password": "Passwort",
     "submit": "Anmelden",
     "error": "E-Mail oder Passwort falsch",
-    "demoHint": "Demo: admin@havewa.de / admin"
+    "demoHint": "Demo: admin@havewa.de / admin",
+    "tagline": "Miet- und WEG-Verwaltung in einem System.",
+    "point1": "Betriebskostenabrechnung nach BetrKV & HeizkostenV",
+    "point2": "WEG-Jahresabrechnung, Versammlungen & Rücklagen",
+    "point3": "Mieter-/Eigentümer-Portale und KI-Assistent",
+    "demoTitle": "Demo-Zugänge"
   },
   "fields": {
     "name": "Name",
@@ -115,7 +156,8 @@
     "mandateRef": "Mandatsreferenz",
     "signedDate": "Unterzeichnet am",
     "amount": "Betrag",
-    "note": "Notiz"
+    "note": "Notiz",
+    "password": "Passwort"
   },
   "properties": {
     "title": "Objekte",

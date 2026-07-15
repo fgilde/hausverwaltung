@@ -81,7 +81,43 @@
     "subtitle": "Tenant and users",
     "tenant": "Tenant",
     "users": "Users",
-    "role": "Role"
+    "role": "Role",
+    "newUser": "Add user",
+    "linkedPerson": "Linked person (for portal)",
+    "usersHint": "Create logins for staff as well as tenant and owner portals.",
+    "you": "you"
+  },
+  "userRole": {
+    "ADMIN": "Administrator",
+    "VERWALTER": "Manager",
+    "BUCHHALTUNG": "Accounting",
+    "BEIRAT": "Advisory board",
+    "EIGENTUEMER": "Owner",
+    "MIETER": "Tenant",
+    "HANDWERKER": "Contractor"
+  },
+  "config": {
+    "aiTitle": "AI assistant",
+    "aiHint": "API key for Claude. Without a key the assistant only shows a metrics summary.",
+    "apiKey": "API key",
+    "model": "Model",
+    "smtpTitle": "Outgoing mail server (SMTP)",
+    "smtpHint": "Required to actually send emails from the outbox.",
+    "host": "Host",
+    "port": "Port",
+    "user": "User",
+    "password": "Password",
+    "from": "Sender",
+    "secure": "Encryption (SSL/TLS)",
+    "secureYes": "SSL/TLS (port 465)",
+    "secureNo": "STARTTLS/none (port 587/25)",
+    "save": "Save",
+    "saved": "Saved",
+    "test": "Test connection",
+    "testing": "Testing…",
+    "aiOk": "AI reachable",
+    "smtpOk": "SMTP connection OK",
+    "keySet": "•••••••• (set)"
   },
   "login": {
     "title": "Sign in",
@@ -90,7 +126,12 @@
     "password": "Password",
     "submit": "Sign in",
     "error": "Invalid email or password",
-    "demoHint": "Demo: admin@havewa.de / admin"
+    "demoHint": "Demo: admin@havewa.de / admin",
+    "tagline": "Rental and condominium management in one system.",
+    "point1": "Service-charge statements per BetrKV & HeizkostenV",
+    "point2": "HOA annual statements, meetings & reserves",
+    "point3": "Tenant/owner portals and AI assistant",
+    "demoTitle": "Demo logins"
   },
   "fields": {
     "name": "Name",
@@ -115,7 +156,8 @@
     "mandateRef": "Mandate reference",
     "signedDate": "Signed on",
     "amount": "Amount",
-    "note": "Note"
+    "note": "Note",
+    "password": "Password"
   },
   "properties": {
     "title": "Properties",

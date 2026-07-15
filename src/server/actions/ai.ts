@@ -58,7 +58,12 @@ export async function askAssistantAction(_prev: AssistantState, fd: FormData): P
   if (!question) return { error: "Bitte eine Frage eingeben." };
 
   const ctx = await buildContext(user.tenantId);
-  const configured = isAiConfigured();
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: user.tenantId },
+    select: { aiApiKey: true, aiModel: true },
+  });
+  const aiCfg = { apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
+  const configured = isAiConfigured(aiCfg);
 
   if (!configured) {
     // Regelbasierter Fallback ohne LLM: fasst die Kennzahlen zusammen.
@@ -72,7 +77,7 @@ export async function askAssistantAction(_prev: AssistantState, fd: FormData): P
   }
 
   try {
-    const answer = await askAssistant(JSON.stringify(ctx), question);
+    const answer = await askAssistant(JSON.stringify(ctx), question, aiCfg);
     return { answer, configured: true };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "KI-Anfrage fehlgeschlagen", configured: true };
