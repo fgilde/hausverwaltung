@@ -5,9 +5,9 @@ import { auth } from "@/auth";
 import { LoginForm } from "@/components/login-form";
 
 const DEMO = [
-  { role: "userRole.ADMIN", email: "admin@havewa.de", pw: "admin" },
-  { role: "userRole.MIETER", email: "mieter@havewa.de", pw: "mieter" },
-  { role: "userRole.EIGENTUEMER", email: "eigentuemer@havewa.de", pw: "eigentuemer" },
+  { role: "userRole.ADMIN", email: "admin@havewa.app", pw: "admin" },
+  { role: "userRole.MIETER", email: "mieter@havewa.app", pw: "mieter" },
+  { role: "userRole.EIGENTUEMER", email: "eigentuemer@havewa.app", pw: "eigentuemer" },
 ];
 
 export default async function LoginPage() {

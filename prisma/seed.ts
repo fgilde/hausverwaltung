@@ -34,7 +34,7 @@ async function main() {
   await prisma.user.create({
     data: {
       tenantId: tenant.id,
-      email: "admin@havewa.de",
+      email: "admin@havewa.app",
       name: "Admin",
       passwordHash: await bcrypt.hash("admin", 10),
       role: "ADMIN",
@@ -124,7 +124,7 @@ async function main() {
   await prisma.user.create({
     data: {
       tenantId: tenant.id,
-      email: "mieter@havewa.de",
+      email: "mieter@havewa.app",
       name: "Erika Mustermann",
       passwordHash: await bcrypt.hash("mieter", 10),
       role: "MIETER",
@@ -143,7 +143,7 @@ async function main() {
   await prisma.user.create({
     data: {
       tenantId: tenant.id,
-      email: "eigentuemer@havewa.de",
+      email: "eigentuemer@havewa.app",
       name: "Klaus Eigner",
       passwordHash: await bcrypt.hash("eigentuemer", 10),
       role: "EIGENTUEMER",
@@ -354,7 +354,7 @@ async function main() {
     ],
   });
 
-  console.log("Seed fertig. Admin: admin@havewa.de/admin · Mieter: mieter@havewa.de/mieter · Eigentümer: eigentuemer@havewa.de/eigentuemer");
+  console.log("Seed fertig. Admin: admin@havewa.app/admin · Mieter: mieter@havewa.app/mieter · Eigentümer: eigentuemer@havewa.app/eigentuemer");
 }
 
 main()

@@ -970,7 +970,7 @@ dialog[open]{animation:modalpop .24s ease}
   var demoDlg=document.getElementById('demoDialog'),contactDlg=document.getElementById('contactDialog');
   function open(dlg){if(dlg.showModal){try{dlg.showModal();}catch(e){dlg.setAttribute('open','');}}else{dlg.setAttribute('open','');}}
   function close(dlg){if(dlg.close){try{dlg.close();}catch(e){dlg.removeAttribute('open');}}else{dlg.removeAttribute('open');}}
-  document.querySelectorAll('.js-demo').forEach(function(b){b.addEventListener('click',function(){open(demoDlg);});});
+  document.querySelectorAll('.js-demo').forEach(function(b){b.addEventListener('click',function(){location.href='/de/login';});});
   document.querySelectorAll('.js-contact').forEach(function(b){b.addEventListener('click',function(){if(demoDlg.open)close(demoDlg);open(contactDlg);setTimeout(function(){var f=document.getElementById('cfName');if(f)f.focus();},60);});});
   document.querySelectorAll('.js-close').forEach(function(b){b.addEventListener('click',function(){close(b.closest('dialog'));});});
   [demoDlg,contactDlg].forEach(function(dlg){dlg.addEventListener('click',function(e){if(e.target===dlg)close(dlg);});});

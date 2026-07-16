@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 export function LoginForm() {
   const t = useTranslations("login");
   const router = useRouter();
-  const [email, setEmail] = useState("admin@havewa.de");
+  const [email, setEmail] = useState("admin@havewa.app");
   const [password, setPassword] = useState("admin");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
