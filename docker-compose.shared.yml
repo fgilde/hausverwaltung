@@ -6,7 +6,9 @@
 # Start:  docker compose -f docker-compose.shared.yml up -d --build
 # Erwartet .env daneben mit DB_PASSWORD (hex!) + AUTH_SECRET.
 services:
-  app:
+  # Service NICHT "app" nennen — sonst kollidiert der Alias "app" im geteilten
+  # Netz mit Coworkees app. Eindeutiger Name + expliziter Alias havewa-app.
+  havewa:
     build: .
     container_name: havewa-app
     restart: unless-stopped
@@ -24,8 +26,10 @@ services:
     volumes:
       - havewa-storage:/app/storage
     networks:
-      - default   # erreicht die eigene DB (havewa-db)
-      - web       # erreichbar für Coworkees Caddy
+      default: {}      # erreicht die eigene DB (havewa-db)
+      web:             # erreichbar für Coworkees Caddy als "havewa-app"
+        aliases:
+          - havewa-app
 
   db:
     image: postgres:16-alpine
