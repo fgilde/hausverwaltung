@@ -21,6 +21,9 @@ services:
       DATABASE_URL: "postgresql://havewa:${DB_PASSWORD}@havewa-db:5432/havewa?schema=public"
       AUTH_SECRET: "${AUTH_SECRET}"
       AUTH_TRUST_HOST: "true"
+      # feste öffentliche URL, sonst baut next-auth Redirects (z.B. nach Logout)
+      # hinter dem Proxy auf localhost:3000 statt havewa.app
+      AUTH_URL: "https://havewa.app"
     expose:
       - "3000"
     volumes:

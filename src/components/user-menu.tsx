@@ -61,7 +61,7 @@ export function UserMenu({
           <KeyRound className="size-4" />
           {t("account.changePassword")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/de/login" })}>
           <LogOut className="size-4" />
           {t("common.logout")}
         </DropdownMenuItem>
