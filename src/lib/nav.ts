@@ -25,7 +25,7 @@ export const navGroups: NavGroup[] = [
   {
     labelKey: "nav.groupManagement",
     items: [
-      { key: "nav.dashboard", href: "/", icon: LayoutDashboard },
+      { key: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
       { key: "nav.properties", href: "/properties", icon: Building2 },
       { key: "nav.units", href: "/units", icon: DoorOpen },
       { key: "nav.persons", href: "/persons", icon: Users },
