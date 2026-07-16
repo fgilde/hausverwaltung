@@ -23,6 +23,9 @@ COPY --from=build /app/messages ./messages
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/next.config.ts ./next.config.ts
+# src/ + tsconfig: der Seed (tsx prisma/seed.ts) importiert aus ../src/lib
+COPY --from=build /app/src ./src
+COPY --from=build /app/tsconfig.json ./tsconfig.json
 
 # Upload-Verzeichnis (per Volume gemountet)
 RUN mkdir -p storage/documents

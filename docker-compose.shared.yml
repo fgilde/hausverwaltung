@@ -1,0 +1,56 @@
+# HaVeWa — läuft NEBEN Coworkee auf demselben Host, hinter Coworkees Caddy.
+# Kein eigener Caddy, keine 80/443-Bindung. Der App-Container hängt zusätzlich
+# im Netz von Coworkee (external: coworkee_default), damit Coworkees Caddy ihn
+# als "havewa-app" erreicht (siehe Coworkee Caddyfile: havewa.app -> havewa-app:3000).
+#
+# Start:  docker compose -f docker-compose.shared.yml up -d --build
+# Erwartet .env daneben mit DB_PASSWORD (hex!) + AUTH_SECRET.
+services:
+  app:
+    build: .
+    container_name: havewa-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # DB über den eindeutigen Container-Namen ansprechen (NICHT "db" — das
+      # würde im geteilten Netz mit Coworkees db-Alias kollidieren).
+      DATABASE_URL: "postgresql://havewa:${DB_PASSWORD}@havewa-db:5432/havewa?schema=public"
+      AUTH_SECRET: "${AUTH_SECRET}"
+      AUTH_TRUST_HOST: "true"
+    expose:
+      - "3000"
+    volumes:
+      - havewa-storage:/app/storage
+    networks:
+      - default   # erreicht die eigene DB (havewa-db)
+      - web       # erreichbar für Coworkees Caddy
+
+  db:
+    image: postgres:16-alpine
+    container_name: havewa-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: havewa
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: havewa
+    volumes:
+      - havewa-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U havewa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - default
+
+volumes:
+  havewa-db: {}
+  havewa-storage: {}
+
+networks:
+  default: {}
+  web:
+    external: true
+    name: coworkee_default
