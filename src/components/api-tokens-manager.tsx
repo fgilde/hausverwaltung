@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { KeyRound, Copy, Check } from "lucide-react";
-import { createApiToken, revokeApiToken, type TokenState } from "@/server/actions/tokens";
+import { createApiToken, revokeApiToken, deleteApiToken, type TokenState } from "@/server/actions/tokens";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -113,7 +113,14 @@ export function ApiTokensManager({
                     {tok.lastUsedAt ? ` · ${t("tokens.lastUsed")}: ${tok.lastUsedAt}` : ""}
                   </div>
                 </div>
-                {!tok.revoked && (
+                {tok.revoked ? (
+                  <form action={deleteApiToken}>
+                    <input type="hidden" name="id" value={tok.id} />
+                    <Button type="submit" size="sm" variant="ghost" className="text-destructive">
+                      {t("tokens.delete")}
+                    </Button>
+                  </form>
+                ) : (
                   <form action={revokeApiToken}>
                     <input type="hidden" name="id" value={tok.id} />
                     <Button type="submit" size="sm" variant="ghost">

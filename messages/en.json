@@ -112,7 +112,11 @@
     "tabEmail": "Email",
     "tabUsers": "Users",
     "tabApi": "API & MCP",
-    "tabAdvanced": "Advanced"
+    "tabAdvanced": "Advanced",
+    "tabIntegration": "AI & API",
+    "tenantName": "Tenant name",
+    "save": "Save",
+    "saved": "Saved"
   },
   "account": {
     "changePassword": "Change password",
@@ -201,6 +205,7 @@
     "onceHint": "Shown only once for security reasons.",
     "revoke": "Revoke",
     "revoked": "revoked",
+    "delete": "Delete",
     "lastUsed": "last used"
   },
   "login": {

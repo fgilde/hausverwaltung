@@ -52,3 +52,14 @@ export async function revokeApiToken(fd: FormData): Promise<void> {
   await audit(user, "DELETE", "ApiToken", tok.id);
   revalidatePath("/", "layout");
 }
+
+// Endgültig entfernen (nur bereits widerrufene Token — aufräumen).
+export async function deleteApiToken(fd: FormData): Promise<void> {
+  const user = await requireUser();
+  const id = String(fd.get("id") ?? "");
+  const tok = await prisma.apiToken.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true, userId: true, revokedAt: true } });
+  if (!tok || !tok.revokedAt) return; // nur widerrufene löschen
+  if (tok.userId !== user.id && user.role !== "ADMIN") return;
+  await prisma.apiToken.delete({ where: { id: tok.id } });
+  revalidatePath("/", "layout");
+}

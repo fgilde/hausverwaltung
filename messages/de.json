@@ -112,7 +112,11 @@
     "tabEmail": "E-Mail",
     "tabUsers": "Benutzer",
     "tabApi": "API & MCP",
-    "tabAdvanced": "Erweitert"
+    "tabAdvanced": "Erweitert",
+    "tabIntegration": "KI & API",
+    "tenantName": "Mandantenname",
+    "save": "Speichern",
+    "saved": "Gespeichert"
   },
   "account": {
     "changePassword": "Passwort ändern",
@@ -201,6 +205,7 @@
     "onceHint": "Wird aus Sicherheitsgründen nur einmal angezeigt.",
     "revoke": "Widerrufen",
     "revoked": "widerrufen",
+    "delete": "Löschen",
     "lastUsed": "zuletzt genutzt"
   },
   "login": {

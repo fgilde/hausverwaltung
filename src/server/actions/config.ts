@@ -13,6 +13,18 @@ const str = (v: FormDataEntryValue | null) => {
   return x || undefined;
 };
 
+// --- Mandant ---
+
+export async function updateTenantName(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireRole(["ADMIN"]);
+  const name = str(fd.get("name"));
+  if (!name) return { error: "Name erforderlich" };
+  await prisma.tenant.update({ where: { id: user.tenantId }, data: { name } });
+  await audit(user, "UPDATE", "Tenant", user.tenantId, `Name: ${name}`);
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 // --- KI-Konfiguration ---
 
 export async function updateAiConfig(_p: ActionState, fd: FormData): Promise<ActionState> {

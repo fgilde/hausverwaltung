@@ -18,6 +18,7 @@ import { BrandingConfig } from "@/components/branding-config";
 import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
 import { IntegrationInfo } from "@/components/integration-info";
+import { TenantNameForm } from "@/components/tenant-name-form";
 import { SettingsTabs, type SettingsTab } from "@/components/settings-tabs";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
@@ -62,14 +63,7 @@ export default async function SettingsPage() {
 
   const generalContent = (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("settings.tenant")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-lg font-medium">{tenant?.name}</div>
-        </CardContent>
-      </Card>
+      <TenantNameForm name={tenant?.name ?? ""} editable={isAdmin} />
       {isAdmin && tenant && <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />}
     </>
   );
@@ -161,33 +155,31 @@ export default async function SettingsPage() {
     </Card>
   );
 
+  const cfgProps = tenant
+    ? {
+        ai: { provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey },
+        smtp: { host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword },
+      }
+    : null;
+
+  // KI-Assistent + API/MCP in einem Tab.
+  const integrationContent = (
+    <>
+      {isAdmin && cfgProps && <SettingsConfig section="ai" ai={cfgProps.ai} smtp={cfgProps.smtp} />}
+      {apiContent}
+    </>
+  );
+
   const tabs: SettingsTab[] = [{ value: "general", label: t("settings.tabGeneral"), content: generalContent }];
-  if (isAdmin && tenant) {
-    tabs.push({
-      value: "ai",
-      label: t("settings.tabAi"),
-      content: (
-        <SettingsConfig
-          section="ai"
-          ai={{ provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
-          smtp={{ host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword }}
-        />
-      ),
-    });
+  tabs.push({ value: "integration", label: t("settings.tabIntegration"), content: integrationContent });
+  if (isAdmin && cfgProps) {
     tabs.push({
       value: "email",
       label: t("settings.tabEmail"),
-      content: (
-        <SettingsConfig
-          section="smtp"
-          ai={{ provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
-          smtp={{ host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword }}
-        />
-      ),
+      content: <SettingsConfig section="smtp" ai={cfgProps.ai} smtp={cfgProps.smtp} />,
     });
   }
   tabs.push({ value: "users", label: t("settings.tabUsers"), content: usersContent });
-  tabs.push({ value: "api", label: t("settings.tabApi"), content: apiContent });
   tabs.push({ value: "advanced", label: t("settings.tabAdvanced"), content: advancedContent });
 
   return (
