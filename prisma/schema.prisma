@@ -119,6 +119,9 @@ model Tenant {
   // Branding (Theme-Farbe als HEX, Logo im Storage)
   brandColor String?
   logoKey    String?
+
+  // true bei geseedeten Demo-Daten → öffentliche Marketing-Seite als Fallback
+  isDemo Boolean @default(false)
 }
 
 model User {

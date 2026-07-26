@@ -28,7 +28,7 @@ async function writeStorage(key: string, buf: Buffer) {
 
 async function main() {
   const tenant = await prisma.tenant.create({
-    data: { name: "Muster Hausverwaltung GmbH" },
+    data: { name: "Muster Hausverwaltung GmbH", isDemo: true },
   });
 
   await prisma.user.create({
