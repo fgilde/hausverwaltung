@@ -116,8 +116,10 @@ export default async function LeasesPage() {
                       <TableCell>
                         <div className="flex justify-end gap-1">
                           <LeaseDialog
+                            units={unitOpts}
                             lease={{
                               id: l.id,
+                              unitId: l.unitId,
                               startDate: l.startDate,
                               endDate: l.endDate,
                               rentCold: String(l.rentCold),

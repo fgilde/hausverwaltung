@@ -51,11 +51,22 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
   });
   if (!lease) notFound();
 
-  const persons = await prisma.person.findMany({
-    where: { tenantId: user.tenantId },
-    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-  });
+  const [persons, units] = await Promise.all([
+    prisma.person.findMany({
+      where: { tenantId: user.tenantId },
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+    }),
+    prisma.unit.findMany({
+      where: { tenantId: user.tenantId },
+      include: { building: { include: { property: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
+  const unitOpts = units.map((u) => ({
+    value: u.id,
+    label: `${u.building.property.name} · ${u.building.name} · ${u.label}`,
+  }));
 
   const warm = Number(lease.rentCold) + lease.components.reduce((a, c) => a + Number(c.amount), 0);
 
@@ -76,8 +87,10 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
         </div>
         <div className="flex gap-1">
           <LeaseDialog
+            units={unitOpts}
             lease={{
               id: lease.id,
+              unitId: lease.unitId,
               startDate: lease.startDate,
               endDate: lease.endDate,
               rentCold: String(lease.rentCold),

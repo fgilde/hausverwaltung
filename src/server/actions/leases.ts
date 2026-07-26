@@ -48,6 +48,12 @@ export async function updateLease(_p: ActionState, fd: FormData): Promise<Action
   const id = String(fd.get("id") ?? "");
   const r = leaseUpdateSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
+  // Einheit muss zum Mandanten gehören (Vertrag kann auf andere Einheit umgezogen werden).
+  const unit = await prisma.unit.findFirst({
+    where: { id: r.data.unitId, tenantId: user.tenantId },
+    select: { id: true },
+  });
+  if (!unit) return fail("Einheit nicht gefunden");
   await prisma.lease.updateMany({ where: { id, tenantId: user.tenantId }, data: r.data });
   return done();
 }

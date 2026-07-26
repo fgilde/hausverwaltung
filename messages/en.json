@@ -220,7 +220,23 @@
     "subtitle": "Tenants, owners and contacts",
     "new": "New person",
     "edit": "Edit person",
-    "empty": "No people yet."
+    "empty": "No people yet.",
+    "group": "Group",
+    "note": "Note / rental request",
+    "allGroups": "All",
+    "tenancies": "Tenancies",
+    "noTenancies": "No tenancies.",
+    "ownerships": "Ownership",
+    "noOwnerships": "No ownership on record."
+  },
+  "personType": {
+    "MIETER": "Tenant",
+    "EIGENTUEMER": "Owner",
+    "INTERESSENT": "Prospect",
+    "HANDWERKER": "Contractor",
+    "MAKLER": "Broker",
+    "BANK": "Bank",
+    "SONSTIGE": "Other"
   },
   "managementType": {
     "MIET": "Rental management",
@@ -537,6 +553,9 @@
     "noOwners": "No owners assigned yet.",
     "share": "Share of unit (‰)",
     "totalMea": "Total MEA",
+    "meaTotalLabel": "Target total MEA (‰)",
+    "meaCheck": "MEA check",
+    "meaMismatch": "The sum of unit co-ownership shares differs from the property's target value. Please correct the units' MEA or the target value.",
     "plan": "Economic plan",
     "setPlan": "Set economic plan",
     "planTotal": "Total cost (plan)",

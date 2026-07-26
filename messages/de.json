@@ -220,7 +220,23 @@
     "subtitle": "Mieter, Eigentümer und Kontakte",
     "new": "Neue Person",
     "edit": "Person bearbeiten",
-    "empty": "Noch keine Personen angelegt."
+    "empty": "Noch keine Personen angelegt.",
+    "group": "Gruppe",
+    "note": "Notiz / Mietgesuch",
+    "allGroups": "Alle",
+    "tenancies": "Mietverhältnisse",
+    "noTenancies": "Keine Mietverhältnisse.",
+    "ownerships": "Eigentum",
+    "noOwnerships": "Kein Eigentum hinterlegt."
+  },
+  "personType": {
+    "MIETER": "Mieter",
+    "EIGENTUEMER": "Eigentümer",
+    "INTERESSENT": "Mietinteressent",
+    "HANDWERKER": "Handwerker",
+    "MAKLER": "Makler",
+    "BANK": "Bank",
+    "SONSTIGE": "Sonstige"
   },
   "managementType": {
     "MIET": "Mietverwaltung",
@@ -537,6 +553,9 @@
     "noOwners": "Noch keine Eigentümer zugeordnet.",
     "share": "Anteil an Einheit (‰)",
     "totalMea": "Summe MEA",
+    "meaTotalLabel": "Soll-Summe MEA (‰)",
+    "meaCheck": "MEA-Prüfung",
+    "meaMismatch": "Die Summe der Einheiten-Miteigentumsanteile weicht vom Soll-Wert des Objekts ab. Bitte MEA der Einheiten oder den Soll-Wert korrigieren.",
     "plan": "Wirtschaftsplan",
     "setPlan": "Wirtschaftsplan festlegen",
     "planTotal": "Gesamtkosten (Plan)",

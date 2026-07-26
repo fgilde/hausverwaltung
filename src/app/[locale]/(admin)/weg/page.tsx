@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money } from "@/lib/format";
 import { allocate, type AllocationParticipant } from "@/lib/allocation";
+import { checkMeaTotal } from "@/lib/weg-validation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +35,7 @@ export default async function WegPage({
   const wegProps = await prisma.property.findMany({
     where: { tenantId, management: "WEG" },
     orderBy: { createdAt: "asc" },
-    select: { id: true, name: true },
+    select: { id: true, name: true, meaTotal: true },
   });
 
   const propertyId = sp.propertyId || wegProps[0]?.id;
@@ -58,7 +59,7 @@ export default async function WegPage({
       where: { tenantId, unit: { building: { propertyId } } },
       include: { person: true, unit: true },
     }),
-    prisma.unit.findMany({ where: { tenantId, building: { propertyId } }, select: { id: true, label: true } }),
+    prisma.unit.findMany({ where: { tenantId, building: { propertyId } }, select: { id: true, label: true, mea: true } }),
     prisma.person.findMany({ where: { tenantId }, orderBy: [{ lastName: "asc" }] }),
     prisma.economicPlan.findUnique({ where: { propertyId_year: { propertyId, year } } }),
     prisma.reserve.findMany({ where: { tenantId, propertyId }, include: { transactions: { orderBy: { date: "desc" } } } }),
@@ -68,6 +69,10 @@ export default async function WegPage({
   // MEA-Gewicht je Eigentümer-Zeile = unit.mea * share/1000
   const weightOf = (o: (typeof owners)[number]) => ((o.unit.mea ?? 0) * o.share) / 1000;
   const totalMea = owners.reduce((a, o) => a + weightOf(o), 0);
+
+  // Validierung: Summe der Einheiten-MEA gegen Soll des Objekts
+  const meaTotalSoll = wegProps.find((p) => p.id === propertyId)?.meaTotal ?? 1000;
+  const meaCheck = checkMeaTotal(units.map((u) => u.mea), meaTotalSoll);
   const parts: AllocationParticipant[] = owners.map((o) => ({ id: o.id, mea: weightOf(o) }));
 
   const planTotal = plan ? Number(plan.totalAmount) : 0;
@@ -123,6 +128,23 @@ export default async function WegPage({
         </div>
         <Button type="submit" size="sm" variant="outline">{t("common.search")}</Button>
       </form>
+
+      {/* MEA-Prüfung */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {t("weg.meaCheck")}
+          </CardTitle>
+          <Badge variant={meaCheck.ok ? "secondary" : "destructive"}>
+            {meaCheck.sum} / {meaCheck.meaTotal} ‰ {meaCheck.ok ? "✓" : `(${meaCheck.diff > 0 ? "+" : ""}${meaCheck.diff})`}
+          </Badge>
+        </CardHeader>
+        {!meaCheck.ok && (
+          <CardContent className="pt-0">
+            <p className="text-sm text-destructive">{t("weg.meaMismatch")}</p>
+          </CardContent>
+        )}
+      </Card>
 
       {/* Eigentümer & MEA */}
       <Card>

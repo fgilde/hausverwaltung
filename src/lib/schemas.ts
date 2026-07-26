@@ -8,6 +8,18 @@ const optionalStr = z
   .optional()
   .transform((v) => (v ? v : undefined));
 
+const optionalDate = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? new Date(v) : undefined));
+
+const optionalNum = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? Number(v) : undefined));
+
 export const propertySchema = z.object({
   name: z.string().trim().min(1),
   street: z.string().trim().min(1),
@@ -15,6 +27,7 @@ export const propertySchema = z.object({
   city: z.string().trim().min(1),
   type: z.enum(["WOHNEN", "GEWERBE", "GEMISCHT"]),
   management: z.enum(["MIET", "WEG"]),
+  meaTotal: optionalNum,
 });
 
 export const buildingSchema = z.object({
@@ -44,6 +57,8 @@ export const personSchema = z.object({
   lastName: z.string().trim().min(1),
   email: optionalStr,
   phone: optionalStr,
+  type: z.enum(["MIETER", "EIGENTUEMER", "INTERESSENT", "HANDWERKER", "MAKLER", "BANK", "SONSTIGE"]),
+  note: optionalStr,
 });
 
 export const meterSchema = z.object({
@@ -58,18 +73,6 @@ export const readingSchema = z.object({
   value: z.coerce.number().nonnegative(),
 });
 
-const optionalDate = z
-  .string()
-  .trim()
-  .optional()
-  .transform((v) => (v ? new Date(v) : undefined));
-
-const optionalNum = z
-  .string()
-  .trim()
-  .optional()
-  .transform((v) => (v ? Number(v) : undefined));
-
 export const leaseCreateSchema = z.object({
   unitId: z.string().min(1),
   personId: z.string().min(1),
@@ -81,6 +84,7 @@ export const leaseCreateSchema = z.object({
 });
 
 export const leaseUpdateSchema = z.object({
+  unitId: z.string().min(1),
   startDate: z.coerce.date(),
   endDate: optionalDate,
   rentCold: z.coerce.number().nonnegative(),
@@ -171,7 +175,7 @@ export const costEntrySchema = z.object({
 export const ownerSchema = z.object({
   personId: z.string().min(1),
   unitId: z.string().min(1),
-  share: z.coerce.number().int().positive(),
+  share: z.coerce.number().int().positive().max(1000),
 });
 
 export const economicPlanSchema = z.object({

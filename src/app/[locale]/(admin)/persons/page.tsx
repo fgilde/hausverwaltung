@@ -1,6 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { Link } from "@/i18n/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -14,12 +17,20 @@ import { PersonDialog } from "@/components/entity-dialogs";
 import { DeleteButton } from "@/components/delete-button";
 import { deletePerson } from "@/server/actions/persons";
 
-export default async function PersonsPage() {
+const GROUPS = ["MIETER", "EIGENTUEMER", "INTERESSENT", "HANDWERKER", "MAKLER", "BANK", "SONSTIGE"] as const;
+
+export default async function PersonsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const sp = await searchParams;
   const user = await requireUser();
   const t = await getTranslations();
+  const active = GROUPS.includes(sp.type as (typeof GROUPS)[number]) ? sp.type : undefined;
 
   const persons = await prisma.person.findMany({
-    where: { tenantId: user.tenantId },
+    where: { tenantId: user.tenantId, ...(active ? { type: active as (typeof GROUPS)[number] } : {}) },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
 
@@ -33,6 +44,27 @@ export default async function PersonsPage() {
         <PersonDialog />
       </div>
 
+      {/* Adressbuch-Gruppenfilter */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          variant={!active ? "default" : "outline"}
+          render={<Link href="/persons" />}
+        >
+          {t("persons.allGroups")}
+        </Button>
+        {GROUPS.map((g) => (
+          <Button
+            key={g}
+            size="sm"
+            variant={active === g ? "default" : "outline"}
+            render={<Link href={{ pathname: "/persons", query: { type: g } }} />}
+          >
+            {t(`personType.${g}`)}
+          </Button>
+        ))}
+      </div>
+
       <Card>
         <CardContent className="p-0">
           {persons.length === 0 ? (
@@ -43,6 +75,7 @@ export default async function PersonsPage() {
                 <TableRow>
                   <TableHead>{t("fields.lastName")}</TableHead>
                   <TableHead>{t("fields.firstName")}</TableHead>
+                  <TableHead>{t("persons.group")}</TableHead>
                   <TableHead>{t("fields.email")}</TableHead>
                   <TableHead>{t("fields.phone")}</TableHead>
                   <TableHead className="w-24 text-right">{t("common.actions")}</TableHead>
@@ -51,8 +84,15 @@ export default async function PersonsPage() {
               <TableBody>
                 {persons.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.lastName}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link href={`/persons/${p.id}`} className="hover:underline">
+                        {p.lastName}
+                      </Link>
+                    </TableCell>
                     <TableCell>{p.firstName}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{t(`personType.${p.type}`)}</Badge>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {p.email ?? t("common.none")}
                     </TableCell>
@@ -68,6 +108,8 @@ export default async function PersonsPage() {
                             lastName: p.lastName,
                             email: p.email,
                             phone: p.phone,
+                            type: p.type,
+                            note: p.note,
                           }}
                         />
                         <DeleteButton action={deletePerson} id={p.id} />

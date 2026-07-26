@@ -31,6 +31,7 @@ function CreateTrigger({ label, variant }: { label: string; variant?: "outline" 
 
 type LeaseData = {
   id: string;
+  unitId: string;
   startDate: Date;
   endDate: Date | null;
   rentCold: string;
@@ -42,10 +43,16 @@ export async function LeaseDialog({
   units,
   persons,
   lease,
+  presetUnitId,
+  presetPersonId,
+  triggerLabel,
 }: {
   units?: Opt[];
   persons?: Opt[];
   lease?: LeaseData;
+  presetUnitId?: string; // Einheit vorbelegt+gesperrt (von Unit-Detail)
+  presetPersonId?: string; // Person vorbelegt+gesperrt (von Person-Detail)
+  triggerLabel?: string;
 }) {
   const t = await getTranslations();
   const edit = !!lease;
@@ -57,21 +64,34 @@ export async function LeaseDialog({
             <Pencil className="size-4" />
           </Button>
         ) : (
-          <CreateTrigger label={t("leases.new")} />
+          <CreateTrigger label={triggerLabel ?? t("leases.new")} />
         )
       }
       title={edit ? t("leases.edit") : t("leases.new")}
       action={edit ? updateLease : createLease}
       submitLabel={edit ? t("common.save") : t("common.create")}
     >
-      {edit ? (
-        <input type="hidden" name="id" value={lease!.id} />
+      {edit && <input type="hidden" name="id" value={lease!.id} />}
+
+      {/* Einheit: im Create + Edit wählbar; per Preset gesperrt */}
+      {presetUnitId ? (
+        <input type="hidden" name="unitId" value={presetUnitId} />
       ) : (
-        <>
-          <SelectField name="unitId" label={t("leases.selectUnit")} options={units ?? []} />
-          <SelectField name="personId" label={t("leases.selectPerson")} options={persons ?? []} />
-        </>
+        <SelectField
+          name="unitId"
+          label={t("leases.selectUnit")}
+          options={units ?? []}
+          defaultValue={lease?.unitId}
+        />
       )}
+
+      {/* Mieter-Person nur im Create (im Edit über Mieter-Verwaltung) */}
+      {!edit &&
+        (presetPersonId ? (
+          <input type="hidden" name="personId" value={presetPersonId} />
+        ) : (
+          <SelectField name="personId" label={t("leases.selectPerson")} options={persons ?? []} />
+        ))}
       <div className="grid grid-cols-2 gap-4">
         <TextField name="startDate" label={t("leases.start")} type="date" defaultValue={iso(lease?.startDate)} />
         <TextField

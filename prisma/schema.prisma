@@ -95,6 +95,7 @@ model Property {
   city       String
   type          PropertyType   @default(WOHNEN)
   management    ManagementType @default(MIET)
+  meaTotal      Int            @default(1000) // Soll-Summe Miteigentumsanteile (Tausendstel) für WEG
   buildings     Building[]
   costEntries   CostEntry[]
   economicPlans EconomicPlan[]
@@ -171,14 +172,26 @@ model MeterReading {
   @@index([meterId])
 }
 
+enum PersonType {
+  MIETER
+  EIGENTUEMER
+  INTERESSENT
+  HANDWERKER
+  MAKLER
+  BANK
+  SONSTIGE
+}
+
 model Person {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   firstName String
   lastName  String
   email     String?
   phone     String?
+  type      PersonType @default(SONSTIGE) // Kontaktgruppe (Adressbuch)
+  note      String? // z.B. Mietgesuch bei Interessenten
   owners    Owner[]
   renters   Renter[]
   mandates  SepaMandate[]

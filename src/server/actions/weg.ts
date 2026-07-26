@@ -29,6 +29,14 @@ export async function createOwner(_p: ActionState, fd: FormData): Promise<Action
     prisma.person.findFirst({ where: { id: r.data.personId, tenantId: user.tenantId }, select: { id: true } }),
   ]);
   if (!unit || !person) return fail("Einheit oder Person nicht gefunden");
+  // Summe der Eigentümeranteile je Einheit darf 1000 (100 %) nicht überschreiten.
+  const existing = await prisma.owner.aggregate({
+    where: { unitId: r.data.unitId, tenantId: user.tenantId },
+    _sum: { share: true },
+  });
+  if ((existing._sum.share ?? 0) + r.data.share > 1000) {
+    return fail("Summe der Eigentümeranteile dieser Einheit überschreitet 1000‰");
+  }
   await prisma.owner.create({ data: { ...r.data, tenantId: user.tenantId } });
   return done();
 }

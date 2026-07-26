@@ -45,6 +45,7 @@ type PropertyData = {
   city: string;
   type: string;
   management: string;
+  meaTotal?: number;
 };
 
 export async function PropertyDialog({ property }: { property?: PropertyData }) {
@@ -75,6 +76,13 @@ export async function PropertyDialog({ property }: { property?: PropertyData }) 
         label={t("fields.management")}
         defaultValue={property?.management ?? "MIET"}
         options={await opts("managementType", ["MIET", "WEG"])}
+      />
+      <TextField
+        name="meaTotal"
+        label={t("weg.meaTotalLabel")}
+        type="number"
+        required={false}
+        defaultValue={property?.meaTotal ?? 1000}
       />
     </CrudDialog>
   );
@@ -171,6 +179,8 @@ type PersonData = {
   lastName: string;
   email?: string | null;
   phone?: string | null;
+  type?: string;
+  note?: string | null;
 };
 
 export async function PersonDialog({ person }: { person?: PersonData }) {
@@ -200,6 +210,26 @@ export async function PersonDialog({ person }: { person?: PersonData }) {
         label={t("fields.phone")}
         required={false}
         defaultValue={person?.phone ?? undefined}
+      />
+      <SelectField
+        name="type"
+        label={t("persons.group")}
+        defaultValue={person?.type ?? "SONSTIGE"}
+        options={await opts("personType", [
+          "MIETER",
+          "EIGENTUEMER",
+          "INTERESSENT",
+          "HANDWERKER",
+          "MAKLER",
+          "BANK",
+          "SONSTIGE",
+        ])}
+      />
+      <TextField
+        name="note"
+        label={t("persons.note")}
+        required={false}
+        defaultValue={person?.note ?? undefined}
       />
     </CrudDialog>
   );

@@ -1,0 +1,9 @@
+-- CreateEnum
+CREATE TYPE "PersonType" AS ENUM ('MIETER', 'EIGENTUEMER', 'INTERESSENT', 'HANDWERKER', 'MAKLER', 'BANK', 'SONSTIGE');
+
+-- AlterTable
+ALTER TABLE "Person" ADD COLUMN     "note" TEXT,
+ADD COLUMN     "type" "PersonType" NOT NULL DEFAULT 'SONSTIGE';
+
+-- AlterTable
+ALTER TABLE "Property" ADD COLUMN     "meaTotal" INTEGER NOT NULL DEFAULT 1000;
