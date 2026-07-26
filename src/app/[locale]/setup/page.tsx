@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { Building2 } from "lucide-react";
 import { needsSetup } from "@/lib/setup";
 import { listBackgroundVideos } from "@/lib/videos";
 import { BackgroundVideo } from "@/components/background-video";
@@ -21,11 +20,18 @@ export default async function SetupPage() {
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-black/70 via-black/50 to-primary/40" />
 
+      {/* Produkt-Icon unten rechts im Video-Bereich */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/marketing/icon.png"
+        alt="HaVeWa"
+        className="pointer-events-none absolute bottom-6 right-6 h-16 w-auto object-contain opacity-90 drop-shadow-lg"
+      />
+
       <Card className="w-full max-w-xl border-white/10 bg-card/95 shadow-2xl backdrop-blur">
         <CardHeader className="items-center text-center">
-          <div className="mb-2 flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Building2 className="size-6" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="HaVeWa" className="mb-1 h-20 w-auto object-contain" />
           <CardTitle className="text-xl">{t("setup.title")}</CardTitle>
           <CardDescription>{t("setup.subtitle")}</CardDescription>
         </CardHeader>

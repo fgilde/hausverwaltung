@@ -110,6 +110,15 @@ Migrations run automatically on container start. Persistence via the volumes
 `havewa-db`, `havewa-storage` (documents/logo) and `caddy-data` (certificates).
 Then do the first-run setup at `https://<DOMAIN>/setup`.
 
+**Prebuilt image (faster):** every push to `main` builds and publishes an image to
+`ghcr.io/fgilde/hausverwaltung:latest` (GitHub Actions). Deploy without building on
+the server via `docker-compose.registry.yml`:
+
+```bash
+docker compose -f docker-compose.registry.yml pull
+docker compose -f docker-compose.registry.yml up -d
+```
+
 ### Environment variables (production)
 
 | Variable | Description |

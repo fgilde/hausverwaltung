@@ -89,6 +89,15 @@ Migrationen laufen beim Container-Start automatisch. Persistenz über die Volume
 `havewa-db`, `havewa-storage` (Dokumente/Logo) und `caddy-data` (Zertifikate).
 Erste Einrichtung anschließend über den Setup-Assistenten unter `https://<DOMAIN>/setup`.
 
+**Vorgebautes Image (schneller):** jeder Push auf `main` baut per GitHub Actions ein
+Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Deploy ohne Bauen auf dem Server
+via `docker-compose.registry.yml`:
+
+```bash
+docker compose -f docker-compose.registry.yml pull
+docker compose -f docker-compose.registry.yml up -d
+```
+
 ## Bekannte Vereinfachungen
 
 `ponytail:`-Kommentare im Code: HeizkostenV-Verbrauchsumlage fällt mangels

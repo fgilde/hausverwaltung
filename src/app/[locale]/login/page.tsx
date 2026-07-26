@@ -16,10 +16,12 @@ export default async function LoginPage() {
 
   const tenant = await prisma.tenant.findFirst({
     orderBy: { createdAt: "asc" },
-    select: { name: true, isDemo: true },
+    select: { name: true, isDemo: true, logoKey: true },
   });
   const tenantName = tenant?.name ?? t("app.name");
   const isDemo = tenant?.isDemo ?? false;
+  // Eigenes Admin-Logo, sonst Produkt-Logo
+  const logoUrl = tenant?.logoKey ? "/api/logo" : "/logo.png";
   const videos = await listBackgroundVideos();
 
   const points = [t("login.point1"), t("login.point2"), t("login.point3")];
@@ -79,10 +81,9 @@ export default async function LoginPage() {
           }}
         />
         <div className="relative w-full max-w-sm space-y-8">
-          <div className="space-y-2 text-center">
-            <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground lg:hidden">
-              <Building2 className="size-6" />
-            </div>
+          <div className="space-y-3 text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoUrl} alt={tenantName} className="mx-auto h-16 w-auto object-contain" />
             <h1 className="text-2xl font-semibold tracking-tight">
               {t("login.welcomeTo")} {tenantName}
             </h1>

@@ -12,13 +12,12 @@ const MIME: Record<string, string> = {
 };
 
 export async function GET() {
+  // Angemeldet: Logo des eigenen Mandanten. Unangemeldet (Login-Seite):
+  // Logo des (ersten) Mandanten — für das Branding vor der Anmeldung.
   const session = await auth();
-  if (!session?.user) return new Response("Unauthorized", { status: 401 });
-
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: session.user.tenantId },
-    select: { logoKey: true },
-  });
+  const tenant = session?.user
+    ? await prisma.tenant.findUnique({ where: { id: session.user.tenantId }, select: { logoKey: true } })
+    : await prisma.tenant.findFirst({ orderBy: { createdAt: "asc" }, select: { logoKey: true } });
   if (!tenant?.logoKey) return new Response("Not found", { status: 404 });
 
   try {
