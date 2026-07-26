@@ -1,143 +1,126 @@
-# HaVeWa — Hausverwaltung
+# HaVeWa — Property Management
 
-Vollständige Immobilienverwaltungssoftware für **Miet- und WEG-Verwaltung**.
-Mandantenfähig, rollenbasiert, zweisprachig (DE/EN).
+_🇬🇧 English · 🇩🇪 [Deutsch](README.de.md)_
 
-## Funktionsumfang
+Complete property-management software for **rental and HOA (WEG) administration**.
+Multi-tenant, role-based, bilingual (DE/EN).
 
-Objekte/Einheiten/Personen/Zähler · Mietverwaltung (Verträge, Staffel-/Indexmiete,
-Kaution) · Finanzen (Sollstellung, Zahlungen, offene Posten, SEPA-Mandate,
-Mahnwesen) · Betriebskostenabrechnung (BetrKV, Verteilerschlüssel-Engine) ·
-WEG (MEA, Wirtschaftsplan, Hausgeld, Jahresabrechnung, Rücklagen, Vermögensbericht) ·
-Eigentümerversammlung (Agenda, Abstimmung, Beschlusssammlung §24) ·
-Dokumente (GoBD, E-Rechnung) · Instandhaltung (Tickets, Handwerker, Wartung) ·
-Mieter-/Eigentümer-Portale · camt.053-Import + DATEV-/SEPA-Export · Dashboard.
+## Features
 
-## Tech-Stack
+Properties/units/people/meters · rental management (leases, stepped/index rent,
+deposits) · finances (charges, payments, open items, SEPA mandates, dunning +
+portfolio-wide dunning dashboard) · service-charge statements (BetrKV, allocation
+engine) · HOA (co-ownership shares, economic plan, HOA fees, annual statement,
+reserves, asset report) · owners' meetings (agenda, voting, §24 resolution
+collection) · documents (GoBD, e-invoice) · maintenance (tickets with
+workflow/time-tracking, contractors, service intervals) · management fees ·
+deposit accounts · templates/mail merge · custom fields · report manager ·
+insurance · property tax · census · tenant/owner portals · camt.053 import +
+DATEV/SEPA export · calendar · outbox · dashboard.
+
+## Tech stack
 
 Next.js 16 (App Router) · TypeScript · PostgreSQL · Prisma · shadcn/ui + Tailwind ·
 next-intl · Auth.js · Vitest.
 
-## Lokale Entwicklung
+## Local development
 
-Voraussetzungen: Node 20+, Docker (für Postgres).
+Requirements: Node 20+, Docker (for Postgres).
 
 ```bash
-# 1. Abhängigkeiten
 npm install
-
-# 2. Umgebungsvariablen
-cp .env.example .env        # DATABASE_URL zeigt auf localhost:5432
-
-# 3. Datenbank starten
+cp .env.example .env        # DATABASE_URL points to localhost:5432
 npm run db:up               # Postgres via docker-compose.yml
-
-# 4. Schema + Demo-Daten
-npm run db:migrate          # Migrationen anwenden
-npm run db:seed             # Demo-Mandant + Logins
-
-# 5. Dev-Server
+npm run db:migrate          # apply migrations
 npm run dev                 # http://localhost:3000
 ```
 
-### Demo-Zugänge (nach `db:seed`)
+## First-run setup — with or without demo data
 
-| Rolle | E-Mail | Passwort | Bereich |
+After `db:migrate` the database is empty (no users). On first visit a **setup
+wizard** (`/setup`) appears automatically and creates the first tenant and the
+administrator (including an optional theme colour). Afterwards the wizard is locked.
+
+- **Without demo data (production):** run only `db:migrate`, then complete the wizard.
+- **With demo data (to try it out):** additionally run `npm run db:seed` — creates
+  a sample tenant with properties and three demo logins:
+
+| Role | Email | Password | Area |
 |---|---|---|---|
-| Administrator | `admin@havewa.de` | `admin` | Verwalter-App (Vollzugriff, Benutzerverwaltung, Konfiguration) |
-| Mieter | `mieter@havewa.de` | `mieter` | Mieter-Portal (`/portal`) |
-| Eigentümer | `eigentuemer@havewa.de` | `eigentuemer` | Eigentümer-Portal (`/portal`) |
+| Administrator | `admin@havewa.app` | `admin` | Manager app (full access) |
+| Tenant | `mieter@havewa.app` | `mieter` | Tenant portal (`/portal`) |
+| Owner | `eigentuemer@havewa.app` | `eigentuemer` | Owner portal (`/portal`) |
 
-Weitere Zugänge (Verwalter, Buchhaltung, Beirat, Handwerker …) legt man als
-Administrator unter **Einstellungen → Benutzer** an. Administratoren dürfen alle
-Rollen vergeben, Verwalter alle außer Administrator/Verwalter.
+Further accounts are created by the administrator under **Settings → Users**.
 
-## Konfiguration (KI & E-Mail)
+## Configuration (AI, email, branding)
 
-KI-Assistent (Claude) und der SMTP-Postausgangsserver werden pro Mandant unter
-**Einstellungen** (nur Administrator) eingetragen und getestet — der API-Schlüssel
-bzw. die SMTP-Zugangsdaten müssen also nicht als Umgebungsvariablen gesetzt werden.
-Alternativ greifen die Adapter auf `ANTHROPIC_API_KEY` / `AI_MODEL` bzw.
-`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` aus der
-Umgebung zurück. Ohne KI-Schlüssel liefert der Assistent eine regelbasierte
-Kennzahlen-Zusammenfassung; ohne SMTP wird der Postausgang nur lokal geführt.
+Under **Settings** (admin only), per tenant: AI assistant (Claude), SMTP outbox,
+and the app's **theme colour and logo**. Without an AI key the assistant returns a
+rule-based summary; without SMTP the outbox is kept locally only. Adapters also
+fall back to `ANTHROPIC_API_KEY`, `SMTP_HOST`, etc. from the environment.
 
 ## Scripts
 
-| Script | Zweck |
+| Script | Purpose |
 |---|---|
-| `npm run dev` | Dev-Server |
-| `npm run build` / `npm start` | Produktions-Build / -Start |
-| `npm test` | Vitest (Allocation-Engine, Abrechnung, camt-Parser) |
-| `npm run db:up` | Postgres-Container (lokal) |
-| `npm run db:migrate` | Prisma-Migration (dev) |
-| `npm run db:seed` | Demo-Daten |
+| `npm run dev` | Dev server |
+| `npm run build` / `npm start` | Production build / start |
+| `npm test` | Vitest (engine, statements, validation …) |
+| `npm run db:up` | Postgres container (local) |
+| `npm run db:migrate` | Prisma migration (dev) |
+| `npm run db:seed` | Demo data (optional) |
 | `npm run db:studio` | Prisma Studio |
 
-## Projektstruktur
+## Project structure
 
 ```
-prisma/schema.prisma          Datenmodell + Migrationen
-messages/{de,en}.json         Übersetzungen (neue Sprache = neue Datei)
+prisma/schema.prisma          data model + migrations
+messages/{de,en}.json         translations (new language = new file)
 src/
-  app/[locale]/(admin)/...     Verwalter-App (interne Rollen)
-  app/[locale]/portal/...      Mieter-/Eigentümer-Portal
-  app/api/...                  Auth, Dokument-Download, Exporte
-  lib/allocation/              Verteilerschlüssel-Engine (Miet + WEG geteilt)
-  lib/adapters/                camt.053 / DATEV / SEPA / E-Rechnung
-  lib/storage.ts               Datei-Ablage (Dokumente)
-  server/actions/              Server Actions je Fachmodul (tenant-scoped, RBAC)
-  components/                  UI + Formular-Dialoge
+  app/[locale]/(admin)/...     manager app (internal roles)
+  app/[locale]/portal/...      tenant/owner portal
+  app/[locale]/setup/...       first-run setup wizard
+  app/api/...                  auth, downloads, exports
+  lib/allocation/              allocation engine (shared rental + HOA)
+  lib/adapters/                camt.053 / DATEV / SEPA / e-invoice / mailer
+  lib/storage.ts               file storage (documents, logo)
+  server/actions/              server actions per module (tenant-scoped, RBAC)
+  components/                  UI + form dialogs
 ```
 
-## Persistenz
+## Persistence
 
-- **Datenbank**: PostgreSQL (Prisma). Lokal im Docker-Volume `havewa-db`.
-- **Dokumente**: Dateisystem unter `storage/documents/` (bzw. Volume in Produktion),
-  gekapselt in `src/lib/storage.ts` — für Objektspeicher (S3/Blob) nur diese Datei tauschen.
+- **Database**: PostgreSQL (Prisma). Local Docker volume `havewa-db`.
+- **Files** (documents, logo): filesystem under `storage/` (volume in production),
+  wrapped in `src/lib/storage.ts` — swap that one file for object storage (S3/Blob).
 
 ## Deployment (VPS + Docker)
 
-Ein einzelner Server mit Docker. Caddy (automatisches HTTPS via Let's Encrypt) +
-App + Postgres + Volumes laufen per Compose.
-
-**Voraussetzungen:** Domain mit DNS-A-Record auf den Server, Ports **80 + 443** offen.
+A single server with Docker: Caddy (automatic HTTPS via Let's Encrypt) + app +
+Postgres via Compose. Requires a domain with a DNS A record and ports **80 + 443**.
 
 ```bash
-# auf dem VPS
-git clone https://github.com/fgilde/hausverwaltung.git
-cd hausverwaltung
-
-# Secrets + Domain setzen
-cp .env.prod.example .env
-#   DB_PASSWORD  = starkes Passwort
-#   AUTH_SECRET  = openssl rand -base64 32
-#   DOMAIN       = deine-domain.de
-
-# Build + Start (Migrationen laufen automatisch beim Container-Start)
+git clone https://github.com/fgilde/hausverwaltung.git && cd hausverwaltung
+cp .env.prod.example .env    # DB_PASSWORD, AUTH_SECRET (openssl rand -base64 32), DOMAIN
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-- **Zugriff**: `https://<DOMAIN>` — Caddy holt/erneuert das TLS-Zertifikat automatisch
-  und leitet HTTP→HTTPS um. Die App selbst ist nicht direkt nach außen exponiert
-  (nur intern über Caddy erreichbar).
-- **Persistenz**: `havewa-db` (Datenbank) + `havewa-storage` (Dokumente) +
-  `caddy-data` (Zertifikate) als Docker-Volumes.
-- **Updates**: `git pull && docker compose -f docker-compose.prod.yml up -d --build`
-  (Migrationen werden beim Start via `prisma migrate deploy` angewandt).
-- **Demo-Daten** einmalig optional: `docker compose -f docker-compose.prod.yml exec app npx tsx prisma/seed.ts`
+Migrations run automatically on container start. Persistence via the volumes
+`havewa-db`, `havewa-storage` (documents/logo) and `caddy-data` (certificates).
+Then do the first-run setup at `https://<DOMAIN>/setup`.
 
-### Umgebungsvariablen (Produktion)
+### Environment variables (production)
 
-| Variable | Beschreibung |
+| Variable | Description |
 |---|---|
-| `DB_PASSWORD` | Postgres-Passwort (Compose baut daraus `DATABASE_URL`) |
-| `AUTH_SECRET` | Session-Secret (`openssl rand -base64 32`) |
-| `DOMAIN` | Domain für Caddy/HTTPS (DNS muss auf den Server zeigen) |
+| `DB_PASSWORD` | Postgres password (Compose builds `DATABASE_URL` from it) |
+| `AUTH_SECRET` | Session secret (`openssl rand -base64 32`) |
+| `DOMAIN` | Domain for Caddy/HTTPS (DNS must point to the server) |
 
-## Bekannte Vereinfachungen
+## Known simplifications
 
-Als `ponytail:`-Kommentare im Code markiert: HeizkostenV-Verbrauchsumlage fällt
-mangels Zählerintegration auf Fläche zurück · DATEV-Export ist vereinfachtes CSV
-(kein zertifiziertes EXTF) · E-Rechnung wird erkannt, aber XML-Felder noch nicht
-geparst · KI-Features sind regelbasierte Hinweise (keine LLM-Anbindung).
+Marked with `ponytail:` comments in the code: HeizkostenV consumption allocation
+falls back to area without meter integration · DATEV export is simplified CSV · the
+time-based area model (`docs/flaechenmodell.md`) is specified as a draft but not yet
+implemented.

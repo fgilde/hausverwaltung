@@ -224,6 +224,19 @@ export const agendaSchema = z.object({
   description: optionalStr,
 });
 
+export const setupSchema = z.object({
+  tenantName: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  email: z.string().trim().email(),
+  password: z.string().min(6),
+  locale: z.enum(["de", "en"]),
+  brandColor: optionalStr,
+});
+
+export const brandingSchema = z.object({
+  brandColor: optionalStr,
+});
+
 export const insuranceSchema = z.object({
   propertyId: z.string().min(1),
   type: z.enum(["GEBAEUDE", "HAFTPFLICHT", "GLAS", "ELEMENTAR", "RECHTSSCHUTZ", "SONSTIGES"]),

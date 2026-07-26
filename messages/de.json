@@ -146,6 +146,24 @@
     "smtpOk": "SMTP-Verbindung OK",
     "keySet": "•••••••• (gesetzt)"
   },
+  "setup": {
+    "title": "Ersteinrichtung",
+    "subtitle": "Legen Sie Mandant und Administrator an, um zu starten.",
+    "tenantName": "Name der Hausverwaltung",
+    "tenantNamePlaceholder": "z. B. Muster Hausverwaltung GmbH",
+    "adminName": "Ihr Name",
+    "passwordHint": "Mindestens 6 Zeichen.",
+    "brandColor": "Theme-Farbe",
+    "preview": "Vorschau",
+    "submit": "Einrichtung abschließen"
+  },
+  "branding": {
+    "title": "Erscheinungsbild",
+    "color": "Theme-Farbe",
+    "logo": "Logo",
+    "uploadLogo": "Logo hochladen",
+    "removeLogo": "Entfernen"
+  },
   "login": {
     "title": "Anmelden",
     "subtitle": "Melden Sie sich bei HaVeWa an",

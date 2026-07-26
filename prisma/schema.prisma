@@ -115,6 +115,10 @@ model Tenant {
   smtpPassword String?
   smtpFrom     String?
   smtpSecure   Boolean @default(false)
+
+  // Branding (Theme-Farbe als HEX, Logo im Storage)
+  brandColor String?
+  logoKey    String?
 }
 
 model User {

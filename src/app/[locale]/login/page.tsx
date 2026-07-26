@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { Check } from "lucide-react";
 import { auth } from "@/auth";
+import { needsSetup } from "@/lib/setup";
 import { LoginForm } from "@/components/login-form";
 
 const DEMO = [
@@ -11,6 +12,7 @@ const DEMO = [
 ];
 
 export default async function LoginPage() {
+  if (await needsSetup()) redirect("/setup");
   const session = await auth();
   if (session?.user) redirect("/");
   const t = await getTranslations();
@@ -21,10 +23,25 @@ export default async function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       {/* Brand-Panel (Desktop) */}
       <div className="relative hidden flex-col justify-between overflow-hidden bg-primary p-10 text-primary-foreground lg:flex">
+        {/* Hintergrundvideo (optional): Datei unter public/login-bg.mp4 ablegen.
+            Fehlt sie, bleibt der Farb-/Verlaufshintergrund sichtbar. */}
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video
+          className="pointer-events-none absolute inset-0 size-full object-cover opacity-40"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/login-bg.jpg"
+        >
+          <source src="/login-bg.mp4" type="video/mp4" />
+          <source src="/login-bg.webm" type="video/webm" />
+        </video>
+        {/* Farb-Overlay für Lesbarkeit + Fallback-Verlauf */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
+          className="pointer-events-none absolute inset-0 bg-primary/60"
           style={{
-            background:
+            backgroundImage:
               "radial-gradient(60% 55% at 85% 0%, rgba(255,255,255,.25) 0%, transparent 60%), radial-gradient(45% 40% at 0% 100%, rgba(255,255,255,.15) 0%, transparent 55%)",
           }}
         />

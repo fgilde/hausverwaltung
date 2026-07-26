@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { UserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
 import { SettingsConfig } from "@/components/settings-config";
+import { BrandingConfig } from "@/components/branding-config";
 import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
@@ -50,6 +51,10 @@ export default async function SettingsPage() {
           <div className="text-lg font-medium">{tenant?.name}</div>
         </CardContent>
       </Card>
+
+      {isAdmin && tenant && (
+        <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />
+      )}
 
       {isAdmin && tenant && (
         <SettingsConfig

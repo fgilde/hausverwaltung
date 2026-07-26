@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
+import { prisma } from "@/lib/prisma";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -21,9 +22,19 @@ export default async function AdminLayout({
   // Portal-Rollen haben keinen Zugriff auf die Verwalter-App.
   if (["MIETER", "EIGENTUEMER", "HANDWERKER"].includes(user.role)) redirect("/portal");
 
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: user.tenantId },
+    select: { brandColor: true, logoKey: true },
+  });
+  const logoUrl = tenant?.logoKey ? "/api/logo" : undefined;
+
   return (
     <SidebarProvider>
-      <AppSidebar />
+      {/* Mandanten-Branding: überschreibt die Primärfarbe */}
+      {tenant?.brandColor && (
+        <style>{`:root{--primary:${tenant.brandColor};--sidebar-primary:${tenant.brandColor};--ring:${tenant.brandColor};}`}</style>
+      )}
+      <AppSidebar logoUrl={logoUrl} />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />

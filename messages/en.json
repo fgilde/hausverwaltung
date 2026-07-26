@@ -146,6 +146,24 @@
     "smtpOk": "SMTP connection OK",
     "keySet": "•••••••• (set)"
   },
+  "setup": {
+    "title": "First-run setup",
+    "subtitle": "Create the tenant and administrator to get started.",
+    "tenantName": "Property management name",
+    "tenantNamePlaceholder": "e.g. Sample Property Management Ltd.",
+    "adminName": "Your name",
+    "passwordHint": "At least 6 characters.",
+    "brandColor": "Theme colour",
+    "preview": "Preview",
+    "submit": "Complete setup"
+  },
+  "branding": {
+    "title": "Appearance",
+    "color": "Theme colour",
+    "logo": "Logo",
+    "uploadLogo": "Upload logo",
+    "removeLogo": "Remove"
+  },
   "login": {
     "title": "Sign in",
     "subtitle": "Sign in to HaVeWa",
