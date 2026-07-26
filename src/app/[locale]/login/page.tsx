@@ -69,6 +69,14 @@ export default async function LoginPage() {
           <ShieldCheck className="size-4" />
           © 2026 {t("app.name")} · DSGVO- &amp; GoBD-orientiert
         </div>
+
+        {/* Produkt-Icon unten rechts im Video-Bereich */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/marketing/icon.png"
+          alt="HaVeWa"
+          className="pointer-events-none absolute bottom-6 right-6 h-20 w-auto object-contain opacity-90 drop-shadow-lg"
+        />
       </div>
 
       {/* Formularseite */}
@@ -83,7 +91,7 @@ export default async function LoginPage() {
         <div className="relative w-full max-w-sm space-y-8">
           <div className="space-y-3 text-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoUrl} alt={tenantName} className="mx-auto h-16 w-auto object-contain" />
+            <img src={logoUrl} alt={tenantName} className="mx-auto h-44 w-auto object-contain" />
             <h1 className="text-2xl font-semibold tracking-tight">
               {t("login.welcomeTo")} {tenantName}
             </h1>
