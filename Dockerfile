@@ -31,5 +31,6 @@ COPY --from=build /app/tsconfig.json ./tsconfig.json
 RUN mkdir -p storage/documents
 
 EXPOSE 3000
-# Migrationen anwenden, dann Server starten
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+# Migrationen anwenden, optionalen Bootstrap (Demo-Seed / Admin aus Env) ausführen,
+# dann Server starten.
+CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx prisma/bootstrap.ts && npm start"]

@@ -127,6 +127,19 @@ docker compose -f docker-compose.registry.yml up -d
 | `AUTH_SECRET` | Session secret (`openssl rand -base64 32`) |
 | `DOMAIN` | Domain for Caddy/HTTPS (DNS must point to the server) |
 
+#### Optional first-run bootstrap (all optional)
+
+Applied once at container start while the system is still empty:
+
+| Variable | Effect |
+|---|---|
+| `SEED_DEMO=true` | Seed the demo dataset (admin `admin@havewa.app` / `admin`). `ADMIN_*`/`TENANT_NAME` are ignored. |
+| `ADMIN_EMAIL` + `ADMIN_PASSWORD` | Create the tenant + admin directly — **the setup wizard is skipped**. |
+| `ADMIN_NAME` | Admin display name (default `Admin`). |
+| `TENANT_NAME` | Tenant name (default `HaVeWa`). |
+
+If none are set, the setup wizard appears on first login (unchanged).
+
 ## Known simplifications
 
 Marked with `ponytail:` comments in the code: HeizkostenV consumption allocation

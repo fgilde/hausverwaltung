@@ -24,6 +24,12 @@ services:
       # feste öffentliche URL, sonst baut next-auth Redirects (z.B. nach Logout)
       # hinter dem Proxy auf localhost:3000 statt havewa.app
       AUTH_URL: "https://havewa.app"
+      # Optionaler Bootstrap beim ersten Start (alle optional):
+      SEED_DEMO: "${SEED_DEMO:-}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
+      ADMIN_NAME: "${ADMIN_NAME:-}"
+      TENANT_NAME: "${TENANT_NAME:-}"
     expose:
       - "3000"
     volumes:

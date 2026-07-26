@@ -89,6 +89,19 @@ Migrationen laufen beim Container-Start automatisch. Persistenz über die Volume
 `havewa-db`, `havewa-storage` (Dokumente/Logo) und `caddy-data` (Zertifikate).
 Erste Einrichtung anschließend über den Setup-Assistenten unter `https://<DOMAIN>/setup`.
 
+#### Optionaler Bootstrap beim ersten Start (alles optional)
+
+Wird einmalig beim Container-Start ausgeführt, solange das System noch leer ist:
+
+| Variable | Wirkung |
+|---|---|
+| `SEED_DEMO=true` | Demo-Datensatz einspielen (Admin `admin@havewa.app` / `admin`). `ADMIN_*`/`TENANT_NAME` werden ignoriert. |
+| `ADMIN_EMAIL` + `ADMIN_PASSWORD` | Mandant + Admin direkt anlegen — **der Wizard entfällt**. |
+| `ADMIN_NAME` | Anzeigename des Admins (Standard `Admin`). |
+| `TENANT_NAME` | Mandantenname (Standard `HaVeWa`). |
+
+Ist nichts gesetzt, erscheint beim ersten Login der Setup-Assistent (wie bisher).
+
 **Vorgebautes Image (schneller):** jeder Push auf `main` baut per GitHub Actions ein
 Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Deploy ohne Bauen auf dem Server
 via `docker-compose.registry.yml`:

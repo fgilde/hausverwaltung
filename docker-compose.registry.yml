@@ -15,6 +15,12 @@ services:
       DATABASE_URL: "postgresql://havewa:${DB_PASSWORD}@db:5432/havewa?schema=public"
       AUTH_SECRET: "${AUTH_SECRET}"
       AUTH_TRUST_HOST: "true"
+      # Optionaler Bootstrap beim ersten Start (alle optional):
+      SEED_DEMO: "${SEED_DEMO:-}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
+      ADMIN_NAME: "${ADMIN_NAME:-}"
+      TENANT_NAME: "${TENANT_NAME:-}"
     expose:
       - "3000"
     volumes:
