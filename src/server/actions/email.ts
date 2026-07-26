@@ -7,6 +7,7 @@ import { audit } from "@/lib/audit";
 import { sendMail, isMailerConfigured, type MailAttachment } from "@/lib/adapters/mailer";
 import { readFile } from "@/lib/storage";
 import { emailSchema, type ActionState } from "@/lib/schemas";
+import { renderTemplate } from "@/lib/template";
 
 const addrList = (s: string | undefined | null) =>
   (s ?? "").split(/[,;]/).map((a) => a.trim()).filter(Boolean);
@@ -110,26 +111,62 @@ export async function bulkEmail(_p: ActionState, fd: FormData): Promise<ActionSt
   const body = String(fd.get("body") ?? "").trim();
   if (!propertyId || !subject || !body) return { error: "Objekt, Betreff und Nachricht erforderlich." };
 
-  const emails = new Set<string>();
+  const prop = await prisma.property.findFirst({
+    where: { id: propertyId, tenantId: user.tenantId },
+    select: { name: true },
+  });
+  const objektName = prop?.name ?? "";
+  const datum = new Date().toLocaleDateString("de-DE");
+
+  // Empfänger mit Kontext einsammeln (dedupliziert je E-Mail).
+  const recips = new Map<string, { name: string; nameKey: string }>();
   if (audience === "EIGENTUEMER") {
     const owners = await prisma.owner.findMany({
       where: { tenantId: user.tenantId, unit: { building: { propertyId } } },
-      include: { person: { select: { email: true } } },
+      include: { person: { select: { email: true, firstName: true, lastName: true } } },
     });
-    owners.forEach((o) => o.person.email && emails.add(o.person.email));
+    owners.forEach((o) => {
+      if (o.person.email)
+        recips.set(o.person.email, {
+          name: `${o.person.firstName} ${o.person.lastName}`,
+          nameKey: "eigentuemer.name",
+        });
+    });
   } else {
     const renters = await prisma.renter.findMany({
       where: { tenantId: user.tenantId, lease: { unit: { building: { propertyId } } } },
-      include: { person: { select: { email: true } } },
+      include: { person: { select: { email: true, firstName: true, lastName: true } } },
     });
-    renters.forEach((r) => r.person.email && emails.add(r.person.email));
+    renters.forEach((r) => {
+      if (r.person.email)
+        recips.set(r.person.email, {
+          name: `${r.person.firstName} ${r.person.lastName}`,
+          nameKey: "mieter.name",
+        });
+    });
   }
-  if (emails.size === 0) return { error: "Keine Empfänger mit E-Mail-Adresse gefunden." };
+  if (recips.size === 0) return { error: "Keine Empfänger mit E-Mail-Adresse gefunden." };
 
-  await prisma.emailMessage.createMany({
-    data: [...emails].map((to) => ({ tenantId: user.tenantId, toAddress: to, subject, body, status: "ENTWURF" as const })),
+  // Platzhalter je Empfänger füllen (Serienbrief).
+  const rows = [...recips.entries()].map(([to, ctx]) => {
+    const context: Record<string, string> = {
+      "objekt.name": objektName,
+      datum,
+      [ctx.nameKey]: ctx.name,
+      "mieter.name": ctx.name,
+      "eigentuemer.name": ctx.name,
+    };
+    return {
+      tenantId: user.tenantId,
+      toAddress: to,
+      subject: renderTemplate(subject, context),
+      body: renderTemplate(body, context),
+      status: "ENTWURF" as const,
+    };
   });
-  await audit(user, "CREATE", "EmailMessage", null, `Serien-Mail (${emails.size})`);
+
+  await prisma.emailMessage.createMany({ data: rows });
+  await audit(user, "CREATE", "EmailMessage", null, `Serien-Mail (${rows.length})`);
   revalidatePath("/", "layout");
   return { ok: true };
 }

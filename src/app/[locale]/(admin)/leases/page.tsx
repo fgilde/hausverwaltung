@@ -24,7 +24,7 @@ export default async function LeasesPage() {
   const t = await getTranslations();
   const locale = await getLocale();
 
-  const [leases, units, persons] = await Promise.all([
+  const [leases, units, persons, customDefs] = await Promise.all([
     prisma.lease.findMany({
       where: { tenantId: user.tenantId },
       include: {
@@ -42,6 +42,11 @@ export default async function LeasesPage() {
     prisma.person.findMany({
       where: { tenantId: user.tenantId },
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "LEASE" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
     }),
   ]);
 
@@ -72,7 +77,7 @@ export default async function LeasesPage() {
             <Download className="size-4" />
             {t("common.exportCsv")}
           </Button>
-          <LeaseDialog units={unitOpts} persons={personOpts} />
+          <LeaseDialog units={unitOpts} persons={personOpts} customDefs={customDefs} />
         </div>
       </div>
 
@@ -117,6 +122,7 @@ export default async function LeasesPage() {
                         <div className="flex justify-end gap-1">
                           <LeaseDialog
                             units={unitOpts}
+                            customDefs={customDefs}
                             lease={{
                               id: l.id,
                               unitId: l.unitId,
@@ -125,6 +131,7 @@ export default async function LeasesPage() {
                               rentCold: String(l.rentCold),
                               personCount: l.personCount,
                               noticePeriodM: l.noticePeriodM,
+                              custom: (l.custom as Record<string, string>) ?? {},
                             }}
                           />
                           <DeleteButton action={deleteLease} id={l.id} />

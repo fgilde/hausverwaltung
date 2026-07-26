@@ -95,25 +95,27 @@ export async function deleteBuilding(fd: FormData): Promise<void> {
 // --- Unit ---
 export async function createUnit(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
-  const r = unitSchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = unitSchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
   const b = await prisma.building.findFirst({
     where: { id: r.data.buildingId, tenantId: user.tenantId },
     select: { id: true },
   });
   if (!b) return fail("Gebäude nicht gefunden");
-  await prisma.unit.create({ data: { ...r.data, tenantId: user.tenantId } });
+  await prisma.unit.create({ data: { ...r.data, custom: pickCustom(entries), tenantId: user.tenantId } });
   return done();
 }
 
 export async function updateUnit(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
-  const r = unitSchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = unitSchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
   const { buildingId, ...data } = r.data;
   void buildingId;
-  await prisma.unit.updateMany({ where: { id, tenantId: user.tenantId }, data });
+  await prisma.unit.updateMany({ where: { id, tenantId: user.tenantId }, data: { ...data, custom: pickCustom(entries) } });
   return done();
 }
 

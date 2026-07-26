@@ -26,11 +26,24 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   });
   if (!person) notFound();
 
-  const units = await prisma.unit.findMany({
-    where: { tenantId: user.tenantId },
-    include: { building: { include: { property: true } } },
-    orderBy: { createdAt: "asc" },
-  });
+  const [units, customDefs, leaseDefs] = await Promise.all([
+    prisma.unit.findMany({
+      where: { tenantId: user.tenantId },
+      include: { building: { include: { property: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "PERSON" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "LEASE" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+  ]);
+  const customValues = (person.custom as Record<string, string>) ?? {};
   const unitOpts = units.map((u) => ({
     value: u.id,
     label: `${u.building.property.name} · ${u.building.name} · ${u.label}`,
@@ -63,6 +76,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
           {person.note && <p className="max-w-xl pt-2 text-sm">{person.note}</p>}
         </div>
         <PersonDialog
+          customDefs={customDefs}
           person={{
             id: person.id,
             firstName: person.firstName,
@@ -71,6 +85,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             phone: person.phone,
             type: person.type,
             note: person.note,
+            custom: customValues,
           }}
         />
       </div>
@@ -79,7 +94,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("persons.tenancies")}</CardTitle>
-          <LeaseDialog units={unitOpts} presetPersonId={person.id} triggerLabel={t("leases.new")} />
+          <LeaseDialog units={unitOpts} presetPersonId={person.id} customDefs={leaseDefs} triggerLabel={t("leases.new")} />
         </CardHeader>
         <CardContent className="space-y-2">
           {person.renters.length === 0 ? (
@@ -125,6 +140,22 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
           )}
         </CardContent>
       </Card>
+
+      {customDefs.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2">
+            {customDefs.map((d) => (
+              <div key={d.key} className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{d.label}</span>
+                <span>{customValues[d.key] || t("common.none")}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

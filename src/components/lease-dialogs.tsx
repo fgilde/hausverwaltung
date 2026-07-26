@@ -2,7 +2,7 @@ import { Plus, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
-import { TextField, SelectField } from "@/components/form-fields";
+import { TextField, SelectField, CustomFields } from "@/components/form-fields";
 import {
   createLease,
   updateLease,
@@ -37,6 +37,7 @@ type LeaseData = {
   rentCold: string;
   personCount: number;
   noticePeriodM: number | null;
+  custom?: Record<string, string>;
 };
 
 export async function LeaseDialog({
@@ -46,6 +47,7 @@ export async function LeaseDialog({
   presetUnitId,
   presetPersonId,
   triggerLabel,
+  customDefs = [],
 }: {
   units?: Opt[];
   persons?: Opt[];
@@ -53,6 +55,7 @@ export async function LeaseDialog({
   presetUnitId?: string; // Einheit vorbelegt+gesperrt (von Unit-Detail)
   presetPersonId?: string; // Person vorbelegt+gesperrt (von Person-Detail)
   triggerLabel?: string;
+  customDefs?: { key: string; label: string }[];
 }) {
   const t = await getTranslations();
   const edit = !!lease;
@@ -124,6 +127,7 @@ export async function LeaseDialog({
           defaultValue={lease?.noticePeriodM ?? undefined}
         />
       </div>
+      <CustomFields defs={customDefs} values={lease?.custom} />
     </CrudDialog>
   );
 }

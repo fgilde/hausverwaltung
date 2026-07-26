@@ -725,6 +725,7 @@
     "noSmtp": "Kein SMTP konfiguriert — E-Mails werden erfasst und als versendet markiert, aber nicht real zugestellt. Zugangsdaten unter Einstellungen eintragen.",
     "template": "Vorlage",
     "templateChoose": "Vorlage wählen",
+    "placeholderHint": "Platzhalter wie mieter.name, objekt.name, datum (in doppelten geschweiften Klammern) werden je Empfänger ersetzt.",
     "bulk": "Serien-Mail",
     "audience": "Empfängerkreis",
     "tpl": {

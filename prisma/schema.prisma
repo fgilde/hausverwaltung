@@ -191,6 +191,7 @@ model Unit {
   meters     Meter[]
   tickets    Ticket[]
   documents  Document[]
+  custom     Json     @default("{}")
   createdAt  DateTime @default(now())
 
   @@index([tenantId])
@@ -249,6 +250,7 @@ model Person {
   mandates  SepaMandate[]
   users     User[]
   documents Document[]
+  custom    Json          @default("{}")
   createdAt DateTime @default(now())
 
   @@index([tenantId])
@@ -282,6 +284,7 @@ model Lease {
   adjustments   RentAdjustment[]
   deposit       Deposit?
   charges       Charge[]
+  custom        Json             @default("{}")
   createdAt     DateTime         @default(now())
 
   @@index([tenantId])

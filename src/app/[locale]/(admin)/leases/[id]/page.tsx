@@ -52,7 +52,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
   });
   if (!lease) notFound();
 
-  const [persons, units, kautionAccounts] = await Promise.all([
+  const [persons, units, kautionAccounts, customDefs] = await Promise.all([
     prisma.person.findMany({
       where: { tenantId: user.tenantId },
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
@@ -66,6 +66,11 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
       where: { tenantId: user.tenantId, type: "KAUTION" },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "LEASE" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
     }),
   ]);
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
@@ -95,6 +100,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
         <div className="flex gap-1">
           <LeaseDialog
             units={unitOpts}
+            customDefs={customDefs}
             lease={{
               id: lease.id,
               unitId: lease.unitId,
@@ -103,6 +109,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
               rentCold: String(lease.rentCold),
               personCount: lease.personCount,
               noticePeriodM: lease.noticePeriodM,
+              custom: (lease.custom as Record<string, string>) ?? {},
             }}
           />
           <DeleteButton action={deleteLease} id={lease.id} />

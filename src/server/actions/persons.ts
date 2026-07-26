@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { personSchema, type ActionState } from "@/lib/schemas";
+import { pickCustom } from "@/lib/custom";
 
 export async function createPerson(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
-  const r = personSchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = personSchema.safeParse(entries);
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
-  await prisma.person.create({ data: { ...r.data, tenantId: user.tenantId } });
+  await prisma.person.create({ data: { ...r.data, custom: pickCustom(entries), tenantId: user.tenantId } });
   revalidatePath("/", "layout");
   return { ok: true };
 }
@@ -17,9 +19,10 @@ export async function createPerson(_p: ActionState, fd: FormData): Promise<Actio
 export async function updatePerson(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
-  const r = personSchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = personSchema.safeParse(entries);
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
-  await prisma.person.updateMany({ where: { id, tenantId: user.tenantId }, data: r.data });
+  await prisma.person.updateMany({ where: { id, tenantId: user.tenantId }, data: { ...r.data, custom: pickCustom(entries) } });
   revalidatePath("/", "layout");
   return { ok: true };
 }

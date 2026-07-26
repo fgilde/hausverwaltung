@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 type Person = { id: string; label: string; email: string };
 type Doc = { id: string; name: string };
+type Tpl = { id: string; name: string; subject: string | null; body: string };
 
 const inputCls = cn(
   "flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm shadow-xs",
@@ -20,9 +21,15 @@ const areaCls = cn(
   "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none dark:bg-input/30",
 );
 
-const TEMPLATES = ["reminder", "info", "statement"] as const;
-
-export function EmailCompose({ persons, documents }: { persons: Person[]; documents: Doc[] }) {
+export function EmailCompose({
+  persons,
+  documents,
+  templates,
+}: {
+  persons: Person[];
+  documents: Doc[];
+  templates: Tpl[];
+}) {
   const t = useTranslations();
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
@@ -36,10 +43,11 @@ export function EmailCompose({ persons, documents }: { persons: Person[]; docume
       return parts.length ? `${cur.replace(/[,;\s]*$/, "")}, ${email}` : email;
     });
   }
-  function applyTemplate(key: string) {
-    if (!key) return;
-    setSubject(t(`email.tpl.${key}.subject`));
-    setBody(t(`email.tpl.${key}.body`));
+  function applyTemplate(id: string) {
+    const tpl = templates.find((x) => x.id === id);
+    if (!tpl) return;
+    setSubject(tpl.subject ?? "");
+    setBody(tpl.body);
   }
 
   return (
@@ -54,15 +62,17 @@ export function EmailCompose({ persons, documents }: { persons: Person[]; docume
       action={createEmail}
       submitLabel={t("email.saveToOutbox")}
     >
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">{t("email.template")}</label>
-        <select defaultValue="" onChange={(e) => { applyTemplate(e.target.value); e.target.value = ""; }} className={cn(inputCls, "text-muted-foreground")}>
-          <option value="">{t("email.templateChoose")}…</option>
-          {TEMPLATES.map((k) => (
-            <option key={k} value={k}>{t(`email.tpl.${k}.name`)}</option>
-          ))}
-        </select>
-      </div>
+      {templates.length > 0 && (
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">{t("email.template")}</label>
+          <select defaultValue="" onChange={(e) => { applyTemplate(e.target.value); e.target.value = ""; }} className={cn(inputCls, "text-muted-foreground")}>
+            <option value="">{t("email.templateChoose")}…</option>
+            {templates.map((tpl) => (
+              <option key={tpl.id} value={tpl.id}>{tpl.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="space-y-1.5">
         <label htmlFor="toAddress" className="text-sm font-medium">{t("email.to")}</label>

@@ -20,14 +20,21 @@ export default async function UnitsPage() {
   const user = await requireUser();
   const t = await getTranslations();
 
-  const units = await prisma.unit.findMany({
-    where: { tenantId: user.tenantId },
-    include: {
-      building: { include: { property: true } },
-      leases: { select: { startDate: true, endDate: true } },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  const [units, customDefs] = await Promise.all([
+    prisma.unit.findMany({
+      where: { tenantId: user.tenantId },
+      include: {
+        building: { include: { property: true } },
+        leases: { select: { startDate: true, endDate: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "UNIT" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+  ]);
 
   const now = new Date();
   const occupied = (leases: { startDate: Date; endDate: Date | null }[]) =>
@@ -82,6 +89,7 @@ export default async function UnitsPage() {
                       <div className="flex justify-end gap-1">
                         <UnitDialog
                           buildingId={u.buildingId}
+                          customDefs={customDefs}
                           unit={{
                             id: u.id,
                             label: u.label,
@@ -89,6 +97,7 @@ export default async function UnitsPage() {
                             area: String(u.area),
                             rooms: u.rooms ? String(u.rooms) : undefined,
                             mea: u.mea != null ? String(u.mea) : undefined,
+                            custom: (u.custom as Record<string, string>) ?? {},
                           }}
                         />
                         <DeleteButton action={deleteUnit} id={u.id} />

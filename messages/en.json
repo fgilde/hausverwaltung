@@ -725,6 +725,7 @@
     "noSmtp": "No SMTP configured — emails are recorded and marked as sent, but not actually delivered. Enter credentials under Settings.",
     "template": "Template",
     "templateChoose": "Choose template",
+    "placeholderHint": "Placeholders like mieter.name, objekt.name, datum (in double curly braces) are filled per recipient.",
     "bulk": "Bulk email",
     "audience": "Recipients",
     "tpl": {

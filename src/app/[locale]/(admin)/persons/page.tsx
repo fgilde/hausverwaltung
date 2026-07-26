@@ -29,10 +29,17 @@ export default async function PersonsPage({
   const t = await getTranslations();
   const active = GROUPS.includes(sp.type as (typeof GROUPS)[number]) ? sp.type : undefined;
 
-  const persons = await prisma.person.findMany({
-    where: { tenantId: user.tenantId, ...(active ? { type: active as (typeof GROUPS)[number] } : {}) },
-    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-  });
+  const [persons, customDefs] = await Promise.all([
+    prisma.person.findMany({
+      where: { tenantId: user.tenantId, ...(active ? { type: active as (typeof GROUPS)[number] } : {}) },
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "PERSON" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -41,7 +48,7 @@ export default async function PersonsPage({
           <h1 className="text-2xl font-semibold tracking-tight">{t("persons.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("persons.subtitle")}</p>
         </div>
-        <PersonDialog />
+        <PersonDialog customDefs={customDefs} />
       </div>
 
       {/* Adressbuch-Gruppenfilter */}
@@ -102,6 +109,7 @@ export default async function PersonsPage({
                     <TableCell>
                       <div className="flex justify-end gap-1">
                         <PersonDialog
+                          customDefs={customDefs}
                           person={{
                             id: p.id,
                             firstName: p.firstName,
@@ -110,6 +118,7 @@ export default async function PersonsPage({
                             phone: p.phone,
                             type: p.type,
                             note: p.note,
+                            custom: (p.custom as Record<string, string>) ?? {},
                           }}
                         />
                         <DeleteButton action={deletePerson} id={p.id} />

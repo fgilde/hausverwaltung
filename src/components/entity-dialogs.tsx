@@ -2,7 +2,7 @@ import { Plus, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
-import { TextField, SelectField } from "@/components/form-fields";
+import { TextField, SelectField, CustomFields } from "@/components/form-fields";
 import {
   createProperty,
   updateProperty,
@@ -155,14 +155,17 @@ type UnitData = {
   area: string;
   rooms?: string;
   mea?: string;
+  custom?: Record<string, string>;
 };
 
 export async function UnitDialog({
   buildingId,
   unit,
+  customDefs = [],
 }: {
   buildingId: string;
   unit?: UnitData;
+  customDefs?: { key: string; label: string }[];
 }) {
   const t = await getTranslations();
   const edit = !!unit;
@@ -203,6 +206,7 @@ export async function UnitDialog({
         required={false}
         defaultValue={unit?.mea}
       />
+      <CustomFields defs={customDefs} values={unit?.custom} />
     </CrudDialog>
   );
 }
@@ -215,9 +219,16 @@ type PersonData = {
   phone?: string | null;
   type?: string;
   note?: string | null;
+  custom?: Record<string, string>;
 };
 
-export async function PersonDialog({ person }: { person?: PersonData }) {
+export async function PersonDialog({
+  person,
+  customDefs = [],
+}: {
+  person?: PersonData;
+  customDefs?: { key: string; label: string }[];
+}) {
   const t = await getTranslations();
   const edit = !!person;
   return (
@@ -265,6 +276,7 @@ export async function PersonDialog({ person }: { person?: PersonData }) {
         required={false}
         defaultValue={person?.note ?? undefined}
       />
+      <CustomFields defs={customDefs} values={person?.custom} />
     </CrudDialog>
   );
 }

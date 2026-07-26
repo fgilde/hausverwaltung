@@ -63,11 +63,18 @@ export default async function PropertyDetailPage({
     },
     include: { components: { select: { amount: true } } },
   });
-  const customDefs = await prisma.customFieldDef.findMany({
-    where: { tenantId: user.tenantId, entity: "PROPERTY" },
-    orderBy: { createdAt: "asc" },
-    select: { key: true, label: true },
-  });
+  const [customDefs, unitDefs] = await Promise.all([
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "PROPERTY" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "UNIT" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+  ]);
   const customValues = (property.custom as Record<string, string>) ?? {};
 
   const unitCount = property.buildings.reduce((a, b) => a + b.units.length, 0);
@@ -165,7 +172,7 @@ export default async function PropertyDetailPage({
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base">{b.name}</CardTitle>
               <div className="flex items-center gap-1">
-                <UnitDialog buildingId={b.id} />
+                <UnitDialog buildingId={b.id} customDefs={unitDefs} />
                 <BuildingDialog propertyId={property.id} building={{ id: b.id, name: b.name }} />
                 <DeleteButton action={deleteBuilding} id={b.id} />
               </div>
@@ -203,6 +210,7 @@ export default async function PropertyDetailPage({
                           <div className="flex justify-end gap-1">
                             <UnitDialog
                               buildingId={b.id}
+                              customDefs={unitDefs}
                               unit={{
                                 id: u.id,
                                 label: u.label,
@@ -210,6 +218,7 @@ export default async function PropertyDetailPage({
                                 area: String(u.area),
                                 rooms: u.rooms ? String(u.rooms) : undefined,
                                 mea: u.mea != null ? String(u.mea) : undefined,
+                                custom: (u.custom as Record<string, string>) ?? {},
                               }}
                             />
                             <DeleteButton action={deleteUnit} id={u.id} />

@@ -25,7 +25,7 @@ export default async function EmailPage() {
   const t = await getTranslations();
   const locale = await getLocale();
 
-  const [messages, tenant, persons, documents, properties] = await Promise.all([
+  const [messages, tenant, persons, documents, properties, templates] = await Promise.all([
     prisma.emailMessage.findMany({
       where: { tenantId: user.tenantId },
       include: { _count: { select: { attachments: true } } },
@@ -47,6 +47,11 @@ export default async function EmailPage() {
       select: { id: true, name: true },
     }),
     prisma.property.findMany({ where: { tenantId: user.tenantId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.template.findMany({
+      where: { tenantId: user.tenantId },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, subject: true, body: true },
+    }),
   ]);
   const personOpts = persons.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName}`, email: p.email! }));
   const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
@@ -69,8 +74,8 @@ export default async function EmailPage() {
           <p className="text-sm text-muted-foreground">{t("email.subtitle")}</p>
         </div>
         <div className="flex gap-2">
-          {propertyOpts.length > 0 && <BulkEmailDialog properties={propertyOpts} />}
-          <EmailCompose persons={personOpts} documents={documents} />
+          {propertyOpts.length > 0 && <BulkEmailDialog properties={propertyOpts} templates={templates} />}
+          <EmailCompose persons={personOpts} documents={documents} templates={templates} />
         </div>
       </div>
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
+import { pickCustom } from "@/lib/custom";
 import {
   leaseCreateSchema,
   leaseUpdateSchema,
@@ -24,7 +25,8 @@ function done(): ActionState {
 // --- Lease ---
 export async function createLease(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
-  const r = leaseCreateSchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = leaseCreateSchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
   const [unit, person] = await Promise.all([
     prisma.unit.findFirst({ where: { id: r.data.unitId, tenantId: user.tenantId }, select: { id: true } }),
@@ -35,6 +37,7 @@ export async function createLease(_p: ActionState, fd: FormData): Promise<Action
   await prisma.lease.create({
     data: {
       ...data,
+      custom: pickCustom(entries),
       tenantId: user.tenantId,
       unitId,
       renters: { create: { tenantId: user.tenantId, personId } },
@@ -54,7 +57,10 @@ export async function updateLease(_p: ActionState, fd: FormData): Promise<Action
     select: { id: true },
   });
   if (!unit) return fail("Einheit nicht gefunden");
-  await prisma.lease.updateMany({ where: { id, tenantId: user.tenantId }, data: r.data });
+  await prisma.lease.updateMany({
+    where: { id, tenantId: user.tenantId },
+    data: { ...r.data, custom: pickCustom(Object.fromEntries(fd)) },
+  });
   return done();
 }
 

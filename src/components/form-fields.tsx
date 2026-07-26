@@ -32,6 +32,28 @@ export function TextField({
   );
 }
 
+export function CustomFields({
+  defs,
+  values,
+}: {
+  defs: { key: string; label: string }[];
+  values?: Record<string, string>;
+}) {
+  return (
+    <>
+      {defs.map((d) => (
+        <TextField
+          key={d.key}
+          name={`cf_${d.key}`}
+          label={d.label}
+          required={false}
+          defaultValue={values?.[d.key]}
+        />
+      ))}
+    </>
+  );
+}
+
 export function TextAreaField({
   name,
   label,

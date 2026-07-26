@@ -48,11 +48,24 @@ export default async function UnitDetailPage({
 
   if (!unit) notFound();
 
-  const persons = await prisma.person.findMany({
-    where: { tenantId: user.tenantId },
-    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-  });
+  const [persons, unitDefs, leaseDefs] = await Promise.all([
+    prisma.person.findMany({
+      where: { tenantId: user.tenantId },
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "UNIT" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "LEASE" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+  ]);
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
+  const unitCustom = (unit.custom as Record<string, string>) ?? {};
 
   return (
     <div className="space-y-6">
@@ -76,6 +89,22 @@ export default async function UnitDetailPage({
         </div>
       </div>
 
+      {unitDefs.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2">
+            {unitDefs.map((d) => (
+              <div key={d.key} className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{d.label}</span>
+                <span>{unitCustom[d.key] || t("common.none")}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Mietverhältnisse */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -83,7 +112,7 @@ export default async function UnitDetailPage({
             <FileSignature className="size-4" />
             {t("leases.title")}
           </CardTitle>
-          <LeaseDialog presetUnitId={unit.id} persons={personOpts} triggerLabel={t("leases.new")} />
+          <LeaseDialog presetUnitId={unit.id} persons={personOpts} customDefs={leaseDefs} triggerLabel={t("leases.new")} />
         </CardHeader>
         <CardContent className="space-y-2">
           {unit.leases.length === 0 ? (
