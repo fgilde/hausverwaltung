@@ -175,6 +175,13 @@
     "uploadLogo": "Upload logo",
     "removeLogo": "Remove"
   },
+  "apiInfo": {
+    "title": "API & MCP endpoints",
+    "rest": "REST API",
+    "mcp": "MCP server",
+    "reference": "Open API reference",
+    "howto": "Create a token above and add it to your AI client as an MCP server with this bearer token — the AI can then read and manage your portfolio."
+  },
   "tokens": {
     "title": "API & MCP access",
     "subtitle": "Personal access tokens for the REST API and AI/MCP access.",

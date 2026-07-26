@@ -141,6 +141,27 @@ export default async function SettingsPage() {
       {/* API-Tokens (API & MCP) */}
       <ApiTokensManager tokens={tokenRows} users={tokenUserOpts} isAdmin={isAdmin} />
 
+      {/* API- & MCP-Endpunkte */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("apiInfo.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground">{t("apiInfo.rest")}:</span>
+            <code className="rounded bg-muted px-2 py-0.5">/api/v1</code>
+            <a href="/api-reference" target="_blank" className="text-primary hover:underline">
+              {t("apiInfo.reference")} →
+            </a>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground">{t("apiInfo.mcp")}:</span>
+            <code className="rounded bg-muted px-2 py-0.5">/api/mcp</code>
+          </div>
+          <p className="text-muted-foreground">{t("apiInfo.howto")}</p>
+        </CardContent>
+      </Card>
+
       {/* Benutzerdefinierte Felder */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">

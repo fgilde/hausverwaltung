@@ -175,6 +175,13 @@
     "uploadLogo": "Logo hochladen",
     "removeLogo": "Entfernen"
   },
+  "apiInfo": {
+    "title": "API- & MCP-Endpunkte",
+    "rest": "REST-API",
+    "mcp": "MCP-Server",
+    "reference": "API-Referenz öffnen",
+    "howto": "Oben einen Token erstellen und im KI-Client als MCP-Server mit diesem Bearer-Token eintragen — die KI kann dann deinen Bestand lesen und bearbeiten."
+  },
   "tokens": {
     "title": "API- & MCP-Zugänge",
     "subtitle": "Persönliche Zugangstoken für die REST-API und den KI-/MCP-Zugriff.",
