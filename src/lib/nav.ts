@@ -17,6 +17,9 @@ import {
   AlertTriangle,
   BarChart3,
   FileText,
+  ShieldCheck,
+  Receipt,
+  ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 
@@ -52,6 +55,14 @@ export const navGroups: NavGroup[] = [
       { key: "nav.tickets", href: "/tickets", icon: Wrench },
       { key: "nav.documents", href: "/documents", icon: FolderOpen },
       { key: "nav.email", href: "/email", icon: Mail },
+    ],
+  },
+  {
+    labelKey: "nav.groupMore",
+    items: [
+      { key: "nav.insurance", href: "/insurance", icon: ShieldCheck },
+      { key: "nav.grundsteuer", href: "/grundsteuer", icon: Receipt },
+      { key: "nav.zensus", href: "/zensus", icon: ClipboardList },
     ],
   },
   {

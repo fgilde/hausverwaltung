@@ -52,9 +52,13 @@
     "calendar": "Kalender",
     "email": "Postausgang",
     "audit": "Änderungsprotokoll",
+    "insurance": "Versicherungen",
+    "grundsteuer": "Grundsteuer",
+    "zensus": "Zensus",
     "groupManagement": "Verwaltung",
     "groupFinance": "Finanzen & Abrechnung",
     "groupOperations": "Betrieb",
+    "groupMore": "Weitere",
     "groupAdmin": "Administration"
   },
   "dashboard": {
@@ -392,6 +396,40 @@
     "VERTRAG": "Vertrag",
     "PROTOKOLL": "Protokoll",
     "SONSTIGES": "Sonstiges"
+  },
+  "insurance": {
+    "title": "Versicherungen",
+    "subtitle": "Versicherungspolicen je Objekt",
+    "new": "Neue Police",
+    "empty": "Keine Versicherungen erfasst.",
+    "insurer": "Versicherer",
+    "policyNo": "Policennummer",
+    "premium": "Jahresprämie",
+    "start": "Beginn",
+    "end": "Ablauf"
+  },
+  "insuranceType": {
+    "GEBAEUDE": "Gebäudeversicherung",
+    "HAFTPFLICHT": "Haftpflicht",
+    "GLAS": "Glasversicherung",
+    "ELEMENTAR": "Elementarschaden",
+    "RECHTSSCHUTZ": "Rechtsschutz",
+    "SONSTIGES": "Sonstige"
+  },
+  "grundsteuer": {
+    "title": "Grundsteuer",
+    "subtitle": "Grundsteuerdaten je Objekt (Reform 2025)",
+    "edit": "Grundsteuer bearbeiten",
+    "aktenzeichen": "Aktenzeichen",
+    "grundsteuerwert": "Grundsteuerwert",
+    "messbetrag": "Steuermessbetrag",
+    "hebesatz": "Hebesatz (%)",
+    "yearly": "Jahres-Grundsteuer"
+  },
+  "zensus": {
+    "title": "Zensus",
+    "subtitle": "Gebäude- und Wohnungsdaten für die Zensus-Meldung",
+    "rent": "Nettokaltmiete"
   },
   "dunning": {
     "title": "Objektübergreifendes Mahnwesen",

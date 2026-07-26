@@ -52,9 +52,13 @@
     "calendar": "Calendar",
     "email": "Outbox",
     "audit": "Audit log",
+    "insurance": "Insurance",
+    "grundsteuer": "Property tax",
+    "zensus": "Census",
     "groupManagement": "Management",
     "groupFinance": "Finance & Statements",
     "groupOperations": "Operations",
+    "groupMore": "More",
     "groupAdmin": "Administration"
   },
   "dashboard": {
@@ -392,6 +396,40 @@
     "VERTRAG": "Contract",
     "PROTOKOLL": "Minutes",
     "SONSTIGES": "Other"
+  },
+  "insurance": {
+    "title": "Insurance",
+    "subtitle": "Insurance policies per property",
+    "new": "New policy",
+    "empty": "No insurance recorded.",
+    "insurer": "Insurer",
+    "policyNo": "Policy no.",
+    "premium": "Annual premium",
+    "start": "Start",
+    "end": "Expiry"
+  },
+  "insuranceType": {
+    "GEBAEUDE": "Building insurance",
+    "HAFTPFLICHT": "Liability",
+    "GLAS": "Glass insurance",
+    "ELEMENTAR": "Natural hazards",
+    "RECHTSSCHUTZ": "Legal protection",
+    "SONSTIGES": "Other"
+  },
+  "grundsteuer": {
+    "title": "Property tax",
+    "subtitle": "Property tax data per property (2025 reform)",
+    "edit": "Edit property tax",
+    "aktenzeichen": "Reference no.",
+    "grundsteuerwert": "Assessed value",
+    "messbetrag": "Tax base amount",
+    "hebesatz": "Multiplier (%)",
+    "yearly": "Annual property tax"
+  },
+  "zensus": {
+    "title": "Census",
+    "subtitle": "Building and dwelling data for census reporting",
+    "rent": "Net cold rent"
   },
   "dunning": {
     "title": "Portfolio dunning",

@@ -224,6 +224,26 @@ export const agendaSchema = z.object({
   description: optionalStr,
 });
 
+export const insuranceSchema = z.object({
+  propertyId: z.string().min(1),
+  type: z.enum(["GEBAEUDE", "HAFTPFLICHT", "GLAS", "ELEMENTAR", "RECHTSSCHUTZ", "SONSTIGES"]),
+  insurer: z.string().trim().min(1),
+  policyNo: optionalStr,
+  premium: z.coerce.number().nonnegative(),
+  startDate: optionalDate,
+  endDate: optionalDate,
+  note: optionalStr,
+});
+
+export const propertyTaxSchema = z.object({
+  propertyId: z.string().min(1),
+  aktenzeichen: optionalStr,
+  grundsteuerwert: optionalNum,
+  messbetrag: optionalNum,
+  hebesatz: optionalNum,
+  note: optionalStr,
+});
+
 export const templateSchema = z.object({
   category: z.enum(["ANSCHREIBEN", "ABRECHNUNG", "MAHNUNG", "VERTRAG", "PROTOKOLL", "SONSTIGES"]),
   name: z.string().trim().min(1),

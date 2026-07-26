@@ -158,6 +158,8 @@ model Property {
   tickets       Ticket[]
   maintenance   MaintenanceContract[]
   appointments  Appointment[]
+  insurances    Insurance[]
+  propertyTax   PropertyTax?
   createdAt     DateTime       @default(now())
 
   @@index([tenantId])
@@ -836,4 +838,49 @@ model CostEntry {
 
   @@index([tenantId])
   @@index([propertyId, year])
+}
+
+// ---------- Nischen-Module ----------
+
+enum InsuranceType {
+  GEBAEUDE
+  HAFTPFLICHT
+  GLAS
+  ELEMENTAR
+  RECHTSSCHUTZ
+  SONSTIGES
+}
+
+model Insurance {
+  id         String        @id @default(cuid())
+  tenantId   String
+  propertyId String
+  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type       InsuranceType
+  insurer    String
+  policyNo   String?
+  premium    Decimal       @default(0) @db.Decimal(10, 2) // Jahresprämie
+  startDate  DateTime?
+  endDate    DateTime?
+  note       String?
+  createdAt  DateTime      @default(now())
+
+  @@index([tenantId])
+  @@index([propertyId])
+}
+
+// Grundsteuer (Reform 2025): Werte je Objekt, Jahresbetrag = Messbetrag * Hebesatz/100.
+model PropertyTax {
+  id             String   @id @default(cuid())
+  tenantId       String
+  propertyId     String   @unique
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  aktenzeichen   String?
+  grundsteuerwert Decimal? @db.Decimal(14, 2)
+  messbetrag     Decimal? @db.Decimal(12, 2)
+  hebesatz       Decimal? @db.Decimal(6, 2) // Prozent
+  note           String?
+  createdAt      DateTime @default(now())
+
+  @@index([tenantId])
 }
