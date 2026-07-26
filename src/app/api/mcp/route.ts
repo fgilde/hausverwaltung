@@ -1,5 +1,6 @@
 import { authenticateBearer, type ApiPrincipal } from "@/lib/api-auth";
 import * as data from "@/lib/api-data";
+import { apiCreate, apiUpdate, apiDelete, listEntities, ENTITIES } from "@/lib/api-write";
 
 // MCP-Server (Model Context Protocol) über Streamable HTTP / JSON-RPC.
 // Auth: Bearer-Token (persönlicher API-Token). Der Agent (Claude, ChatGPT,
@@ -21,6 +22,8 @@ const obj = (props: Record<string, object>, required: string[] = []) => ({
   required,
 });
 const str = { type: "string" };
+const rec = { type: "object", additionalProperties: true };
+const entityEnum = { type: "string", enum: ENTITIES };
 
 const TOOLS: Tool[] = [
   {
@@ -172,6 +175,32 @@ const TOOLS: Tool[] = [
     description: "Neue Aufgabe/Wiedervorlage anlegen. dueDate optional als YYYY-MM-DD.",
     inputSchema: obj({ title: str, dueDate: str }, ["title"]),
     run: (p, a) => data.createTask(p.tenantId, { title: String(a.title), dueDate: a.dueDate ? String(a.dueDate) : undefined }),
+  },
+  {
+    name: "list_entities",
+    description:
+      "Schema-Discovery: alle schreibbaren Entitäten mit ihren Feldern und Relationen. IMMER zuerst aufrufen, bevor create_record/update_record genutzt wird, um die korrekten Feldnamen zu kennen.",
+    inputSchema: obj({}),
+    run: async () => listEntities(),
+  },
+  {
+    name: "create_record",
+    description:
+      "Beliebigen Datensatz anlegen (Objekt, Einheit, Person, Vertrag, Buchung, Versammlung, Beschluss, WEG-Plan, Versicherung, Benutzer …). entity = Typ aus list_entities, data = Felder. Relation-IDs (z. B. propertyId) müssen zum Mandanten gehören.",
+    inputSchema: obj({ entity: entityEnum, data: rec }, ["entity", "data"]),
+    run: (p, a) => apiCreate(p, String(a.entity), (a.data as Record<string, unknown>) ?? {}),
+  },
+  {
+    name: "update_record",
+    description: "Datensatz ändern. entity + id + data (nur zu ändernde Felder). Nur bei aktualisierbaren Entitäten (siehe list_entities.writable).",
+    inputSchema: obj({ entity: entityEnum, id: str, data: rec }, ["entity", "id", "data"]),
+    run: (p, a) => apiUpdate(p, String(a.entity), String(a.id), (a.data as Record<string, unknown>) ?? {}),
+  },
+  {
+    name: "delete_record",
+    description: "Datensatz löschen. entity + id. Mandanten-gescopt.",
+    inputSchema: obj({ entity: entityEnum, id: str }, ["entity", "id"]),
+    run: (p, a) => apiDelete(p, String(a.entity), String(a.id)),
   },
   {
     name: "create_ticket",

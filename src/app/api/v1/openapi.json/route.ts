@@ -56,6 +56,51 @@ const spec = {
     "/api/v1/maintenance-contracts": { get: listOp("Instandhaltung", "Wartungsverträge auflisten") },
     "/api/v1/insurances": { get: listOp("Weitere", "Versicherungen auflisten") },
     "/api/v1/property-taxes": { get: listOp("Weitere", "Grundsteuer auflisten") },
+    "/api/v1/records": {
+      get: {
+        tags: ["Schreiben"],
+        summary: "Schema-Discovery: schreibbare Entitäten + Felder",
+        description:
+          "Generische Schreibschicht. Liefert alle Entitäten mit Feldnamen und Relationen. " +
+          "Anlegen: POST /api/v1/records/{entity}. Ändern: PATCH /api/v1/records/{entity}/{id}. Löschen: DELETE …",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "OK" }, "401": { description: "Unauthorized" } },
+      },
+    },
+    "/api/v1/records/{entity}": {
+      post: {
+        tags: ["Schreiben"],
+        summary: "Datensatz anlegen (generisch)",
+        description: "entity z. B. property, unit, person, lease, charge, payment, meeting, resolution, insurance, user …",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "entity", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", additionalProperties: true } } } },
+        responses: { "201": { description: "Created" }, "400": { description: "Bad request" }, "403": { description: "Forbidden" } },
+      },
+    },
+    "/api/v1/records/{entity}/{id}": {
+      patch: {
+        tags: ["Schreiben"],
+        summary: "Datensatz ändern (generisch)",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "entity", in: "path", required: true, schema: { type: "string" } },
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", additionalProperties: true } } } },
+        responses: { "200": { description: "OK" }, "404": { description: "Not found" }, "405": { description: "Nicht aktualisierbar" } },
+      },
+      delete: {
+        tags: ["Schreiben"],
+        summary: "Datensatz löschen (generisch)",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "entity", in: "path", required: true, schema: { type: "string" } },
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: { "200": { description: "OK" }, "404": { description: "Not found" } },
+      },
+    },
     "/api/v1/tasks": {
       get: listOp("Aufgaben", "Aufgaben auflisten"),
       post: {
