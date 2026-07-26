@@ -25,6 +25,12 @@ enum ManagementType {
   WEG
 }
 
+enum FeeType {
+  PAUSCHAL // fester Betrag pro Monat
+  PRO_EINHEIT // Betrag je Einheit pro Monat
+  PROZENT // Prozent der monatlichen Sollmiete
+}
+
 enum PropertyType {
   WOHNEN
   GEWERBE
@@ -80,6 +86,7 @@ model User {
   locale       String   @default("de")
   personId     String?
   person       Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
+  assignedTickets Ticket[] @relation("TicketAssignee")
   createdAt    DateTime @default(now())
 
   @@index([tenantId])
@@ -96,6 +103,8 @@ model Property {
   type          PropertyType   @default(WOHNEN)
   management    ManagementType @default(MIET)
   meaTotal      Int            @default(1000) // Soll-Summe Miteigentumsanteile (Tausendstel) für WEG
+  feeType       FeeType        @default(PAUSCHAL) // Verwalterhonorar-Modell
+  feeValue      Decimal        @default(0) @db.Decimal(10, 2)
   buildings     Building[]
   costEntries   CostEntry[]
   economicPlans EconomicPlan[]
@@ -471,6 +480,7 @@ model Contractor {
 enum TicketStatus {
   OFFEN
   IN_ARBEIT
+  WARTEND
   ERLEDIGT
 }
 
@@ -478,6 +488,15 @@ enum TicketPriority {
   NIEDRIG
   MITTEL
   HOCH
+}
+
+enum TicketCategory {
+  STOERUNG
+  SCHADEN
+  WARTUNG
+  RECHNUNG
+  VERTRAG
+  SONSTIGES
 }
 
 model Ticket {
@@ -489,10 +508,16 @@ model Ticket {
   unit         Unit?          @relation(fields: [unitId], references: [id], onDelete: SetNull)
   contractorId String?
   contractor   Contractor?    @relation(fields: [contractorId], references: [id], onDelete: SetNull)
+  assigneeId   String?
+  assignee     User?          @relation("TicketAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
   title        String
   description  String?
+  category     TicketCategory @default(SONSTIGES)
   status       TicketStatus   @default(OFFEN)
   priority     TicketPriority @default(MITTEL)
+  dueDate      DateTime?
+  reminderDate DateTime? // Wiedervorlage
+  timeSpentMin Int            @default(0) // erfasste Zeit in Minuten
   createdAt    DateTime       @default(now())
 
   @@index([tenantId])

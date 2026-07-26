@@ -94,6 +94,9 @@ export default async function PropertiesPage() {
                             city: p.city,
                             type: p.type,
                             management: p.management,
+                            meaTotal: p.meaTotal,
+                            feeType: p.feeType,
+                            feeValue: String(p.feeValue),
                           }}
                         />
                         <DeleteButton action={deleteProperty} id={p.id} />

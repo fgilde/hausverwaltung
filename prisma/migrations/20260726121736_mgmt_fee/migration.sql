@@ -1,0 +1,6 @@
+-- CreateEnum
+CREATE TYPE "FeeType" AS ENUM ('PAUSCHAL', 'PRO_EINHEIT', 'PROZENT');
+
+-- AlterTable
+ALTER TABLE "Property" ADD COLUMN     "feeType" "FeeType" NOT NULL DEFAULT 'PAUSCHAL',
+ADD COLUMN     "feeValue" DECIMAL(10,2) NOT NULL DEFAULT 0;

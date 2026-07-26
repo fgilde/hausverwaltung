@@ -3,10 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
+import { audit } from "@/lib/audit";
 import {
   contractorSchema,
   ticketCreateSchema,
   ticketUpdateSchema,
+  ticketTimeSchema,
   maintenanceSchema,
   type ActionState,
 } from "@/lib/schemas";
@@ -42,17 +44,22 @@ export async function createTicket(_p: ActionState, fd: FormData): Promise<Actio
   const user = await requireWriter();
   const r = ticketCreateSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
-  await prisma.ticket.create({
+  const created = await prisma.ticket.create({
     data: {
       tenantId: user.tenantId,
       title: r.data.title,
       description: r.data.description,
+      category: r.data.category,
       priority: r.data.priority,
       propertyId: nn(r.data.propertyId),
       unitId: nn(r.data.unitId),
       contractorId: nn(r.data.contractorId),
+      assigneeId: nn(r.data.assigneeId),
+      dueDate: r.data.dueDate,
+      reminderDate: r.data.reminderDate,
     },
   });
+  await audit(user, "CREATE", "Ticket", created.id, r.data.title);
   return done();
 }
 export async function updateTicket(_p: ActionState, fd: FormData): Promise<ActionState> {
@@ -65,14 +72,31 @@ export async function updateTicket(_p: ActionState, fd: FormData): Promise<Actio
     data: {
       title: r.data.title,
       description: r.data.description,
+      category: r.data.category,
       priority: r.data.priority,
       status: r.data.status,
       propertyId: nn(r.data.propertyId),
       unitId: nn(r.data.unitId),
       contractorId: nn(r.data.contractorId),
+      assigneeId: nn(r.data.assigneeId),
+      dueDate: r.data.dueDate,
+      reminderDate: r.data.reminderDate,
     },
   });
+  await audit(user, "UPDATE", "Ticket", id, r.data.title);
   return done();
+}
+
+// Zeiterfassung: Minuten auf ein Ticket addieren.
+export async function addTicketTime(fd: FormData): Promise<void> {
+  const user = await requireWriter();
+  const r = ticketTimeSchema.safeParse(Object.fromEntries(fd));
+  if (!r.success) return;
+  await prisma.ticket.updateMany({
+    where: { id: r.data.id, tenantId: user.tenantId },
+    data: { timeSpentMin: { increment: r.data.minutes } },
+  });
+  revalidatePath("/", "layout");
 }
 export async function deleteTicket(fd: FormData): Promise<void> {
   const user = await requireWriter();

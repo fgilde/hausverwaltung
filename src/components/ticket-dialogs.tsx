@@ -23,28 +23,35 @@ type TicketData = {
   id: string;
   title: string;
   description: string | null;
+  category: string;
   priority: string;
   status: string;
   propertyId: string | null;
   unitId: string | null;
   contractorId: string | null;
+  assigneeId: string | null;
+  dueDate: Date | null;
+  reminderDate: Date | null;
 };
 
 export async function TicketDialog({
   properties,
   units,
   contractors,
+  users,
   ticket,
 }: {
   properties: Opt[];
   units: Opt[];
   contractors: Opt[];
+  users: Opt[];
   ticket?: TicketData;
 }) {
   const t = await getTranslations();
   const edit = !!ticket;
   const prioOpts = await opts("ticketPriority", ["NIEDRIG", "MITTEL", "HOCH"]);
-  const statusOpts = await opts("ticketStatus", ["OFFEN", "IN_ARBEIT", "ERLEDIGT"]);
+  const statusOpts = await opts("ticketStatus", ["OFFEN", "IN_ARBEIT", "WARTEND", "ERLEDIGT"]);
+  const catOpts = await opts("ticketCategory", ["STOERUNG", "SCHADEN", "WARTUNG", "RECHNUNG", "VERTRAG", "SONSTIGES"]);
   const none = (arr: Opt[], label: string) => [{ value: "", label }, ...arr];
 
   return (
@@ -69,9 +76,17 @@ export async function TicketDialog({
       <TextField name="title" label={t("fields.name")} defaultValue={ticket?.title} />
       <TextAreaField name="description" label={t("rentComponent.note")} defaultValue={ticket?.description ?? undefined} />
       <div className="grid grid-cols-2 gap-4">
+        <SelectField name="category" label={t("tickets.category")} defaultValue={ticket?.category ?? "SONSTIGES"} options={catOpts} />
         <SelectField name="priority" label={t("tickets.priority")} defaultValue={ticket?.priority ?? "MITTEL"} options={prioOpts} />
-        {edit && <SelectField name="status" label={t("tickets.status")} defaultValue={ticket!.status} options={statusOpts} />}
       </div>
+      {edit && (
+        <SelectField name="status" label={t("tickets.status")} defaultValue={ticket!.status} options={statusOpts} />
+      )}
+      <div className="grid grid-cols-2 gap-4">
+        <TextField name="dueDate" label={t("tickets.dueDate")} type="date" required={false} defaultValue={iso(ticket?.dueDate)} />
+        <TextField name="reminderDate" label={t("tickets.reminder")} type="date" required={false} defaultValue={iso(ticket?.reminderDate)} />
+      </div>
+      <SelectField name="assigneeId" label={t("tickets.assignee")} defaultValue={ticket?.assigneeId ?? ""} options={none(users, t("tickets.unassigned"))} />
       <SelectField name="propertyId" label={t("tickets.property")} defaultValue={ticket?.propertyId ?? ""} options={none(properties, t("common.none"))} />
       <SelectField name="unitId" label={t("tickets.unit")} defaultValue={ticket?.unitId ?? ""} options={none(units, t("common.none"))} />
       <SelectField name="contractorId" label={t("tickets.contractor")} defaultValue={ticket?.contractorId ?? ""} options={none(contractors, t("tickets.unassigned"))} />

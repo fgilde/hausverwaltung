@@ -46,6 +46,8 @@ type PropertyData = {
   type: string;
   management: string;
   meaTotal?: number;
+  feeType?: string;
+  feeValue?: string;
 };
 
 export async function PropertyDialog({ property }: { property?: PropertyData }) {
@@ -84,6 +86,22 @@ export async function PropertyDialog({ property }: { property?: PropertyData }) 
         required={false}
         defaultValue={property?.meaTotal ?? 1000}
       />
+      <div className="grid grid-cols-2 gap-4">
+        <SelectField
+          name="feeType"
+          label={t("fee.type")}
+          defaultValue={property?.feeType ?? "PAUSCHAL"}
+          options={await opts("feeType", ["PAUSCHAL", "PRO_EINHEIT", "PROZENT"])}
+        />
+        <TextField
+          name="feeValue"
+          label={t("fee.value")}
+          type="number"
+          step="0.01"
+          required={false}
+          defaultValue={property?.feeValue}
+        />
+      </div>
     </CrudDialog>
   );
 }

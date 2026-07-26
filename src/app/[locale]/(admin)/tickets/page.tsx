@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Clock } from "lucide-react";
 import { TicketDialog, ContractorDialog, MaintenanceDialog } from "@/components/ticket-dialogs";
 import { DeleteButton } from "@/components/delete-button";
 import {
@@ -20,6 +21,7 @@ import {
   deleteContractor,
   deleteMaintenance,
   advanceMaintenance,
+  addTicketTime,
 } from "@/server/actions/maintenance";
 
 export default async function TicketsPage() {
@@ -28,25 +30,29 @@ export default async function TicketsPage() {
   const locale = await getLocale();
   const tenantId = user.tenantId;
 
-  const [tickets, contractors, maintenance, properties, units] = await Promise.all([
+  const [tickets, contractors, maintenance, properties, units, users] = await Promise.all([
     prisma.ticket.findMany({
       where: { tenantId },
-      include: { property: true, unit: true, contractor: true },
-      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+      include: { property: true, unit: true, contractor: true, assignee: true },
+      orderBy: [{ status: "asc" }, { dueDate: "asc" }, { createdAt: "desc" }],
     }),
     prisma.contractor.findMany({ where: { tenantId }, orderBy: { name: "asc" } }),
     prisma.maintenanceContract.findMany({ where: { tenantId }, include: { property: true, contractor: true }, orderBy: { nextDue: "asc" } }),
     prisma.property.findMany({ where: { tenantId }, orderBy: { createdAt: "asc" }, select: { id: true, name: true } }),
     prisma.unit.findMany({ where: { tenantId }, include: { building: { include: { property: true } } }, orderBy: { createdAt: "asc" } }),
+    prisma.user.findMany({ where: { tenantId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
   const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
   const unitOpts = units.map((u) => ({ value: u.id, label: `${u.building.property.name} · ${u.label}` }));
   const contractorOpts = contractors.map((c) => ({ value: c.id, label: `${c.name} (${c.trade})` }));
+  const userOpts = users.map((u) => ({ value: u.id, label: u.name }));
 
   const now = new Date();
   const prioVariant = (p: string) => (p === "HOCH" ? "destructive" : p === "MITTEL" ? "secondary" : "outline");
-  const statusVariant = (s: string) => (s === "ERLEDIGT" ? "secondary" : s === "IN_ARBEIT" ? "default" : "outline");
+  const statusVariant = (s: string) =>
+    s === "ERLEDIGT" ? "secondary" : s === "IN_ARBEIT" ? "default" : s === "WARTEND" ? "outline" : "outline";
+  const fmtTime = (min: number) => `${Math.floor(min / 60)}h ${min % 60}m`;
 
   return (
     <div className="space-y-6">
@@ -55,7 +61,7 @@ export default async function TicketsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("tickets.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("tickets.subtitle")}</p>
         </div>
-        <TicketDialog properties={propertyOpts} units={unitOpts} contractors={contractorOpts} />
+        <TicketDialog properties={propertyOpts} units={unitOpts} contractors={contractorOpts} users={userOpts} />
       </div>
 
       <Card>
@@ -67,52 +73,71 @@ export default async function TicketsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("fields.name")}</TableHead>
+                  <TableHead>{t("tickets.category")}</TableHead>
                   <TableHead>{t("tickets.priority")}</TableHead>
                   <TableHead>{t("tickets.status")}</TableHead>
-                  <TableHead>{t("tickets.property")}</TableHead>
-                  <TableHead>{t("tickets.contractor")}</TableHead>
-                  <TableHead className="w-24 text-right">{t("common.actions")}</TableHead>
+                  <TableHead>{t("tickets.dueDate")}</TableHead>
+                  <TableHead>{t("tickets.assignee")}</TableHead>
+                  <TableHead className="text-right">{t("tickets.time")}</TableHead>
+                  <TableHead className="w-32 text-right">{t("common.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tickets.map((tk) => (
-                  <TableRow key={tk.id}>
-                    <TableCell className="font-medium">{tk.title}</TableCell>
-                    <TableCell>
-                      <Badge variant={prioVariant(tk.priority)}>{t(`ticketPriority.${tk.priority}`)}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant(tk.status)}>{t(`ticketStatus.${tk.status}`)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {tk.property?.name ?? t("common.none")}
-                      {tk.unit ? ` · ${tk.unit.label}` : ""}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {tk.contractor ? tk.contractor.name : t("tickets.unassigned")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-1">
-                        <TicketDialog
-                          properties={propertyOpts}
-                          units={unitOpts}
-                          contractors={contractorOpts}
-                          ticket={{
-                            id: tk.id,
-                            title: tk.title,
-                            description: tk.description,
-                            priority: tk.priority,
-                            status: tk.status,
-                            propertyId: tk.propertyId,
-                            unitId: tk.unitId,
-                            contractorId: tk.contractorId,
-                          }}
-                        />
-                        <DeleteButton action={deleteTicket} id={tk.id} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {tickets.map((tk) => {
+                  const overdue = tk.dueDate && tk.dueDate < now && tk.status !== "ERLEDIGT";
+                  return (
+                    <TableRow key={tk.id}>
+                      <TableCell className="font-medium">{tk.title}</TableCell>
+                      <TableCell className="text-muted-foreground">{t(`ticketCategory.${tk.category}`)}</TableCell>
+                      <TableCell>
+                        <Badge variant={prioVariant(tk.priority)}>{t(`ticketPriority.${tk.priority}`)}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariant(tk.status)}>{t(`ticketStatus.${tk.status}`)}</Badge>
+                      </TableCell>
+                      <TableCell className={overdue ? "font-medium text-destructive" : "text-muted-foreground"}>
+                        {tk.dueDate ? date(tk.dueDate, locale) : t("common.none")}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {tk.assignee?.name ?? t("tickets.unassigned")}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">{fmtTime(tk.timeSpentMin)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Zeit erfassen: +15 min Schnellbuchung */}
+                          <form action={addTicketTime}>
+                            <input type="hidden" name="id" value={tk.id} />
+                            <input type="hidden" name="minutes" value="15" />
+                            <Button type="submit" variant="ghost" size="icon" aria-label={t("tickets.addTime")}>
+                              <Clock className="size-4" />
+                            </Button>
+                          </form>
+                          <TicketDialog
+                            properties={propertyOpts}
+                            units={unitOpts}
+                            contractors={contractorOpts}
+                            users={userOpts}
+                            ticket={{
+                              id: tk.id,
+                              title: tk.title,
+                              description: tk.description,
+                              category: tk.category,
+                              priority: tk.priority,
+                              status: tk.status,
+                              propertyId: tk.propertyId,
+                              unitId: tk.unitId,
+                              contractorId: tk.contractorId,
+                              assigneeId: tk.assigneeId,
+                              dueDate: tk.dueDate,
+                              reminderDate: tk.reminderDate,
+                            }}
+                          />
+                          <DeleteButton action={deleteTicket} id={tk.id} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

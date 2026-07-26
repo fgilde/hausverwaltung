@@ -40,6 +40,7 @@
     "persons": "People",
     "leases": "Leases",
     "finances": "Finances",
+    "dunning": "Dunning",
     "statements": "Statements",
     "weg": "HOA Management",
     "meetings": "Meetings",
@@ -247,6 +248,17 @@
     "GEWERBE": "Commercial",
     "GEMISCHT": "Mixed"
   },
+  "fee": {
+    "title": "Management fee",
+    "type": "Fee model",
+    "value": "Value (€ or %)",
+    "perMonth": "month"
+  },
+  "feeType": {
+    "PAUSCHAL": "Flat (€/month)",
+    "PRO_EINHEIT": "Per unit (€/month)",
+    "PROZENT": "Percent of rent"
+  },
   "unitType": {
     "WOHNUNG": "Apartment",
     "GEWERBE": "Commercial",
@@ -329,6 +341,20 @@
     "BUERGSCHAFT": "Guarantee",
     "VERPFAENDET": "Pledged account",
     "KAUTIONSKONTO": "Deposit account"
+  },
+  "dunning": {
+    "title": "Portfolio dunning",
+    "subtitle": "Open items and arrears across all properties",
+    "minDays": "Min. days overdue",
+    "empty": "No outstanding arrears.",
+    "property": "Property",
+    "debtors": "Debtors w. debt",
+    "openItems": "Open items",
+    "dunned": "dunned",
+    "notDunned": "not dunned",
+    "maxDelay": "Max. days overdue",
+    "debt": "Total debt",
+    "total": "Grand total"
   },
   "finances": {
     "title": "Finances",
@@ -472,12 +498,27 @@
     "interval": "Interval (months)",
     "nextDue": "Next due",
     "overdue": "Overdue",
-    "markNext": "Done → next date"
+    "markNext": "Done → next date",
+    "category": "Category",
+    "dueDate": "Due",
+    "reminder": "Reminder",
+    "assignee": "Assignee",
+    "time": "Time",
+    "addTime": "Log +15 min"
   },
   "ticketStatus": {
     "OFFEN": "Open",
     "IN_ARBEIT": "In progress",
+    "WARTEND": "Waiting",
     "ERLEDIGT": "Done"
+  },
+  "ticketCategory": {
+    "STOERUNG": "Fault report",
+    "SCHADEN": "Damage report",
+    "WARTUNG": "Maintenance",
+    "RECHNUNG": "Invoice approval",
+    "VERTRAG": "Contract matter",
+    "SONSTIGES": "Other"
   },
   "ticketPriority": {
     "NIEDRIG": "Low",

@@ -14,6 +14,9 @@ import {
   CalendarDays,
   Mail,
   ScrollText,
+  AlertTriangle,
+  BarChart3,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,6 +39,7 @@ export const navGroups: NavGroup[] = [
     labelKey: "nav.groupFinance",
     items: [
       { key: "nav.finances", href: "/finances", icon: Banknote },
+      { key: "nav.dunning", href: "/dunning", icon: AlertTriangle },
       { key: "nav.statements", href: "/statements", icon: Calculator },
       { key: "nav.weg", href: "/weg", icon: Landmark },
       { key: "nav.meetings", href: "/meetings", icon: Gavel },

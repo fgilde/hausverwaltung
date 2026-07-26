@@ -40,6 +40,7 @@
     "persons": "Personen",
     "leases": "Mietverträge",
     "finances": "Finanzen",
+    "dunning": "Mahnwesen",
     "statements": "Abrechnungen",
     "weg": "WEG-Verwaltung",
     "meetings": "Versammlungen",
@@ -247,6 +248,17 @@
     "GEWERBE": "Gewerbe",
     "GEMISCHT": "Gemischt"
   },
+  "fee": {
+    "title": "Verwalterhonorar",
+    "type": "Honorar-Modell",
+    "value": "Wert (€ bzw. %)",
+    "perMonth": "Monat"
+  },
+  "feeType": {
+    "PAUSCHAL": "Pauschal (€/Monat)",
+    "PRO_EINHEIT": "Pro Einheit (€/Monat)",
+    "PROZENT": "Prozent der Sollmiete"
+  },
   "unitType": {
     "WOHNUNG": "Wohnung",
     "GEWERBE": "Gewerbe",
@@ -329,6 +341,20 @@
     "BUERGSCHAFT": "Bürgschaft",
     "VERPFAENDET": "Verpfändetes Konto",
     "KAUTIONSKONTO": "Kautionskonto"
+  },
+  "dunning": {
+    "title": "Objektübergreifendes Mahnwesen",
+    "subtitle": "Offene Posten und Rückstände über alle Objekte",
+    "minDays": "Mindest-Verzugstage",
+    "empty": "Keine offenen Rückstände.",
+    "property": "Objekt",
+    "debtors": "Debitoren m. Schuld",
+    "openItems": "Offene Posten",
+    "dunned": "gemahnt",
+    "notDunned": "nicht gemahnt",
+    "maxDelay": "Max. Verzugstage",
+    "debt": "Summe Schuld",
+    "total": "Gesamtsumme"
   },
   "finances": {
     "title": "Finanzen",
@@ -472,12 +498,27 @@
     "interval": "Intervall (Monate)",
     "nextDue": "Nächste Fälligkeit",
     "overdue": "Überfällig",
-    "markNext": "Erledigt → nächster Termin"
+    "markNext": "Erledigt → nächster Termin",
+    "category": "Kategorie",
+    "dueDate": "Fällig",
+    "reminder": "Wiedervorlage",
+    "assignee": "Zuständig",
+    "time": "Zeit",
+    "addTime": "+15 Min erfassen"
   },
   "ticketStatus": {
     "OFFEN": "Offen",
     "IN_ARBEIT": "In Arbeit",
+    "WARTEND": "Wartend",
     "ERLEDIGT": "Erledigt"
+  },
+  "ticketCategory": {
+    "STOERUNG": "Störungsmeldung",
+    "SCHADEN": "Schadensmeldung",
+    "WARTUNG": "Wartung",
+    "RECHNUNG": "Rechnungsfreigabe",
+    "VERTRAG": "Vertragsangelegenheit",
+    "SONSTIGES": "Sonstiges"
   },
   "ticketPriority": {
     "NIEDRIG": "Niedrig",

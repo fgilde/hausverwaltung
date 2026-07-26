@@ -28,6 +28,8 @@ export const propertySchema = z.object({
   type: z.enum(["WOHNEN", "GEWERBE", "GEMISCHT"]),
   management: z.enum(["MIET", "WEG"]),
   meaTotal: optionalNum,
+  feeType: z.enum(["PAUSCHAL", "PRO_EINHEIT", "PROZENT"]),
+  feeValue: optionalNum,
 });
 
 export const buildingSchema = z.object({
@@ -266,16 +268,25 @@ export const contractorSchema = z.object({
 const ticketBase = {
   title: z.string().trim().min(1),
   description: optionalStr,
+  category: z.enum(["STOERUNG", "SCHADEN", "WARTUNG", "RECHNUNG", "VERTRAG", "SONSTIGES"]),
   priority: z.enum(["NIEDRIG", "MITTEL", "HOCH"]),
   propertyId: optionalStr,
   unitId: optionalStr,
   contractorId: optionalStr,
+  assigneeId: optionalStr,
+  dueDate: optionalDate,
+  reminderDate: optionalDate,
 };
 
 export const ticketCreateSchema = z.object(ticketBase);
 export const ticketUpdateSchema = z.object({
   ...ticketBase,
-  status: z.enum(["OFFEN", "IN_ARBEIT", "ERLEDIGT"]),
+  status: z.enum(["OFFEN", "IN_ARBEIT", "WARTEND", "ERLEDIGT"]),
+});
+
+export const ticketTimeSchema = z.object({
+  id: z.string().min(1),
+  minutes: z.coerce.number().int().positive(),
 });
 
 export const maintenanceSchema = z.object({

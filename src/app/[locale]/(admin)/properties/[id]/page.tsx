@@ -1,8 +1,10 @@
-import { ArrowLeft } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { ArrowLeft, Percent } from "lucide-react";
+import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { money } from "@/lib/format";
+import { computeMgmtFee, type FeeType } from "@/lib/fee";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,7 @@ export default async function PropertyDetailPage({
   const { id } = await params;
   const user = await requireUser();
   const t = await getTranslations();
+  const locale = await getLocale();
 
   const property = await prisma.property.findFirst({
     where: { id, tenantId: user.tenantId },
@@ -48,6 +51,27 @@ export default async function PropertyDetailPage({
   });
 
   if (!property) notFound();
+
+  // Verwalterhonorar: Basis aus Einheitenzahl + aktiver Sollmiete berechnen
+  const now = new Date();
+  const activeLeases = await prisma.lease.findMany({
+    where: {
+      tenantId: user.tenantId,
+      unit: { building: { propertyId: id } },
+      startDate: { lte: now },
+      OR: [{ endDate: null }, { endDate: { gte: now } }],
+    },
+    include: { components: { select: { amount: true } } },
+  });
+  const unitCount = property.buildings.reduce((a, b) => a + b.units.length, 0);
+  const monthlyRentSum = activeLeases.reduce(
+    (a, l) => a + Number(l.rentCold) + l.components.reduce((s, c) => s + Number(c.amount), 0),
+    0,
+  );
+  const mgmtFee = computeMgmtFee(
+    { feeType: property.feeType as FeeType, feeValue: Number(property.feeValue) },
+    { unitCount, monthlyRentSum },
+  );
 
   return (
     <div className="space-y-6">
@@ -78,11 +102,30 @@ export default async function PropertyDetailPage({
               city: property.city,
               type: property.type,
               management: property.management,
+              meaTotal: property.meaTotal,
+              feeType: property.feeType,
+              feeValue: String(property.feeValue),
             }}
           />
           <DeleteButton action={deleteProperty} id={property.id} />
         </div>
       </div>
+
+      {/* Verwalterhonorar */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Percent className="size-4" />
+            {t("fee.title")}
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">{t(`feeType.${property.feeType}`)}</span>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {money(mgmtFee, locale)} <span className="text-sm font-normal text-muted-foreground">/ {t("fee.perMonth")}</span>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t("properties.buildings")}</h2>
