@@ -16,12 +16,13 @@ Abstimmung, Beschlusssammlung §24) · Dokumente (GoBD, E-Rechnung) · Instandha
 (Tickets mit Workflow/Zeiterfassung, Handwerker, Wartung) · Verwalterhonorar ·
 Kautionskonten · Vorlagen/Serienbriefe · benutzerdefinierte Felder · Report-Manager ·
 Versicherungen · Grundsteuer · Zensus · Mieter-/Eigentümer-Portale ·
-camt.053-Import + DATEV-/SEPA-Export · Kalender · E-Mail-Postausgang · Dashboard.
+camt.053-Import + DATEV-/SEPA-Export · Kalender · E-Mail-Postausgang · Dashboard ·
+**REST-API + MCP-Server für KI-Agenten** (Token je Benutzer).
 
 ## Tech-Stack
 
 Next.js 16 (App Router) · TypeScript · PostgreSQL · Prisma · shadcn/ui + Tailwind ·
-next-intl · Auth.js · Vitest.
+next-intl · Auth.js · OpenAPI 3.1 + Scalar · Vitest.
 
 ## Lokale Entwicklung
 
@@ -54,13 +55,44 @@ Assistent gesperrt.
 
 Weitere Zugänge legt der Administrator unter **Einstellungen → Benutzer** an.
 
+> Im Docker-Betrieb lässt sich der Wizard überspringen und Mandant + Admin (oder
+> Demo-Daten) per Umgebungsvariablen vorbelegen — siehe [Optionaler Bootstrap beim
+> ersten Start](#optionaler-bootstrap-beim-ersten-start-alles-optional).
+
 ## Konfiguration (KI, E-Mail, Branding)
 
-Unter **Einstellungen** (nur Administrator) pro Mandant: KI-Assistent (Claude),
-SMTP-Postausgang sowie **Theme-Farbe und Logo** der App. Ohne KI-Schlüssel liefert
-der Assistent eine regelbasierte Zusammenfassung; ohne SMTP wird der Postausgang
-nur lokal geführt. Alternativ greifen die Adapter auf `ANTHROPIC_API_KEY`,
-`SMTP_HOST` etc. aus der Umgebung zurück.
+**Einstellungen** ist in Tabs gegliedert (Allgemein · KI & API · E-Mail · Benutzer ·
+Erweitert), pro Mandant, nur Administrator:
+
+- **KI-Assistent** — Anbieter wählbar: **Anthropic (Claude)** oder ein beliebiger
+  **OpenAI-kompatibler** Endpunkt (OpenAI, OpenRouter, Groq, Ollama …) via Base-URL +
+  Modell. Ohne Schlüssel liefert der Assistent eine regelbasierte Zusammenfassung.
+- **E-Mail** — SMTP-Postausgang; ohne SMTP wird nur lokal geführt.
+- **Branding** — Mandantenname, Theme-Farbe und Logo.
+
+Alternativ greifen die Adapter auf `ANTHROPIC_API_KEY`, `SMTP_HOST` etc. aus der
+Umgebung zurück.
+
+## API & MCP (für Integrationen und KI-Agenten)
+
+Jeder Benutzer erzeugt persönliche **API-Tokens** unter **Einstellungen → KI & API**
+(ein Admin kann auch Token für andere Benutzer ausstellen). Authentifizierung per
+`Authorization: Bearer <token>`.
+
+- **REST-API** unter `/api/v1` — Lesen + Schreiben über alle Module (Objekte,
+  Einheiten, Verträge, Finanzen, Versammlungen, Beschlüsse, Dokumente, WEG-Pläne,
+  Versicherung, Grundsteuer …) plus Operationen (Sollstellungslauf, Mahnlauf,
+  Mietanpassung anwenden, Bank-Import, E-Mail senden, Dokument-Upload …).
+  Interaktive Referenz (Scalar) unter `/api-reference`, OpenAPI-Spec unter
+  `/api/v1/openapi.json`.
+- **MCP-Server** (Model Context Protocol) unter `/api/mcp` — Claude Desktop, ChatGPT
+  oder beliebigen MCP-Client verbinden, damit eine KI den Bestand **lesen und
+  verwalten** kann. Die genauen URLs und eine fertige Client-Konfiguration zum
+  Kopieren stehen unter **Einstellungen → KI & API**.
+
+Token werden gehasht gespeichert (nur ein `hvw_…`-Präfix bleibt sichtbar); Schreiben
+erfordert eine Schreibrolle, Konfigurations-Operationen einen Admin. Aller Zugriff
+ist auf den Mandanten des Tokens beschränkt.
 
 ## Scripts
 

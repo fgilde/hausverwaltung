@@ -16,12 +16,13 @@ collection) · documents (GoBD, e-invoice) · maintenance (tickets with
 workflow/time-tracking, contractors, service intervals) · management fees ·
 deposit accounts · templates/mail merge · custom fields · report manager ·
 insurance · property tax · census · tenant/owner portals · camt.053 import +
-DATEV/SEPA export · calendar · outbox · dashboard.
+DATEV/SEPA export · calendar · outbox · dashboard · **REST API + MCP server for AI
+agents** (per-user tokens).
 
 ## Tech stack
 
 Next.js 16 (App Router) · TypeScript · PostgreSQL · Prisma · shadcn/ui + Tailwind ·
-next-intl · Auth.js · Vitest.
+next-intl · Auth.js · OpenAPI 3.1 + Scalar · Vitest.
 
 ## Local development
 
@@ -53,12 +54,38 @@ administrator (including an optional theme colour). Afterwards the wizard is loc
 
 Further accounts are created by the administrator under **Settings → Users**.
 
+> In Docker you can skip the wizard and pre-provision tenant + admin (or seed demo
+> data) via environment variables — see [Optional first-run bootstrap](#optional-first-run-bootstrap-all-optional).
+
 ## Configuration (AI, email, branding)
 
-Under **Settings** (admin only), per tenant: AI assistant (Claude), SMTP outbox,
-and the app's **theme colour and logo**. Without an AI key the assistant returns a
-rule-based summary; without SMTP the outbox is kept locally only. Adapters also
-fall back to `ANTHROPIC_API_KEY`, `SMTP_HOST`, etc. from the environment.
+**Settings** is organised into tabs (General · AI & API · Email · Users · Advanced),
+per tenant, admin only:
+
+- **AI assistant** — provider is selectable: **Anthropic (Claude)** or any
+  **OpenAI-compatible** endpoint (OpenAI, OpenRouter, Groq, Ollama, …) via base URL +
+  model. Without a key the assistant returns a rule-based summary.
+- **Email** — SMTP outbox; without SMTP the outbox is kept locally only.
+- **Branding** — tenant name, theme colour and logo.
+
+Adapters also fall back to `ANTHROPIC_API_KEY`, `SMTP_HOST`, etc. from the environment.
+
+## API & MCP (for integrations and AI agents)
+
+Every user creates personal **API tokens** under **Settings → AI & API** (an admin
+can also issue tokens for other users). Authenticate with `Authorization: Bearer <token>`.
+
+- **REST API** at `/api/v1` — read + write across all modules (properties, units,
+  leases, finances, meetings, resolutions, documents, WEG plans, insurance, tax …),
+  plus operations (charge run, dunning run, apply rent adjustment, bank import,
+  send email, upload document …). Interactive reference (Scalar) at `/api-reference`,
+  OpenAPI spec at `/api/v1/openapi.json`.
+- **MCP server** (Model Context Protocol) at `/api/mcp` — connect Claude Desktop,
+  ChatGPT or any MCP client so an AI can read **and manage** the portfolio. The exact
+  URLs and a ready-to-paste client config are shown under **Settings → AI & API**.
+
+Tokens are stored hashed (only a `hvw_…` prefix is kept); writes require a writing
+role, config operations require admin. All access is scoped to the token's tenant.
 
 ## Scripts
 
@@ -81,9 +108,15 @@ src/
   app/[locale]/(admin)/...     manager app (internal roles)
   app/[locale]/portal/...      tenant/owner portal
   app/[locale]/setup/...       first-run setup wizard
-  app/api/...                  auth, downloads, exports
+  app/api/v1/...               REST API v1 (Bearer) incl. records + operations
+  app/api/mcp/                 MCP server (JSON-RPC, Bearer)
+  app/api-reference/           Scalar API reference
+  app/api/...                  auth, downloads, exports, logo
   lib/allocation/              allocation engine (shared rental + HOA)
   lib/adapters/                camt.053 / DATEV / SEPA / e-invoice / mailer
+  lib/api-data.ts              shared read layer (REST + MCP)
+  lib/api-write.ts             generic CRUD write layer (REST + MCP)
+  lib/api-ops.ts               operations (charge/dunning run, apply adjustment …)
   lib/storage.ts               file storage (documents, logo)
   server/actions/              server actions per module (tenant-scoped, RBAC)
   components/                  UI + form dialogs
