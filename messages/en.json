@@ -155,7 +155,16 @@
     "passwordHint": "At least 6 characters.",
     "brandColor": "Theme colour",
     "preview": "Preview",
-    "submit": "Complete setup"
+    "submit": "Complete setup",
+    "welcomeTitle": "Welcome to HaVeWa",
+    "welcomeText": "Your property management will be ready in a few steps. You can skip steps and add them later in settings.",
+    "brandingText": "Pick a theme colour for your app — changeable any time.",
+    "propertyText": "Optional: create your first property right away.",
+    "propertyOptional": "e.g. Lindenstraße Estate (optional)",
+    "doneTitle": "All set!",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip"
   },
   "branding": {
     "title": "Appearance",
@@ -166,7 +175,10 @@
   },
   "login": {
     "title": "Sign in",
-    "subtitle": "Sign in to HaVeWa",
+    "subtitle": "Please sign in to continue.",
+    "welcomeTo": "Welcome to",
+    "welcome": "Welcome back",
+    "loadingApp": "Loading the app…",
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",

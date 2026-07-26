@@ -155,7 +155,16 @@
     "passwordHint": "Mindestens 6 Zeichen.",
     "brandColor": "Theme-Farbe",
     "preview": "Vorschau",
-    "submit": "Einrichtung abschließen"
+    "submit": "Einrichtung abschließen",
+    "welcomeTitle": "Willkommen bei HaVeWa",
+    "welcomeText": "In wenigen Schritten ist Ihre Hausverwaltung startklar. Sie können Schritte überspringen und später in den Einstellungen ergänzen.",
+    "brandingText": "Wählen Sie eine Theme-Farbe für Ihre App — jederzeit änderbar.",
+    "propertyText": "Optional: legen Sie direkt Ihr erstes Objekt an.",
+    "propertyOptional": "z. B. Wohnanlage Lindenstraße (optional)",
+    "doneTitle": "Alles bereit!",
+    "back": "Zurück",
+    "next": "Weiter",
+    "skip": "Überspringen"
   },
   "branding": {
     "title": "Erscheinungsbild",
@@ -166,7 +175,10 @@
   },
   "login": {
     "title": "Anmelden",
-    "subtitle": "Melden Sie sich bei HaVeWa an",
+    "subtitle": "Bitte melden Sie sich an, um fortzufahren.",
+    "welcomeTo": "Willkommen bei",
+    "welcome": "Willkommen zurück",
+    "loadingApp": "Anwendung wird geladen…",
     "email": "E-Mail",
     "password": "Passwort",
     "submit": "Anmelden",

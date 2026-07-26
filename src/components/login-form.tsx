@@ -3,18 +3,26 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { Loader2, Check } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+export function LoginForm({
+  initialEmail = "",
+  tenantName,
+}: {
+  initialEmail?: string;
+  tenantName?: string;
+}) {
   const t = useTranslations("login");
   const router = useRouter();
-  const [email, setEmail] = useState("admin@havewa.app");
-  const [password, setPassword] = useState("admin");
+  const [email, setEmail] = useState(initialEmail);
+  const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ok, setOk] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,36 +33,52 @@ export function LoginForm() {
       setError(true);
       setLoading(false);
     } else {
-      router.replace("/");
+      setOk(true);
+      setTimeout(() => router.replace("/"), 950);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">{t("email")}</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">{t("password")}</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-      {error && <p className="text-sm text-destructive">{t("error")}</p>}
-      <Button type="submit" className="w-full" disabled={loading}>
-        {t("submit")}
-      </Button>
-    </form>
+    <>
+      <form
+        onSubmit={onSubmit}
+        className={`space-y-4 transition-all duration-500 ${ok ? "-translate-x-6 opacity-0" : ""}`}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="email">{t("email")}</Label>
+          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">{t("password")}</Label>
+          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        {error && <p className="text-sm text-destructive">{t("error")}</p>}
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="size-4 animate-spin" />}
+          {t("submit")}
+        </Button>
+      </form>
+
+      {/* Erfolgs-Animation */}
+      {ok && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/85 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-4 duration-700 animate-in zoom-in-90 slide-in-from-bottom-4">
+            <div className="grid size-16 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
+              <Check className="size-8 animate-in zoom-in duration-500" />
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-semibold">
+                {t("welcome")}
+                {tenantName ? `, ${tenantName}` : ""}
+              </div>
+              <div className="mt-1 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                {t("loadingApp")}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

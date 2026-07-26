@@ -231,6 +231,11 @@ export const setupSchema = z.object({
   password: z.string().min(6),
   locale: z.enum(["de", "en"]),
   brandColor: optionalStr,
+  // optionales erstes Objekt
+  propertyName: optionalStr,
+  propertyStreet: optionalStr,
+  propertyZip: optionalStr,
+  propertyCity: optionalStr,
 });
 
 export const brandingSchema = z.object({

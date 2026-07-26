@@ -12,12 +12,12 @@ export async function setupSystem(_p: ActionState, fd: FormData): Promise<Action
 
   const r = setupSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
-  const { tenantName, name, email, password, locale, brandColor } = r.data;
+  const { tenantName, name, email, password, locale, brandColor, propertyName, propertyStreet, propertyZip, propertyCity } = r.data;
 
   const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   if (existing) return { error: "E-Mail bereits vergeben." };
 
-  await prisma.tenant.create({
+  const tenant = await prisma.tenant.create({
     data: {
       name: tenantName,
       brandColor: brandColor || null,
@@ -32,6 +32,19 @@ export async function setupSystem(_p: ActionState, fd: FormData): Promise<Action
       },
     },
   });
+
+  // Optionales erstes Objekt
+  if (propertyName) {
+    await prisma.property.create({
+      data: {
+        tenantId: tenant.id,
+        name: propertyName,
+        street: propertyStreet || "-",
+        zip: propertyZip || "-",
+        city: propertyCity || "-",
+      },
+    });
+  }
 
   redirect("/login");
 }
