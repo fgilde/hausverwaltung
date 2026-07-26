@@ -183,6 +183,263 @@ export async function createPerson(
   return { id: created.id, firstName: created.firstName, lastName: created.lastName };
 }
 
+const day = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : null);
+const propSel = { property: { select: { name: true } } };
+
+export async function listOwners(tenantId: string) {
+  const rows = await prisma.owner.findMany({
+    where: { tenantId },
+    include: {
+      person: { select: { firstName: true, lastName: true } },
+      unit: { include: { building: { include: { property: { select: { name: true } } } } } },
+    },
+  });
+  return rows.map((o) => ({
+    id: o.id,
+    person: `${o.person.firstName} ${o.person.lastName}`,
+    unit: o.unit.label,
+    property: o.unit.building.property.name,
+    share: o.share,
+  }));
+}
+
+export async function listMeters(tenantId: string) {
+  const rows = await prisma.meter.findMany({
+    where: { tenantId },
+    include: {
+      unit: { include: { building: { include: { property: { select: { name: true } } } } } },
+      readings: { orderBy: { date: "desc" }, take: 1 },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+  return rows.map((m) => ({
+    id: m.id,
+    type: m.type,
+    serialNo: m.serialNo,
+    unit: m.unit.label,
+    property: m.unit.building.property.name,
+    lastReading: m.readings[0] ? { date: day(m.readings[0].date), value: num(m.readings[0].value) } : null,
+  }));
+}
+
+export async function listAccounts(tenantId: string) {
+  const rows = await prisma.account.findMany({
+    where: { tenantId },
+    include: { payments: { select: { amount: true, direction: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+  return rows.map((a) => {
+    const balance = a.payments.reduce(
+      (s, p) => s + (p.direction === "EINGANG" ? Number(p.amount) : -Number(p.amount)),
+      0,
+    );
+    return { id: a.id, name: a.name, type: a.type, iban: a.iban, balance: Math.round(balance * 100) / 100 };
+  });
+}
+
+export async function listCharges(tenantId: string) {
+  const rows = await prisma.charge.findMany({
+    where: { tenantId },
+    include: { payments: { select: { amount: true } }, lease: { include: { unit: { select: { label: true } } } } },
+    orderBy: { dueDate: "desc" },
+  });
+  return rows.map((c) => {
+    const paid = c.payments.reduce((s, p) => s + Number(p.amount), 0);
+    return {
+      id: c.id,
+      type: c.type,
+      period: day(c.period),
+      dueDate: day(c.dueDate),
+      amount: num(c.amount),
+      paid: Math.round(paid * 100) / 100,
+      unit: c.lease?.unit.label ?? null,
+    };
+  });
+}
+
+export async function listPayments(tenantId: string) {
+  const rows = await prisma.payment.findMany({
+    where: { tenantId },
+    include: { account: { select: { name: true } } },
+    orderBy: { date: "desc" },
+  });
+  return rows.map((p) => ({
+    id: p.id,
+    date: day(p.date),
+    amount: num(p.amount),
+    direction: p.direction,
+    reference: p.reference,
+    account: p.account?.name ?? null,
+  }));
+}
+
+export async function listDocuments(tenantId: string) {
+  const rows = await prisma.document.findMany({
+    where: { tenantId },
+    include: propSel,
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map((d) => ({
+    id: d.id,
+    name: d.name,
+    category: d.category,
+    mime: d.mime,
+    size: d.size,
+    eInvoice: d.eInvoice,
+    invoiceNo: d.invoiceNo,
+    invoiceTotal: num(d.invoiceTotal),
+    property: d.property?.name ?? null,
+    createdAt: day(d.createdAt),
+  }));
+}
+
+export async function listMeetings(tenantId: string) {
+  const rows = await prisma.meeting.findMany({
+    where: { tenantId },
+    include: { ...propSel, _count: { select: { agendaItems: true, resolutions: true } } },
+    orderBy: { date: "desc" },
+  });
+  return rows.map((m) => ({
+    id: m.id,
+    title: m.title,
+    date: day(m.date),
+    status: m.status,
+    location: m.location,
+    property: m.property.name,
+    agendaItems: m._count.agendaItems,
+    resolutions: m._count.resolutions,
+  }));
+}
+
+export async function listResolutions(tenantId: string) {
+  const rows = await prisma.resolution.findMany({
+    where: { tenantId },
+    include: propSel,
+    orderBy: [{ propertyId: "asc" }, { number: "asc" }],
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    number: r.number,
+    title: r.title,
+    text: r.text,
+    date: day(r.date),
+    result: r.result,
+    votes: { yes: r.votesYes, no: r.votesNo, abstain: r.votesAbstain },
+    property: r.property.name,
+  }));
+}
+
+export async function listEconomicPlans(tenantId: string) {
+  const rows = await prisma.economicPlan.findMany({
+    where: { tenantId },
+    include: propSel,
+    orderBy: [{ year: "desc" }],
+  });
+  return rows.map((e) => ({
+    id: e.id,
+    property: e.property.name,
+    year: e.year,
+    totalAmount: num(e.totalAmount),
+    monthly: Math.round((Number(e.totalAmount) / 12) * 100) / 100,
+    note: e.note,
+  }));
+}
+
+export async function listReserves(tenantId: string) {
+  const rows = await prisma.reserve.findMany({
+    where: { tenantId },
+    include: { ...propSel, transactions: { select: { amount: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    property: r.property.name,
+    balance: Math.round(r.transactions.reduce((s, t) => s + Number(t.amount), 0) * 100) / 100,
+  }));
+}
+
+export async function listAppointments(tenantId: string) {
+  const rows = await prisma.appointment.findMany({
+    where: { tenantId },
+    include: propSel,
+    orderBy: { start: "asc" },
+  });
+  return rows.map((a) => ({
+    id: a.id,
+    title: a.title,
+    type: a.type,
+    start: a.start.toISOString(),
+    end: a.end ? a.end.toISOString() : null,
+    location: a.location,
+    property: a.property?.name ?? null,
+  }));
+}
+
+export async function listTasks(tenantId: string) {
+  const rows = await prisma.task.findMany({ where: { tenantId }, orderBy: [{ done: "asc" }, { dueDate: "asc" }] });
+  return rows.map((t) => ({ id: t.id, title: t.title, dueDate: day(t.dueDate), done: t.done }));
+}
+
+export async function listContractors(tenantId: string) {
+  const rows = await prisma.contractor.findMany({ where: { tenantId }, orderBy: { name: "asc" } });
+  return rows.map((c) => ({ id: c.id, name: c.name, trade: c.trade, email: c.email, phone: c.phone }));
+}
+
+export async function listMaintenanceContracts(tenantId: string) {
+  const rows = await prisma.maintenanceContract.findMany({
+    where: { tenantId },
+    include: { ...propSel, contractor: { select: { name: true } } },
+    orderBy: { nextDue: "asc" },
+  });
+  return rows.map((m) => ({
+    id: m.id,
+    title: m.title,
+    intervalMonths: m.intervalMonths,
+    nextDue: day(m.nextDue),
+    property: m.property.name,
+    contractor: m.contractor?.name ?? null,
+  }));
+}
+
+export async function listInsurances(tenantId: string) {
+  const rows = await prisma.insurance.findMany({ where: { tenantId }, include: propSel, orderBy: { createdAt: "asc" } });
+  return rows.map((i) => ({
+    id: i.id,
+    type: i.type,
+    insurer: i.insurer,
+    policyNo: i.policyNo,
+    premium: num(i.premium),
+    startDate: day(i.startDate),
+    endDate: day(i.endDate),
+    property: i.property.name,
+  }));
+}
+
+export async function listPropertyTaxes(tenantId: string) {
+  const rows = await prisma.propertyTax.findMany({ where: { tenantId }, include: propSel });
+  return rows.map((p) => {
+    const mess = p.messbetrag == null ? null : Number(p.messbetrag);
+    const hebe = p.hebesatz == null ? null : Number(p.hebesatz);
+    return {
+      id: p.id,
+      property: p.property.name,
+      aktenzeichen: p.aktenzeichen,
+      grundsteuerwert: num(p.grundsteuerwert),
+      messbetrag: mess,
+      hebesatz: hebe,
+      jahresbetrag: mess != null && hebe != null ? Math.round(mess * (hebe / 100) * 100) / 100 : null,
+    };
+  });
+}
+
+export async function createTask(tenantId: string, data: { title: string; dueDate?: string }) {
+  const created = await prisma.task.create({
+    data: { tenantId, title: data.title, dueDate: data.dueDate ? new Date(data.dueDate) : null },
+  });
+  return { id: created.id, title: created.title };
+}
+
 /** Portfolio-Kennzahlen (für KI/MCP-Überblick). */
 export async function portfolioSummary(tenantId: string) {
   const now = new Date();

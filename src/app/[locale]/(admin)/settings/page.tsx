@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { requireUser, assignableRoles, canDeleteUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -16,6 +17,8 @@ import { SettingsConfig } from "@/components/settings-config";
 import { BrandingConfig } from "@/components/branding-config";
 import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
+import { IntegrationInfo } from "@/components/integration-info";
+import { SettingsTabs, type SettingsTab } from "@/components/settings-tabs";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
 import { deleteCustomFieldDef } from "@/server/actions/custom-fields";
@@ -52,13 +55,13 @@ export default async function SettingsPage() {
   }));
   const tokenUserOpts = users.map((u) => ({ value: u.id, label: `${u.name} (${u.email})` }));
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("settings.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p>
-      </div>
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const baseUrl = `${proto}://${host}`;
 
+  const generalContent = (
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("settings.tenant")}</CardTitle>
@@ -67,129 +70,133 @@ export default async function SettingsPage() {
           <div className="text-lg font-medium">{tenant?.name}</div>
         </CardContent>
       </Card>
+      {isAdmin && tenant && <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />}
+    </>
+  );
 
-      {isAdmin && tenant && (
-        <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />
-      )}
-
-      {isAdmin && tenant && (
-        <SettingsConfig
-          ai={{ provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
-          smtp={{
-            host: tenant.smtpHost,
-            port: tenant.smtpPort,
-            user: tenant.smtpUser,
-            from: tenant.smtpFrom,
-            secure: tenant.smtpSecure,
-            hasPassword: !!tenant.smtpPassword,
-          }}
-        />
-      )}
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle className="text-base">{t("settings.users")}</CardTitle>
-            {canManage && (
-              <p className="mt-1 text-xs text-muted-foreground">{t("settings.usersHint")}</p>
-            )}
-          </div>
-          {canManage && <UserDialog roles={roleOptions} persons={personOptions} />}
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("fields.name")}</TableHead>
-                <TableHead>{t("fields.email")}</TableHead>
-                <TableHead>{t("settings.role")}</TableHead>
-                {canManage && <TableHead className="w-16 text-right">{t("common.actions")}</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell className="font-medium">
-                    {u.name}
-                    {u.id === user.id && (
-                      <span className="ml-2 text-xs text-muted-foreground">({t("settings.you")})</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{u.email}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{t(`userRole.${u.role}`)}</Badge>
-                  </TableCell>
-                  {canManage && (
-                    <TableCell>
-                      <div className="flex justify-end gap-1">
-                        {(u.id === user.id || assignableRoles(user.role).includes(u.role)) && (
-                          <ResetPasswordDialog id={u.id} />
-                        )}
-                        {canDeleteUser(user, u.role, u.id) && (
-                          <DeleteButton action={deleteUser} id={u.id} />
-                        )}
-                      </div>
-                    </TableCell>
+  const usersContent = (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <div>
+          <CardTitle className="text-base">{t("settings.users")}</CardTitle>
+          {canManage && <p className="mt-1 text-xs text-muted-foreground">{t("settings.usersHint")}</p>}
+        </div>
+        {canManage && <UserDialog roles={roleOptions} persons={personOptions} />}
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("fields.name")}</TableHead>
+              <TableHead>{t("fields.email")}</TableHead>
+              <TableHead>{t("settings.role")}</TableHead>
+              {canManage && <TableHead className="w-16 text-right">{t("common.actions")}</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((u) => (
+              <TableRow key={u.id}>
+                <TableCell className="font-medium">
+                  {u.name}
+                  {u.id === user.id && (
+                    <span className="ml-2 text-xs text-muted-foreground">({t("settings.you")})</span>
                   )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{u.email}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{t(`userRole.${u.role}`)}</Badge>
+                </TableCell>
+                {canManage && (
+                  <TableCell>
+                    <div className="flex justify-end gap-1">
+                      {(u.id === user.id || assignableRoles(user.role).includes(u.role)) && (
+                        <ResetPasswordDialog id={u.id} />
+                      )}
+                      {canDeleteUser(user, u.role, u.id) && <DeleteButton action={deleteUser} id={u.id} />}
+                    </div>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
 
-      {/* API-Tokens (API & MCP) */}
+  const apiContent = (
+    <>
       <ApiTokensManager tokens={tokenRows} users={tokenUserOpts} isAdmin={isAdmin} />
+      <IntegrationInfo baseUrl={baseUrl} />
+    </>
+  );
 
-      {/* API- & MCP-Endpunkte */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("apiInfo.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground">{t("apiInfo.rest")}:</span>
-            <code className="rounded bg-muted px-2 py-0.5">/api/v1</code>
-            <a href="/api-reference" target="_blank" className="text-primary hover:underline">
-              {t("apiInfo.reference")} →
-            </a>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground">{t("apiInfo.mcp")}:</span>
-            <code className="rounded bg-muted px-2 py-0.5">/api/mcp</code>
-          </div>
-          <p className="text-muted-foreground">{t("apiInfo.howto")}</p>
-        </CardContent>
-      </Card>
-
-      {/* Benutzerdefinierte Felder */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">{t("customFields.subtitle")}</p>
-          </div>
-          {canManage && <CustomFieldDialog />}
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {customDefs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("customFields.empty")}</p>
-          ) : (
-            customDefs.map((d) => (
-              <div key={d.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
-                <div>
-                  <span className="font-medium">{d.label}</span>
-                  <span className="text-muted-foreground">
-                    {" "}
-                    · {t(`customFieldEntity.${d.entity}`)} · <code>{d.key}</code>
-                  </span>
-                </div>
-                {canManage && <DeleteButton action={deleteCustomFieldDef} id={d.id} />}
+  const advancedContent = (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <div>
+          <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
+          <p className="mt-1 text-xs text-muted-foreground">{t("customFields.subtitle")}</p>
+        </div>
+        {canManage && <CustomFieldDialog />}
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {customDefs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("customFields.empty")}</p>
+        ) : (
+          customDefs.map((d) => (
+            <div key={d.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+              <div>
+                <span className="font-medium">{d.label}</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  · {t(`customFieldEntity.${d.entity}`)} · <code>{d.key}</code>
+                </span>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              {canManage && <DeleteButton action={deleteCustomFieldDef} id={d.id} />}
+            </div>
+          ))
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const tabs: SettingsTab[] = [{ value: "general", label: t("settings.tabGeneral"), content: generalContent }];
+  if (isAdmin && tenant) {
+    tabs.push({
+      value: "ai",
+      label: t("settings.tabAi"),
+      content: (
+        <SettingsConfig
+          section="ai"
+          ai={{ provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
+          smtp={{ host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword }}
+        />
+      ),
+    });
+    tabs.push({
+      value: "email",
+      label: t("settings.tabEmail"),
+      content: (
+        <SettingsConfig
+          section="smtp"
+          ai={{ provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
+          smtp={{ host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword }}
+        />
+      ),
+    });
+  }
+  tabs.push({ value: "users", label: t("settings.tabUsers"), content: usersContent });
+  tabs.push({ value: "api", label: t("settings.tabApi"), content: apiContent });
+  tabs.push({ value: "advanced", label: t("settings.tabAdvanced"), content: advancedContent });
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("settings.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p>
+      </div>
+      <SettingsTabs tabs={tabs} />
     </div>
   );
 }

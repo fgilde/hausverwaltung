@@ -39,8 +39,44 @@ const spec = {
       },
     },
     "/api/v1/units": { get: listOp("Einheiten", "Einheiten auflisten") },
+    "/api/v1/meters": { get: listOp("Einheiten", "Zähler + letzter Stand auflisten") },
+    "/api/v1/owners": { get: listOp("Einheiten", "Eigentümer-Zuordnungen auflisten") },
     "/api/v1/leases": { get: listOp("Verträge", "Mietverträge auflisten") },
     "/api/v1/open-items": { get: listOp("Finanzen", "Offene Posten auflisten") },
+    "/api/v1/accounts": { get: listOp("Finanzen", "Konten + Saldo auflisten") },
+    "/api/v1/charges": { get: listOp("Finanzen", "Sollstellungen auflisten") },
+    "/api/v1/payments": { get: listOp("Finanzen", "Zahlungen auflisten") },
+    "/api/v1/documents": { get: listOp("Dokumente", "Dokumente auflisten") },
+    "/api/v1/meetings": { get: listOp("Versammlung", "Eigentümerversammlungen auflisten") },
+    "/api/v1/resolutions": { get: listOp("Versammlung", "Beschlusssammlung auflisten") },
+    "/api/v1/economic-plans": { get: listOp("WEG", "Wirtschaftspläne auflisten") },
+    "/api/v1/reserves": { get: listOp("WEG", "Erhaltungsrücklagen + Saldo auflisten") },
+    "/api/v1/appointments": { get: listOp("Kalender", "Termine auflisten") },
+    "/api/v1/contractors": { get: listOp("Instandhaltung", "Handwerker/Dienstleister auflisten") },
+    "/api/v1/maintenance-contracts": { get: listOp("Instandhaltung", "Wartungsverträge auflisten") },
+    "/api/v1/insurances": { get: listOp("Weitere", "Versicherungen auflisten") },
+    "/api/v1/property-taxes": { get: listOp("Weitere", "Grundsteuer auflisten") },
+    "/api/v1/tasks": {
+      get: listOp("Aufgaben", "Aufgaben auflisten"),
+      post: {
+        tags: ["Aufgaben"],
+        summary: "Aufgabe anlegen",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["title"],
+                properties: { title: { type: "string" }, dueDate: { type: "string", format: "date" } },
+              },
+            },
+          },
+        },
+        responses: { "201": { description: "Created" }, "400": { description: "Bad request" } },
+      },
+    },
     "/api/v1/persons": {
       get: listOp("Personen", "Personen auflisten"),
       post: {

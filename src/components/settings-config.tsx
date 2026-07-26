@@ -56,6 +56,7 @@ function Field({
 export function SettingsConfig({
   ai,
   smtp,
+  section,
 }: {
   ai: { provider: string | null; baseUrl: string | null; model: string | null; hasKey: boolean };
   smtp: {
@@ -66,6 +67,7 @@ export function SettingsConfig({
     secure: boolean;
     hasPassword: boolean;
   };
+  section?: "ai" | "smtp";
 }) {
   const t = useTranslations("config");
   const [aiSave, aiSaveAction, aiSaving] = useActionState<ActionState, FormData>(updateAiConfig, {});
@@ -76,10 +78,8 @@ export function SettingsConfig({
   const keyPlaceholder = ai.hasKey ? t("keySet") : "sk-ant-…";
   const pwPlaceholder = smtp.hasPassword ? t("keySet") : "";
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      {/* KI */}
-      <Card>
+  const aiCard = (
+    <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Sparkles className="size-4" /> {t("aiTitle")}
@@ -119,8 +119,10 @@ export function SettingsConfig({
         </CardContent>
       </Card>
 
-      {/* SMTP */}
-      <Card>
+  );
+
+  const smtpCard = (
+    <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Mail className="size-4" /> {t("smtpTitle")}
@@ -166,6 +168,14 @@ export function SettingsConfig({
           </form>
         </CardContent>
       </Card>
+  );
+
+  if (section === "ai") return aiCard;
+  if (section === "smtp") return smtpCard;
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      {aiCard}
+      {smtpCard}
     </div>
   );
 }

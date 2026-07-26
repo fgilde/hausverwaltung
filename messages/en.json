@@ -106,7 +106,13 @@
     "linkedPerson": "Linked person (for portal)",
     "usersHint": "Create logins for staff as well as tenant and owner portals.",
     "you": "you",
-    "resetPassword": "Reset password"
+    "resetPassword": "Reset password",
+    "tabGeneral": "General",
+    "tabAi": "AI assistant",
+    "tabEmail": "Email",
+    "tabUsers": "Users",
+    "tabApi": "API & MCP",
+    "tabAdvanced": "Advanced"
   },
   "account": {
     "changePassword": "Change password",
@@ -179,8 +185,10 @@
     "title": "API & MCP endpoints",
     "rest": "REST API",
     "mcp": "MCP server",
-    "reference": "Open API reference",
-    "howto": "Create a token above and add it to your AI client as an MCP server with this bearer token — the AI can then read and manage your portfolio."
+    "reference": "API reference",
+    "howto": "Create a token above and add it to your AI client as an MCP server with this bearer token — the AI can then read and manage your portfolio.",
+    "mcpConfigTitle": "MCP configuration (Claude Desktop etc.)",
+    "mcpConfigHint": "Paste into your AI client's config file and replace DEIN_TOKEN with a token created above."
   },
   "tokens": {
     "title": "API & MCP access",

@@ -106,7 +106,13 @@
     "linkedPerson": "Verknüpfte Person (für Portal)",
     "usersHint": "Legen Sie Zugänge für Mitarbeiter sowie Mieter- und Eigentümer-Portale an.",
     "you": "Sie",
-    "resetPassword": "Passwort zurücksetzen"
+    "resetPassword": "Passwort zurücksetzen",
+    "tabGeneral": "Allgemein",
+    "tabAi": "KI-Assistent",
+    "tabEmail": "E-Mail",
+    "tabUsers": "Benutzer",
+    "tabApi": "API & MCP",
+    "tabAdvanced": "Erweitert"
   },
   "account": {
     "changePassword": "Passwort ändern",
@@ -179,8 +185,10 @@
     "title": "API- & MCP-Endpunkte",
     "rest": "REST-API",
     "mcp": "MCP-Server",
-    "reference": "API-Referenz öffnen",
-    "howto": "Oben einen Token erstellen und im KI-Client als MCP-Server mit diesem Bearer-Token eintragen — die KI kann dann deinen Bestand lesen und bearbeiten."
+    "reference": "API-Referenz",
+    "howto": "Oben einen Token erstellen und im KI-Client als MCP-Server mit diesem Bearer-Token eintragen — die KI kann dann deinen Bestand lesen und bearbeiten.",
+    "mcpConfigTitle": "MCP-Konfiguration (Claude Desktop u. a.)",
+    "mcpConfigHint": "In die Konfigurationsdatei des KI-Clients einfügen und DEIN_TOKEN durch einen oben erzeugten Token ersetzen."
   },
   "tokens": {
     "title": "API- & MCP-Zugänge",
