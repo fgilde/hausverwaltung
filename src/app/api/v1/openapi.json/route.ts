@@ -56,6 +56,29 @@ const spec = {
     "/api/v1/maintenance-contracts": { get: listOp("Instandhaltung", "Wartungsverträge auflisten") },
     "/api/v1/insurances": { get: listOp("Weitere", "Versicherungen auflisten") },
     "/api/v1/property-taxes": { get: listOp("Weitere", "Grundsteuer auflisten") },
+    "/api/v1/operations": {
+      get: {
+        tags: ["Operationen"],
+        summary: "Verfügbare Operationen (kein reines CRUD)",
+        description:
+          "Sollstellungslauf, Mahnlauf, Mietanpassung anwenden, Wartung fortschreiben, Zeiterfassung, " +
+          "Bank-Import (camt.053), E-Mail senden, Dokument-Upload, KI-/SMTP-Konfiguration. " +
+          "Ausführen: POST /api/v1/operations/{name} mit den Parametern im Body.",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "OK" }, "401": { description: "Unauthorized" } },
+      },
+    },
+    "/api/v1/operations/{name}": {
+      post: {
+        tags: ["Operationen"],
+        summary: "Operation ausführen",
+        description: "name z. B. run_charge_generation, run_dunning, apply_adjustment, send_email, import_camt, upload_document …",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "name", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: { content: { "application/json": { schema: { type: "object", additionalProperties: true } } } },
+        responses: { "200": { description: "OK" }, "400": { description: "Bad request" }, "403": { description: "Forbidden" }, "404": { description: "Not found" } },
+      },
+    },
     "/api/v1/records": {
       get: {
         tags: ["Schreiben"],

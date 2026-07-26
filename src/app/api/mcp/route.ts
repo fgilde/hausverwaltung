@@ -1,6 +1,7 @@
 import { authenticateBearer, type ApiPrincipal } from "@/lib/api-auth";
 import * as data from "@/lib/api-data";
 import { apiCreate, apiUpdate, apiDelete, listEntities, ENTITIES } from "@/lib/api-write";
+import { runOperation, listOperations, OPERATION_NAMES } from "@/lib/api-ops";
 
 // MCP-Server (Model Context Protocol) über Streamable HTTP / JSON-RPC.
 // Auth: Bearer-Token (persönlicher API-Token). Der Agent (Claude, ChatGPT,
@@ -201,6 +202,20 @@ const TOOLS: Tool[] = [
     description: "Datensatz löschen. entity + id. Mandanten-gescopt.",
     inputSchema: obj({ entity: entityEnum, id: str }, ["entity", "id"]),
     run: (p, a) => apiDelete(p, String(a.entity), String(a.id)),
+  },
+  {
+    name: "list_operations",
+    description:
+      "Verfügbare Operationen (kein reines CRUD): Sollstellungslauf, Mahnlauf, Mietanpassung anwenden, Wartung fortschreiben, Zeiterfassung, Bank-Import, E-Mail senden, Dokument-Upload, Konfiguration. Zuerst aufrufen, um Namen + Parameter zu kennen.",
+    inputSchema: obj({}),
+    run: async () => listOperations(),
+  },
+  {
+    name: "run_operation",
+    description:
+      "Operation ausführen. operation = Name aus list_operations, args = Parameter. Beispiele: run_charge_generation{month:'2026-02'}, run_dunning{}, apply_adjustment{id}, send_email{toAddress,subject,body}, import_camt{xml}.",
+    inputSchema: obj({ operation: { type: "string", enum: OPERATION_NAMES }, args: rec }, ["operation"]),
+    run: (p, a) => runOperation(p, String(a.operation), (a.args as Record<string, unknown>) ?? {}),
   },
   {
     name: "create_ticket",
