@@ -105,8 +105,10 @@ model Tenant {
   persons    Person[]
 
   // KI-Konfiguration (überschreibt ENV, wenn gesetzt)
-  aiApiKey String?
-  aiModel  String?
+  aiProvider String? // "anthropic" | "openai" (OpenAI-kompatibel)
+  aiBaseUrl  String? // Basis-URL für OpenAI-kompatible Anbieter (OpenRouter, Ollama, Groq …)
+  aiApiKey   String?
+  aiModel    String?
 
   // SMTP-Konfiguration für den Postausgang
   smtpHost     String?
@@ -136,9 +138,27 @@ model User {
   personId     String?
   person       Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
   assignedTickets Ticket[] @relation("TicketAssignee")
+  apiTokens    ApiToken[]
   createdAt    DateTime @default(now())
 
   @@index([tenantId])
+}
+
+// API-/MCP-Zugangstoken je Benutzer (nur Hash gespeichert).
+model ApiToken {
+  id         String    @id @default(cuid())
+  tenantId   String
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  tokenHash  String    @unique
+  prefix     String // Anzeige-Präfix (z. B. hvw_ab12…)
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
 }
 
 model Property {

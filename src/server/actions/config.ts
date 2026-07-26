@@ -19,9 +19,16 @@ export async function updateAiConfig(_p: ActionState, fd: FormData): Promise<Act
   const user = await requireRole(["ADMIN"]);
   const apiKey = str(fd.get("aiApiKey")); // leer = unverändert lassen
   const model = str(fd.get("aiModel"));
+  const provider = str(fd.get("aiProvider"));
+  const baseUrl = str(fd.get("aiBaseUrl"));
   await prisma.tenant.update({
     where: { id: user.tenantId },
-    data: { ...(apiKey ? { aiApiKey: apiKey } : {}), aiModel: model ?? null },
+    data: {
+      aiProvider: provider ?? null,
+      aiBaseUrl: baseUrl ?? null,
+      aiModel: model ?? null,
+      ...(apiKey ? { aiApiKey: apiKey } : {}),
+    },
   });
   await audit(user, "UPDATE", "Tenant", user.tenantId, "KI-Konfiguration");
   revalidatePath("/", "layout");
@@ -32,10 +39,10 @@ export async function testAiConfig(_p: ActionState, _fd: FormData): Promise<Acti
   const user = await requireRole(["ADMIN"]);
   const t = await prisma.tenant.findUnique({
     where: { id: user.tenantId },
-    select: { aiApiKey: true, aiModel: true },
+    select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true },
   });
   try {
-    await pingAi({ apiKey: t?.aiApiKey, model: t?.aiModel });
+    await pingAi({ provider: t?.aiProvider, baseUrl: t?.aiBaseUrl, apiKey: t?.aiApiKey, model: t?.aiModel });
     return { ok: true };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "KI-Test fehlgeschlagen" };

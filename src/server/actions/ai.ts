@@ -62,9 +62,9 @@ export async function askAssistantAction(_prev: AssistantState, fd: FormData): P
   const ctx = await buildContext(user.tenantId);
   const tenant = await prisma.tenant.findUnique({
     where: { id: user.tenantId },
-    select: { aiApiKey: true, aiModel: true },
+    select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true },
   });
-  const aiCfg = { apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
+  const aiCfg = { provider: tenant?.aiProvider, baseUrl: tenant?.aiBaseUrl, apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
   const configured = isAiConfigured(aiCfg);
 
   if (!configured) {
@@ -94,8 +94,8 @@ export async function explainStatement(_p: AssistantState, fd: FormData): Promis
   if (!propertyId) return { error: "Kein Objekt" };
 
   const st = await computeStatement(user.tenantId, propertyId, year);
-  const tenant = await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { aiApiKey: true, aiModel: true } });
-  const aiCfg = { apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
+  const tenant = await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true } });
+  const aiCfg = { provider: tenant?.aiProvider, baseUrl: tenant?.aiBaseUrl, apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
 
   const ctx = {
     objekt: st.property?.name,

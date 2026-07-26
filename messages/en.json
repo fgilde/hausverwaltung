@@ -125,7 +125,9 @@
   },
   "config": {
     "aiTitle": "AI assistant",
-    "aiHint": "API key for Claude. Without a key the assistant only shows a metrics summary.",
+    "aiHint": "Choose a provider and enter an API key. Without a key the assistant only shows a metrics summary.",
+    "provider": "AI provider",
+    "baseUrl": "Base URL (OpenAI-compatible)",
     "apiKey": "API key",
     "model": "Model",
     "smtpTitle": "Outgoing mail server (SMTP)",
@@ -172,6 +174,19 @@
     "logo": "Logo",
     "uploadLogo": "Upload logo",
     "removeLogo": "Remove"
+  },
+  "tokens": {
+    "title": "API & MCP access",
+    "subtitle": "Personal access tokens for the REST API and AI/MCP access.",
+    "name": "Label",
+    "namePlaceholder": "e.g. My AI agent",
+    "forUser": "For user",
+    "create": "Create token",
+    "created": "Token created — copy it now:",
+    "onceHint": "Shown only once for security reasons.",
+    "revoke": "Revoke",
+    "revoked": "revoked",
+    "lastUsed": "last used"
   },
   "login": {
     "title": "Sign in",

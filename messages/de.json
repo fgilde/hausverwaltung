@@ -126,6 +126,8 @@
   "config": {
     "aiTitle": "KI-Assistent",
     "aiHint": "API-Schlüssel für Claude. Ohne Schlüssel zeigt der Assistent nur eine Kennzahlen-Zusammenfassung.",
+    "provider": "KI-Anbieter",
+    "baseUrl": "Basis-URL (OpenAI-kompatibel)",
     "apiKey": "API-Schlüssel",
     "model": "Modell",
     "smtpTitle": "Postausgangsserver (SMTP)",
@@ -172,6 +174,19 @@
     "logo": "Logo",
     "uploadLogo": "Logo hochladen",
     "removeLogo": "Entfernen"
+  },
+  "tokens": {
+    "title": "API- & MCP-Zugänge",
+    "subtitle": "Persönliche Zugangstoken für die REST-API und den KI-/MCP-Zugriff.",
+    "name": "Bezeichnung",
+    "namePlaceholder": "z. B. Mein KI-Agent",
+    "forUser": "Für Benutzer",
+    "create": "Token erstellen",
+    "created": "Token erstellt — jetzt kopieren:",
+    "onceHint": "Wird aus Sicherheitsgründen nur einmal angezeigt.",
+    "revoke": "Widerrufen",
+    "revoked": "widerrufen",
+    "lastUsed": "zuletzt genutzt"
   },
   "login": {
     "title": "Anmelden",

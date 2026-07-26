@@ -57,7 +57,7 @@ export function SettingsConfig({
   ai,
   smtp,
 }: {
-  ai: { model: string | null; hasKey: boolean };
+  ai: { provider: string | null; baseUrl: string | null; model: string | null; hasKey: boolean };
   smtp: {
     host: string | null;
     port: number | null;
@@ -88,8 +88,23 @@ export function SettingsConfig({
         </CardHeader>
         <CardContent className="space-y-4">
           <form action={aiSaveAction} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="aiProvider">{t("provider")}</Label>
+              <select
+                id="aiProvider"
+                name="aiProvider"
+                defaultValue={ai.provider ?? "anthropic"}
+                className={cn(
+                  "flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm dark:bg-input/30",
+                )}
+              >
+                <option value="anthropic">Anthropic (Claude)</option>
+                <option value="openai">OpenAI-kompatibel (OpenAI, OpenRouter, Groq, Ollama …)</option>
+              </select>
+            </div>
+            <Field name="aiBaseUrl" label={t("baseUrl")} defaultValue={ai.baseUrl ?? ""} placeholder="https://openrouter.ai/api/v1" />
             <Field name="aiApiKey" label={t("apiKey")} type="password" placeholder={keyPlaceholder} />
-            <Field name="aiModel" label={t("model")} defaultValue={ai.model ?? ""} placeholder="claude-opus-4-8" />
+            <Field name="aiModel" label={t("model")} defaultValue={ai.model ?? ""} placeholder="claude-opus-4-8 / gpt-4o-mini / …" />
             <div className="flex items-center gap-3">
               <Button type="submit" disabled={aiSaving}>{t("save")}</Button>
               <Feedback state={aiSave} okLabel={t("saved")} />

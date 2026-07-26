@@ -15,6 +15,7 @@ import { UserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
 import { SettingsConfig } from "@/components/settings-config";
 import { BrandingConfig } from "@/components/branding-config";
 import { CustomFieldDialog } from "@/components/custom-field-dialog";
+import { ApiTokensManager } from "@/components/api-tokens-manager";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
 import { deleteCustomFieldDef } from "@/server/actions/custom-fields";
@@ -23,18 +24,33 @@ export default async function SettingsPage() {
   const user = await requireUser();
   const t = await getTranslations();
 
-  const [tenant, users, persons, customDefs] = await Promise.all([
+  const isAdmin = user.role === "ADMIN";
+  const [tenant, users, persons, customDefs, tokens] = await Promise.all([
     prisma.tenant.findUnique({ where: { id: user.tenantId } }),
     prisma.user.findMany({ where: { tenantId: user.tenantId }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({ where: { tenantId: user.tenantId }, orderBy: { lastName: "asc" } }),
     prisma.customFieldDef.findMany({ where: { tenantId: user.tenantId }, orderBy: { createdAt: "asc" } }),
+    prisma.apiToken.findMany({
+      where: { tenantId: user.tenantId, ...(isAdmin ? {} : { userId: user.id }) },
+      include: { user: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
-  const isAdmin = user.role === "ADMIN";
 
   const roles = assignableRoles(user.role);
   const canManage = roles.length > 0;
   const roleOptions = roles.map((r) => ({ value: r, label: t(`userRole.${r}`) }));
   const personOptions = persons.map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
+  const tokenRows = tokens.map((tk) => ({
+    id: tk.id,
+    name: tk.name,
+    prefix: tk.prefix,
+    userName: tk.user.name,
+    createdAt: tk.createdAt.toISOString().slice(0, 10),
+    lastUsedAt: tk.lastUsedAt ? tk.lastUsedAt.toISOString().slice(0, 10) : null,
+    revoked: !!tk.revokedAt,
+  }));
+  const tokenUserOpts = users.map((u) => ({ value: u.id, label: `${u.name} (${u.email})` }));
 
   return (
     <div className="space-y-6">
@@ -58,7 +74,7 @@ export default async function SettingsPage() {
 
       {isAdmin && tenant && (
         <SettingsConfig
-          ai={{ model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
+          ai={{ provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey }}
           smtp={{
             host: tenant.smtpHost,
             port: tenant.smtpPort,
@@ -121,6 +137,9 @@ export default async function SettingsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* API-Tokens (API & MCP) */}
+      <ApiTokensManager tokens={tokenRows} users={tokenUserOpts} isAdmin={isAdmin} />
 
       {/* Benutzerdefinierte Felder */}
       <Card>
