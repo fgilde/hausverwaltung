@@ -31,6 +31,48 @@ enum FeeType {
   PROZENT // Prozent der monatlichen Sollmiete
 }
 
+enum CustomFieldEntity {
+  PROPERTY
+  UNIT
+  PERSON
+  LEASE
+}
+
+enum TemplateCategory {
+  ANSCHREIBEN
+  ABRECHNUNG
+  MAHNUNG
+  VERTRAG
+  PROTOKOLL
+  SONSTIGES
+}
+
+// Vorlage/Serienbrief mit Platzhaltern ({{schluessel}}).
+model Template {
+  id        String           @id @default(cuid())
+  tenantId  String
+  category  TemplateCategory @default(ANSCHREIBEN)
+  name      String
+  subject   String?
+  body      String
+  createdAt DateTime         @default(now())
+
+  @@index([tenantId])
+}
+
+// Benutzerdefinierte Feld-Definition je Mandant und Entität.
+model CustomFieldDef {
+  id        String            @id @default(cuid())
+  tenantId  String
+  entity    CustomFieldEntity
+  key       String
+  label     String
+  createdAt DateTime          @default(now())
+
+  @@unique([tenantId, entity, key])
+  @@index([tenantId])
+}
+
 enum PropertyType {
   WOHNEN
   GEWERBE
@@ -105,6 +147,7 @@ model Property {
   meaTotal      Int            @default(1000) // Soll-Summe Miteigentumsanteile (Tausendstel) für WEG
   feeType       FeeType        @default(PAUSCHAL) // Verwalterhonorar-Modell
   feeValue      Decimal        @default(0) @db.Decimal(10, 2)
+  custom        Json           @default("{}") // benutzerdefinierte Felder (key→value)
   buildings     Building[]
   costEntries   CostEntry[]
   economicPlans EconomicPlan[]
@@ -315,6 +358,9 @@ model Deposit {
   lease        Lease       @relation(fields: [leaseId], references: [id], onDelete: Cascade)
   type         DepositType
   amount       Decimal     @db.Decimal(10, 2)
+  accountId    String? // Kautionskonto
+  account      Account?    @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  interestRate Decimal?    @db.Decimal(5, 2) // Verzinsung % p.a.
   receivedDate DateTime?
   returnedDate DateTime?
   note         String?
@@ -338,6 +384,7 @@ model Account {
   type      AccountType @default(BANK)
   iban      String?
   payments  Payment[]
+  deposits  Deposit[]
   createdAt DateTime    @default(now())
 
   @@index([tenantId])

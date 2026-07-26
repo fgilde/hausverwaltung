@@ -46,6 +46,8 @@
     "meetings": "Versammlungen",
     "tickets": "Instandhaltung",
     "documents": "Dokumente",
+    "reports": "Auswertungen",
+    "templates": "Vorlagen",
     "settings": "Einstellungen",
     "calendar": "Kalender",
     "email": "Postausgang",
@@ -318,7 +320,12 @@
     "set": "Kaution erfassen",
     "edit": "Kaution bearbeiten",
     "empty": "Keine Kaution hinterlegt.",
-    "receivedDate": "Erhalten am"
+    "receivedDate": "Erhalten am",
+    "account": "Kautionskonto",
+    "interestRate": "Zinssatz % p.a.",
+    "interest": "Zinsen",
+    "total": "Gesamt inkl. Zinsen",
+    "returnedDate": "Zurückgezahlt am"
   },
   "renter": {
     "title": "Mieter",
@@ -341,6 +348,50 @@
     "BUERGSCHAFT": "Bürgschaft",
     "VERPFAENDET": "Verpfändetes Konto",
     "KAUTIONSKONTO": "Kautionskonto"
+  },
+  "reports": {
+    "title": "Auswertungen",
+    "subtitle": "Kennzahlen, Leerstand, Bestand und CSV-Exporte",
+    "exportProperties": "Objekte (CSV)",
+    "exportOpenItems": "Offene Posten (CSV)",
+    "exportTenants": "Mieter (CSV)",
+    "vacancy": "Leerstand",
+    "noVacancy": "Kein Leerstand.",
+    "portfolio": "Objektbestand"
+  },
+  "customFields": {
+    "title": "Benutzerdefinierte Felder",
+    "subtitle": "Eigene Felder je Entität definieren",
+    "new": "Feld anlegen",
+    "empty": "Keine benutzerdefinierten Felder.",
+    "entity": "Entität",
+    "key": "Schlüssel (a-z, 0-9, _)",
+    "label": "Bezeichnung"
+  },
+  "customFieldEntity": {
+    "PROPERTY": "Objekt",
+    "UNIT": "Einheit",
+    "PERSON": "Person",
+    "LEASE": "Mietvertrag"
+  },
+  "templates": {
+    "title": "Vorlagen & Serienbriefe",
+    "subtitle": "Textvorlagen mit Platzhaltern für Anschreiben und Serienbriefe",
+    "new": "Neue Vorlage",
+    "edit": "Vorlage bearbeiten",
+    "empty": "Keine Vorlagen.",
+    "category": "Kategorie",
+    "subject": "Betreff",
+    "body": "Inhalt",
+    "placeholders": "Verfügbare Platzhalter"
+  },
+  "templateCategory": {
+    "ANSCHREIBEN": "Anschreiben",
+    "ABRECHNUNG": "Abrechnung",
+    "MAHNUNG": "Mahnung",
+    "VERTRAG": "Vertrag",
+    "PROTOKOLL": "Protokoll",
+    "SONSTIGES": "Sonstiges"
   },
   "dunning": {
     "title": "Objektübergreifendes Mahnwesen",

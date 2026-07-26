@@ -115,7 +115,10 @@ export const depositSchema = z.object({
   leaseId: z.string().min(1),
   type: z.enum(["BAR", "BUERGSCHAFT", "VERPFAENDET", "KAUTIONSKONTO"]),
   amount: z.coerce.number().nonnegative(),
+  accountId: optionalStr,
+  interestRate: optionalNum,
   receivedDate: optionalDate,
+  returnedDate: optionalDate,
   note: optionalStr,
 });
 
@@ -219,6 +222,23 @@ export const agendaSchema = z.object({
   meetingId: z.string().min(1),
   title: z.string().trim().min(1),
   description: optionalStr,
+});
+
+export const templateSchema = z.object({
+  category: z.enum(["ANSCHREIBEN", "ABRECHNUNG", "MAHNUNG", "VERTRAG", "PROTOKOLL", "SONSTIGES"]),
+  name: z.string().trim().min(1),
+  subject: optionalStr,
+  body: z.string().trim().min(1),
+});
+
+export const customFieldDefSchema = z.object({
+  entity: z.enum(["PROPERTY", "UNIT", "PERSON", "LEASE"]),
+  key: z
+    .string()
+    .trim()
+    .min(1)
+    .regex(/^[a-z0-9_]+$/, "Nur Kleinbuchstaben, Ziffern, Unterstrich"),
+  label: z.string().trim().min(1),
 });
 
 export const taskSchema = z.object({

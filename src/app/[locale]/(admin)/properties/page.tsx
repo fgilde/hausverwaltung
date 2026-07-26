@@ -22,11 +22,18 @@ export default async function PropertiesPage() {
   const user = await requireUser();
   const t = await getTranslations();
 
-  const properties = await prisma.property.findMany({
-    where: { tenantId: user.tenantId },
-    include: { buildings: { include: { _count: { select: { units: true } } } } },
-    orderBy: { createdAt: "asc" },
-  });
+  const [properties, customDefs] = await Promise.all([
+    prisma.property.findMany({
+      where: { tenantId: user.tenantId },
+      include: { buildings: { include: { _count: { select: { units: true } } } } },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.customFieldDef.findMany({
+      where: { tenantId: user.tenantId, entity: "PROPERTY" },
+      orderBy: { createdAt: "asc" },
+      select: { key: true, label: true },
+    }),
+  ]);
 
   const unitCount = (p: (typeof properties)[number]) =>
     p.buildings.reduce((a, b) => a + b._count.units, 0);
@@ -43,7 +50,7 @@ export default async function PropertiesPage() {
             <Download className="size-4" />
             {t("common.exportCsv")}
           </Button>
-          <PropertyDialog />
+          <PropertyDialog customDefs={customDefs} />
         </div>
       </div>
 
@@ -86,6 +93,7 @@ export default async function PropertiesPage() {
                     <TableCell>
                       <div className="flex justify-end gap-1">
                         <PropertyDialog
+                          customDefs={customDefs}
                           property={{
                             id: p.id,
                             name: p.name,
@@ -97,6 +105,7 @@ export default async function PropertiesPage() {
                             meaTotal: p.meaTotal,
                             feeType: p.feeType,
                             feeValue: String(p.feeValue),
+                            custom: (p.custom as Record<string, string>) ?? {},
                           }}
                         />
                         <DeleteButton action={deleteProperty} id={p.id} />

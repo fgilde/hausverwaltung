@@ -139,10 +139,11 @@ export async function upsertDeposit(_p: ActionState, fd: FormData): Promise<Acti
   const r = depositSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
   if (!(await assertLease(user.tenantId, r.data.leaseId))) return fail("Vertrag nicht gefunden");
-  const { leaseId, ...data } = r.data;
+  const { leaseId, accountId, ...rest } = r.data;
+  const data = { ...rest, accountId: accountId || null };
   await prisma.deposit.upsert({
     where: { leaseId },
-    create: { ...r.data, tenantId: user.tenantId },
+    create: { ...data, leaseId, tenantId: user.tenantId },
     update: data,
   });
   return done();

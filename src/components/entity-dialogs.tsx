@@ -48,9 +48,16 @@ type PropertyData = {
   meaTotal?: number;
   feeType?: string;
   feeValue?: string;
+  custom?: Record<string, string>;
 };
 
-export async function PropertyDialog({ property }: { property?: PropertyData }) {
+export async function PropertyDialog({
+  property,
+  customDefs = [],
+}: {
+  property?: PropertyData;
+  customDefs?: { key: string; label: string }[];
+}) {
   const t = await getTranslations();
   const edit = !!property;
   return (
@@ -102,6 +109,15 @@ export async function PropertyDialog({ property }: { property?: PropertyData }) 
           defaultValue={property?.feeValue}
         />
       </div>
+      {customDefs.map((d) => (
+        <TextField
+          key={d.key}
+          name={`cf_${d.key}`}
+          label={d.label}
+          required={false}
+          defaultValue={property?.custom?.[d.key]}
+        />
+      ))}
     </CrudDialog>
   );
 }

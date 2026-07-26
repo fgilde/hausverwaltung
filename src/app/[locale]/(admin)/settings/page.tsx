@@ -13,17 +13,20 @@ import {
 } from "@/components/ui/table";
 import { UserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
 import { SettingsConfig } from "@/components/settings-config";
+import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
+import { deleteCustomFieldDef } from "@/server/actions/custom-fields";
 
 export default async function SettingsPage() {
   const user = await requireUser();
   const t = await getTranslations();
 
-  const [tenant, users, persons] = await Promise.all([
+  const [tenant, users, persons, customDefs] = await Promise.all([
     prisma.tenant.findUnique({ where: { id: user.tenantId } }),
     prisma.user.findMany({ where: { tenantId: user.tenantId }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({ where: { tenantId: user.tenantId }, orderBy: { lastName: "asc" } }),
+    prisma.customFieldDef.findMany({ where: { tenantId: user.tenantId }, orderBy: { createdAt: "asc" } }),
   ]);
   const isAdmin = user.role === "ADMIN";
 
@@ -111,6 +114,35 @@ export default async function SettingsPage() {
               ))}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+
+      {/* Benutzerdefinierte Felder */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">{t("customFields.subtitle")}</p>
+          </div>
+          {canManage && <CustomFieldDialog />}
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {customDefs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("customFields.empty")}</p>
+          ) : (
+            customDefs.map((d) => (
+              <div key={d.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+                <div>
+                  <span className="font-medium">{d.label}</span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {t(`customFieldEntity.${d.entity}`)} · <code>{d.key}</code>
+                  </span>
+                </div>
+                {canManage && <DeleteButton action={deleteCustomFieldDef} id={d.id} />}
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
     </div>

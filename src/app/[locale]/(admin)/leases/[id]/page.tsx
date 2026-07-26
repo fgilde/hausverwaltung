@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { money, date } from "@/lib/format";
+import { depositInterest } from "@/lib/deposit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,12 +47,12 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
       renters: { include: { person: true } },
       components: { orderBy: { type: "asc" } },
       adjustments: { orderBy: { effectiveDate: "asc" } },
-      deposit: true,
+      deposit: { include: { account: true } },
     },
   });
   if (!lease) notFound();
 
-  const [persons, units] = await Promise.all([
+  const [persons, units, kautionAccounts] = await Promise.all([
     prisma.person.findMany({
       where: { tenantId: user.tenantId },
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
@@ -61,12 +62,18 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
       include: { building: { include: { property: true } } },
       orderBy: { createdAt: "asc" },
     }),
+    prisma.account.findMany({
+      where: { tenantId: user.tenantId, type: "KAUTION" },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
   ]);
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
   const unitOpts = units.map((u) => ({
     value: u.id,
     label: `${u.building.property.name} · ${u.building.name} · ${u.label}`,
   }));
+  const accountOpts = kautionAccounts.map((a) => ({ value: a.id, label: a.name }));
 
   const warm = Number(lease.rentCold) + lease.components.reduce((a, c) => a + Number(c.amount), 0);
 
@@ -137,13 +144,17 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
             <CardTitle className="text-base">{t("deposit.title")}</CardTitle>
             <DepositDialog
               leaseId={lease.id}
+              accounts={accountOpts}
               deposit={
                 lease.deposit
                   ? {
                       id: lease.deposit.id,
                       type: lease.deposit.type,
                       amount: String(lease.deposit.amount),
+                      accountId: lease.deposit.accountId,
+                      interestRate: lease.deposit.interestRate ? String(lease.deposit.interestRate) : null,
                       receivedDate: lease.deposit.receivedDate,
+                      returnedDate: lease.deposit.returnedDate,
                     }
                   : undefined
               }
@@ -153,16 +164,39 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
             {!lease.deposit ? (
               <p className="text-sm text-muted-foreground">{t("deposit.empty")}</p>
             ) : (
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  <div className="font-medium">{money(Number(lease.deposit.amount), locale)}</div>
-                  <div className="text-muted-foreground">
-                    {t(`depositType.${lease.deposit.type}`)}
-                    {lease.deposit.receivedDate ? ` · ${date(lease.deposit.receivedDate, locale)}` : ""}
+              (() => {
+                const dep = lease.deposit;
+                const interest = depositInterest(
+                  Number(dep.amount),
+                  dep.interestRate ? Number(dep.interestRate) : null,
+                  dep.receivedDate,
+                  dep.returnedDate,
+                );
+                return (
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-0.5 text-sm">
+                      <div className="font-medium">{money(Number(dep.amount), locale)}</div>
+                      <div className="text-muted-foreground">
+                        {t(`depositType.${dep.type}`)}
+                        {dep.account ? ` · ${dep.account.name}` : ""}
+                        {dep.receivedDate ? ` · ${date(dep.receivedDate, locale)}` : ""}
+                      </div>
+                      {interest > 0 && (
+                        <div className="text-muted-foreground">
+                          {t("deposit.interest")}: {money(interest, locale)} ·{" "}
+                          {t("deposit.total")}: {money(Number(dep.amount) + interest, locale)}
+                        </div>
+                      )}
+                      {dep.returnedDate && (
+                        <div className="text-xs text-muted-foreground">
+                          {t("deposit.returnedDate")}: {date(dep.returnedDate, locale)}
+                        </div>
+                      )}
+                    </div>
+                    <DeleteButton action={deleteDeposit} id={dep.id} />
                   </div>
-                </div>
-                <DeleteButton action={deleteDeposit} id={lease.deposit.id} />
-              </div>
+                );
+              })()
             )}
           </CardContent>
         </Card>

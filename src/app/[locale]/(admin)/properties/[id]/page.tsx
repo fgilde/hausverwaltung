@@ -63,6 +63,13 @@ export default async function PropertyDetailPage({
     },
     include: { components: { select: { amount: true } } },
   });
+  const customDefs = await prisma.customFieldDef.findMany({
+    where: { tenantId: user.tenantId, entity: "PROPERTY" },
+    orderBy: { createdAt: "asc" },
+    select: { key: true, label: true },
+  });
+  const customValues = (property.custom as Record<string, string>) ?? {};
+
   const unitCount = property.buildings.reduce((a, b) => a + b.units.length, 0);
   const monthlyRentSum = activeLeases.reduce(
     (a, l) => a + Number(l.rentCold) + l.components.reduce((s, c) => s + Number(c.amount), 0),
@@ -94,6 +101,7 @@ export default async function PropertyDetailPage({
         </div>
         <div className="flex gap-1">
           <PropertyDialog
+            customDefs={customDefs}
             property={{
               id: property.id,
               name: property.name,
@@ -105,6 +113,7 @@ export default async function PropertyDetailPage({
               meaTotal: property.meaTotal,
               feeType: property.feeType,
               feeValue: String(property.feeValue),
+              custom: customValues,
             }}
           />
           <DeleteButton action={deleteProperty} id={property.id} />
@@ -126,6 +135,22 @@ export default async function PropertyDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {customDefs.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 sm:grid-cols-2">
+            {customDefs.map((d) => (
+              <div key={d.key} className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{d.label}</span>
+                <span>{customValues[d.key] || t("common.none")}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t("properties.buildings")}</h2>

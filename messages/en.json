@@ -46,6 +46,8 @@
     "meetings": "Meetings",
     "tickets": "Maintenance",
     "documents": "Documents",
+    "reports": "Reports",
+    "templates": "Templates",
     "settings": "Settings",
     "calendar": "Calendar",
     "email": "Outbox",
@@ -318,7 +320,12 @@
     "set": "Record deposit",
     "edit": "Edit deposit",
     "empty": "No deposit recorded.",
-    "receivedDate": "Received on"
+    "receivedDate": "Received on",
+    "account": "Deposit account",
+    "interestRate": "Interest rate % p.a.",
+    "interest": "Interest",
+    "total": "Total incl. interest",
+    "returnedDate": "Returned on"
   },
   "renter": {
     "title": "Tenants",
@@ -341,6 +348,50 @@
     "BUERGSCHAFT": "Guarantee",
     "VERPFAENDET": "Pledged account",
     "KAUTIONSKONTO": "Deposit account"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "KPIs, vacancy, portfolio and CSV exports",
+    "exportProperties": "Properties (CSV)",
+    "exportOpenItems": "Open items (CSV)",
+    "exportTenants": "Tenants (CSV)",
+    "vacancy": "Vacancy",
+    "noVacancy": "No vacancy.",
+    "portfolio": "Portfolio"
+  },
+  "customFields": {
+    "title": "Custom fields",
+    "subtitle": "Define your own fields per entity",
+    "new": "Add field",
+    "empty": "No custom fields.",
+    "entity": "Entity",
+    "key": "Key (a-z, 0-9, _)",
+    "label": "Label"
+  },
+  "customFieldEntity": {
+    "PROPERTY": "Property",
+    "UNIT": "Unit",
+    "PERSON": "Person",
+    "LEASE": "Lease"
+  },
+  "templates": {
+    "title": "Templates & mail merge",
+    "subtitle": "Text templates with placeholders for letters and mail merge",
+    "new": "New template",
+    "edit": "Edit template",
+    "empty": "No templates.",
+    "category": "Category",
+    "subject": "Subject",
+    "body": "Body",
+    "placeholders": "Available placeholders"
+  },
+  "templateCategory": {
+    "ANSCHREIBEN": "Letter",
+    "ABRECHNUNG": "Statement",
+    "MAHNUNG": "Dunning",
+    "VERTRAG": "Contract",
+    "PROTOKOLL": "Minutes",
+    "SONSTIGES": "Other"
   },
   "dunning": {
     "title": "Portfolio dunning",

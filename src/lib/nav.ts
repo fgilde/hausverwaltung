@@ -57,6 +57,8 @@ export const navGroups: NavGroup[] = [
   {
     labelKey: "nav.groupAdmin",
     items: [
+      { key: "nav.reports", href: "/reports", icon: BarChart3 },
+      { key: "nav.templates", href: "/templates", icon: FileText },
       { key: "nav.audit", href: "/audit", icon: ScrollText },
       { key: "nav.settings", href: "/settings", icon: Settings },
     ],

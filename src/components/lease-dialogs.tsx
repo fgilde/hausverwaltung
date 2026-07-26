@@ -184,15 +184,20 @@ type DepositData = {
   id: string;
   type: string;
   amount: string;
+  accountId: string | null;
+  interestRate: string | null;
   receivedDate: Date | null;
+  returnedDate: Date | null;
 };
 
 export async function DepositDialog({
   leaseId,
   deposit,
+  accounts,
 }: {
   leaseId: string;
   deposit?: DepositData;
+  accounts: Opt[];
 }) {
   const t = await getTranslations();
   const edit = !!deposit;
@@ -211,12 +216,35 @@ export async function DepositDialog({
         options={await opts("depositType", ["BAR", "BUERGSCHAFT", "VERPFAENDET", "KAUTIONSKONTO"])}
       />
       <TextField name="amount" label={t("fields.value")} type="number" step="0.01" defaultValue={deposit?.amount} />
+      <SelectField
+        name="accountId"
+        label={t("deposit.account")}
+        defaultValue={deposit?.accountId ?? ""}
+        options={[{ value: "", label: t("common.none") }, ...accounts]}
+      />
+      <div className="grid grid-cols-2 gap-4">
+        <TextField
+          name="interestRate"
+          label={t("deposit.interestRate")}
+          type="number"
+          step="0.01"
+          required={false}
+          defaultValue={deposit?.interestRate ?? undefined}
+        />
+        <TextField
+          name="receivedDate"
+          label={t("deposit.receivedDate")}
+          type="date"
+          required={false}
+          defaultValue={iso(deposit?.receivedDate)}
+        />
+      </div>
       <TextField
-        name="receivedDate"
-        label={t("deposit.receivedDate")}
+        name="returnedDate"
+        label={t("deposit.returnedDate")}
         type="date"
         required={false}
-        defaultValue={iso(deposit?.receivedDate)}
+        defaultValue={iso(deposit?.returnedDate)}
       />
     </CrudDialog>
   );

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { pickCustom } from "@/lib/custom";
 import {
   propertySchema,
   buildingSchema,
@@ -24,9 +25,12 @@ function done(): ActionState {
 // --- Property ---
 export async function createProperty(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
-  const r = propertySchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = propertySchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
-  const created = await prisma.property.create({ data: { ...r.data, tenantId: user.tenantId } });
+  const created = await prisma.property.create({
+    data: { ...r.data, custom: pickCustom(entries), tenantId: user.tenantId },
+  });
   await audit(user, "CREATE", "Property", created.id, r.data.name);
   return done();
 }
@@ -34,9 +38,13 @@ export async function createProperty(_p: ActionState, fd: FormData): Promise<Act
 export async function updateProperty(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
-  const r = propertySchema.safeParse(Object.fromEntries(fd));
+  const entries = Object.fromEntries(fd);
+  const r = propertySchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
-  await prisma.property.updateMany({ where: { id, tenantId: user.tenantId }, data: r.data });
+  await prisma.property.updateMany({
+    where: { id, tenantId: user.tenantId },
+    data: { ...r.data, custom: pickCustom(entries) },
+  });
   await audit(user, "UPDATE", "Property", id, r.data.name);
   return done();
 }
