@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PersonDialog } from "@/components/entity-dialogs";
+import { ImportPersonsDialog } from "@/components/import-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deletePerson } from "@/server/actions/persons";
 
@@ -48,7 +49,13 @@ export default async function PersonsPage({
           <h1 className="text-2xl font-semibold tracking-tight">{t("persons.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("persons.subtitle")}</p>
         </div>
-        <PersonDialog customDefs={customDefs} />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" render={<a href="/api/export/persons" />}>
+            {t("common.exportCsv")}
+          </Button>
+          <ImportPersonsDialog />
+          <PersonDialog customDefs={customDefs} />
+        </div>
       </div>
 
       {/* Adressbuch-Gruppenfilter */}

@@ -498,6 +498,14 @@
     "bookAsCost": "Als Kosten buchen",
     "bookAsCostHint": "Als Kostenposition ins laufende Abrechnungsjahr übernehmen (erneutes Buchen aktualisiert den Betrag)."
   },
+  "import": {
+    "csv": "CSV-Import",
+    "personsTitle": "Personen importieren",
+    "personsHint": "CSV mit Spaltenüberschriften firstName, lastName (Pflicht), optional email, phone, type, note. Trenner ; oder ,",
+    "file": "CSV-Datei",
+    "run": "Importieren",
+    "done": "{created} importiert, {skipped} übersprungen"
+  },
   "zensus": {
     "title": "Zensus",
     "subtitle": "Gebäude- und Wohnungsdaten für die Zensus-Meldung",

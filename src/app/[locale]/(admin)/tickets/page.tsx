@@ -61,7 +61,12 @@ export default async function TicketsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("tickets.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("tickets.subtitle")}</p>
         </div>
-        <TicketDialog properties={propertyOpts} units={unitOpts} contractors={contractorOpts} users={userOpts} />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" render={<a href="/api/export/tickets" />}>
+            {t("common.exportCsv")}
+          </Button>
+          <TicketDialog properties={propertyOpts} units={unitOpts} contractors={contractorOpts} users={userOpts} />
+        </div>
       </div>
 
       <Card>

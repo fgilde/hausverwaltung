@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -70,9 +71,14 @@ export default async function UnitsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("units.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("units.subtitle")}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("units.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("units.subtitle")}</p>
+        </div>
+        <Button variant="outline" size="sm" render={<a href="/api/export/units" />}>
+          {t("common.exportCsv")}
+        </Button>
       </div>
 
       <Card>

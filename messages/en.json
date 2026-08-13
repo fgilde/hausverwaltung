@@ -498,6 +498,14 @@
     "bookAsCost": "Book as cost",
     "bookAsCostHint": "Add as a cost item to the current statement year (booking again updates the amount)."
   },
+  "import": {
+    "csv": "Import CSV",
+    "personsTitle": "Import people",
+    "personsHint": "CSV with header columns firstName, lastName (required), optional email, phone, type, note. Delimiter ; or ,",
+    "file": "CSV file",
+    "run": "Import",
+    "done": "{created} imported, {skipped} skipped"
+  },
   "zensus": {
     "title": "Census",
     "subtitle": "Building and dwelling data for census reporting",
