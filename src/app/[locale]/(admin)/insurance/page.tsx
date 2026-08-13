@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/table";
 import { InsuranceDialog } from "@/components/niche-dialogs";
 import { DeleteButton } from "@/components/delete-button";
-import { deleteInsurance } from "@/server/actions/niche";
+import { deleteInsurance, bookInsuranceAsCost } from "@/server/actions/niche";
+import { Button } from "@/components/ui/button";
 
 export default async function InsurancePage() {
   const user = await requireUser();
@@ -76,7 +77,15 @@ export default async function InsurancePage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end gap-1">
+                        {Number(i.premium) > 0 ? (
+                          <form action={bookInsuranceAsCost}>
+                            <input type="hidden" name="id" value={i.id} />
+                            <Button type="submit" variant="ghost" size="sm" title={t("niche.bookAsCostHint")}>
+                              {t("niche.bookAsCost")}
+                            </Button>
+                          </form>
+                        ) : null}
                         <DeleteButton action={deleteInsurance} id={i.id} />
                       </div>
                     </TableCell>

@@ -12,6 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PropertyTaxDialog } from "@/components/niche-dialogs";
+import { Button } from "@/components/ui/button";
+import { bookGrundsteuerAsCost } from "@/server/actions/niche";
 
 export default async function GrundsteuerPage() {
   const user = await requireUser();
@@ -63,7 +65,15 @@ export default async function GrundsteuerPage() {
                       <TableCell className="text-right">{hebe ? `${hebe} %` : t("common.none")}</TableCell>
                       <TableCell className="text-right font-medium">{money(jahr(mess, hebe), locale)}</TableCell>
                       <TableCell>
-                        <div className="flex justify-end">
+                        <div className="flex justify-end gap-1">
+                          {mess && hebe ? (
+                            <form action={bookGrundsteuerAsCost}>
+                              <input type="hidden" name="propertyId" value={p.id} />
+                              <Button type="submit" variant="ghost" size="sm" title={t("niche.bookAsCostHint")}>
+                                {t("niche.bookAsCost")}
+                              </Button>
+                            </form>
+                          ) : null}
                           <PropertyTaxDialog
                             propertyId={p.id}
                             tax={

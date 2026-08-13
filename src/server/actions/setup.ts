@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { needsSetup } from "@/lib/setup";
+import { ensureDefaultAccounts } from "@/lib/accounts";
 import { setupSchema, type ActionState } from "@/lib/schemas";
 
 // Ersteinrichtung: legt ersten Mandanten + Administrator an. Nur bei leerem System.
@@ -32,6 +33,9 @@ export async function setupSystem(_p: ActionState, fd: FormData): Promise<Action
       },
     },
   });
+
+  // Standard-Kontenrahmen anlegen
+  await ensureDefaultAccounts(prisma, tenant.id);
 
   // Optionales erstes Objekt
   if (propertyName) {

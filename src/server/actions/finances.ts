@@ -12,10 +12,18 @@ import {
   type ActionState,
 } from "@/lib/schemas";
 import { parseCamt053 } from "@/lib/adapters/bankImport";
+import { ensureDefaultAccounts } from "@/lib/accounts";
 import { audit } from "@/lib/audit";
 import { simplePdf } from "@/lib/pdf";
 import { saveFile } from "@/lib/storage";
 import { money, date } from "@/lib/format";
+
+// Standard-Kontenrahmen für den Mandanten anlegen (idempotent).
+export async function seedDefaultAccounts(): Promise<void> {
+  const user = await requireWriter();
+  await ensureDefaultAccounts(prisma, user.tenantId);
+  revalidatePath("/", "layout");
+}
 
 function fail(msg?: string): ActionState {
   return { error: msg ?? "Ungültige Eingabe" };

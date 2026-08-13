@@ -492,6 +492,10 @@
     "hebesatz": "Multiplier (%)",
     "yearly": "Annual property tax"
   },
+  "niche": {
+    "bookAsCost": "Book as cost",
+    "bookAsCostHint": "Add as a cost item to the current statement year (booking again updates the amount)."
+  },
   "zensus": {
     "title": "Census",
     "subtitle": "Building and dwelling data for census reporting",
@@ -522,6 +526,7 @@
     "accounts": "Accounts",
     "newAccount": "New account",
     "noAccounts": "No accounts yet.",
+    "seedAccounts": "Create default chart of accounts",
     "manualCharge": "Charge (manual)",
     "recordPayment": "Record payment",
     "mandates": "SEPA mandates",

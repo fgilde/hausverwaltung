@@ -492,6 +492,10 @@
     "hebesatz": "Hebesatz (%)",
     "yearly": "Jahres-Grundsteuer"
   },
+  "niche": {
+    "bookAsCost": "Als Kosten buchen",
+    "bookAsCostHint": "Als Kostenposition ins laufende Abrechnungsjahr übernehmen (erneutes Buchen aktualisiert den Betrag)."
+  },
   "zensus": {
     "title": "Zensus",
     "subtitle": "Gebäude- und Wohnungsdaten für die Zensus-Meldung",
@@ -522,6 +526,7 @@
     "accounts": "Konten",
     "newAccount": "Neues Konto",
     "noAccounts": "Keine Konten angelegt.",
+    "seedAccounts": "Standard-Kontenrahmen anlegen",
     "manualCharge": "Sollstellung (manuell)",
     "recordPayment": "Zahlung erfassen",
     "mandates": "SEPA-Mandate",

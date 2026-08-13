@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { ensureDefaultAccounts } from "../src/lib/accounts";
 
 // Einmaliger Bootstrap beim Container-/Server-Start (idempotent).
 // Alle Env-Variablen optional:
@@ -42,7 +43,8 @@ async function main() {
         role: "ADMIN",
       },
     });
-    console.log(`[bootstrap] Mandant "${tenantName}" + Admin ${email} angelegt.`);
+    await ensureDefaultAccounts(prisma, tenant.id);
+    console.log(`[bootstrap] Mandant "${tenantName}" + Admin ${email} + Standard-Konten angelegt.`);
     return;
   }
 
