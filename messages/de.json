@@ -40,6 +40,7 @@
     "units": "Einheiten",
     "persons": "Personen",
     "leases": "Mietverträge",
+    "leasing": "Vermarktung",
     "finances": "Finanzen",
     "dunning": "Mahnwesen",
     "statements": "Abrechnungen",
@@ -497,6 +498,17 @@
   "niche": {
     "bookAsCost": "Als Kosten buchen",
     "bookAsCostHint": "Als Kostenposition ins laufende Abrechnungsjahr übernehmen (erneutes Buchen aktualisiert den Betrag)."
+  },
+  "leasing": {
+    "title": "Vermarktung",
+    "subtitle": "Leerstand und auslaufende Verträge mit Mietinteressenten abgleichen",
+    "vacancy": "Leerstand & auslaufend",
+    "noVacancy": "Kein Leerstand, keine auslaufenden Verträge.",
+    "vacantNow": "Aktuell leer",
+    "vacantArea": "Freie Fläche (Flächenmodell)",
+    "endingSoon": "Läuft in ≤90 Tagen aus",
+    "interested": "Mietinteressenten",
+    "noInterested": "Keine Interessenten im Adressbuch (Kontaktgruppe Interessent)."
   },
   "areaModel": {
     "title": "Flächenmodell (Gewerbe)",

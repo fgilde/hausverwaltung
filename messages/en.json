@@ -40,6 +40,7 @@
     "units": "Units",
     "persons": "People",
     "leases": "Leases",
+    "leasing": "Leasing",
     "finances": "Finances",
     "dunning": "Dunning",
     "statements": "Statements",
@@ -497,6 +498,17 @@
   "niche": {
     "bookAsCost": "Book as cost",
     "bookAsCostHint": "Add as a cost item to the current statement year (booking again updates the amount)."
+  },
+  "leasing": {
+    "title": "Leasing",
+    "subtitle": "Match vacant and expiring units with prospective tenants",
+    "vacancy": "Vacancy & expiring",
+    "noVacancy": "No vacancy, no expiring leases.",
+    "vacantNow": "Vacant now",
+    "vacantArea": "Free area (area model)",
+    "endingSoon": "Expiring in ≤90 days",
+    "interested": "Prospective tenants",
+    "noInterested": "No prospects in the address book (contact group Prospect)."
   },
   "areaModel": {
     "title": "Area model (commercial)",

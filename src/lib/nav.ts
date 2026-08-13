@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Receipt,
   ClipboardList,
+  Handshake,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,6 +37,7 @@ export const navGroups: NavGroup[] = [
       { key: "nav.units", href: "/units", icon: DoorOpen },
       { key: "nav.persons", href: "/persons", icon: Users },
       { key: "nav.leases", href: "/leases", icon: FileSignature },
+      { key: "nav.leasing", href: "/leasing", icon: Handshake },
     ],
   },
   {
