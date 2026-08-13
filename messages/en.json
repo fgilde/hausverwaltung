@@ -533,6 +533,8 @@
     "csv": "Import CSV",
     "personsTitle": "Import people",
     "personsHint": "CSV with header columns firstName, lastName (required), optional email, phone, type, note. Delimiter ; or ,",
+    "propertiesTitle": "Import properties",
+    "propertiesHint": "CSV with header columns name, street, zip, city (required), optional type (WOHNEN/GEWERBE/GEMISCHT), management (MIET/WEG). Delimiter ; or ,",
     "file": "CSV file",
     "run": "Import",
     "done": "{created} imported, {skipped} skipped"

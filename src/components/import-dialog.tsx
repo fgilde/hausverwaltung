@@ -1,11 +1,11 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { importPersons, type ImportState } from "@/server/actions/imports";
+import { importPersons, importProperties, type ImportState } from "@/server/actions/imports";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,13 +17,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
 
-export function ImportPersonsDialog() {
+const ACTIONS = { person: importPersons, property: importProperties } as const;
+
+export function ImportDialog({ entity }: { entity: "person" | "property" }) {
   const t = useTranslations("import");
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<ImportState, FormData>(importPersons, {});
+  const [state, action, pending] = useActionState<ImportState, FormData>(ACTIONS[entity], {});
 
   useEffect(() => {
     if (state.ok) {
@@ -45,10 +46,10 @@ export function ImportPersonsDialog() {
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("personsTitle")}</DialogTitle>
+          <DialogTitle>{t(entity === "person" ? "personsTitle" : "propertiesTitle")}</DialogTitle>
         </DialogHeader>
         <form action={action} className="space-y-4" key={open ? "o" : "c"}>
-          <p className="text-xs text-muted-foreground">{t("personsHint")}</p>
+          <p className="text-xs text-muted-foreground">{t(entity === "person" ? "personsHint" : "propertiesHint")}</p>
           <div className="space-y-1.5">
             <Label htmlFor="file">{t("file")}</Label>
             <Input id="file" name="file" type="file" accept=".csv,text/csv" required />

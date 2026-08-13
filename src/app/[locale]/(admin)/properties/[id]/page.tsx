@@ -35,10 +35,13 @@ import { deleteProperty, deleteBuilding, deleteUnit } from "@/server/actions/obj
 
 export default async function PropertyDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ areaYear?: string }>;
 }) {
   const { id } = await params;
+  const { areaYear: areaYearParam } = await searchParams;
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
@@ -90,8 +93,11 @@ export default async function PropertyDetailPage({
     { unitCount, monthlyRentSum },
   );
 
-  // Flächenmodell (Gewerbe): Teilflächen + m²·Tage-Abrechnung des laufenden Jahres.
-  const areaYear = now.getUTCFullYear();
+  // Flächenmodell (Gewerbe): Teilflächen + m²·Tage-Abrechnung des gewählten Jahres.
+  const currentYear = now.getUTCFullYear();
+  const parsedYear = Number(areaYearParam);
+  const areaYear = parsedYear >= 2000 && parsedYear <= 2100 ? parsedYear : currentYear;
+  const areaYears = [currentYear + 1, currentYear, currentYear - 1, currentYear - 2];
   const areaData = property.areaModel
     ? await (async () => {
         const [allocations, propLeases, areaCosts] = await Promise.all([
@@ -260,7 +266,21 @@ export default async function PropertyDetailPage({
             </Table>
 
             <div>
-              <div className="mb-2 text-sm font-medium">{t("areaModel.statement", { year: areaYear })}</div>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="text-sm font-medium">{t("areaModel.statement", { year: areaYear })}</div>
+                <div className="flex gap-1">
+                  {areaYears.map((y) => (
+                    <Button
+                      key={y}
+                      size="sm"
+                      variant={y === areaYear ? "default" : "outline"}
+                      render={<Link href={`/properties/${property.id}?areaYear=${y}`} />}
+                    >
+                      {y}
+                    </Button>
+                  ))}
+                </div>
+              </div>
               <Table>
                 <TableHeader>
                   <TableRow>

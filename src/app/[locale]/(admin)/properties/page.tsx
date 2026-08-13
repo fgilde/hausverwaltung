@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PropertyDialog } from "@/components/entity-dialogs";
+import { ImportDialog } from "@/components/import-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteProperty } from "@/server/actions/objects";
 
@@ -50,6 +51,7 @@ export default async function PropertiesPage() {
             <Download className="size-4" />
             {t("common.exportCsv")}
           </Button>
+          <ImportDialog entity="property" />
           <PropertyDialog customDefs={customDefs} />
         </div>
       </div>

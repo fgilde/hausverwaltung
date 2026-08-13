@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PersonDialog } from "@/components/entity-dialogs";
-import { ImportPersonsDialog } from "@/components/import-dialog";
+import { ImportDialog } from "@/components/import-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deletePerson } from "@/server/actions/persons";
 
@@ -53,7 +53,7 @@ export default async function PersonsPage({
           <Button variant="outline" size="sm" render={<a href="/api/export/persons" />}>
             {t("common.exportCsv")}
           </Button>
-          <ImportPersonsDialog />
+          <ImportDialog entity="person" />
           <PersonDialog customDefs={customDefs} />
         </div>
       </div>
