@@ -278,7 +278,9 @@
     "property": "Property",
     "status": "Status",
     "occupied": "Occupied",
-    "vacant": "Vacant"
+    "vacant": "Vacant",
+    "tenant": "Tenant",
+    "assignTenant": "Assign tenant"
   },
   "unitDetail": {
     "meters": "Meters",

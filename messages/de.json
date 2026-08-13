@@ -278,7 +278,9 @@
     "property": "Objekt",
     "status": "Status",
     "occupied": "Vermietet",
-    "vacant": "Leerstand"
+    "vacant": "Leerstand",
+    "tenant": "Mieter",
+    "assignTenant": "Mieter zuordnen"
   },
   "unitDetail": {
     "meters": "Zähler",
