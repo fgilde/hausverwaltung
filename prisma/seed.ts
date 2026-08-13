@@ -354,6 +354,47 @@ async function main() {
     ],
   });
 
+  // --- Flächenmodell-Demo (Gewerbe): Pool 1000 m², Teilflächen über Zeit ---
+  const areaProp = await prisma.property.create({
+    data: {
+      tenantId: tenant.id,
+      name: "Gewerbepark Nordkai",
+      street: "Am Kai 7",
+      zip: "20457",
+      city: "Hamburg",
+      type: "GEWERBE",
+      management: "MIET",
+      areaModel: true,
+      totalArea: 1000,
+    },
+  });
+  await prisma.areaAllocation.createMany({
+    data: [
+      { tenantId: tenant.id, propertyId: areaProp.id, label: "Logistik A GmbH", area: 300, pricePerSqm: 7.5, from: new Date("2026-01-01") },
+      { tenantId: tenant.id, propertyId: areaProp.id, label: "TechStart UG", area: 200, pricePerSqm: 9, from: new Date("2026-07-01") },
+      { tenantId: tenant.id, propertyId: areaProp.id, label: "Lager C (befristet)", area: 150, pricePerSqm: 6, from: new Date("2026-01-01"), to: new Date("2026-09-30") },
+      { tenantId: tenant.id, propertyId: areaProp.id, label: "Außenstellplätze", area: 40, pricePerSqm: 5, outdoor: true, from: new Date("2026-01-01") },
+    ],
+  });
+  await prisma.costEntry.createMany({
+    data: [
+      { tenantId: tenant.id, propertyId: areaProp.id, year: 2026, type: "VERSICHERUNG", amount: 6000, method: "AREA" },
+      { tenantId: tenant.id, propertyId: areaProp.id, year: 2026, type: "HAUSWART", amount: 6000, method: "AREA" },
+    ],
+  });
+  // Mietinteressent für die Vermarktungs-Seite (passt zur freien Fläche)
+  await prisma.person.create({
+    data: {
+      tenantId: tenant.id,
+      firstName: "Petra",
+      lastName: "Sucher",
+      type: "INTERESSENT",
+      email: "p.sucher@example.de",
+      phone: "040 1234567",
+      note: "Sucht ~300 m² Lager-/Gewerbefläche ab Q4 2026",
+    },
+  });
+
   console.log("Seed fertig. Admin: admin@havewa.app/admin · Mieter: mieter@havewa.app/mieter · Eigentümer: eigentuemer@havewa.app/eigentuemer");
 }
 
