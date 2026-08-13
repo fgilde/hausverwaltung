@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { buildStatement, type UnitInput, type CostInput } from "@/lib/allocation/statement";
+import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
 
 export interface StatementUnit {
@@ -63,8 +64,12 @@ export async function computeStatement(
       ? lease.components.filter((c) => c.type === "NEBENKOSTEN" || c.type === "HEIZKOSTEN").reduce((a, c) => a + Number(c.amount), 0)
       : 0;
     const consumption = u.meters.reduce((sum, m) => {
+      if (m.readings.length < 2) return sum;
       const vals = m.readings.map((r) => Number(r.value));
-      return sum + (vals.length >= 2 ? vals[vals.length - 1] - vals[0] : 0);
+      const measured = Math.max(...vals) - Math.min(...vals);
+      // HeizkostenV §9b: unterjährige Ableseperiode auf Jahreswert hochrechnen.
+      const dates = m.readings.map((r) => r.date).sort((a, b) => a.getTime() - b.getTime());
+      return sum + extrapolateConsumption(measured, dates[0], dates[dates.length - 1]);
     }, 0);
     return {
       id: u.id,

@@ -535,6 +535,8 @@
     "personsHint": "CSV with header columns firstName, lastName (required), optional email, phone, type, note. Delimiter ; or ,",
     "propertiesTitle": "Import properties",
     "propertiesHint": "CSV with header columns name, street, zip, city (required), optional type (WOHNEN/GEWERBE/GEMISCHT), management (MIET/WEG). Delimiter ; or ,",
+    "unitsTitle": "Import units",
+    "unitsHint": "CSV with header columns property, label (required), optional building, type, area, rooms, mea. Property matched by name (must exist), building created if needed.",
     "file": "CSV file",
     "run": "Import",
     "done": "{created} imported, {skipped} skipped"

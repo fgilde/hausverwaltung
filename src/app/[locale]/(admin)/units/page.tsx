@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { UnitDialog } from "@/components/entity-dialogs";
 import { LeaseDialog } from "@/components/lease-dialogs";
+import { ImportDialog } from "@/components/import-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUnit } from "@/server/actions/objects";
 
@@ -76,9 +77,12 @@ export default async function UnitsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{t("units.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("units.subtitle")}</p>
         </div>
-        <Button variant="outline" size="sm" render={<a href="/api/export/units" />}>
-          {t("common.exportCsv")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" render={<a href="/api/export/units" />}>
+            {t("common.exportCsv")}
+          </Button>
+          <ImportDialog entity="unit" />
+        </div>
       </div>
 
       <Card>

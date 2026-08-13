@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { importPersons, importProperties, type ImportState } from "@/server/actions/imports";
+import { importPersons, importProperties, importUnits, type ImportState } from "@/server/actions/imports";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,9 +18,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const ACTIONS = { person: importPersons, property: importProperties } as const;
+const ACTIONS = { person: importPersons, property: importProperties, unit: importUnits } as const;
+const TITLE = { person: "personsTitle", property: "propertiesTitle", unit: "unitsTitle" } as const;
+const HINT = { person: "personsHint", property: "propertiesHint", unit: "unitsHint" } as const;
 
-export function ImportDialog({ entity }: { entity: "person" | "property" }) {
+export function ImportDialog({ entity }: { entity: "person" | "property" | "unit" }) {
   const t = useTranslations("import");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -46,10 +48,10 @@ export function ImportDialog({ entity }: { entity: "person" | "property" }) {
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t(entity === "person" ? "personsTitle" : "propertiesTitle")}</DialogTitle>
+          <DialogTitle>{t(TITLE[entity])}</DialogTitle>
         </DialogHeader>
         <form action={action} className="space-y-4" key={open ? "o" : "c"}>
-          <p className="text-xs text-muted-foreground">{t(entity === "person" ? "personsHint" : "propertiesHint")}</p>
+          <p className="text-xs text-muted-foreground">{t(HINT[entity])}</p>
           <div className="space-y-1.5">
             <Label htmlFor="file">{t("file")}</Label>
             <Input id="file" name="file" type="file" accept=".csv,text/csv" required />

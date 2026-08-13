@@ -535,6 +535,8 @@
     "personsHint": "CSV mit Spaltenüberschriften firstName, lastName (Pflicht), optional email, phone, type, note. Trenner ; oder ,",
     "propertiesTitle": "Objekte importieren",
     "propertiesHint": "CSV mit Spaltenüberschriften name, street, zip, city (Pflicht), optional type (WOHNEN/GEWERBE/GEMISCHT), management (MIET/WEG). Trenner ; oder ,",
+    "unitsTitle": "Einheiten importieren",
+    "unitsHint": "CSV mit Spaltenüberschriften property, label (Pflicht), optional building, type, area, rooms, mea. Objekt per Name (muss existieren), Gebäude wird bei Bedarf angelegt.",
     "file": "CSV-Datei",
     "run": "Importieren",
     "done": "{created} importiert, {skipped} übersprungen"
