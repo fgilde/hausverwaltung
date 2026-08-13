@@ -11,6 +11,7 @@ const iso = (d?: Date | null) => (d ? d.toISOString().slice(0, 10) : undefined);
 type AreaData = {
   id: string;
   leaseId: string | null;
+  personId: string | null;
   label: string | null;
   area: string;
   pricePerSqm: string | null;
@@ -22,10 +23,12 @@ type AreaData = {
 export async function AreaAllocationDialog({
   propertyId,
   leases,
+  persons,
   allocation,
 }: {
   propertyId: string;
   leases: Opt[];
+  persons: Opt[];
   allocation?: AreaData;
 }) {
   const t = await getTranslations();
@@ -52,10 +55,16 @@ export async function AreaAllocationDialog({
       {edit && <input type="hidden" name="id" value={allocation!.id} />}
       <TextField name="label" label={t("areaModel.label")} required={false} defaultValue={allocation?.label ?? undefined} />
       <SelectField
+        name="personId"
+        label={t("areaModel.person")}
+        defaultValue={allocation?.personId ?? ""}
+        options={[{ value: "", label: t("areaModel.vacancy") }, ...persons]}
+      />
+      <SelectField
         name="leaseId"
         label={t("areaModel.lease")}
         defaultValue={allocation?.leaseId ?? ""}
-        options={[{ value: "", label: t("areaModel.vacancy") }, ...leases]}
+        options={[{ value: "", label: t("common.none") }, ...leases]}
       />
       <div className="grid grid-cols-2 gap-4">
         <TextField name="area" label={t("areaModel.area")} type="number" step="0.01" defaultValue={allocation?.area} />

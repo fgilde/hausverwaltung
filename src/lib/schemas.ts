@@ -202,6 +202,7 @@ export const ownerSchema = z.object({
 export const areaAllocationSchema = z.object({
   propertyId: z.string().min(1),
   leaseId: optionalStr,
+  personId: optionalStr,
   label: optionalStr,
   area: z.coerce.number().nonnegative(),
   pricePerSqm: optionalNum,

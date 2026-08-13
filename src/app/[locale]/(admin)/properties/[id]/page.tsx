@@ -100,10 +100,10 @@ export default async function PropertyDetailPage({
   const areaYears = [currentYear + 1, currentYear, currentYear - 1, currentYear - 2];
   const areaData = property.areaModel
     ? await (async () => {
-        const [allocations, propLeases, areaCosts] = await Promise.all([
+        const [allocations, propLeases, areaCosts, persons] = await Promise.all([
           prisma.areaAllocation.findMany({
             where: { tenantId: user.tenantId, propertyId: id },
-            include: { lease: { include: { renters: { include: { person: true } } } } },
+            include: { lease: { include: { renters: { include: { person: true } } } }, person: true },
             orderBy: [{ outdoor: "asc" }, { from: "asc" }],
           }),
           prisma.lease.findMany({
@@ -111,10 +111,16 @@ export default async function PropertyDetailPage({
             include: { renters: { include: { person: true } } },
           }),
           prisma.costEntry.findMany({ where: { tenantId: user.tenantId, propertyId: id, year: areaYear } }),
+          prisma.person.findMany({
+            where: { tenantId: user.tenantId },
+            orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+            select: { id: true, firstName: true, lastName: true },
+          }),
         ]);
         const total = Number(property.totalArea ?? 0);
         const name = (a: (typeof allocations)[number]) =>
           a.label ||
+          (a.person ? `${a.person.firstName} ${a.person.lastName}` : "") ||
           (a.lease ? a.lease.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ") : "") ||
           t("areaModel.vacancy");
         const slices = allocations.map((a) => ({
@@ -139,8 +145,9 @@ export default async function PropertyDetailPage({
           value: l.id,
           label: `${l.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ") || l.id}`,
         }));
+        const personOpts = persons.map((pp) => ({ value: pp.id, label: `${pp.firstName} ${pp.lastName}` }));
         const nameById = new Map(allocations.map((a) => [a.id, name(a)]));
-        return { allocations, total, stmt, w, activePool, leaseOpts, nameById };
+        return { allocations, total, stmt, w, activePool, leaseOpts, personOpts, nameById };
       })()
     : null;
 
@@ -214,7 +221,7 @@ export default async function PropertyDetailPage({
                 {areaData.activePool <= areaData.total + 0.01 ? "✓" : "✗"}
               </p>
             </div>
-            <AreaAllocationDialog propertyId={property.id} leases={areaData.leaseOpts} />
+            <AreaAllocationDialog propertyId={property.id} leases={areaData.leaseOpts} persons={areaData.personOpts} />
           </CardHeader>
           <CardContent className="space-y-6">
             <Table>
@@ -246,9 +253,11 @@ export default async function PropertyDetailPage({
                         <AreaAllocationDialog
                           propertyId={property.id}
                           leases={areaData.leaseOpts}
+                          persons={areaData.personOpts}
                           allocation={{
                             id: a.id,
                             leaseId: a.leaseId,
+                            personId: a.personId,
                             label: a.label,
                             area: String(a.area),
                             pricePerSqm: a.pricePerSqm != null ? String(a.pricePerSqm) : null,

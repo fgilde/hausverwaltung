@@ -287,6 +287,7 @@ model Person {
   mandates  SepaMandate[]
   users     User[]
   documents Document[]
+  areaAllocations AreaAllocation[]
   custom    Json          @default("{}")
   createdAt DateTime @default(now())
 
@@ -871,6 +872,8 @@ model AreaAllocation {
   property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   leaseId     String?
   lease       Lease?    @relation(fields: [leaseId], references: [id], onDelete: SetNull)
+  personId    String?
+  person      Person?   @relation(fields: [personId], references: [id], onDelete: SetNull)
   label       String?
   area        Decimal   @db.Decimal(12, 2)
   pricePerSqm Decimal?  @db.Decimal(10, 2) // Miet-m²-Preis (optional)
