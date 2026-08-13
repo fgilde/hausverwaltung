@@ -27,6 +27,48 @@ const need = (a: Args, k: string) => {
   return v;
 };
 
+/**
+ * Flächenmodell-Miete: je aktiver (nicht-outdoor) Teilfläche mit m²-Preis eine
+ * Monats-Sollstellung (Fläche·Preis). Dedup über @@unique(areaAllocationId, period).
+ * Gibt Anzahl neu erzeugter Sollstellungen zurück.
+ */
+export async function generateAreaCharges(tenantId: string, first: Date, due: Date, last: Date): Promise<number> {
+  const props = await prisma.property.findMany({
+    where: { tenantId, areaModel: true },
+    select: {
+      areaAllocations: {
+        where: { outdoor: false, pricePerSqm: { not: null }, from: { lte: last }, OR: [{ to: null }, { to: { gte: first } }] },
+        select: { id: true, leaseId: true, label: true, area: true, pricePerSqm: true },
+      },
+    },
+  });
+  let created = 0;
+  for (const p of props) {
+    for (const a of p.areaAllocations) {
+      const amount = Number(a.area) * Number(a.pricePerSqm);
+      if (amount <= 0) continue;
+      try {
+        await prisma.charge.create({
+          data: {
+            tenantId,
+            areaAllocationId: a.id,
+            leaseId: a.leaseId ?? null,
+            type: "MIETE",
+            period: first,
+            dueDate: due,
+            amount: Math.round(amount * 100) / 100,
+            description: a.label ?? "Flächenmiete",
+          },
+        });
+        created++;
+      } catch {
+        // Unique-Verletzung → für diese Teilfläche/Periode existiert bereits eine Sollstellung
+      }
+    }
+  }
+  return created;
+}
+
 async function smtpConfig(tenantId: string) {
   const t = await prisma.tenant.findUnique({
     where: { id: tenantId },
@@ -59,6 +101,7 @@ export const OPERATIONS: Record<string, Op> = {
         await prisma.charge.create({ data: { tenantId: p.tenantId, leaseId: l.id, type: "MIETE", period: first, dueDate: due, amount: warm } });
         created++;
       }
+      created += await generateAreaCharges(p.tenantId, first, due, last);
       return { created, skipped: leases.length - created };
     },
   },

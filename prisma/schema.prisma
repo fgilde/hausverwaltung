@@ -444,6 +444,9 @@ model Charge {
   tenantId    String
   leaseId     String?
   lease       Lease?         @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  // Flächenmodell-Miete: Sollstellung aus einer Teilfläche (statt Vertrag).
+  areaAllocationId String?
+  areaAllocation   AreaAllocation? @relation(fields: [areaAllocationId], references: [id], onDelete: Cascade)
   type        ChargeType     @default(MIETE)
   period      DateTime // Monatserster des Abrechnungsmonats
   dueDate     DateTime
@@ -453,6 +456,7 @@ model Charge {
   dunnings    DunningNotice[]
   createdAt   DateTime       @default(now())
 
+  @@unique([areaAllocationId, period]) // Dedup je Teilfläche/Monat
   @@index([tenantId])
   @@index([leaseId])
 }
@@ -873,6 +877,7 @@ model AreaAllocation {
   outdoor     Boolean   @default(false)
   from        DateTime
   to          DateTime?
+  charges     Charge[]
   createdAt   DateTime  @default(now())
 
   @@index([tenantId])

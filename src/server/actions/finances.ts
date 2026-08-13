@@ -13,6 +13,7 @@ import {
 } from "@/lib/schemas";
 import { parseCamt053 } from "@/lib/adapters/bankImport";
 import { ensureDefaultAccounts } from "@/lib/accounts";
+import { generateAreaCharges } from "@/lib/api-ops";
 import { audit } from "@/lib/audit";
 import { simplePdf } from "@/lib/pdf";
 import { saveFile } from "@/lib/storage";
@@ -96,6 +97,7 @@ export async function generateCharges(_p: ActionState, fd: FormData): Promise<Ac
     });
     created++;
   }
+  created += await generateAreaCharges(user.tenantId, first, due, last);
   revalidatePath("/", "layout");
   return { ok: true, error: created === 0 ? "Keine neuen Sollstellungen (bereits vorhanden)" : undefined };
 }
