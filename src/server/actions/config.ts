@@ -25,6 +25,18 @@ export async function updateTenantName(_p: ActionState, fd: FormData): Promise<A
   return { ok: true };
 }
 
+// --- Abrechnungs-Standards ---
+
+export async function updateStatementDefaults(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireRole(["ADMIN"]);
+  const raw = str(fd.get("heatingConsumptionPct"));
+  const pct = raw ? Math.min(100, Math.max(0, parseInt(raw, 10))) : null;
+  await prisma.tenant.update({ where: { id: user.tenantId }, data: { heatingConsumptionPct: pct } });
+  await audit(user, "UPDATE", "Tenant", user.tenantId, "Abrechnungs-Standards");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 // --- KI-Konfiguration ---
 
 export async function updateAiConfig(_p: ActionState, fd: FormData): Promise<ActionState> {

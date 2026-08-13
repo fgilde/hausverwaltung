@@ -56,6 +56,30 @@ describe("buildStatement", () => {
     expect(lines[1].allocated).toBe(640);
   });
 
+  it("HeizkostenV: consumptionShare 100% = rein nach Verbrauch", () => {
+    const heizUnits = [
+      { id: "a", label: "A", area: 50, persons: 1, prepayment: 0, consumption: 30 },
+      { id: "b", label: "B", area: 50, persons: 1, prepayment: 0, consumption: 70 },
+    ];
+    const { lines } = buildStatement(heizUnits, [
+      { id: "h", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true, consumptionShare: 1 },
+    ]);
+    expect(lines[0].allocated).toBe(300); // 30 %
+    expect(lines[1].allocated).toBe(700); // 70 %
+  });
+
+  it("HeizkostenV: consumptionShare 50% (Fläche 250/250 + Verbrauch 150/350)", () => {
+    const heizUnits = [
+      { id: "a", label: "A", area: 50, persons: 1, prepayment: 0, consumption: 30 },
+      { id: "b", label: "B", area: 50, persons: 1, prepayment: 0, consumption: 70 },
+    ];
+    const { lines } = buildStatement(heizUnits, [
+      { id: "h", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true, consumptionShare: 0.5 },
+    ]);
+    expect(lines[0].allocated).toBe(400);
+    expect(lines[1].allocated).toBe(600);
+  });
+
   it("HeizkostenV: ohne Verbrauchsdaten Fallback auf Fläche", () => {
     const { lines } = buildStatement(units, [
       { id: "h", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true },

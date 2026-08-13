@@ -19,6 +19,7 @@ import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
 import { IntegrationInfo } from "@/components/integration-info";
 import { TenantNameForm } from "@/components/tenant-name-form";
+import { StatementDefaults } from "@/components/statement-defaults";
 import { SettingsTabs, type SettingsTab } from "@/components/settings-tabs";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
@@ -126,7 +127,9 @@ export default async function SettingsPage() {
   );
 
   const advancedContent = (
-    <Card>
+    <>
+      {isAdmin && tenant && <StatementDefaults heatingConsumptionPct={tenant.heatingConsumptionPct} />}
+      <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle className="text-base">{t("customFields.title")}</CardTitle>
@@ -153,6 +156,7 @@ export default async function SettingsPage() {
         )}
       </CardContent>
     </Card>
+    </>
   );
 
   const cfgProps = tenant

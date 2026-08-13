@@ -38,6 +38,12 @@ export async function CostDialog({ propertyId, year }: { propertyId: string; yea
       <SelectField name="type" label={t("fields.type")} options={typeOpts} />
       <TextField name="amount" label={t("fields.amount")} type="number" step="0.01" />
       <SelectField name="method" label={t("statements.method")} options={methodOpts} />
+      <TextField
+        name="consumptionSharePct"
+        label={t("statements.consumptionShare")}
+        type="number"
+        required={false}
+      />
       <SelectField
         name="umlagefaehig"
         label={t("statements.umlagefaehig")}

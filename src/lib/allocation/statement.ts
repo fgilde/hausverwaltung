@@ -19,8 +19,11 @@ export interface CostInput {
   amount: number;
   method: AllocationMethod;
   umlagefaehig: boolean;
-  /** Heiz-/Warmwasserkosten → HeizkostenV-Split 30 % Fläche / 70 % Verbrauch. */
+  /** Heiz-/Warmwasserkosten → HeizkostenV-Split (Grundkosten Fläche / Verbrauch). */
   heating?: boolean;
+  /** Verbrauchsanteil 0..1 (nur heating). Fehlt → HEATING_CONSUMPTION_SHARE (0,7).
+   *  1 = 100 % nach Verbrauch (bei exaktem Verbrauch). */
+  consumptionShare?: number;
 }
 
 export interface StatementLine {
@@ -64,8 +67,10 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
     if (!cost.umlagefaehig || cost.amount <= 0) continue;
 
     if (cost.heating && totalConsumption > 0) {
-      // 30 % Grundkosten nach Fläche + 70 % Verbrauchskosten nach Zähler.
-      const consAmount = cost.amount * HEATING_CONSUMPTION_SHARE;
+      // Grundkosten nach Fläche + Verbrauchskosten nach Zähler.
+      // Anteil je Position einstellbar (Default 70 %, 100 % = rein nach Verbrauch).
+      const share = Math.min(1, Math.max(0, cost.consumptionShare ?? HEATING_CONSUMPTION_SHARE));
+      const consAmount = cost.amount * share;
       const baseAmount = cost.amount - consAmount;
       allocate(baseAmount, "AREA", participants(units)).forEach((r) => (perUnit[r.id] += r.amount));
       allocate(consAmount, "CONSUMPTION", participants(units)).forEach((r) => (perUnit[r.id] += r.amount));

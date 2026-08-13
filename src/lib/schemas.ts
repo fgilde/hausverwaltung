@@ -179,6 +179,12 @@ export const costEntrySchema = z.object({
   amount: z.coerce.number().nonnegative(),
   method: z.enum(["AREA", "UNITS", "PERSONS", "CONSUMPTION", "MEA"]),
   umlagefaehig: z.enum(["true", "false"]).transform((v) => v === "true"),
+  // HeizkostenV-Verbrauchsanteil % (nur Heizung/Warmwasser). Leer → Mandanten-Standard.
+  consumptionSharePct: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? Math.min(100, Math.max(0, parseInt(v, 10))) : undefined)),
   note: optionalStr,
 });
 

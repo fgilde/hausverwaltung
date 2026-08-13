@@ -37,7 +37,7 @@ export async function computeStatement(
   const [property, dbUnits, costs] = await Promise.all([
     prisma.property.findFirst({
       where: { id: propertyId, tenantId },
-      include: { tenant: { select: { name: true } } },
+      include: { tenant: { select: { name: true, heatingConsumptionPct: true } } },
     }),
     prisma.unit.findMany({
       where: { tenantId, building: { propertyId } },
@@ -77,13 +77,20 @@ export async function computeStatement(
     };
   });
 
-  const costInputs: CostInput[] = costs.map((c) => ({
-    id: c.id,
-    amount: Number(c.amount),
-    method: c.method as AllocationMethod,
-    umlagefaehig: c.umlagefaehig,
-    heating: c.type === "HEIZUNG" || c.type === "WARMWASSER",
-  }));
+  // HeizkostenV-Verbrauchsanteil: je Position, sonst Mandanten-Standard, sonst 70 %.
+  const tenantPct = property?.tenant.heatingConsumptionPct ?? null;
+  const costInputs: CostInput[] = costs.map((c) => {
+    const heating = c.type === "HEIZUNG" || c.type === "WARMWASSER";
+    const pct = c.consumptionSharePct ?? tenantPct;
+    return {
+      id: c.id,
+      amount: Number(c.amount),
+      method: c.method as AllocationMethod,
+      umlagefaehig: c.umlagefaehig,
+      heating,
+      consumptionShare: heating && pct != null ? pct / 100 : undefined,
+    };
+  });
 
   const { lines, totalUmlage } = buildStatement(inputs, costInputs);
   const byId = new Map(lines.map((l) => [l.unitId, l]));

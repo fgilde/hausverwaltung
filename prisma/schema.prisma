@@ -122,6 +122,10 @@ model Tenant {
   brandColor String?
   logoKey    String?
 
+  // HeizkostenV: Standard-Verbrauchsanteil in % (50–100, Rest nach Fläche).
+  // null → 70 %. Je Kostenposition überschreibbar (CostEntry.consumptionSharePct).
+  heatingConsumptionPct Int?
+
   // true bei geseedeten Demo-Daten → öffentliche Marketing-Seite als Fallback
   isDemo Boolean @default(false)
 }
@@ -860,6 +864,9 @@ model CostEntry {
   amount       Decimal            @db.Decimal(12, 2)
   method       AllocationMethodDb @default(AREA)
   umlagefaehig Boolean            @default(true)
+  // Nur bei Heiz-/Warmwasserkosten: Verbrauchsanteil in % (50–100). null →
+  // Mandanten-Standard (Tenant.heatingConsumptionPct) → 70.
+  consumptionSharePct Int?
   note         String?
   createdAt    DateTime           @default(now())
 
