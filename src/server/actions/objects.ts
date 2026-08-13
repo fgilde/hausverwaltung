@@ -9,6 +9,7 @@ import {
   propertySchema,
   buildingSchema,
   unitSchema,
+  unitUpdateSchema,
   meterSchema,
   readingSchema,
   type ActionState,
@@ -111,11 +112,9 @@ export async function updateUnit(_p: ActionState, fd: FormData): Promise<ActionS
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
   const entries = Object.fromEntries(fd);
-  const r = unitSchema.safeParse(entries);
+  const r = unitUpdateSchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
-  const { buildingId, ...data } = r.data;
-  void buildingId;
-  await prisma.unit.updateMany({ where: { id, tenantId: user.tenantId }, data: { ...data, custom: pickCustom(entries) } });
+  await prisma.unit.updateMany({ where: { id, tenantId: user.tenantId }, data: { ...r.data, custom: pickCustom(entries) } });
   return done();
 }
 

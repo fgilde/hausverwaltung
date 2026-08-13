@@ -54,6 +54,11 @@ export const unitSchema = z.object({
     .transform((v) => (v ? parseInt(v, 10) : undefined)),
 });
 
+// Beim Bearbeiten ändert sich die Gebäude-Zuordnung nicht → buildingId nicht
+// verlangen (sonst schlägt die Validierung fehl, weil das Edit-Formular es nicht
+// mitsendet).
+export const unitUpdateSchema = unitSchema.omit({ buildingId: true });
+
 export const personSchema = z.object({
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),

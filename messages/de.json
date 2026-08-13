@@ -31,6 +31,7 @@
     "saved": "Gespeichert",
     "deleted": "Gelöscht",
     "deleteFailed": "Löschen fehlgeschlagen",
+    "actionFailed": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
     "exportCsv": "CSV-Export"
   },
   "nav": {

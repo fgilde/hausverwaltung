@@ -31,6 +31,7 @@
     "saved": "Saved",
     "deleted": "Deleted",
     "deleteFailed": "Delete failed",
+    "actionFailed": "Action failed. Please try again.",
     "exportCsv": "Export CSV"
   },
   "nav": {

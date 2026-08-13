@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { readableForeground } from "@/lib/color";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -30,9 +31,10 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
-      {/* Mandanten-Branding: überschreibt die Primärfarbe */}
+      {/* Mandanten-Branding: überschreibt die Primärfarbe inkl. lesbarem
+          Vordergrund (sonst wirken Buttons je nach Farbe "ausgegraut"). */}
       {tenant?.brandColor && (
-        <style>{`:root{--primary:${tenant.brandColor};--sidebar-primary:${tenant.brandColor};--ring:${tenant.brandColor};}`}</style>
+        <style>{`:root{--primary:${tenant.brandColor};--sidebar-primary:${tenant.brandColor};--ring:${tenant.brandColor};--primary-foreground:${readableForeground(tenant.brandColor)};--sidebar-primary-foreground:${readableForeground(tenant.brandColor)};}`}</style>
       )}
       <AppSidebar logoUrl={logoUrl} />
       <SidebarInset>

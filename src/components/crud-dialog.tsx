@@ -32,7 +32,20 @@ export function CrudDialog({
 }) {
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
-  const [state, formAction, pending] = useActionState<ActionState, FormData>(action, {});
+  // Wirft die Server-Action (statt {error} zurückzugeben), blieb der Dialog
+  // sonst offen ohne Hinweis. Fehler abfangen und anzeigen; echte Redirects
+  // (NEXT_REDIRECT, z. B. Login-Guard) müssen durchgereicht werden.
+  const safeAction: Action = async (prev, fd) => {
+    try {
+      return await action(prev, fd);
+    } catch (e) {
+      if (e && typeof e === "object" && "digest" in e && String((e as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT")) {
+        throw e;
+      }
+      return { error: e instanceof Error ? e.message : t("actionFailed") };
+    }
+  };
+  const [state, formAction, pending] = useActionState<ActionState, FormData>(safeAction, {});
 
   useEffect(() => {
     if (state.ok) {
