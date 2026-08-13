@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import type { ActionState } from "@/lib/schemas";
@@ -31,6 +32,7 @@ export function CrudDialog({
   children: React.ReactNode;
 }) {
   const t = useTranslations("common");
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   // Wirft die Server-Action (statt {error} zurückzugeben), blieb der Dialog
   // sonst offen ohne Hinweis. Fehler abfangen und anzeigen; echte Redirects
@@ -51,8 +53,9 @@ export function CrudDialog({
     if (state.ok) {
       setOpen(false);
       toast.success(t("saved"));
+      router.refresh(); // abhängige Übersichten sofort aktualisieren
     }
-  }, [state, t]);
+  }, [state, t, router]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

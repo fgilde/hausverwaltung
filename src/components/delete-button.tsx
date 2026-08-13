@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export function DeleteButton({
   id: string;
 }) {
   const t = useTranslations("common");
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
 
@@ -36,6 +38,7 @@ export function DeleteButton({
         await action(fd);
         setOpen(false);
         toast.success(t("deleted"));
+        router.refresh(); // abhängige Übersichten sofort aktualisieren
       } catch {
         toast.error(t("deleteFailed"));
       }
