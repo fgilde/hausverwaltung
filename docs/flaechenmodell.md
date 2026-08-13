@@ -1,86 +1,104 @@
-# Flächenmodell — Design-Vorschlag
+# Flächenmodell — Spec (abgestimmt)
 
-_Status: Entwurf zur Diskussion. Noch nicht implementiert._
+_Status: abgestimmt (Antworten eingearbeitet), bereit zur Umsetzung._
 
 ## Problem
 
 Aktuell hat jede Einheit (`Unit`) **eine feste Fläche** (`Unit.area`). Für
-Gewerbeobjekte (z. B. Lagerhalle) passt das nicht: Dort wird **Fläche in m²**
+**Gewerbeobjekte** (z. B. Lagerhalle) passt das nicht: Dort wird **Fläche in m²**
 aus einem Gesamtpool vermietet, die sich **unterjährig ändert** (Mieter bucht
-dazu / gibt ab), und ein Teil steht **leer**. Der Schmerzpunkt der Kunden:
-*„Die Summe stimmt nie."* — belegte + leere Flächen ergeben nicht die
-Gesamtfläche, und die Betriebskosten-Umlage wird dadurch falsch.
+dazu / gibt ab), und ein Teil steht **leer**. Schmerzpunkt: *„Die Summe stimmt
+nie."* — belegte + leere Fläche ergibt nicht die Gesamtfläche, die
+Betriebskosten-Umlage wird falsch.
 
-## Ziele
+## Entscheidungen (abgestimmt)
 
-1. Fläche als **zeitraum-genaue Teilflächen** je Vertrag modellieren (von–bis).
-2. **Leerstand** automatisch als eigener Posten führen → Summe = Gesamtfläche **immer**.
-3. Umlage **m²·Tage-gewichtet** (unterjährige Änderungen korrekt).
-4. Aktive **Validierung/Warnung** bei Summenabweichung, mit Option „Rest = Leerstand".
-5. Rückwärtskompatibel: Wohnobjekte nutzen weiter die feste `Unit.area`.
+1. **Nur Gewerbe.** Wohnobjekte behalten die feste `Unit.area`. Aktivierung je Objekt.
+2. **Teilflächen hängen direkt am Objekt-Pool** (keine festen Einheiten nötig).
+   Summe der Teilflächen darf die **Objekt-Gesamtfläche nicht übersteigen**.
+3. **Außenstellplätze** (o. Ä.) werden **separat** ausgewiesen und **dürfen** die
+   Gesamtfläche übersteigen. NK-Umlage bemisst sich an den **Objekt-m²**, NICHT an
+   Gesamt inkl. Außenflächen.
+4. **Eigener m²-Preis je Teilfläche** möglich (Miete). Die **NK-Umlage** erfolgt
+   ausschließlich nach **m²** (nicht nach Preis).
+5. **Granularität:** monatlich/halbmonatlich genügt; tagesgenau als Option
+   (intern rechnen wir tagesgenau, UI erfasst Monatsscheiben).
+6. **Leerstand** wird automatisch als eigener Posten geführt → Summe = Gesamtfläche
+   zu jedem Zeitpunkt; Leerstandskosten trägt der Eigentümer.
 
-## Datenmodell (Vorschlag)
-
-Zwei neue Konzepte, additiv zum Bestehenden:
+## Datenmodell (additiv, rückwärtskompatibel)
 
 ```
-Property.totalArea      Decimal?   // Gesamtfläche des Flächenpools (Gewerbe)
-Property.areaModel      Boolean    // true = Flächenmodell aktiv (statt feste Unit.area)
+Property.totalArea    Decimal?   // Gesamtfläche des Pools (Gewerbe)
+Property.areaModel    Boolean @default(false)  // Flächenmodell aktiv
 
-model AreaAllocation {            // Teilflächen-Zuordnung über Zeit
-  id         String
-  tenantId   String
-  propertyId String               // Flächenpool
-  leaseId    String?              // zugeordneter Vertrag; null = Leerstand
-  area       Decimal              // m²
-  from       DateTime
-  to         DateTime?            // offen = bis auf Weiteres
+model AreaAllocation {           // Teilfläche über Zeit (am Objekt-Pool)
+  id          String
+  tenantId    String
+  propertyId  String             // Pool
+  leaseId     String?            // zugeordneter Vertrag; null = Leerstand
+  label       String?            // z. B. "Halle Nord", "Außenstellplatz 3"
+  area        Decimal            // m²
+  pricePerSqm Decimal?           // eigener Miet-m²-Preis (optional)
+  outdoor     Boolean @default(false)  // Außenfläche: zählt NICHT zur Pool-Summe/NK
+  from        DateTime
+  to          DateTime?          // offen = bis auf Weiteres
 }
 ```
 
 - Ein Vertrag kann **mehrere** `AreaAllocation`-Zeilen haben (Nachbuchungen).
-- **Leerstand** = automatisch erzeugte/gepflegte Zeilen mit `leaseId = null`,
-  sodass zu **jedem Zeitpunkt** `Σ area = Property.totalArea`.
+- **Leerstand** = automatisch gepflegte Zeilen mit `leaseId = null`, sodass zu
+  jedem Zeitpunkt `Σ area (nicht-outdoor) = Property.totalArea`.
+- `outdoor`-Zeilen sind reine Miet-/Ausweiszeilen, gehen **nicht** in NK-Umlage
+  und nicht in die Pool-Summenprüfung ein.
 
 ## Umlage-Logik (m²·Tage)
 
-Die vorhandene Verteilerschlüssel-Engine (`lib/allocation`) kennt bereits einen
-`timeFactor` (0..1). Für das Flächenmodell wird pro Abrechnungszeitraum je
-Teilnehmer das **Flächen-Zeit-Integral** gebildet:
+Die Verteilerschlüssel-Engine (`lib/allocation`) kennt bereits `timeFactor` (0..1).
+Neu: `lib/allocation/area-time.ts` bildet je Teilnehmer das **Flächen-Zeit-Integral**:
 
 ```
 gewicht(teilnehmer) = Σ  area_i · (überlappende_Tage_i / Tage_im_Zeitraum)
 ```
 
-- Beispiel Lagerhalle 1000 m², Abrechnung 2026:
-  - Mieter A: 200 m² ganzjährig → 200 · 365/365 = 200
-  - Mieter B: 300 m² ab 01.07. → 300 · 184/365 ≈ 151,2
-  - Leerstand: 500 m² ganzjährig + 300 m² Jan–Jun → variabel, Rest zu 1000
-  - Die Summe der Gewichte entspricht immer 1000 m²·(anteilig) → Umlage geht auf.
-- **Leerstandskosten** trägt der Eigentümer: separate Zeile in der Abrechnung
-  (analog immoware „Leerstand VE01").
+Beispiel Lagerhalle 1000 m², Abrechnung 2026:
+- Mieter A: 200 m² ganzjährig → 200 · 365/365 = 200
+- Mieter B: 300 m² ab 01.07. → 300 · 184/365 ≈ 151,2
+- Leerstand: Rest, sodass Σ = 1000 (·anteilig) → Umlage geht immer auf.
 
-## UI (Vorschlag)
+Leerstand ist ein eigener Teilnehmer (Eigentümer). Reine Funktion → voll testbar.
 
-- Objekt-Einstellung: „Flächenmodell aktivieren" + `totalArea`.
-- Auf der Einheit/dem Pool: Zeitstrahl der Teilflächen (Vertrag + Leerstand).
-- Erfassungsdialog: „Fläche zubuchen/abgeben ab Datum".
-- **Summenanzeige** wie MEA-Prüfung: `Σ belegt + leer = Gesamtfläche` mit ✓/✗
-  und Button „Differenz automatisch als Leerstand buchen".
+## Miete (Sollstellung)
 
-## Offene Fragen (an dich)
+- Kaltmiete je Vertrag = Σ (`area_i · pricePerSqm_i`) der aktiven Teilflächen
+  (inkl. Außen). Fällt in den bestehenden Sollstellungslauf.
+- Ändert sich eine Teilfläche unterjährig, wird die Sollstellung ab dem
+  Wirksamkeitsmonat neu berechnet (Monatsscheibe).
 
-1. Gilt das **nur für Gewerbe** oder auch Wohnobjekte mit variabler Fläche?
-2. Sollen Teilflächen an der **Einheit** hängen oder direkt am **Objekt-Pool**
-   (Lagerhalle ohne feste Einheiten)?
-3. Wird pro Teilfläche ein **eigener m²-Preis** gebraucht (Miete), oder nur für
-   die NK-Umlage relevant?
-4. Reicht **Tages**-Genauigkeit, oder werden Monatsscheiben gebraucht?
+## Leerstand ↔ Mietinteressenten (Leasing-Pipeline)
 
-## Umsetzungsschritte (wenn abgestimmt)
+Separates, kleineres Feature (kann parallel/danach):
+- Ansicht „Leerstand": aktueller **und künftiger** Leerstand (aus `to`-Daten der
+  Teilflächen bzw. auslaufender Verträge).
+- Gegenüberstellung mit `Person.type = INTERESSENT` (Adressbuch) inkl. gesuchter
+  Fläche → Vorschlag „vor Übergabe weitervermieten" (nahtlos, ohne Leerstands-Lücke).
+
+## UI
+
+- Objekt-Einstellung: „Flächenmodell aktivieren" + `totalArea` (nur bei Gewerbe).
+- Objekt-Detail: Zeitstrahl/Tabelle der Teilflächen (Vertrag + Leerstand + Außen),
+  Summen-Check `Σ Pool = Gesamtfläche` mit ✓/✗ (wie MEA-Prüfung) + Button
+  „Differenz als Leerstand buchen".
+- Dialog „Fläche zubuchen/abgeben ab Datum" (Monatswahl), optional m²-Preis.
+
+## Umsetzungsschritte
 
 1. Schema: `Property.totalArea/areaModel` + `AreaAllocation` + Migration.
-2. `lib/allocation/area-time.ts`: m²·Tage-Gewichtung (reine Funktion + Tests).
-3. `buildStatement` um Flächenmodell-Pfad erweitern (Leerstand als Teilnehmer).
-4. UI: Pool-Einstellung, Teilflächen-Zeitstrahl, Zubuchen/Abgeben, Summen-Check.
-5. Validierung + Tests (Summe = Gesamtfläche, unterjährige Änderung, Leerstand).
+2. `lib/allocation/area-time.ts`: m²·Tage-Gewichtung (reine Funktion + Tests:
+   ganzjährig, unterjähriger Wechsel, Leerstand-Rest, Außen ausgeschlossen).
+3. `buildStatement` um Flächenmodell-Pfad erweitern (Leerstand als Teilnehmer,
+   NK nur Pool-m²).
+4. Sollstellung: Miete aus m²·Preis je Teilfläche (Monatsscheibe).
+5. UI: Pool-Einstellung, Teilflächen-Tabelle, Zubuchen/Abgeben, Summen-Check.
+6. Leasing-Pipeline (Leerstand ↔ Interessenten) als Folgeschritt.
+7. Validierung + Tests durchgängig.
