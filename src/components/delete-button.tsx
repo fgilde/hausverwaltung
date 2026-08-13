@@ -49,7 +49,7 @@ export function DeleteButton({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
-          <Button variant="ghost" size="icon" aria-label={t("delete")}>
+          <Button variant="ghost" size="icon" aria-label={t("delete")} title={t("delete")}>
             <Trash2 className="size-4" />
           </Button>
         }

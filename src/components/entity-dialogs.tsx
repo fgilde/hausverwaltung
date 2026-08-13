@@ -26,7 +26,7 @@ function CreateTrigger({ label }: { label: string }) {
 
 function EditTrigger({ label }: { label: string }) {
   return (
-    <Button variant="ghost" size="icon" aria-label={label}>
+    <Button variant="ghost" size="icon" aria-label={label} title={label}>
       <Pencil className="size-4" />
     </Button>
   );

@@ -42,7 +42,7 @@ export async function MeetingDialog({
     <CrudDialog
       trigger={
         edit ? (
-          <Button variant="ghost" size="icon" aria-label={t("common.edit")}>
+          <Button variant="ghost" size="icon" aria-label={t("common.edit")} title={t("common.edit")}>
             <Pencil className="size-4" />
           </Button>
         ) : (

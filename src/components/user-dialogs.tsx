@@ -12,7 +12,7 @@ export function ResetPasswordDialog({ id }: { id: string }) {
   return (
     <CrudDialog
       trigger={
-        <Button variant="ghost" size="icon" aria-label={t("settings.resetPassword")}>
+        <Button variant="ghost" size="icon" aria-label={t("settings.resetPassword")} title={t("settings.resetPassword")}>
           <KeyRound className="size-4" />
         </Button>
       }

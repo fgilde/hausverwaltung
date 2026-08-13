@@ -112,7 +112,7 @@ export async function PaymentDialog({
   return (
     <CrudDialog
       trigger={
-        <Button variant="ghost" size="icon" aria-label={t("finances.recordPayment")}>
+        <Button variant="ghost" size="icon" aria-label={t("finances.recordPayment")} title={t("finances.recordPayment")}>
           <Wallet className="size-4" />
         </Button>
       }

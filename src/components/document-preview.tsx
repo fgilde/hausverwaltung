@@ -20,7 +20,7 @@ export function DocumentPreview({ id, name }: { id: string; name: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="ghost" size="icon" aria-label={t("preview")}>
+          <Button variant="ghost" size="icon" aria-label={t("preview")} title={t("preview")}>
             <Eye className="size-4" />
           </Button>
         }
