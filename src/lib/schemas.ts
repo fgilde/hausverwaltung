@@ -30,6 +30,11 @@ export const propertySchema = z.object({
   meaTotal: optionalNum,
   feeType: z.enum(["PAUSCHAL", "PRO_EINHEIT", "PROZENT"]),
   feeValue: optionalNum,
+  areaModel: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => v === "true"),
+  totalArea: optionalNum,
 });
 
 export const buildingSchema = z.object({
@@ -192,6 +197,20 @@ export const ownerSchema = z.object({
   personId: z.string().min(1),
   unitId: z.string().min(1),
   share: z.coerce.number().int().positive().max(1000),
+});
+
+export const areaAllocationSchema = z.object({
+  propertyId: z.string().min(1),
+  leaseId: optionalStr,
+  label: optionalStr,
+  area: z.coerce.number().nonnegative(),
+  pricePerSqm: optionalNum,
+  outdoor: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => v === "true"),
+  from: z.coerce.date(),
+  to: optionalDate,
 });
 
 export const economicPlanSchema = z.object({

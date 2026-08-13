@@ -105,6 +105,8 @@ export default async function PropertiesPage() {
                             meaTotal: p.meaTotal,
                             feeType: p.feeType,
                             feeValue: String(p.feeValue),
+                            areaModel: p.areaModel,
+                            totalArea: p.totalArea != null ? String(p.totalArea) : undefined,
                             custom: (p.custom as Record<string, string>) ?? {},
                           }}
                         />

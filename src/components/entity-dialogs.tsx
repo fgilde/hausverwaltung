@@ -48,6 +48,8 @@ type PropertyData = {
   meaTotal?: number;
   feeType?: string;
   feeValue?: string;
+  areaModel?: boolean;
+  totalArea?: string;
   custom?: Record<string, string>;
 };
 
@@ -107,6 +109,25 @@ export async function PropertyDialog({
           step="0.01"
           required={false}
           defaultValue={property?.feeValue}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <SelectField
+          name="areaModel"
+          label={t("areaModel.enable")}
+          defaultValue={property?.areaModel ? "true" : "false"}
+          options={[
+            { value: "false", label: t("common.no") },
+            { value: "true", label: t("common.yes") },
+          ]}
+        />
+        <TextField
+          name="totalArea"
+          label={t("areaModel.totalArea")}
+          type="number"
+          step="0.01"
+          required={false}
+          defaultValue={property?.totalArea}
         />
       </div>
       {customDefs.map((d) => (

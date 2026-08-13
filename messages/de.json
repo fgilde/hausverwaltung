@@ -498,6 +498,25 @@
     "bookAsCost": "Als Kosten buchen",
     "bookAsCostHint": "Als Kostenposition ins laufende Abrechnungsjahr übernehmen (erneutes Buchen aktualisiert den Betrag)."
   },
+  "areaModel": {
+    "title": "Flächenmodell (Gewerbe)",
+    "enable": "Flächenmodell",
+    "totalArea": "Gesamtfläche (m²)",
+    "pool": "Pool",
+    "add": "Teilfläche",
+    "edit": "Teilfläche bearbeiten",
+    "label": "Bezeichnung",
+    "lease": "Vertrag",
+    "vacancy": "Leerstand",
+    "area": "Fläche (m²)",
+    "pricePerSqm": "Miete €/m²",
+    "from": "Von",
+    "to": "Bis",
+    "outdoor": "Außenfläche",
+    "period": "Zeitraum",
+    "weight": "m²·Zeit",
+    "statement": "Flächen-Abrechnung {year}"
+  },
   "import": {
     "csv": "CSV-Import",
     "personsTitle": "Personen importieren",

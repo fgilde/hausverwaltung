@@ -498,6 +498,25 @@
     "bookAsCost": "Book as cost",
     "bookAsCostHint": "Add as a cost item to the current statement year (booking again updates the amount)."
   },
+  "areaModel": {
+    "title": "Area model (commercial)",
+    "enable": "Area model",
+    "totalArea": "Total area (m²)",
+    "pool": "Pool",
+    "add": "Sub-area",
+    "edit": "Edit sub-area",
+    "label": "Label",
+    "lease": "Lease",
+    "vacancy": "Vacancy",
+    "area": "Area (m²)",
+    "pricePerSqm": "Rent €/m²",
+    "from": "From",
+    "to": "To",
+    "outdoor": "Outdoor area",
+    "period": "Period",
+    "weight": "m²·time",
+    "statement": "Area statement {year}"
+  },
   "import": {
     "csv": "Import CSV",
     "personsTitle": "Import people",
