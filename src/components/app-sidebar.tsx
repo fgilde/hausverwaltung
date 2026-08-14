@@ -6,6 +6,7 @@ import { navGroups } from "@/lib/nav";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -14,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { APP_VERSION_LABEL, APP_VERSION_FULL } from "@/lib/version";
 
 export function AppSidebar({ logoUrl }: { logoUrl?: string }) {
   const t = useTranslations();
@@ -58,6 +60,11 @@ export function AppSidebar({ logoUrl }: { logoUrl?: string }) {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <div className="px-2 py-1 text-xs text-muted-foreground" title={APP_VERSION_FULL}>
+          {APP_VERSION_LABEL}
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

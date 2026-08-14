@@ -7,6 +7,7 @@ import { needsSetup } from "@/lib/setup";
 import { listBackgroundVideos } from "@/lib/videos";
 import { BackgroundVideo } from "@/components/background-video";
 import { LoginForm } from "@/components/login-form";
+import { APP_VERSION_LABEL, APP_VERSION_FULL } from "@/lib/version";
 
 export default async function LoginPage() {
   if (await needsSetup()) redirect("/setup");
@@ -115,6 +116,10 @@ export default async function LoginPage() {
               </div>
             </div>
           )}
+
+          <p className="text-center text-xs text-muted-foreground" title={APP_VERSION_FULL}>
+            {APP_VERSION_LABEL}
+          </p>
         </div>
       </div>
     </div>

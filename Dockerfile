@@ -7,6 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl \
 
 # --- Build ---
 FROM base AS build
+# Versions-Infos fürs UI (aus CI: run_number + commit-sha); .git ist nicht im Image.
+ARG APP_BUILD
+ARG APP_SHA
+ENV APP_BUILD=$APP_BUILD APP_SHA=$APP_SHA
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
