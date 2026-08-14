@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+  Unraid Docker-Template für HaVeWa.
+  Kopieren nach: /boot/config/plugins/dockerMan/templates-user/my-HaVeWa.xml
+  (oder in Unraid: Docker → Add Container → Template-URL dieser Datei).
+
+  Voraussetzung: eine PostgreSQL-16-Instanz. Am einfachsten aus den
+  Community Applications den "PostgreSQL16"-Container installieren mit:
+    POSTGRES_USER=havewa  POSTGRES_PASSWORD=<geheim>  POSTGRES_DB=havewa
+  und dann unten DATABASE_URL entsprechend setzen (Host = Name/IP des DB-Containers).
+-->
+<Container version="2">
+  <Name>HaVeWa</Name>
+  <Repository>ghcr.io/fgilde/hausverwaltung:latest</Repository>
+  <Registry>https://github.com/fgilde/hausverwaltung/pkgs/container/hausverwaltung</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/fgilde/hausverwaltung/issues</Support>
+  <Project>https://github.com/fgilde/hausverwaltung</Project>
+  <Overview>Vollständige Hausverwaltung (Miet + WEG), mehrsprachig, mit REST-API und MCP für KI-Agenten. Benötigt eine PostgreSQL-Datenbank.</Overview>
+  <Category>Productivity: Other:</Category>
+  <WebUI>http://[IP]:[PORT:3000]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/fgilde/hausverwaltung/main/public/icon.png</Icon>
+  <ExtraParams></ExtraParams>
+  <PostArgs></PostArgs>
+  <Config Name="WebUI Port" Target="3000" Default="3000" Mode="tcp" Description="Port der Weboberfläche" Type="Port" Display="always" Required="true">3000</Config>
+  <Config Name="DATABASE_URL" Target="DATABASE_URL" Default="postgresql://havewa:CHANGE_ME@192.168.1.10:5432/havewa?schema=public" Description="Postgres-Verbindung (Host = IP/Name deines Postgres-Containers)" Type="Variable" Display="always" Required="true"></Config>
+  <Config Name="AUTH_SECRET" Target="AUTH_SECRET" Default="" Description="Session-Secret. Erzeugen: openssl rand -base64 32" Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="AUTH_TRUST_HOST" Target="AUTH_TRUST_HOST" Default="true" Description="Hinter Reverse-Proxy/lokal auf true lassen" Type="Variable" Display="advanced" Required="true">true</Config>
+  <Config Name="SEED_DEMO" Target="SEED_DEMO" Default="" Description="true = Demo-Datensatz beim ersten Start (Admin admin@havewa.app/admin). Sonst leer lassen." Type="Variable" Display="always" Required="false"></Config>
+  <Config Name="ADMIN_EMAIL" Target="ADMIN_EMAIL" Default="" Description="Optional: Admin direkt anlegen (statt Wizard)." Type="Variable" Display="always" Required="false"></Config>
+  <Config Name="ADMIN_PASSWORD" Target="ADMIN_PASSWORD" Default="" Description="Optional: Passwort des Admins." Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="TENANT_NAME" Target="TENANT_NAME" Default="" Description="Optional: Name der Hausverwaltung." Type="Variable" Display="advanced" Required="false"></Config>
+  <Config Name="Storage" Target="/app/storage" Default="/mnt/user/appdata/havewa/storage" Mode="rw" Description="Dokumente/Logo (persistent)" Type="Path" Display="always" Required="true">/mnt/user/appdata/havewa/storage</Config>
+</Container>

@@ -1,0 +1,41 @@
+version: "3.7"
+
+# Umbrel-App-Definition für HaVeWa. Umbrel setzt ${APP_SEED} (deterministisches
+# App-Secret) und ${APP_DATA_DIR}. Der app_proxy macht die Weboberfläche unter
+# dem in umbrel-app.yml gesetzten Port erreichbar.
+services:
+  app_proxy:
+    environment:
+      APP_HOST: havewa_server_1
+      APP_PORT: 3000
+
+  server:
+    image: ghcr.io/fgilde/hausverwaltung:latest
+    restart: on-failure
+    stop_grace_period: 1m
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://havewa:${APP_SEED}@havewa_db_1:5432/havewa?schema=public"
+      AUTH_SECRET: "${APP_SEED}"
+      AUTH_TRUST_HOST: "true"
+      # Demo-Datensatz beim ersten Start. Für Produktivbetrieb Zeile entfernen.
+      SEED_DEMO: "true"
+    volumes:
+      - ${APP_DATA_DIR}/data/storage:/app/storage
+
+  db:
+    image: postgres:16-alpine
+    restart: on-failure
+    stop_grace_period: 1m
+    environment:
+      POSTGRES_USER: havewa
+      POSTGRES_PASSWORD: "${APP_SEED}"
+      POSTGRES_DB: havewa
+    volumes:
+      - ${APP_DATA_DIR}/data/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U havewa"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

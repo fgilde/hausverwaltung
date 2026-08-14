@@ -143,6 +143,43 @@ docker compose -f docker-compose.registry.yml pull
 docker compose -f docker-compose.registry.yml up -d
 ```
 
+## Heimserver-Installation (Unraid · Umbrel · Proxmox)
+
+Fertige Deploy-Artefakte liegen in [`deploy/`](deploy/) und nutzen das vorgebaute
+Image `ghcr.io/fgilde/hausverwaltung:latest`.
+
+### Unraid
+
+1. **Docker → Add Container → Template**, Vorlage laden von
+   `https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/unraid/havewa.xml`
+   (oder Datei nach `/boot/config/plugins/dockerMan/templates-user/` kopieren).
+2. **PostgreSQL 16** aus den Community Applications installieren (`POSTGRES_USER=havewa`,
+   `POSTGRES_DB=havewa`, Passwort setzen).
+3. In der HaVeWa-Vorlage `DATABASE_URL` auf diese DB setzen, `AUTH_SECRET` erzeugen
+   (`openssl rand -base64 32`), optional `SEED_DEMO=true`. Starten — WebUI auf Port `3000`.
+
+### Umbrel
+
+HaVeWa über einen Community-App-Store hinzufügen (App-Dateien in
+[`deploy/umbrel/`](deploy/umbrel/)): in Umbrel den Store
+`https://github.com/fgilde/hausverwaltung` (Ordner `deploy/umbrel`) hinzufügen, dann
+HaVeWa installieren. Postgres, Secrets und Storage werden automatisch verdrahtet;
+beim ersten Start kommen Demo-Daten (abschaltbar, indem `SEED_DEMO` in der Compose
+entfernt wird).
+
+### Proxmox VE
+
+Auf dem **PVE-Host** als root ausführen — legt einen Debian-12-LXC an, installiert
+Docker und startet HaVeWa + Postgres:
+
+```bash
+bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"
+```
+
+Anpassbar per Env (`CTID`, `RAM_MB`, `CORES`, `DISK_GB`, `BRIDGE`, `STORAGE`, `PORT`,
+`SEED_DEMO`). Gibt am Ende die Container-URL aus; Update im Container mit
+`docker compose pull && docker compose up -d`.
+
 ## Bekannte Vereinfachungen
 
 `ponytail:`-Kommentare im Code: HeizkostenV-Verbrauchsumlage fällt mangels

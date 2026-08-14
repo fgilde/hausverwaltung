@@ -1,0 +1,2 @@
+# Shell-Skripte immer mit LF (werden per wget|bash auf Linux ausgeführt).
+*.sh text eol=lf

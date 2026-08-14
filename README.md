@@ -173,6 +173,43 @@ Applied once at container start while the system is still empty:
 
 If none are set, the setup wizard appears on first login (unchanged).
 
+## Home-server installs (Unraid · Umbrel · Proxmox)
+
+Ready-made deployment artifacts live in [`deploy/`](deploy/). All use the prebuilt
+`ghcr.io/fgilde/hausverwaltung:latest` image.
+
+### Unraid
+
+1. **Docker → Add Container → Template**, load
+   `https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/unraid/havewa.xml`
+   (or copy the file to `/boot/config/plugins/dockerMan/templates-user/`).
+2. Install **PostgreSQL 16** from Community Applications (`POSTGRES_USER=havewa`,
+   `POSTGRES_DB=havewa`, a password).
+3. In the HaVeWa template set `DATABASE_URL` to that Postgres, generate
+   `AUTH_SECRET` (`openssl rand -base64 32`), optionally `SEED_DEMO=true`. Start —
+   WebUI on port `3000`.
+
+### Umbrel
+
+Add HaVeWa via a community app store (the app files are in
+[`deploy/umbrel/`](deploy/umbrel/)): in Umbrel add the store
+`https://github.com/fgilde/hausverwaltung` (folder `deploy/umbrel`), then install
+HaVeWa. Postgres, secrets and storage are wired automatically; demo data is seeded
+on first start (turn off by removing `SEED_DEMO` in the compose).
+
+### Proxmox VE
+
+Run on the **PVE host** as root — creates a Debian 12 LXC, installs Docker and
+starts HaVeWa + Postgres:
+
+```bash
+bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"
+```
+
+Tunable via env (`CTID`, `RAM_MB`, `CORES`, `DISK_GB`, `BRIDGE`, `STORAGE`, `PORT`,
+`SEED_DEMO`). Prints the container URL when done; update with
+`docker compose pull && docker compose up -d` inside the container.
+
 ## Known simplifications
 
 Marked with `ponytail:` comments in the code: HeizkostenV consumption allocation

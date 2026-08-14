@@ -1,0 +1,31 @@
+manifestVersion: 1
+id: havewa
+category: automation
+name: HaVeWa
+version: "0.2.0"
+tagline: Hausverwaltung für Miete & WEG
+description: >-
+  Vollständige Immobilienverwaltung für Miet- und WEG-Verwaltung: Objekte,
+  Einheiten, Verträge, Betriebskosten- und WEG-Abrechnung, Mahnwesen, Dokumente,
+  Instandhaltung, Portale — mehrsprachig (DE/EN), mit REST-API und MCP-Server,
+  damit ein KI-Agent den Bestand lesen und verwalten kann.
+
+
+  Beim ersten Start wird ein Demo-Datensatz eingespielt (Login
+  admin@havewa.app / admin). Zum Produktivbetrieb SEED_DEMO in der
+  docker-compose.yml entfernen und die Ersteinrichtung über den Wizard machen.
+developer: Florian Gilde
+website: https://github.com/fgilde/hausverwaltung
+dependencies: []
+repo: https://github.com/fgilde/hausverwaltung
+support: https://github.com/fgilde/hausverwaltung/issues
+port: 3010
+gallery:
+  - 1.jpg
+  - 2.jpg
+  - 3.jpg
+path: ""
+defaultUsername: "admin@havewa.app"
+defaultPassword: "admin"
+submitter: Florian Gilde
+submission: https://github.com/fgilde/hausverwaltung
