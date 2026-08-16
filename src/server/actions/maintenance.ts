@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { notifyUsers } from "@/lib/notify";
 import {
   contractorSchema,
   ticketCreateSchema,
@@ -67,6 +68,10 @@ export async function updateTicket(_p: ActionState, fd: FormData): Promise<Actio
   const id = String(fd.get("id") ?? "");
   const r = ticketUpdateSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
+  const before = await prisma.ticket.findFirst({
+    where: { id, tenantId: user.tenantId },
+    select: { status: true, reporterId: true },
+  });
   await prisma.ticket.updateMany({
     where: { id, tenantId: user.tenantId },
     data: {
@@ -83,6 +88,14 @@ export async function updateTicket(_p: ActionState, fd: FormData): Promise<Actio
       reminderDate: r.data.reminderDate,
     },
   });
+  // Melder (Portal-Mieter) über Statuswechsel informieren.
+  if (before?.reporterId && before.status !== r.data.status) {
+    await notifyUsers(user.tenantId, [before.reporterId], {
+      title: `Schadensmeldung aktualisiert: ${r.data.title}`,
+      body: `Status: ${r.data.status}`,
+      link: "/portal",
+    });
+  }
   await audit(user, "UPDATE", "Ticket", id, r.data.title);
   return done();
 }

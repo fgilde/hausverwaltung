@@ -53,6 +53,11 @@ export default async function PortalPage() {
       : Promise.resolve([]),
   ]);
 
+  const myTickets = await prisma.ticket.findMany({
+    where: { tenantId: user.tenantId, reporterId: user.id },
+    orderBy: { createdAt: "desc" },
+  });
+
   const now = new Date();
   const openItems = renters.flatMap((r) =>
     r.lease.charges
@@ -104,6 +109,28 @@ export default async function PortalPage() {
                 <div className="text-muted-foreground">
                   {t("leases.warmRent")}: {money(warm(r.lease), locale)} · {t("leases.start")}: {date(r.lease.startDate, locale)}
                 </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Mieter: eigene Schadensmeldungen + Status */}
+      {myTickets.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("portal.myTickets")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {myTickets.map((tk) => (
+              <div key={tk.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
+                <div>
+                  <div className="font-medium">{tk.title}</div>
+                  <div className="text-xs text-muted-foreground">{date(tk.createdAt, locale)}</div>
+                </div>
+                <Badge variant={tk.status === "ERLEDIGT" ? "secondary" : "outline"}>
+                  {t(`ticketStatus.${tk.status}`)}
+                </Badge>
               </div>
             ))}
           </CardContent>

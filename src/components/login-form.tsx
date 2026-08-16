@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ export function LoginForm({
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +51,25 @@ export function LoginForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">{t("password")}</Label>
-          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPw ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw((s) => !s)}
+              className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
+              aria-label={showPw ? t("hidePassword") : t("showPassword")}
+              title={showPw ? t("hidePassword") : t("showPassword")}
+            >
+              {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
         </div>
         {error && <p className="text-sm text-destructive">{t("error")}</p>}
         <Button type="submit" className="w-full" disabled={loading}>

@@ -36,6 +36,7 @@ export async function reportIssue(_p: ActionState, fd: FormData): Promise<Action
       category: "STOERUNG",
       status: "OFFEN",
       priority: "MITTEL",
+      reporterId: user.id,
       unitId: renter?.lease.unitId ?? null,
       propertyId: renter?.lease.unit.building.propertyId ?? null,
     },

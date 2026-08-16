@@ -142,6 +142,7 @@ model User {
   personId     String?
   person       Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
   assignedTickets Ticket[] @relation("TicketAssignee")
+  reportedTickets Ticket[] @relation("TicketReporter")
   apiTokens    ApiToken[]
   notifications Notification[]
   createdAt    DateTime @default(now())
@@ -620,6 +621,8 @@ model Ticket {
   contractor   Contractor?    @relation(fields: [contractorId], references: [id], onDelete: SetNull)
   assigneeId   String?
   assignee     User?          @relation("TicketAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reporterId   String? // Portal-Melder (Mieter), für Status-Benachrichtigung
+  reporter     User?          @relation("TicketReporter", fields: [reporterId], references: [id], onDelete: SetNull)
   title        String
   description  String?
   category     TicketCategory @default(SONSTIGES)
