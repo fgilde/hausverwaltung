@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/rbac";
+import { notifyManagers } from "@/lib/notify";
 import type { ActionState } from "@/lib/schemas";
 
 const issueSchema = z.object({
@@ -32,12 +33,22 @@ export async function reportIssue(_p: ActionState, fd: FormData): Promise<Action
       tenantId: user.tenantId,
       title: r.data.title,
       description: r.data.description,
+      category: "STOERUNG",
       status: "OFFEN",
       priority: "MITTEL",
       unitId: renter?.lease.unitId ?? null,
       propertyId: renter?.lease.unit.building.propertyId ?? null,
     },
   });
-  revalidatePath("/portal");
+
+  // Verwalter benachrichtigen — sonst bleibt die Meldung unbemerkt.
+  const where = renter ? `${renter.lease.unit.building.name} · ${renter.lease.unit.label}` : "";
+  await notifyManagers(user.tenantId, {
+    title: `Neue Schadensmeldung: ${r.data.title}`,
+    body: [where, user.name].filter(Boolean).join(" — "),
+    link: "/tickets",
+  });
+
+  revalidatePath("/", "layout");
   return { ok: true };
 }

@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { readableForeground } from "@/lib/color";
+import { NotificationBell } from "@/components/notification-bell";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -23,11 +25,22 @@ export default async function AdminLayout({
   // Portal-Rollen haben keinen Zugriff auf die Verwalter-App.
   if (["MIETER", "EIGENTUEMER", "HANDWERKER"].includes(user.role)) redirect("/portal");
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: user.tenantId },
-    select: { brandColor: true, logoKey: true },
-  });
+  const locale = await getLocale();
+  const [tenant, notifs, unread] = await Promise.all([
+    prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { brandColor: true, logoKey: true } }),
+    prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
+    prisma.notification.count({ where: { userId: user.id, read: false } }),
+  ]);
   const logoUrl = tenant?.logoKey ? "/api/logo" : undefined;
+  const dtf = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" });
+  const notifItems = notifs.map((n) => ({
+    id: n.id,
+    title: n.title,
+    body: n.body,
+    link: n.link,
+    read: n.read,
+    createdAt: dtf.format(n.createdAt),
+  }));
 
   return (
     <SidebarProvider>
@@ -43,6 +56,7 @@ export default async function AdminLayout({
           <Separator orientation="vertical" className="h-6" />
           <SearchBox />
           <div className="ml-auto flex items-center gap-1">
+            <NotificationBell items={notifItems} unread={unread} />
             <LanguageSwitcher />
             <ThemeToggle />
             <UserMenu name={user.name} email={user.email} role={user.role} />

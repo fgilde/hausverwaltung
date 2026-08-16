@@ -510,6 +510,11 @@
     "interested": "Prospective tenants",
     "noInterested": "No prospects in the address book (contact group Prospect)."
   },
+  "notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all read",
+    "empty": "No notifications."
+  },
   "areaModel": {
     "title": "Area model (commercial)",
     "enable": "Area model",

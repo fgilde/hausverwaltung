@@ -510,6 +510,11 @@
     "interested": "Mietinteressenten",
     "noInterested": "Keine Interessenten im Adressbuch (Kontaktgruppe Interessent)."
   },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAll": "Alle gelesen",
+    "empty": "Keine Benachrichtigungen."
+  },
   "areaModel": {
     "title": "Flächenmodell (Gewerbe)",
     "enable": "Flächenmodell",

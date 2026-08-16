@@ -143,8 +143,25 @@ model User {
   person       Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
   assignedTickets Ticket[] @relation("TicketAssignee")
   apiTokens    ApiToken[]
+  notifications Notification[]
   createdAt    DateTime @default(now())
 
+  @@index([tenantId])
+}
+
+// In-App-Benachrichtigung für einen Benutzer (z. B. Schadensmeldung eingegangen).
+model Notification {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String?
+  link      String? // Ziel-Pfad ohne Locale, z. B. "/tickets"
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
   @@index([tenantId])
 }
 

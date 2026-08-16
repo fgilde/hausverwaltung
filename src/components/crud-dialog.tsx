@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -49,13 +49,18 @@ export function CrudDialog({
   };
   const [state, formAction, pending] = useActionState<ActionState, FormData>(safeAction, {});
 
+  // Erfolg genau EINMAL je Absenden behandeln. Ohne den Ref-Guard feuerte der
+  // Effekt bei jedem Re-Render (durch router.refresh) erneut → Toast-Endlosschleife.
+  const handledState = useRef<ActionState | null>(null);
   useEffect(() => {
-    if (state.ok) {
+    if (state.ok && handledState.current !== state) {
+      handledState.current = state;
       setOpen(false);
       toast.success(t("saved"));
       router.refresh(); // abhängige Übersichten sofort aktualisieren
     }
-  }, [state, t, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
