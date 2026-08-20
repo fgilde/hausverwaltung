@@ -1,0 +1,44 @@
+name: GitHub Pages (Marketing + Docs)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - public/marketing/**
+      - web-docs/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble site (marketing = root, docs = /docs)
+        run: |
+          mkdir -p _site/docs
+          cp -r public/marketing/. _site/
+          cp -r web-docs/. _site/docs/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

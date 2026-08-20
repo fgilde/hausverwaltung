@@ -2,6 +2,8 @@
 
 _🇬🇧 English · 🇩🇪 [Deutsch](README.de.md)_
 
+📖 **[Documentation & help](https://fgilde.github.io/hausverwaltung/docs/)** · 🌐 **[Website](https://fgilde.github.io/hausverwaltung/)**
+
 Complete property-management software for **rental and HOA (WEG) administration**.
 Multi-tenant, role-based, bilingual (DE/EN).
 

@@ -2,6 +2,8 @@
 
 _🇬🇧 [English](README.md) · 🇩🇪 Deutsch_
 
+📖 **[Dokumentation & Hilfe](https://fgilde.github.io/hausverwaltung/docs/)** · 🌐 **[Website](https://fgilde.github.io/hausverwaltung/)**
+
 Vollständige Immobilienverwaltungssoftware für **Miet- und WEG-Verwaltung**.
 Mandantenfähig, rollenbasiert, zweisprachig (DE/EN).
 

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HaVeWa — Dokumentation & Hilfe</title>
+<meta name="description" content="Ausführliche Dokumentation und Hilfe für HaVeWa — die Hausverwaltung für Miete und WEG. DE/EN.">
+<link rel="icon" href="../icon.png">
+<style>
+  :root{
+    --bg:#faf8f4; --panel:#fff; --ink:#1c2621; --muted:#5d6b62; --line:#e6e1d8;
+    --pine:#1f6f52; --pine-ink:#134532; --accent:#e0781e; --code:#f2efe9;
+    --sidebar:300px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f1512; --panel:#151d19; --ink:#e8eee9; --muted:#9fb0a6; --line:#243029;
+           --pine:#4bbd8f; --pine-ink:#bfe9d6; --code:#1a2420; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font:16px/1.65 "Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);color:var(--ink)}
+  a{color:var(--pine);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{background:var(--code);border-radius:6px;padding:.12em .4em;font-size:.9em;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+    overflow:auto;font-size:.88em;line-height:1.5}
+  pre code{background:none;padding:0}
+  .layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100svh}
+  /* Sidebar */
+  aside{position:sticky;top:0;height:100svh;overflow:auto;border-right:1px solid var(--line);
+    background:var(--panel);padding:20px 16px}
+  .brand{display:flex;align-items:center;gap:10px;margin:4px 8px 18px;font-weight:700}
+  .brand img{width:34px;height:34px;border-radius:8px;object-fit:contain}
+  .navgroup{margin:16px 8px 6px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  nav a{display:block;padding:6px 10px;border-radius:8px;color:var(--ink);font-size:.94rem}
+  nav a:hover{background:var(--code);text-decoration:none}
+  nav a.active{background:color-mix(in oklab,var(--pine) 16%,transparent);color:var(--pine-ink);font-weight:600}
+  /* Main */
+  main{padding:0}
+  .topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;
+    padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in oklab,var(--bg) 85%,transparent);
+    backdrop-filter:blur(8px)}
+  .topbar .spacer{flex:1}
+  .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;
+    padding:6px 14px;font:inherit;font-size:.85rem;cursor:pointer}
+  .btn:hover{border-color:var(--pine)}
+  .btn.primary{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .content{max-width:860px;margin:0 auto;padding:8px 28px 120px}
+  section{padding-top:28px;margin-top:8px;border-top:1px solid transparent}
+  section:first-of-type{border:0}
+  h1{font-size:2rem;line-height:1.2;margin:.4em 0 .2em}
+  h2{font-size:1.5rem;margin:1.6em 0 .4em;scroll-margin-top:70px}
+  h3{font-size:1.1rem;margin:1.3em 0 .3em}
+  .lead{font-size:1.12rem;color:var(--muted)}
+  ul,ol{padding-left:1.3em}
+  li{margin:.25em 0}
+  table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--code)}
+  .tip{border-left:3px solid var(--pine);background:color-mix(in oklab,var(--pine) 8%,transparent);
+    padding:10px 14px;border-radius:0 10px 10px 0;margin:1em 0}
+  .warn{border-left:3px solid var(--accent);background:color-mix(in oklab,var(--accent) 10%,transparent);
+    padding:10px 14px;border-radius:0 10px 10px 0;margin:1em 0}
+  .pill{display:inline-block;background:var(--code);border:1px solid var(--line);border-radius:999px;
+    padding:1px 9px;font-size:.78rem;color:var(--muted)}
+  footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;padding:22px 28px}
+  /* Sprachumschaltung */
+  [data-lang="de"] .en{display:none}
+  [data-lang="en"] .de{display:none}
+  /* Mobile */
+  .menu-btn{display:none}
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    aside{position:fixed;inset:0 auto 0 0;width:280px;transform:translateX(-100%);
+      transition:transform .2s;z-index:20;box-shadow:0 0 40px rgba(0,0,0,.2)}
+    body.nav-open aside{transform:none}
+    .menu-btn{display:inline-flex}
+  }
+</style>
+</head>
+<body data-lang="de">
+<div class="layout">
+  <aside id="sidebar">
+    <a class="brand" href="https://fgilde.github.io/hausverwaltung/"><img src="../icon.png" alt="">HaVeWa</a>
+    <nav id="nav"></nav>
+    <div class="navgroup" style="margin-top:22px">Links</div>
+    <nav>
+      <a href="https://fgilde.github.io/hausverwaltung/"><span class="de">← Zur Startseite</span><span class="en">← Home</span></a>
+      <a href="https://github.com/fgilde/hausverwaltung" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <button class="btn menu-btn" id="menuBtn" aria-label="Menü">☰</button>
+      <strong>HaVeWa</strong> <span class="pill de">Dokumentation</span><span class="pill en">Documentation</span>
+      <span class="spacer"></span>
+      <button class="btn" id="langBtn"></button>
+    </div>
+    <div class="content" id="content"></div>
+    <footer>
+      <span class="de">HaVeWa — Hausverwaltung für Miete & WEG · Doku für v0.3 · </span>
+      <span class="en">HaVeWa — property management for rentals & HOA · docs for v0.3 · </span>
+      <a href="https://gilde.org" target="_blank" rel="noreferrer">by gilde.org</a>
+    </footer>
+  </main>
+</div>
+
+<script type="application/json" id="toc">
+[
+  {"g_de":"Einstieg","g_en":"Getting started","items":[
+    ["overview","Überblick","Overview"],
+    ["start","Erste Schritte","Getting started"],
+    ["concepts","Grundbegriffe","Core concepts"]
+  ]},
+  {"g_de":"Verwaltung","g_en":"Management","items":[
+    ["properties","Objekte & Einheiten","Properties & units"],
+    ["people","Personen & Adressbuch","People & address book"],
+    ["leases","Mietverträge","Leases"],
+    ["area","Flächenmodell (Gewerbe)","Area model (commercial)"]
+  ]},
+  {"g_de":"Finanzen","g_en":"Finance","items":[
+    ["finance","Konten, Sollstellung, Zahlungen","Accounts, charges, payments"],
+    ["dunning","Mahnwesen","Dunning"],
+    ["statements","Betriebskostenabrechnung","Service-charge statements"],
+    ["weg","WEG-Verwaltung","HOA management"]
+  ]},
+  {"g_de":"Betrieb","g_en":"Operations","items":[
+    ["meetings","Versammlungen & Beschlüsse","Meetings & resolutions"],
+    ["documents","Dokumente","Documents"],
+    ["tickets","Instandhaltung","Maintenance"],
+    ["leasing","Vermarktung","Leasing"],
+    ["portals","Portale","Portals"],
+    ["notifications","Benachrichtigungen","Notifications"]
+  ]},
+  {"g_de":"Integrationen & Betrieb","g_en":"Integrations & hosting","items":[
+    ["ai","KI-Assistent","AI assistant"],
+    ["api","API & MCP","API & MCP"],
+    ["io","Import & Export","Import & export"],
+    ["deploy","Installation & Hosting","Install & hosting"],
+    ["faq","FAQ","FAQ"]
+  ]}
+]
+</script>
+<script src="content.js"></script>
+<script>
+(function(){
+  const toc = JSON.parse(document.getElementById('toc').textContent);
+  const nav = document.getElementById('nav');
+  const content = document.getElementById('content');
+  const body = document.body;
+
+  // Navigation aufbauen
+  toc.forEach(group=>{
+    const gl=document.createElement('div'); gl.className='navgroup';
+    gl.innerHTML='<span class="de">'+group.g_de+'</span><span class="en">'+group.g_en+'</span>';
+    nav.appendChild(gl);
+    group.items.forEach(([id,de,en])=>{
+      const a=document.createElement('a'); a.href='#'+id; a.dataset.sec=id;
+      a.innerHTML='<span class="de">'+de+'</span><span class="en">'+en+'</span>';
+      nav.appendChild(a);
+    });
+  });
+
+  // Inhalt einsetzen (aus content.js: window.DOCS[id] = {de, en})
+  toc.flatMap(g=>g.items).forEach(([id])=>{
+    const d=window.DOCS[id]||{de:'',en:''};
+    const s=document.createElement('section'); s.id=id;
+    s.innerHTML='<div class="de">'+d.de+'</div><div class="en">'+d.en+'</div>';
+    content.appendChild(s);
+  });
+
+  // Sprache
+  const savedLang = (()=>{try{return localStorage.getItem('havewa-docs-lang')}catch(e){return null}})();
+  function setLang(l){
+    body.dataset.lang=l; document.documentElement.lang=l;
+    document.getElementById('langBtn').textContent = l==='de'?'EN':'DE';
+    try{localStorage.setItem('havewa-docs-lang',l)}catch(e){}
+  }
+  setLang(savedLang==='en'?'en':'de');
+  document.getElementById('langBtn').onclick=()=>setLang(body.dataset.lang==='de'?'en':'de');
+
+  // Mobile-Menü
+  document.getElementById('menuBtn').onclick=()=>body.classList.toggle('nav-open');
+  nav.addEventListener('click',e=>{ if(e.target.closest('a')) body.classList.remove('nav-open'); });
+
+  // Aktiver Nav-Eintrag beim Scrollen
+  const links=[...nav.querySelectorAll('a[data-sec]')];
+  const byId=Object.fromEntries(links.map(a=>[a.dataset.sec,a]));
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{ if(en.isIntersecting){ links.forEach(a=>a.classList.remove('active'));
+      byId[en.target.id]?.classList.add('active'); }});
+  },{rootMargin:'-40% 0px -55% 0px'});
+  content.querySelectorAll('section').forEach(s=>obs.observe(s));
+})();
+</script>
+</body>
+</html>
