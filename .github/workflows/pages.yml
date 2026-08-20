@@ -29,6 +29,8 @@ jobs:
           cp -r public/marketing/. _site/
           cp -r web-docs/. _site/docs/
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
