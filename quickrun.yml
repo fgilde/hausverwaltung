@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://fgilde.github.io/QuickRun/quickrun.schema.json
+name: HaVeWa
+description: "The property management app. Postgres in Docker, then the Next.js dev server."
+
+requires:
+  - tool: node
+    version: ">=20.0"
+    install: https://nodejs.org
+  - tool: docker
+    install: https://docs.docker.com/get-docker/
+
+setup:
+  - run: npm ci
+
+tasks:
+  - name: db
+    run: docker compose up -d db
+    readyWhen: {port: 5432}
+  - name: web
+    run: npm run dev
+    dependsOn: [db]
+    readyWhen: {http: "http://localhost:3000"}
+    open: true
+
+stop:
+  - docker compose down
