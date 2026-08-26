@@ -10,7 +10,8 @@ requires:
     install: https://docs.docker.com/get-docker/
 
 env:
-  # The credentials docker-compose.yml creates, which is also what .env.example assumes.
+  # The credentials docker-compose.yml creates, which is what .env.example assumes as well.
+  # Everything reads process.env, so no .env file is needed.
   DATABASE_URL: "postgresql://havewa:havewa@localhost:5432/havewa?schema=public"
   AUTH_SECRET: "quickrun-local-dev-secret"
   AUTH_TRUST_HOST: "true"
@@ -22,26 +23,18 @@ env:
 setup:
   - run: npm ci
 
-  # The README's second step. Everything reads process.env, which QuickRun sets above, but a
-  # repository that documents a .env should have one once setup has run.
-  - run: >
-      node -e "require('fs').writeFileSync('.env',
-      'DATABASE_URL=\"' + process.env.DATABASE_URL + '\"\n' +
-      'AUTH_SECRET=\"' + process.env.AUTH_SECRET + '\"\n' +
-      'AUTH_TRUST_HOST=true\nSEED_DEMO=true\n')"
-
 tasks:
   - name: db
-    # Waiting for Postgres, not for the socket: Docker accepts connections on the published port
-    # before a fresh volume has finished initialising, and the migration would run too early.
+    # Waiting for Postgres, not for the socket: Docker answers on the published port before a fresh
+    # volume has finished initialising, and the migration would run too early.
     run: docker compose up -d db && docker compose exec -T db sh -c "until pg_isready -U havewa -d havewa; do sleep 1; done"
     readyWhen: {port: 5432}
 
   - name: web
-    # The same sequence the Dockerfile runs (migrate, bootstrap, start), with the dev server at the
-    # end. bootstrap.ts is the step that was missing: it is only invoked from the Dockerfile, never
-    # by `npm run dev`, and it is what turns a migrated but empty database into a usable one. It is
-    # idempotent and does nothing once users exist.
+    # The same sequence the Dockerfile runs - migrate, bootstrap, start - with the dev server at
+    # the end. bootstrap.ts is the step that was missing: it is invoked from the Dockerfile and
+    # nowhere else, never by `npm run dev`, and it is what turns a migrated but empty database into
+    # a usable one. It is idempotent and does nothing once users exist.
     run: npx prisma generate && npx prisma migrate deploy && npx tsx prisma/bootstrap.ts && npm run dev
     dependsOn: [db]
     readyWhen: {http: "http://localhost:3000"}
