@@ -9,6 +9,12 @@ requires:
   - tool: docker
     install: https://docs.docker.com/get-docker/
 
+env:
+  # entspricht .env.example, passend zu den Zugangsdaten in docker-compose.yml
+  DATABASE_URL: "postgresql://havewa:havewa@localhost:5432/havewa?schema=public"
+  AUTH_SECRET: "quickrun-local-dev-secret-change-me"
+  AUTH_TRUST_HOST: "true"
+
 setup:
   - run: npm ci
 
@@ -17,7 +23,7 @@ tasks:
     run: docker compose up -d db
     readyWhen: {port: 5432}
   - name: web
-    run: npm run dev
+    run: npx prisma generate && npx prisma migrate deploy && npm run dev
     dependsOn: [db]
     readyWhen: {http: "http://localhost:3000"}
     open: true
