@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://fgilde.github.io/QuickRun/quickrun.schema.json
 name: HaVeWa
-description: "The property management app. Postgres in Docker, then the Next.js dev server."
+description: "Property management for rentals and HOAs. Postgres in Docker, the schema, the demo landlord, then the Next.js dev server."
 
 requires:
   - tool: node
@@ -10,20 +10,39 @@ requires:
     install: https://docs.docker.com/get-docker/
 
 env:
-  # entspricht .env.example, passend zu den Zugangsdaten in docker-compose.yml
+  # The credentials docker-compose.yml creates, which is also what .env.example assumes.
   DATABASE_URL: "postgresql://havewa:havewa@localhost:5432/havewa?schema=public"
-  AUTH_SECRET: "quickrun-local-dev-secret-change-me"
+  AUTH_SECRET: "quickrun-local-dev-secret"
   AUTH_TRUST_HOST: "true"
+  # Read by prisma/bootstrap.ts below: it fills an empty system with the demo landlord and its
+  # three logins (admin@havewa.app / admin, and the tenant and owner portals). Without it the
+  # database comes up empty and the first visit is the setup wizard rather than the application.
+  SEED_DEMO: "true"
 
 setup:
   - run: npm ci
 
+  # The README's second step. Everything reads process.env, which QuickRun sets above, but a
+  # repository that documents a .env should have one once setup has run.
+  - run: >
+      node -e "require('fs').writeFileSync('.env',
+      'DATABASE_URL=\"' + process.env.DATABASE_URL + '\"\n' +
+      'AUTH_SECRET=\"' + process.env.AUTH_SECRET + '\"\n' +
+      'AUTH_TRUST_HOST=true\nSEED_DEMO=true\n')"
+
 tasks:
   - name: db
-    run: docker compose up -d db
+    # Waiting for Postgres, not for the socket: Docker accepts connections on the published port
+    # before a fresh volume has finished initialising, and the migration would run too early.
+    run: docker compose up -d db && docker compose exec -T db sh -c "until pg_isready -U havewa -d havewa; do sleep 1; done"
     readyWhen: {port: 5432}
+
   - name: web
-    run: npx prisma generate && npx prisma migrate deploy && npm run dev
+    # The same sequence the Dockerfile runs (migrate, bootstrap, start), with the dev server at the
+    # end. bootstrap.ts is the step that was missing: it is only invoked from the Dockerfile, never
+    # by `npm run dev`, and it is what turns a migrated but empty database into a usable one. It is
+    # idempotent and does nothing once users exist.
+    run: npx prisma generate && npx prisma migrate deploy && npx tsx prisma/bootstrap.ts && npm run dev
     dependsOn: [db]
     readyWhen: {http: "http://localhost:3000"}
     open: true
