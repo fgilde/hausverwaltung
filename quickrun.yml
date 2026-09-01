@@ -1,10 +1,14 @@
-# yaml-language-server: $schema=https://fgilde.github.io/QuickRun/quickrun.schema.json
+# yaml-language-server: $schema=https://quickrun.org/quickrun.schema.json
+version: 1
 name: HaVeWa
 description: "Property management for rentals and HOAs. Postgres in Docker, the schema, the demo landlord, then the Next.js dev server."
+docs: https://fgilde.github.io/hausverwaltung/docs/
 
 requires:
+  # Next 16 declares engines.node >=20.9.0, and below that it fails inside the bundler
+  # rather than with a version message.
   - tool: node
-    version: ">=20.0"
+    version: ">=20.9"
     install: https://nodejs.org
   - tool: docker
     install: https://docs.docker.com/get-docker/
@@ -32,10 +36,16 @@ tasks:
 
   - name: web
     # The same sequence the Dockerfile runs - migrate, bootstrap, start - with the dev server at
-    # the end. bootstrap.ts is the step that was missing: it is invoked from the Dockerfile and
-    # nowhere else, never by `npm run dev`, and it is what turns a migrated but empty database into
-    # a usable one. It is idempotent and does nothing once users exist.
-    run: npx prisma generate && npx prisma migrate deploy && npx tsx prisma/bootstrap.ts && npm run dev
+    # the end. bootstrap.ts is invoked from the Dockerfile and nowhere else, never by `npm run dev`,
+    # and it is what turns a migrated but empty database into a usable one. It is idempotent and
+    # does nothing once users exist.
+    #
+    # --port 3000 is not decoration. Without it Next picks the next free port when 3000 is taken -
+    # by, typically, a next-server left behind by an earlier run - and then two Turbopack dev
+    # servers share this project directory, which ends in "Another next dev server is already
+    # running". Meanwhile readyWhen below was answered by the stale server, so the run looked
+    # healthy while Turbopack was erroring. Pinned, the port either binds or fails with EADDRINUSE.
+    run: npx prisma generate && npx prisma migrate deploy && npx tsx prisma/bootstrap.ts && npm run dev -- --port 3000
     dependsOn: [db]
     readyWhen: {http: "http://localhost:3000"}
     open: true
