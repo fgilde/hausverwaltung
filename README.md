@@ -2,6 +2,8 @@
 
 _🇬🇧 English · 🇩🇪 [Deutsch](README.de.md)_
 
+[![QuickRun](https://quickrun.org/badge.svg)](https://quickrun.org/run?repo=fgilde/hausverwaltung)
+
 📖 **[Documentation & help](https://fgilde.github.io/hausverwaltung/docs/)** · 🌐 **[Website](https://fgilde.github.io/hausverwaltung/)**
 
 Complete property-management software for **rental and HOA (WEG) administration**.
