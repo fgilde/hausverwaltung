@@ -24,7 +24,32 @@ env:
   # database comes up empty and the first visit is the setup wizard rather than the application.
   SEED_DEMO: "true"
 
+inputs:
+  # bootstrap.ts fills an empty database and does nothing once users exist. That is right until a
+  # run leaves a half-finished database behind - a user, no tenant - because `docker compose down`
+  # keeps the volume. The application then starts and every admin page fails on
+  # `prisma.tenant.findUnique()` with an undefined id, and restarting cannot help: bootstrap sees
+  # the user and skips. This is the way out. The value is the flag that does it, so the run needs
+  # no shell branching on any platform.
+  - id: database
+    label: Database
+    type: select
+    default: --remove-orphans
+    description: >-
+      Start over deletes this project's havewa-db volume and sets up the schema, the landlord and
+      the demo logins again. Needed when the application comes up complaining about a missing
+      tenant - and it deletes the data of every earlier run.
+    options:
+      - value: --remove-orphans
+        label: Keep the existing data
+      - value: -v --remove-orphans
+        label: Start over - deletes this project's local database
+
 setup:
+  # Whatever an earlier run left running, and the reset if it was asked for. continueOnError,
+  # because there is nothing to bring down the first time.
+  - run: docker compose down ${inputs.database}
+    continueOnError: true
   - run: npm ci
 
 tasks:
