@@ -187,16 +187,25 @@ beides kommt also nicht aus einer öffentlichen Datei.
 
 ### Proxmox VE
 
-Auf dem **PVE-Host** als root ausführen — legt einen Debian-12-LXC an, installiert
-Docker und startet HaVeWa + Postgres:
+Auf dem **PVE-Host** als root ausführen — legt einen unprivilegierten Debian-LXC mit
+PostgreSQL und Node an, baut HaVeWa aus dem neuesten Tag und hinterlässt einen
+systemd-Dienst:
 
 ```bash
-bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/havewa.sh)"
 ```
 
-Anpassbar per Env (`CTID`, `RAM_MB`, `CORES`, `DISK_GB`, `BRIDGE`, `STORAGE`, `PORT`,
-`SEED_DEMO`). Gibt am Ende die Container-URL aus; Update im Container mit
-`docker compose pull && docker compose up -d`.
+Anpassbar per Env (`CTID`, `RAM_MB`, `CORES`, `DISK_GB`, `BRIDGE`, `STORAGE`, `PORT`).
+Gibt am Ende die Container-URL aus; Update, indem man das Skript im Container erneut
+laufen lässt: `pct exec <ctid> -- bash -c "$(wget -qO- .../deploy/proxmox/install.sh)"`.
+
+**Bewusst ohne Docker.** In einem unprivilegierten Container startet auf aktuellem
+Proxmox überhaupt kein Docker-Container — runc schreibt
+`net.ipv4.ip_unprivileged_port_start`, und `/proc/sys` ist dort read-only —, und ein
+privilegierter Container erkauft das mit root auf dem Host.
+[`install.sh`](deploy/proxmox/install.sh) ist die Hälfte, die drinnen läuft, und
+funktioniert auf jeder Debian-Maschine; Datenbank, Passwort und hochgeladene Dokumente
+überleben ein Update.
 
 ## Bekannte Vereinfachungen
 

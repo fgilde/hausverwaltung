@@ -218,16 +218,23 @@ out of a public file.
 
 ### Proxmox VE
 
-Run on the **PVE host** as root — creates a Debian 12 LXC, installs Docker and
-starts HaVeWa + Postgres:
+Run on the **PVE host** as root — creates an unprivileged Debian LXC with PostgreSQL
+and Node, builds HaVeWa from its newest tag and leaves a systemd service behind:
 
 ```bash
-bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/havewa.sh)"
 ```
 
-Tunable via env (`CTID`, `RAM_MB`, `CORES`, `DISK_GB`, `BRIDGE`, `STORAGE`, `PORT`,
-`SEED_DEMO`). Prints the container URL when done; update with
-`docker compose pull && docker compose up -d` inside the container.
+Tunable via env (`CTID`, `RAM_MB`, `CORES`, `DISK_GB`, `BRIDGE`, `STORAGE`, `PORT`).
+Prints the container URL when done; update by running the script again inside the
+container: `pct exec <ctid> -- bash -c "$(wget -qO- .../deploy/proxmox/install.sh)"`.
+
+**No Docker in there, deliberately.** On a current Proxmox an unprivileged container
+runs no Docker container at all — runc writes `net.ipv4.ip_unprivileged_port_start`
+and `/proc/sys` is read-only — and a privileged container buys that back by handing
+the container root on the host. [`install.sh`](deploy/proxmox/install.sh) is the half
+that runs inside and works on any Debian machine; it keeps the database, the password
+and the uploaded documents across updates.
 
 ## Known simplifications
 
