@@ -1,8 +1,8 @@
 manifestVersion: 1
-id: havewa
+id: fgilde-havewa
 category: automation
 name: HaVeWa
-version: "0.2.0"
+version: "0.3.0"
 tagline: Hausverwaltung für Miete & WEG
 description: >-
   Vollständige Immobilienverwaltung für Miet- und WEG-Verwaltung: Objekte,
@@ -19,13 +19,14 @@ website: https://github.com/fgilde/hausverwaltung
 dependencies: []
 repo: https://github.com/fgilde/hausverwaltung
 support: https://github.com/fgilde/hausverwaltung/issues
-port: 3010
+icon: https://raw.githubusercontent.com/fgilde/hausverwaltung/main/icon.png
+port: 3210
 gallery:
-  - 1.jpg
-  - 2.jpg
-  - 3.jpg
+  - 1.png
+  - 2.png
+  - 3.png
 path: ""
 defaultUsername: "admin@havewa.app"
 defaultPassword: "admin"
 submitter: Florian Gilde
-submission: https://github.com/fgilde/hausverwaltung
+submission: ""

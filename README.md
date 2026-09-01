@@ -179,13 +179,16 @@ If none are set, the setup wizard appears on first login (unchanged).
 
 ## Home-server installs (Unraid · Umbrel · Proxmox)
 
-Ready-made deployment artifacts live in [`deploy/`](deploy/). All use the prebuilt
+The packages live where each store looks for them: [`templates/havewa.xml`](templates/havewa.xml)
+and `ca_profile.xml` for Unraid, [`fgilde-havewa/`](fgilde-havewa/) beside `umbrel-app-store.yml`
+for Umbrel, [`store/casaos/`](store/casaos/) and [`store/cosmos/`](store/cosmos/) for CasaOS and
+Cosmos, and [`deploy/proxmox/`](deploy/proxmox/) for Proxmox VE. All use the prebuilt
 `ghcr.io/fgilde/hausverwaltung:latest` image.
 
 ### Unraid
 
 1. **Docker → Add Container → Template**, load
-   `https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/unraid/havewa.xml`
+   `https://raw.githubusercontent.com/fgilde/hausverwaltung/main/templates/havewa.xml`
    (or copy the file to `/boot/config/plugins/dockerMan/templates-user/`).
 2. Install **PostgreSQL 16** from Community Applications (`POSTGRES_USER=havewa`,
    `POSTGRES_DB=havewa`, a password).
@@ -195,11 +198,23 @@ Ready-made deployment artifacts live in [`deploy/`](deploy/). All use the prebui
 
 ### Umbrel
 
-Add HaVeWa via a community app store (the app files are in
-[`deploy/umbrel/`](deploy/umbrel/)): in Umbrel add the store
-`https://github.com/fgilde/hausverwaltung` (folder `deploy/umbrel`), then install
-HaVeWa. Postgres, secrets and storage are wired automatically; demo data is seeded
+In Umbrel, *App Store → ⋯ → Community app stores*, add
+`https://github.com/fgilde/hausverwaltung` and install HaVeWa. The repository root is the store:
+`umbrel-app-store.yml` names it, [`fgilde-havewa/`](fgilde-havewa/) is the app. Postgres, secrets and storage are wired automatically; demo data is seeded
 on first start (turn off by removing `SEED_DEMO` in the compose).
+
+### CasaOS
+
+*App Store → Add source* with
+`https://github.com/fgilde/hausverwaltung/releases/download/store/casaos-appstore.zip`. The archive
+is rebuilt from [`store/casaos/`](store/casaos/) on every push. It brings its own Postgres; replace
+`AUTH_SECRET` in the install dialog, because the one in the package is public.
+
+### Cosmos
+
+[`store/cosmos/servapps/HaVeWa/`](store/cosmos/servapps/HaVeWa/) is a ServApp with its own Postgres.
+Its installer form asks for the session secret and generates the database password, so neither comes
+out of a public file.
 
 ### Proxmox VE
 

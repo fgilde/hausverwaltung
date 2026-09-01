@@ -6,7 +6,7 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      APP_HOST: havewa_server_1
+      APP_HOST: fgilde-havewa_server_1
       APP_PORT: 3000
 
   server:
@@ -16,7 +16,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: "postgresql://havewa:${APP_SEED}@havewa_db_1:5432/havewa?schema=public"
+      DATABASE_URL: "postgresql://havewa:${APP_SEED}@fgilde-havewa_db_1:5432/havewa?schema=public"
       AUTH_SECRET: "${APP_SEED}"
       AUTH_TRUST_HOST: "true"
       # Demo-Datensatz beim ersten Start. Für Produktivbetrieb Zeile entfernen.

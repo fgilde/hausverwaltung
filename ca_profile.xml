@@ -1,0 +1,19 @@
+<CommunityApplications>
+  <Profile>
+    **HaVeWa** - property management for rental and HOA (WEG) administration.
+
+    Properties, units, people and meters; leases with stepped and index rent and deposits; charges,
+    payments, open items, SEPA mandates and dunning; service-charge statements with a BetrKV
+    allocation engine; co-ownership shares, economic plan, HOA fees, annual statement and reserves;
+    owners meetings with agenda, voting and resolution collection; documents; maintenance tickets;
+    tenant and owner portals; camt.053 import and DATEV/SEPA export.
+
+    Multi-tenant, role-based, bilingual (German and English), with a REST API and an MCP server for
+    AI agents. It needs a PostgreSQL 16 database; install one from Community Applications and point
+    DATABASE_URL at it.
+
+    Support: https://github.com/fgilde/hausverwaltung/issues
+  </Profile>
+  <Icon>https://raw.githubusercontent.com/fgilde/hausverwaltung/main/icon.png</Icon>
+  <WebPage>https://fgilde.github.io/hausverwaltung/</WebPage>
+</CommunityApplications>

@@ -21,8 +21,12 @@
   <Overview>Vollständige Hausverwaltung (Miet + WEG), mehrsprachig, mit REST-API und MCP für KI-Agenten. Benötigt eine PostgreSQL-Datenbank.</Overview>
   <Category>Productivity: Other:</Category>
   <WebUI>http://[IP]:[PORT:3000]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/fgilde/hausverwaltung/main/templates/havewa.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/fgilde/hausverwaltung/main/public/icon.png</Icon>
   <ExtraParams></ExtraParams>
+  <ReadMe>https://raw.githubusercontent.com/fgilde/hausverwaltung/main/README.md</ReadMe>
+  <License>AGPL-3.0</License>
+  <ExtraSearchTerms>hausverwaltung immobilien weg miete betriebskosten abrechnung property management real estate</ExtraSearchTerms>
   <PostArgs></PostArgs>
   <Config Name="WebUI Port" Target="3000" Default="3000" Mode="tcp" Description="Port der Weboberfläche" Type="Port" Display="always" Required="true">3000</Config>
   <Config Name="DATABASE_URL" Target="DATABASE_URL" Default="postgresql://havewa:CHANGE_ME@192.168.1.10:5432/havewa?schema=public" Description="Postgres-Verbindung (Host = IP/Name deines Postgres-Containers)" Type="Variable" Display="always" Required="true"></Config>

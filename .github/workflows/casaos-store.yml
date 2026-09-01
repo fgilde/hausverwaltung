@@ -1,0 +1,36 @@
+name: CasaOS app source
+
+# Rebuilds the zip a CasaOS user can add as a custom app source.
+on:
+  push:
+    branches: [main, master]
+    paths: ['store/casaos/**', '.github/workflows/casaos-store.yml']
+  workflow_dispatch:
+
+jobs:
+  # CasaOS reads a custom app source as a zip whose root is a build/sysroot/... tree. Build it from
+  # store/casaos/ and keep it at a fixed release tag, so the URL a user pastes never changes.
+  casaos-store:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the CasaOS app-source archive
+        run: |
+          set -euo pipefail
+          root="build/sysroot/var/lib/casaos/appstore/default.new"
+          mkdir -p "$root"
+          cp -r store/casaos/Apps "$root/"
+          cp store/casaos/category-list.json store/casaos/featured-apps.json \
+             store/casaos/recommend-list.json store/casaos/README.md "$root/"
+          zip -rq casaos-appstore.zip build
+          unzip -t casaos-appstore.zip >/dev/null
+      - name: Publish it at the stable store tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view store >/dev/null 2>&1 \
+            || gh release create store --title "App store packages" --notes "CasaOS app source. Add the zip URL below under App Store -> Add source." --latest=false
+          gh release upload store casaos-appstore.zip --clobber
