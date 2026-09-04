@@ -177,6 +177,15 @@ Applied once at container start while the system is still empty:
 
 If none are set, the setup wizard appears on first login (unchanged).
 
+#### Single sign-on (OIDC, optional)
+
+Set `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` (and optionally `OIDC_NAME`)
+to enable SSO via an identity provider (Authentik, Keycloak, …). The login then
+shows a "Sign in with &lt;name&gt;" button. For safety **only users that already
+exist** can sign in (matched by email) — role and tenant come from the existing
+user, there is no auto-provisioning. Redirect URI at the IdP:
+`https://<DOMAIN>/api/auth/callback/oidc`.
+
 ## Home-server installs (Unraid · Umbrel · Proxmox)
 
 The packages live where each store looks for them: [`templates/havewa.xml`](templates/havewa.xml)

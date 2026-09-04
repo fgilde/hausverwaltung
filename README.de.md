@@ -136,6 +136,15 @@ Wird einmalig beim Container-Start ausgeführt, solange das System noch leer ist
 
 Ist nichts gesetzt, erscheint beim ersten Login der Setup-Assistent (wie bisher).
 
+#### Single Sign-On (OIDC, optional)
+
+`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` (optional `OIDC_NAME`) setzen,
+um SSO über einen Identity-Provider (Authentik, Keycloak, …) zu aktivieren. Im
+Login erscheint dann ein „Mit &lt;Name&gt; anmelden"-Button. Aus Sicherheitsgründen
+melden sich **nur bereits angelegte Benutzer** an (Abgleich per E-Mail) — Rolle und
+Mandant stammen aus dem vorhandenen Benutzer, kein Auto-Provisioning. Redirect-URI
+beim IdP: `https://<DOMAIN>/api/auth/callback/oidc`.
+
 **Vorgebautes Image (schneller):** jeder Push auf `main` baut per GitHub Actions ein
 Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Deploy ohne Bauen auf dem Server
 via `docker-compose.registry.yml`:

@@ -221,6 +221,8 @@
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
     "submit": "Anmelden",
+    "or": "oder",
+    "ssoSubmit": "Mit {provider} anmelden",
     "error": "E-Mail oder Passwort falsch",
     "demoHint": "Demo: admin@havewa.app / admin",
     "tagline": "Miet- und WEG-Verwaltung in einem System.",

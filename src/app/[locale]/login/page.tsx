@@ -7,6 +7,7 @@ import { needsSetup } from "@/lib/setup";
 import { listBackgroundVideos } from "@/lib/videos";
 import { BackgroundVideo } from "@/components/background-video";
 import { LoginForm } from "@/components/login-form";
+import { oidcConfigFromEnv } from "@/lib/sso";
 import { APP_VERSION_LABEL, APP_VERSION_FULL } from "@/lib/version";
 
 export default async function LoginPage() {
@@ -21,6 +22,7 @@ export default async function LoginPage() {
   });
   const tenantName = tenant?.name ?? t("app.name");
   const isDemo = tenant?.isDemo ?? false;
+  const sso = oidcConfigFromEnv();
   // Eigenes Admin-Logo, sonst Produkt-Logo
   const logoUrl = tenant?.logoKey ? "/api/logo" : "/logo.png";
   const videos = await listBackgroundVideos();
@@ -99,7 +101,12 @@ export default async function LoginPage() {
             <p className="text-sm text-muted-foreground">{t("login.subtitle")}</p>
           </div>
 
-          <LoginForm initialEmail={isDemo ? "admin@havewa.app" : ""} tenantName={tenantName} />
+          <LoginForm
+            initialEmail={isDemo ? "admin@havewa.app" : ""}
+            tenantName={tenantName}
+            ssoEnabled={!!sso}
+            ssoName={sso?.name ?? "SSO"}
+          />
 
           {isDemo && (
             <div className="rounded-xl border bg-card/60 p-4 backdrop-blur">

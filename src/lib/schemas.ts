@@ -42,6 +42,10 @@ export const buildingSchema = z.object({
   name: z.string().trim().min(1),
 });
 
+// Beim Bearbeiten wird nur der Name geändert; propertyId sendet das Formular
+// nicht mit (sonst „expected string, received undefined").
+export const buildingUpdateSchema = buildingSchema.omit({ propertyId: true });
+
 export const unitSchema = z.object({
   buildingId: z.string().min(1),
   label: z.string().trim().min(1),

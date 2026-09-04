@@ -21,6 +21,11 @@ services:
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
       ADMIN_NAME: "${ADMIN_NAME:-}"
       TENANT_NAME: "${TENANT_NAME:-}"
+      # Optionales OIDC/SSO:
+      OIDC_ISSUER: "${OIDC_ISSUER:-}"
+      OIDC_CLIENT_ID: "${OIDC_CLIENT_ID:-}"
+      OIDC_CLIENT_SECRET: "${OIDC_CLIENT_SECRET:-}"
+      OIDC_NAME: "${OIDC_NAME:-}"
     expose:
       - "3000"
     volumes:

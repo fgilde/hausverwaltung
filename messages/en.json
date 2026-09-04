@@ -221,6 +221,8 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "submit": "Sign in",
+    "or": "or",
+    "ssoSubmit": "Sign in with {provider}",
     "error": "Invalid email or password",
     "demoHint": "Demo: admin@havewa.app / admin",
     "tagline": "Rental and condominium management in one system.",

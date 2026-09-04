@@ -8,6 +8,7 @@ import { pickCustom } from "@/lib/custom";
 import {
   propertySchema,
   buildingSchema,
+  buildingUpdateSchema,
   unitSchema,
   unitUpdateSchema,
   meterSchema,
@@ -76,7 +77,7 @@ export async function createBuilding(_p: ActionState, fd: FormData): Promise<Act
 export async function updateBuilding(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
-  const r = buildingSchema.safeParse(Object.fromEntries(fd));
+  const r = buildingUpdateSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
   await prisma.building.updateMany({
     where: { id, tenantId: user.tenantId },

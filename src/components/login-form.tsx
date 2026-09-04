@@ -12,9 +12,13 @@ import { Label } from "@/components/ui/label";
 export function LoginForm({
   initialEmail = "",
   tenantName,
+  ssoEnabled = false,
+  ssoName = "SSO",
 }: {
   initialEmail?: string;
   tenantName?: string;
+  ssoEnabled?: boolean;
+  ssoName?: string;
 }) {
   const t = useTranslations("login");
   const router = useRouter();
@@ -76,6 +80,21 @@ export function LoginForm({
           {loading && <Loader2 className="size-4 animate-spin" />}
           {t("submit")}
         </Button>
+        {ssoEnabled && (
+          <>
+            <div className="flex items-center gap-3 py-1 text-xs text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />{t("or")}<span className="h-px flex-1 bg-border" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => signIn("oidc", { callbackUrl: "/" })}
+            >
+              {t("ssoSubmit", { provider: ssoName })}
+            </Button>
+          </>
+        )}
       </form>
 
       {/* Erfolgs-Animation */}

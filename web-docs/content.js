@@ -485,7 +485,10 @@ deploy: {
       <tr><td><code>SEED_DEMO</code></td><td><code>true</code> = Demo-Daten beim ersten Start</td></tr>
       <tr><td><code>ADMIN_EMAIL</code> / <code>ADMIN_PASSWORD</code></td><td>Admin direkt anlegen (Wizard entfällt)</td></tr>
       <tr><td><code>TENANT_NAME</code></td><td>Name der Hausverwaltung</td></tr>
+      <tr><td><code>OIDC_ISSUER</code> / <code>OIDC_CLIENT_ID</code> / <code>OIDC_CLIENT_SECRET</code> / <code>OIDC_NAME</code></td><td>Optionales OIDC/SSO (siehe unten)</td></tr>
     </table>
+    <h3>OIDC / SSO</h3>
+    <p>Mit einem Identity-Provider (Authentik, Keycloak …) meldet man sich per SSO an. Sind die <code>OIDC_*</code>-Variablen gesetzt, erscheint im Login ein „Mit &lt;Name&gt; anmelden"-Button. Aus Sicherheitsgründen melden sich <strong>nur bereits angelegte Benutzer</strong> an (Abgleich per E-Mail); Rolle und Mandant stammen aus dem vorhandenen Benutzer — kein automatisches Anlegen. Redirect-URI beim IdP: <code>https://&lt;DOMAIN&gt;/api/auth/callback/oidc</code>.</p>
     <h3>Heimserver</h3>
     <ul>
       <li><strong>Unraid</strong>: Docker-Template <code>deploy/unraid/havewa.xml</code> + Postgres aus Community Apps.</li>
@@ -505,7 +508,10 @@ deploy: {
       <tr><td><code>SEED_DEMO</code></td><td><code>true</code> = demo data on first start</td></tr>
       <tr><td><code>ADMIN_EMAIL</code> / <code>ADMIN_PASSWORD</code></td><td>create admin directly (skip wizard)</td></tr>
       <tr><td><code>TENANT_NAME</code></td><td>property-management name</td></tr>
+      <tr><td><code>OIDC_ISSUER</code> / <code>OIDC_CLIENT_ID</code> / <code>OIDC_CLIENT_SECRET</code> / <code>OIDC_NAME</code></td><td>optional OIDC/SSO (see below)</td></tr>
     </table>
+    <h3>OIDC / SSO</h3>
+    <p>Sign in via an identity provider (Authentik, Keycloak …). When the <code>OIDC_*</code> variables are set, the login shows a "Sign in with &lt;name&gt;" button. For safety <strong>only existing users</strong> can sign in (matched by email); role and tenant come from the existing user — no auto-provisioning. IdP redirect URI: <code>https://&lt;DOMAIN&gt;/api/auth/callback/oidc</code>.</p>
     <h3>Home servers</h3>
     <ul>
       <li><strong>Unraid</strong>: Docker template <code>deploy/unraid/havewa.xml</code> + Postgres from Community Apps.</li>
