@@ -128,6 +128,8 @@ model Tenant {
 
   // true bei geseedeten Demo-Daten → öffentliche Marketing-Seite als Fallback
   isDemo Boolean @default(false)
+
+  bankConnector BankConnector?
 }
 
 model User {
@@ -445,9 +447,53 @@ model Account {
   iban      String?
   payments  Payment[]
   deposits  Deposit[]
+  bankLinks BankLink[]
   createdAt DateTime    @default(now())
 
   @@index([tenantId])
+}
+
+// ---------- Open Banking (Enable Banking) ----------
+
+// Self-Service-Connector je Mandant. Private Key verschlüsselt (lib/crypto).
+model BankConnector {
+  id            String     @id @default(cuid())
+  tenantId      String     @unique
+  tenant        Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  applicationId String
+  privateKeyEnc String
+  baseUrl       String? // optional abweichende API-Basis
+  psuType       String     @default("business")
+  links         BankLink[]
+  createdAt     DateTime   @default(now())
+}
+
+// Verknüpfung Enable-Banking-Konto ↔ HaVeWa-Konto (nach Consent).
+model BankLink {
+  id                String        @id @default(cuid())
+  tenantId          String
+  connectorId       String
+  connector         BankConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  accountId         String
+  account           Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  aspspName         String
+  aspspCountry      String
+  sessionId         String
+  accountUid        String
+  consentValidUntil DateTime?
+  lastSyncAt        DateTime?
+  createdAt         DateTime      @default(now())
+
+  @@index([tenantId])
+}
+
+// Kurzlebiger CSRF-/Kontext-Speicher zwischen /auth und Callback.
+model BankAuthState {
+  state        String   @id
+  tenantId     String
+  aspspName    String
+  aspspCountry String
+  createdAt    DateTime @default(now())
 }
 
 enum ChargeType {
@@ -496,8 +542,10 @@ model Payment {
   amount    Decimal          @db.Decimal(10, 2)
   direction PaymentDirection @default(EINGANG)
   reference String?
+  externalId String? // Bank-Sync-Transaktions-ID (Dedup)
   createdAt DateTime         @default(now())
 
+  @@unique([tenantId, externalId])
   @@index([tenantId])
   @@index([chargeId])
 }

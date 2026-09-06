@@ -186,6 +186,15 @@ exist** can sign in (matched by email) — role and tenant come from the existin
 user, there is no auto-provisioning. Redirect URI at the IdP:
 `https://<DOMAIN>/api/auth/callback/oidc`.
 
+#### Bank sync via open banking (optional)
+
+Under **Finances → Bank sync** an admin can store their own **Enable Banking**
+credentials (Application ID + private key, stored encrypted) — each self-hosted
+instance brings its own app. Connect a bank via consent, then sync: transactions
+are booked as payments and auto-matched to open items. Redirect URL to register at
+Enable Banking: `https://<DOMAIN>/api/banking/callback`. Without it, `camt.053`
+import still works offline. See the [docs](https://fgilde.github.io/hausverwaltung/docs/).
+
 ## Home-server installs (Unraid · Umbrel · Proxmox)
 
 The packages live where each store looks for them: [`templates/havewa.xml`](templates/havewa.xml)

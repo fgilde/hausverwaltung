@@ -1,7 +1,9 @@
 import { Bell } from "lucide-react";
+import { headers } from "next/headers";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { BankSync } from "@/components/bank-sync";
 import { money, date } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,7 +42,7 @@ export default async function FinancesPage({
   const locale = await getLocale();
   const tenantId = user.tenantId;
 
-  const [charges, accounts, mandates, leases, persons] = await Promise.all([
+  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks] = await Promise.all([
     prisma.charge.findMany({
       where: { tenantId },
       include: {
@@ -54,7 +56,20 @@ export default async function FinancesPage({
     prisma.sepaMandate.findMany({ where: { tenantId }, include: { person: true }, orderBy: { createdAt: "desc" } }),
     prisma.lease.findMany({ where: { tenantId }, include: { unit: { include: { building: { include: { property: true } } } } } }),
     prisma.person.findMany({ where: { tenantId }, orderBy: [{ lastName: "asc" }] }),
+    prisma.bankConnector.findUnique({ where: { tenantId } }),
+    prisma.bankLink.findMany({ where: { tenantId }, include: { account: { select: { name: true } } }, orderBy: { createdAt: "asc" } }),
   ]);
+  const isAdmin = user.role === "ADMIN";
+  const h = await headers();
+  const bankHost = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const bankProto = h.get("x-forwarded-proto") ?? (bankHost.startsWith("localhost") ? "http" : "https");
+  const bankRedirectUrl = `${bankProto}://${bankHost}/api/banking/callback`;
+  const bankLinkItems = bankLinks.map((l) => ({
+    id: l.id,
+    aspspName: l.aspspName,
+    accountName: l.account.name,
+    lastSyncAt: l.lastSyncAt ? l.lastSyncAt.toISOString().slice(0, 10) : null,
+  }));
 
   const now = new Date();
   const rows = charges.map((c) => {
@@ -275,6 +290,19 @@ export default async function FinancesPage({
           </CardContent>
         </Card>
       </div>
+
+      {(bankConnector || isAdmin) && (
+        <BankSync
+          isAdmin={isAdmin}
+          connector={
+            bankConnector
+              ? { applicationId: bankConnector.applicationId, baseUrl: bankConnector.baseUrl, psuType: bankConnector.psuType, hasKey: true }
+              : null
+          }
+          redirectUrl={bankRedirectUrl}
+          links={bankLinkItems}
+        />
+      )}
     </div>
   );
 }

@@ -225,6 +225,43 @@ finance: {
     </ul>`
 },
 
+bank: {
+  de: `
+    <h2>Bank-Sync (Open Banking)</h2>
+    <p>Optional lassen sich Kontoumsätze automatisch über den Open-Banking-Aggregator <strong>Enable Banking</strong> abrufen — jede selbst gehostete Instanz nutzt <strong>eigene Zugangsdaten</strong> (kein zentraler Dienst).</p>
+    <h3>Einrichten (einmalig, Admin)</h3>
+    <ol>
+      <li>Bei <a href="https://enablebanking.com" target="_blank" rel="noreferrer">enablebanking.com</a> kostenlos registrieren und eine Anwendung anlegen.</li>
+      <li>Als „Allowed Redirect URL" die in HaVeWa angezeigte URL eintragen: <code>https://&lt;DOMAIN&gt;/api/banking/callback</code>.</li>
+      <li>In HaVeWa unter <em>Finanzen → Bank-Sync → Konfigurieren</em> die <strong>Application ID</strong> und den <strong>Private Key</strong> hinterlegen (Nutzertyp business/personal, optional abweichende API-Basis). Der Private Key wird <strong>verschlüsselt</strong> gespeichert.</li>
+    </ol>
+    <h3>Bank verbinden &amp; synchronisieren</h3>
+    <ol>
+      <li>„Bank verbinden" → Land wählen, Banken laden, Bank auswählen → Weiterleitung zur Bank für die Zustimmung (Consent).</li>
+      <li>Nach der Rückkehr werden die Bankkonten als HaVeWa-Konten angelegt und verknüpft.</li>
+      <li>„Synchronisieren" holt die Umsätze, bucht sie als Zahlungen und ordnet Eingänge automatisch offenen Posten zu (wie beim camt.053-Import). Doppelte werden über die Transaktions-ID vermieden.</li>
+    </ol>
+    <div class="tip">Ohne Connector bleibt alles wie gehabt: Kontoauszüge als <strong>camt.053</strong> importieren (Finanzen → Bank-Import).</div>
+    <div class="warn">Der Bank-Consent läuft nach ~90 Tagen ab und muss erneuert werden (Bank erneut verbinden).</div>`,
+  en: `
+    <h2>Bank sync (open banking)</h2>
+    <p>Optionally fetch account transactions automatically via the open-banking aggregator <strong>Enable Banking</strong> — each self-hosted instance uses its <strong>own credentials</strong> (no central service).</p>
+    <h3>Setup (once, admin)</h3>
+    <ol>
+      <li>Register for free at <a href="https://enablebanking.com" target="_blank" rel="noreferrer">enablebanking.com</a> and create an application.</li>
+      <li>Set the "Allowed Redirect URL" to the one HaVeWa shows: <code>https://&lt;DOMAIN&gt;/api/banking/callback</code>.</li>
+      <li>In HaVeWa under <em>Finances → Bank sync → Configure</em> store the <strong>Application ID</strong> and <strong>private key</strong> (user type business/personal, optional custom API base). The private key is stored <strong>encrypted</strong>.</li>
+    </ol>
+    <h3>Connect a bank &amp; sync</h3>
+    <ol>
+      <li>"Connect bank" → pick country, load banks, choose a bank → redirect to the bank for consent.</li>
+      <li>On return the bank accounts are created as HaVeWa accounts and linked.</li>
+      <li>"Sync" fetches transactions, books them as payments and auto-matches incoming ones to open items (like the camt.053 import). Duplicates are avoided via the transaction id.</li>
+    </ol>
+    <div class="tip">Without a connector everything works as before: import bank statements as <strong>camt.053</strong> (Finances → bank import).</div>
+    <div class="warn">The bank consent expires after ~90 days and must be renewed (connect the bank again).</div>`
+},
+
 dunning: {
   de: `
     <h2>Mahnwesen</h2>

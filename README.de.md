@@ -145,6 +145,16 @@ melden sich **nur bereits angelegte Benutzer** an (Abgleich per E-Mail) — Roll
 Mandant stammen aus dem vorhandenen Benutzer, kein Auto-Provisioning. Redirect-URI
 beim IdP: `https://<DOMAIN>/api/auth/callback/oidc`.
 
+#### Bank-Sync via Open Banking (optional)
+
+Unter **Finanzen → Bank-Sync** hinterlegt ein Admin eigene **Enable-Banking**-Zugangsdaten
+(Application ID + Private Key, verschlüsselt gespeichert) — jede Self-Hosting-Instanz
+bringt ihre eigene App mit. Bank per Consent verbinden, dann synchronisieren: Umsätze
+werden als Zahlungen gebucht und Eingänge automatisch offenen Posten zugeordnet.
+Redirect-URL für Enable Banking: `https://<DOMAIN>/api/banking/callback`. Ohne Connector
+funktioniert weiterhin der `camt.053`-Import offline. Siehe
+[Doku](https://fgilde.github.io/hausverwaltung/docs/).
+
 **Vorgebautes Image (schneller):** jeder Push auf `main` baut per GitHub Actions ein
 Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Deploy ohne Bauen auf dem Server
 via `docker-compose.registry.yml`:
