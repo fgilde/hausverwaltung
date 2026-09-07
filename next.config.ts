@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_BUILD: build,
     NEXT_PUBLIC_APP_SHA: sha,
   },
+  // Server-Actions-Body-Limit über das App-Upload-Limit (20 MB) heben; Default
+  // ist 1 MB, daher schlug der Dokument-Upload >1 MB fehl (Issue #7).
+  // Etwas Reserve für Multipart-Overhead.
+  experimental: {
+    serverActions: { bodySizeLimit: "25mb" },
+  },
 };
 
 export default withNextIntl(nextConfig);
