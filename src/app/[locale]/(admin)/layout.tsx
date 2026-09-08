@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { readableForeground } from "@/lib/color";
@@ -26,8 +26,9 @@ export default async function AdminLayout({
   if (["MIETER", "EIGENTUEMER", "HANDWERKER"].includes(user.role)) redirect("/portal");
 
   const locale = await getLocale();
+  const t = await getTranslations();
   const [tenant, notifs, unread] = await Promise.all([
-    prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { brandColor: true, logoKey: true } }),
+    prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true, brandColor: true, logoKey: true } }),
     prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
     prisma.notification.count({ where: { userId: user.id, read: false } }),
   ]);
@@ -49,12 +50,21 @@ export default async function AdminLayout({
       {tenant?.brandColor && (
         <style>{`:root{--primary:${tenant.brandColor};--sidebar-primary:${tenant.brandColor};--ring:${tenant.brandColor};--primary-foreground:${readableForeground(tenant.brandColor)};--sidebar-primary-foreground:${readableForeground(tenant.brandColor)};}`}</style>
       )}
-      <AppSidebar logoUrl={logoUrl} />
+      <AppSidebar logoUrl={logoUrl} superAdmin={user.superAdmin} />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-6" />
           <SearchBox />
+          {user.superAdmin && user.tenantId !== user.homeTenantId && (
+            <a
+              href="/tenants"
+              className="ml-2 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-400"
+              title={t("tenants.actingHint")}
+            >
+              ▸ {tenant?.name}
+            </a>
+          )}
           <div className="ml-auto flex items-center gap-1">
             <NotificationBell items={notifItems} unread={unread} />
             <LanguageSwitcher />

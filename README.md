@@ -195,6 +195,13 @@ are booked as payments and auto-matched to open items. Redirect URL to register 
 Enable Banking: `https://<DOMAIN>/api/banking/callback`. Without it, `camt.053`
 import still works offline. See the [docs](https://fgilde.github.io/hausverwaltung/docs/).
 
+#### Multiple tenants (optional)
+
+One instance can host several data-separated tenants. The first admin is the
+**instance admin** and gets a **Tenants** page to create tenants (each with its own
+first admin), switch between them, and manage them. Existing installs auto-promote
+their oldest admin on the next start. Alternatively run one instance per company.
+
 ## Home-server installs (Unraid · Umbrel · Proxmox)
 
 The packages live where each store looks for them: [`templates/havewa.xml`](templates/havewa.xml)

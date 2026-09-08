@@ -155,6 +155,13 @@ Redirect-URL für Enable Banking: `https://<DOMAIN>/api/banking/callback`. Ohne 
 funktioniert weiterhin der `camt.053`-Import offline. Siehe
 [Doku](https://fgilde.github.io/hausverwaltung/docs/).
 
+#### Mehrere Mandanten (optional)
+
+Eine Instanz kann mehrere datengetrennte Mandanten verwalten. Der erste Admin ist
+**Instanz-Admin** und bekommt eine **Mandanten**-Seite: Mandanten anlegen (je eigener
+erster Admin), wechseln und verwalten. Bestehende Installationen befördern beim
+nächsten Start automatisch ihren ältesten Admin. Alternativ eine Instanz pro Firma.
+
 **Vorgebautes Image (schneller):** jeder Push auf `main` baut per GitHub Actions ein
 Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Deploy ohne Bauen auf dem Server
 via `docker-compose.registry.yml`:

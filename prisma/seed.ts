@@ -38,6 +38,7 @@ async function main() {
       name: "Admin",
       passwordHash: await bcrypt.hash("admin", 10),
       role: "ADMIN",
+      superAdmin: true,
       locale: "de",
     },
   });

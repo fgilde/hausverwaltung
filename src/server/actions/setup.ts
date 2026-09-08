@@ -28,6 +28,7 @@ export async function setupSystem(_p: ActionState, fd: FormData): Promise<Action
           name,
           passwordHash: await bcrypt.hash(password, 10),
           role: "ADMIN",
+          superAdmin: true, // erster Admin = Instanz-Admin
           locale,
         },
       },

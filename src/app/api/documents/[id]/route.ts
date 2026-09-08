@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { readFile } from "@/lib/storage";
 
@@ -8,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
   const { id } = await params;
-  const tenantId = session.user.tenantId;
+  const tenantId = (await actingTenantId(session.user));
   const role = session.user.role;
 
   // Portal-Rollen dürfen nur Dokumente ihrer eigenen Objekte laden.

@@ -15,6 +15,17 @@ const prisma = new PrismaClient();
 const truthy = (v: string | undefined) => ["1", "true", "yes", "on"].includes(String(v ?? "").trim().toLowerCase());
 
 async function main() {
+  // Self-Heal: sicherstellen, dass es einen Instanz-Admin gibt (auch in
+  // Bestands-Installationen ohne Super-Admin → ältesten Admin befördern).
+  const superCount = await prisma.user.count({ where: { superAdmin: true } });
+  if (superCount === 0) {
+    const oldest = await prisma.user.findFirst({ where: { role: "ADMIN" }, orderBy: { createdAt: "asc" } });
+    if (oldest) {
+      await prisma.user.update({ where: { id: oldest.id }, data: { superAdmin: true } });
+      console.log(`[bootstrap] ${oldest.email} zum Instanz-Admin befördert.`);
+    }
+  }
+
   const users = await prisma.user.count();
   if (users > 0) {
     console.log("[bootstrap] bereits eingerichtet — übersprungen.");
@@ -41,6 +52,7 @@ async function main() {
         name: adminName,
         passwordHash: await bcrypt.hash(password, 10),
         role: "ADMIN",
+        superAdmin: true,
       },
     });
     await ensureDefaultAccounts(prisma, tenant.id);

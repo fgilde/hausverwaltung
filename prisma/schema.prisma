@@ -140,6 +140,7 @@ model User {
   name         String
   passwordHash String
   role         UserRole @default(VERWALTER)
+  superAdmin   Boolean  @default(false) // Instanz-Admin: darf Mandanten anlegen/wechseln
   locale       String   @default("de")
   personId     String?
   person       Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)

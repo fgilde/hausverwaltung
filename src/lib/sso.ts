@@ -38,6 +38,6 @@ export async function resolveSsoUser(email: string | null | undefined) {
   if (!e) return null;
   return prisma.user.findFirst({
     where: { email: { equals: e, mode: "insensitive" } },
-    select: { id: true, email: true, name: true, role: true, tenantId: true, locale: true },
+    select: { id: true, email: true, name: true, role: true, tenantId: true, locale: true, superAdmin: true },
   });
 }

@@ -54,6 +54,7 @@
     "calendar": "Calendar",
     "email": "Outbox",
     "audit": "Audit log",
+    "tenants": "Tenants",
     "insurance": "Insurance",
     "grundsteuer": "Property tax",
     "zensus": "Census",
@@ -518,6 +519,22 @@
     "title": "Notifications",
     "markAll": "Mark all read",
     "empty": "No notifications."
+  },
+  "tenants": {
+    "title": "Tenants",
+    "subtitle": "Create, switch and manage the tenants on this instance",
+    "new": "Create tenant",
+    "name": "Tenant name",
+    "adminName": "Admin name",
+    "adminEmail": "Admin email",
+    "adminPassword": "Admin password",
+    "users": "Users",
+    "properties": "Properties",
+    "created": "Created",
+    "home": "Own",
+    "active": "Active",
+    "switch": "Switch",
+    "actingHint": "You are working in another tenant. Click for tenant management."
   },
   "bank": {
     "title": "Bank sync (open banking)",

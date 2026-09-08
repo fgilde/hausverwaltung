@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { toCsv, csvResponse } from "@/lib/csv";
 
@@ -6,7 +7,7 @@ export async function GET() {
   const session = await auth();
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
   const tickets = await prisma.ticket.findMany({
-    where: { tenantId: session.user.tenantId },
+    where: { tenantId: (await actingTenantId(session.user)) },
     include: { property: { select: { name: true } }, assignee: { select: { name: true } } },
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
   });

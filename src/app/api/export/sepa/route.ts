@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { roleAllows } from "@/lib/rbac";
 import { toPain008, type SepaEntry } from "@/lib/adapters/sepa";
@@ -9,7 +10,7 @@ export async function GET() {
   if (!roleAllows(session.user.role, ["VERWALTER", "BUCHHALTUNG"]))
     return new Response("Forbidden", { status: 403 });
 
-  const tenantId = session.user.tenantId;
+  const tenantId = (await actingTenantId(session.user));
   const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
 
   const mandates = await prisma.sepaMandate.findMany({

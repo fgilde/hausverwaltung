@@ -510,6 +510,35 @@ io: {
     </ul>`
 },
 
+tenants: {
+  de: `
+    <h2>Mandanten (Instanz-Admin)</h2>
+    <p>Eine Instanz kann mehrere <strong>Mandanten</strong> verwalten (z. B. mehrere Hausverwaltungen/Firmen), strikt datengetrennt. Verwaltet wird das von einem <strong>Instanz-Admin</strong> (Super-Admin).</p>
+    <h3>Wer ist Instanz-Admin?</h3>
+    <p>Der erste Admin (aus Setup-Wizard, Env-Bootstrap oder Demo-Seed) ist automatisch Instanz-Admin. Bei bestehenden Installationen wird beim nächsten Start der älteste Admin automatisch dazu befördert.</p>
+    <h3>Mandanten anlegen &amp; wechseln</h3>
+    <ol>
+      <li>Als Instanz-Admin erscheint links <em>Mandanten</em>.</li>
+      <li>„Mandant anlegen" erstellt den Mandanten samt erstem Admin (E-Mail + Passwort) und einem Standard-Kontenrahmen.</li>
+      <li>„Wechseln" arbeitet ab sofort in diesem Mandanten — die ganze App (Objekte, Finanzen, Abrechnungen …) folgt dem gewählten Mandanten. Ein Hinweis oben zeigt den aktiven Mandanten; „Eigener" führt zurück.</li>
+    </ol>
+    <div class="tip">Alternativ: pro Firma eine eigene Instanz betreiben — beides wird unterstützt.</div>
+    <div class="warn">Mandant löschen entfernt <strong>alle</strong> Daten dieses Mandanten unwiderruflich. Der eigene Mandant kann nicht gelöscht werden.</div>`,
+  en: `
+    <h2>Tenants (instance admin)</h2>
+    <p>One instance can manage multiple <strong>tenants</strong> (e.g. several property-management companies), strictly data-separated. This is handled by an <strong>instance admin</strong> (super-admin).</p>
+    <h3>Who is instance admin?</h3>
+    <p>The first admin (from the setup wizard, env bootstrap or demo seed) is the instance admin automatically. On existing installations the oldest admin is promoted automatically on the next start.</p>
+    <h3>Create &amp; switch tenants</h3>
+    <ol>
+      <li>As instance admin a <em>Tenants</em> entry appears in the sidebar.</li>
+      <li>"Create tenant" creates the tenant with its first admin (email + password) and a default chart of accounts.</li>
+      <li>"Switch" then works inside that tenant — the whole app (properties, finances, statements …) follows the selected tenant. A badge at the top shows the active tenant; "Own" switches back.</li>
+    </ol>
+    <div class="tip">Alternatively run one instance per company — both are supported.</div>
+    <div class="warn">Deleting a tenant removes <strong>all</strong> of its data irreversibly. Your own tenant cannot be deleted.</div>`
+},
+
 deploy: {
   de: `
     <h2>Installation &amp; Hosting</h2>

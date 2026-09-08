@@ -24,6 +24,7 @@ const providers: Provider[] = [
         role: user.role,
         tenantId: user.tenantId,
         locale: user.locale,
+        superAdmin: user.superAdmin,
       };
     },
   }),
@@ -51,6 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.tenantId = user.tenantId;
         token.locale = user.locale;
+        token.superAdmin = user.superAdmin ?? false;
       }
       // OIDC-Erstanmeldung: lokalen Benutzer per E-Mail auflösen und dessen
       // Identität (id/Rolle/Mandant) in den Token übernehmen.
@@ -61,6 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.role = local.role;
           token.tenantId = local.tenantId;
           token.locale = local.locale;
+          token.superAdmin = local.superAdmin;
         }
       }
       return token;
@@ -71,6 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as UserRole;
         session.user.tenantId = token.tenantId as string;
         session.user.locale = token.locale as string;
+        session.user.superAdmin = (token.superAdmin as boolean) ?? false;
       }
       return session;
     },

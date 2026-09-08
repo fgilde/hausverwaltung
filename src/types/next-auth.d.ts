@@ -6,6 +6,7 @@ declare module "next-auth" {
     role: UserRole;
     tenantId: string;
     locale: string;
+    superAdmin?: boolean;
   }
   interface Session {
     user: {
@@ -13,6 +14,7 @@ declare module "next-auth" {
       role: UserRole;
       tenantId: string;
       locale: string;
+      superAdmin: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -22,5 +24,6 @@ declare module "next-auth/jwt" {
     role: UserRole;
     tenantId: string;
     locale: string;
+    superAdmin?: boolean;
   }
 }

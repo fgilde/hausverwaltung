@@ -134,7 +134,7 @@ export async function apiCreate(p: ApiPrincipal, entity: string, body: Record<st
 
   if (def.special === "user") {
     const bcrypt = (await import("bcryptjs")).default;
-    const actor: SessionUser = { id: p.userId, tenantId, role: p.role, name: p.name };
+    const actor: SessionUser = { id: p.userId, tenantId, homeTenantId: tenantId, superAdmin: false, role: p.role, name: p.name };
     const { name, email, password, role, personId } = data as {
       name: string; email: string; password: string; role: SessionUser["role"]; personId?: string;
     };
@@ -207,7 +207,7 @@ export async function apiDelete(p: ApiPrincipal, entity: string, id: string) {
   if (def.special === "user") {
     const target = await db.user.findFirst({ where: { id, tenantId: p.tenantId }, select: { id: true, role: true } });
     if (!target) throw new ApiWriteError("Nicht gefunden", 404);
-    const actor: SessionUser = { id: p.userId, tenantId: p.tenantId, role: p.role };
+    const actor: SessionUser = { id: p.userId, tenantId: p.tenantId, homeTenantId: p.tenantId, superAdmin: false, role: p.role };
     if (!canDeleteUser(actor, target.role, target.id)) throw new ApiWriteError("Löschen nicht erlaubt", 403);
     await db.user.delete({ where: { id: target.id } });
     return { id, deleted: 1 };

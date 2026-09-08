@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_VERSION_LABEL, APP_VERSION_FULL } from "@/lib/version";
 
-export function AppSidebar({ logoUrl }: { logoUrl?: string }) {
+export function AppSidebar({ logoUrl, superAdmin = false }: { logoUrl?: string; superAdmin?: boolean }) {
   const t = useTranslations();
   const pathname = usePathname();
 
@@ -39,7 +39,7 @@ export function AppSidebar({ logoUrl }: { logoUrl?: string }) {
             <SidebarGroupLabel>{t(group.labelKey)}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => {
+                {group.items.filter((item) => !item.superAdmin || superAdmin).map((item) => {
                   const active =
                     item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                   return (

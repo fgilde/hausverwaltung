@@ -1,6 +1,7 @@
 import type { UserRole } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 
 /** ADMIN darf alles; sonst muss die Rolle in `allowed` sein. */
 export function roleAllows(role: UserRole, allowed: UserRole[]): boolean {
@@ -9,7 +10,9 @@ export function roleAllows(role: UserRole, allowed: UserRole[]): boolean {
 
 export type SessionUser = {
   id: string;
-  tenantId: string;
+  tenantId: string; // effektiver Mandant (bei Super-Admin ggf. der gewechselte)
+  homeTenantId: string; // eigener Mandant
+  superAdmin: boolean;
   role: UserRole;
   name?: string | null;
   email?: string | null;
@@ -20,7 +23,23 @@ export async function requireUser(): Promise<SessionUser> {
   const session = await auth();
   if (!session?.user) redirect("/login");
   const u = session.user;
-  return { id: u.id, tenantId: u.tenantId, role: u.role, name: u.name, email: u.email };
+  const tenantId = await actingTenantId(u);
+  return {
+    id: u.id,
+    tenantId,
+    homeTenantId: u.tenantId,
+    superAdmin: !!u.superAdmin,
+    role: u.role,
+    name: u.name,
+    email: u.email,
+  };
+}
+
+/** Guard: nur Instanz-Admins (Mandantenverwaltung). */
+export async function requireSuperAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (!user.superAdmin) redirect("/");
+  return user;
 }
 
 /** Wie requireUser, erzwingt zusätzlich eine der erlaubten Rollen. */

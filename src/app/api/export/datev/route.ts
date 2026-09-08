@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { roleAllows } from "@/lib/rbac";
 import { toDatevExtf, type DatevRow } from "@/lib/adapters/datev";
@@ -10,7 +11,7 @@ export async function GET() {
     return new Response("Forbidden", { status: 403 });
 
   const payments = await prisma.payment.findMany({
-    where: { tenantId: session.user.tenantId },
+    where: { tenantId: (await actingTenantId(session.user)) },
     include: { charge: true },
     orderBy: { date: "asc" },
   });

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { readFile } from "@/lib/storage";
 
@@ -16,7 +17,7 @@ export async function GET() {
   // Logo des (ersten) Mandanten — für das Branding vor der Anmeldung.
   const session = await auth();
   const tenant = session?.user
-    ? await prisma.tenant.findUnique({ where: { id: session.user.tenantId }, select: { logoKey: true } })
+    ? await prisma.tenant.findUnique({ where: { id: (await actingTenantId(session.user)) }, select: { logoKey: true } })
     : await prisma.tenant.findFirst({ orderBy: { createdAt: "asc" }, select: { logoKey: true } });
   if (!tenant?.logoKey) return new Response("Not found", { status: 404 });
 

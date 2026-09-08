@@ -54,6 +54,7 @@
     "calendar": "Kalender",
     "email": "Postausgang",
     "audit": "Änderungsprotokoll",
+    "tenants": "Mandanten",
     "insurance": "Versicherungen",
     "grundsteuer": "Grundsteuer",
     "zensus": "Zensus",
@@ -518,6 +519,22 @@
     "title": "Benachrichtigungen",
     "markAll": "Alle gelesen",
     "empty": "Keine Benachrichtigungen."
+  },
+  "tenants": {
+    "title": "Mandanten",
+    "subtitle": "Mandanten dieser Instanz anlegen, wechseln und verwalten",
+    "new": "Mandant anlegen",
+    "name": "Mandantenname",
+    "adminName": "Name des Admins",
+    "adminEmail": "E-Mail des Admins",
+    "adminPassword": "Passwort des Admins",
+    "users": "Benutzer",
+    "properties": "Objekte",
+    "created": "Angelegt",
+    "home": "Eigener",
+    "active": "Aktiv",
+    "switch": "Wechseln",
+    "actingHint": "Du arbeitest gerade in einem anderen Mandanten. Klick für Mandantenverwaltung."
   },
   "bank": {
     "title": "Bank-Sync (Open Banking)",

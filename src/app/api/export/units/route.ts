@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { toCsv, csvResponse } from "@/lib/csv";
 
@@ -7,7 +8,7 @@ export async function GET() {
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
   const now = new Date();
   const units = await prisma.unit.findMany({
-    where: { tenantId: session.user.tenantId },
+    where: { tenantId: (await actingTenantId(session.user)) },
     include: {
       building: { include: { property: { select: { name: true } } } },
       leases: { include: { renters: { include: { person: true } } } },

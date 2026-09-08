@@ -21,10 +21,11 @@ import {
   Receipt,
   ClipboardList,
   Handshake,
+  Building,
   type LucideIcon,
 } from "lucide-react";
 
-export type NavItem = { key: string; href: string; icon: LucideIcon };
+export type NavItem = { key: string; href: string; icon: LucideIcon; superAdmin?: boolean };
 export type NavGroup = { labelKey: string; items: NavItem[] };
 
 // href ohne Locale-Präfix — <Link> aus next-intl ergänzt es.
@@ -73,6 +74,7 @@ export const navGroups: NavGroup[] = [
       { key: "nav.reports", href: "/reports", icon: BarChart3 },
       { key: "nav.templates", href: "/templates", icon: FileText },
       { key: "nav.audit", href: "/audit", icon: ScrollText },
+      { key: "nav.tenants", href: "/tenants", icon: Building, superAdmin: true },
       { key: "nav.settings", href: "/settings", icon: Settings },
     ],
   },
