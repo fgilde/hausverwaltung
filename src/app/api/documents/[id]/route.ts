@@ -13,26 +13,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const tenantId = (await actingTenantId(session.user));
   const role = session.user.role;
 
-  // Portal-Rollen dürfen nur Dokumente ihrer eigenen Objekte laden.
+  // Portal-Rollen dürfen nur Dokumente laden, die ausdrücklich ihrer Person
+  // zugeordnet sind. Objekt-/Wohnungs-Dokumente ohne Personenbezug (Steuer,
+  // Versicherung, Kauf …) bleiben intern (Datenschutz, siehe Portal-Liste).
   let where: import("@prisma/client").Prisma.DocumentWhereInput = { id, tenantId };
   if (role === "MIETER" || role === "EIGENTUEMER" || role === "HANDWERKER") {
     const u = await prisma.user.findUnique({ where: { id: session.user.id }, select: { personId: true } });
-    const personId = u?.personId ?? "__none__";
-    const [renters, owners] = await Promise.all([
-      prisma.renter.findMany({
-        where: { tenantId, personId },
-        select: { lease: { select: { unit: { select: { building: { select: { propertyId: true } } } } } } },
-      }),
-      prisma.owner.findMany({
-        where: { tenantId, personId },
-        select: { unit: { select: { building: { select: { propertyId: true } } } } },
-      }),
-    ]);
-    const propIds = [
-      ...renters.map((r) => r.lease.unit.building.propertyId),
-      ...owners.map((o) => o.unit.building.propertyId),
-    ];
-    where = { id, tenantId, propertyId: { in: propIds.length ? propIds : ["__none__"] } };
+    where = { id, tenantId, personId: u?.personId ?? "__none__" };
   }
 
   const doc = await prisma.document.findFirst({ where });

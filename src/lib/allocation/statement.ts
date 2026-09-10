@@ -27,6 +27,11 @@ export interface UnitInput {
   mea?: number;
   prepayment: number; // NK-Vorauszahlung im Abrechnungszeitraum
   consumption?: number; // gemessener Heiz-/Warmwasserverbrauch (Einheiten)
+  /** Aktive Mietmonate im Abrechnungsjahr (0..12). Kürzt die zeitanteilig
+   *  umzulegenden Kosten bei unterjährigem Mietverhältnis; Leerstand trägt der
+   *  Vermieter. Fehlt → 12 (volles Jahr, keine Kürzung). Verbrauchskosten
+   *  bleiben ungekürzt (Zähler deckt bereits nur die Nutzungszeit ab). */
+  monthsActive?: number;
 }
 
 export interface CostInput {
@@ -72,8 +77,15 @@ function participants(units: UnitInput[]): AllocationParticipant[] {
  * korrektur. Interface trägt bereits `consumption` je Einheit.
  */
 export function buildStatement(units: UnitInput[], costs: CostInput[]) {
-  const perUnit: Record<string, number> = {};
-  units.forEach((u) => (perUnit[u.id] = 0));
+  // Zwei Töpfe je Einheit: zeitanteilig kürzbare Kosten (Fläche/Einheit/Person/
+  // MEA) und Verbrauchskosten (Zähler). Nur der Zeit-Topf wird bei unterjährigem
+  // Mietverhältnis gekürzt; der Verbrauch deckt bereits nur die Nutzungszeit ab.
+  const perUnitTime: Record<string, number> = {};
+  const perUnitCons: Record<string, number> = {};
+  units.forEach((u) => {
+    perUnitTime[u.id] = 0;
+    perUnitCons[u.id] = 0;
+  });
   let totalUmlage = 0;
 
   const totalConsumption = units.reduce((a, u) => a + (u.consumption ?? 0), 0);
@@ -87,21 +99,23 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
       const share = Math.min(1, Math.max(0, cost.consumptionShare ?? HEATING_CONSUMPTION_SHARE));
       const consAmount = cost.amount * share;
       const baseAmount = cost.amount - consAmount;
-      allocate(baseAmount, "AREA", participants(units)).forEach((r) => (perUnit[r.id] += r.amount));
-      allocate(consAmount, "CONSUMPTION", participants(units)).forEach((r) => (perUnit[r.id] += r.amount));
+      allocate(baseAmount, "AREA", participants(units)).forEach((r) => (perUnitTime[r.id] += r.amount));
+      allocate(consAmount, "CONSUMPTION", participants(units)).forEach((r) => (perUnitCons[r.id] += r.amount));
     } else {
       // Nicht-Heizung, oder Heizung ohne Verbrauchsdaten → nach gewählter Methode
       // (CONSUMPTION ohne Zählerdaten fällt auf Fläche zurück).
       const method: AllocationMethod =
         cost.method === "CONSUMPTION" && totalConsumption <= 0 ? "AREA" : cost.method;
-      allocate(cost.amount, method, participants(units)).forEach((r) => (perUnit[r.id] += r.amount));
+      const bucket = method === "CONSUMPTION" ? perUnitCons : perUnitTime;
+      allocate(cost.amount, method, participants(units)).forEach((r) => (bucket[r.id] += r.amount));
     }
     totalUmlage += cost.amount;
   }
 
   const round = (n: number) => Math.round(n * 100) / 100;
   const lines: StatementLine[] = units.map((u) => {
-    const allocated = round(perUnit[u.id]);
+    const factor = Math.min(12, Math.max(0, u.monthsActive ?? 12)) / 12;
+    const allocated = round(perUnitTime[u.id] * factor + perUnitCons[u.id]);
     return {
       unitId: u.id,
       label: u.label,

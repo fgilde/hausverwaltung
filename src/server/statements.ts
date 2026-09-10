@@ -79,6 +79,9 @@ export async function computeStatement(
       mea: u.mea ?? undefined,
       prepayment: prepaymentMonthly * (lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0),
       consumption,
+      // Zeitanteil: unterjähriges Mietverhältnis kürzt die umgelegten Kosten
+      // (Leerstand trägt der Vermieter). Kein Vertrag → 0 (kein Mieter).
+      monthsActive: lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0,
     };
   });
 

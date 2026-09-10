@@ -295,6 +295,8 @@ statements: {
     <p>Heiz-/Warmwasserkosten werden nach HeizkostenV aufgeteilt: standardmäßig <strong>30 % nach Fläche, 70 % nach Verbrauch</strong>. Der Verbrauchsanteil ist einstellbar — als Mandanten-Standard (Einstellungen → Erweitert) und je Kostenposition; 100 % = rein nach gemessenem Verbrauch. Unterjährige Ableseperioden werden per <strong>Gradtagszahl (§9b)</strong> auf einen Jahreswert hochgerechnet.</p>
     <h3>Vorauszahlungen (anteilig)</h3>
     <p>Bei unterjährigem Miet-Beginn oder -Ende werden die Nebenkosten-Vorauszahlungen nur für die tatsächlichen Monate des Mietverhältnisses im Abrechnungsjahr angesetzt (nicht pauschal 12).</p>
+    <h3>Umlage (zeitanteilig)</h3>
+    <p>Auch die umgelegten Kosten werden bei unterjährigem Mietverhältnis zeitanteilig gekürzt: Der Mieter zahlt nur den Anteil seiner aktiven Mietmonate, den <strong>Leerstand trägt der Vermieter</strong>. Verbrauchskosten (Zähler) bleiben ungekürzt, da die Ablesedifferenz bereits nur die Nutzungszeit abdeckt.</p>
     <h3>Grundsteuer &amp; Versicherung</h3>
     <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen.</p>`,
   en: `
@@ -314,6 +316,8 @@ statements: {
     <p>Heating/hot-water costs are split per the German ordinance: by default <strong>30% by area, 70% by consumption</strong>. The consumption share is configurable — as a tenant default (Settings → Advanced) and per cost item; 100% = purely by metered consumption. Part-year reading periods are extrapolated to a full year via <strong>degree-days (§9b)</strong>.</p>
     <h3>Prepayments (prorated)</h3>
     <p>For a mid-year lease start or end, the service-charge prepayments count only the months the lease actually exists within the statement year (not a flat 12).</p>
+    <h3>Allocation (prorated)</h3>
+    <p>The allocated costs are prorated too for a part-year lease: the tenant pays only the share of their active lease months, and the <strong>landlord bears the vacancy</strong>. Consumption costs (meters) are not prorated, since the reading difference already covers only the period of use.</p>
     <h3>Property tax &amp; insurance</h3>
     <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost".</p>`
 },
@@ -407,7 +411,8 @@ portals: {
       <li><strong>Mieter</strong>: eigene Mietverhältnisse, offene Posten, Beschlüsse, Dokumente, <strong>Schaden melden</strong> und der Status eigener Meldungen.</li>
       <li><strong>Eigentümer</strong>: eigene Einheiten, Beschlüsse und Dokumente (lesend).</li>
     </ul>
-    <p>Zugänge legt der Verwalter unter <em>Einstellungen → Benutzer</em> an und verknüpft sie mit einer Person.</p>`,
+    <p>Zugänge legt der Verwalter unter <em>Einstellungen → Benutzer</em> an und verknüpft sie mit einer Person.</p>
+    <div class="warn">Im Portal (Liste und Download) erscheinen nur Dokumente, die <strong>ausdrücklich der Person</strong> zugeordnet sind. Reine Objekt-, Gebäude- oder Wohnungs-Dokumente ohne Personenbezug (Steuer, Versicherung, Kauf, interne Rechnungen …) bleiben intern. Soll ein Mieter ein Dokument sehen, ordne es seiner Person zu.</div>`,
   en: `
     <h2>Portals</h2>
     <p>Tenants and owners get their own lightweight portal (login via their person-linked account). They only see their own data:</p>
@@ -415,7 +420,8 @@ portals: {
       <li><strong>Tenant</strong>: own leases, open items, resolutions, documents, <strong>report an issue</strong> and the status of their reports.</li>
       <li><strong>Owner</strong>: own units, resolutions and documents (read-only).</li>
     </ul>
-    <p>The manager creates logins under <em>Settings → Users</em> and links them to a person.</p>`
+    <p>The manager creates logins under <em>Settings → Users</em> and links them to a person.</p>
+    <div class="warn">The portal (list and download) only shows documents <strong>explicitly assigned to the person</strong>. Property-, building- or unit-level documents without a person link (tax, insurance, purchase, internal invoices …) stay internal. To let a tenant see a document, assign it to their person.</div>`
 },
 
 notifications: {

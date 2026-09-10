@@ -108,4 +108,43 @@ describe("buildStatement", () => {
     expect(lines[0].allocated).toBe(500);
     expect(lines[1].allocated).toBe(500);
   });
+
+  describe("#12 Zeitanteil bei unterjährigem Mietverhältnis", () => {
+    it("monthsActive 4 kürzt zeitanteilige Kosten auf 4/12", () => {
+      // Beispiel aus Issue: eine Wohnung, 1200 € nach Einheit, Mietbeginn 01.09.
+      const { lines } = buildStatement(
+        [{ id: "a", label: "A", area: 50, persons: 1, prepayment: 0, monthsActive: 4 }],
+        [{ id: "c1", amount: 1200, method: "UNITS", umlagefaehig: true }],
+      );
+      expect(lines[0].allocated).toBe(400); // 1200 * 4/12
+    });
+
+    it("monthsActive 12 (Default) kürzt nicht", () => {
+      const { lines } = buildStatement(
+        [{ id: "a", label: "A", area: 50, persons: 1, prepayment: 0 }],
+        [{ id: "c1", amount: 1200, method: "UNITS", umlagefaehig: true }],
+      );
+      expect(lines[0].allocated).toBe(1200);
+    });
+
+    it("Verbrauchskosten bleiben ungekürzt, nur Grundkosten anteilig", () => {
+      // 1000 € Heizung: 300 Grundkosten (Fläche, kürzbar) + 700 Verbrauch (fix).
+      // monthsActive 6 → Grundkosten 150, Verbrauch 700 unverändert.
+      const heizUnits = [
+        { id: "a", label: "A", area: 50, persons: 1, prepayment: 0, consumption: 100, monthsActive: 6 },
+      ];
+      const { lines } = buildStatement(heizUnits, [
+        { id: "h", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true },
+      ]);
+      expect(lines[0].allocated).toBe(850); // 300*0.5 + 700
+    });
+
+    it("kein Vertrag (monthsActive 0) → nichts umgelegt", () => {
+      const { lines } = buildStatement(
+        [{ id: "a", label: "A", area: 50, persons: 1, prepayment: 0, monthsActive: 0 }],
+        [{ id: "c1", amount: 1200, method: "AREA", umlagefaehig: true }],
+      );
+      expect(lines[0].allocated).toBe(0);
+    });
+  });
 });

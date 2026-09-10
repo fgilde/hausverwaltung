@@ -48,8 +48,11 @@ export default async function PortalPage() {
     propertyIds.length
       ? prisma.resolution.findMany({ where: { tenantId: user.tenantId, propertyId: { in: propertyIds } }, orderBy: { number: "asc" } })
       : Promise.resolve([]),
-    propertyIds.length
-      ? prisma.document.findMany({ where: { tenantId: user.tenantId, propertyId: { in: propertyIds } }, orderBy: { createdAt: "desc" } })
+    // Datenschutz: nur ausdrücklich dieser Person zugeordnete Dokumente. Objekt-/
+    // Wohnungs-Dokumente ohne Personenbezug (Steuer, Versicherung, Kauf …) bleiben
+    // intern und werden im Portal nicht angezeigt.
+    dbUser?.personId
+      ? prisma.document.findMany({ where: { tenantId: user.tenantId, personId: dbUser.personId }, orderBy: { createdAt: "desc" } })
       : Promise.resolve([]),
   ]);
 
