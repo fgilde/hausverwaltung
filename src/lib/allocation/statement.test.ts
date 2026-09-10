@@ -1,5 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { buildStatement } from "./statement";
+import { buildStatement, monthsActiveInYear } from "./statement";
+
+const d = (s: string) => new Date(s + "T00:00:00Z");
+
+describe("monthsActiveInYear (#8 anteilige Vorauszahlung)", () => {
+  it("ganzjährig = 12", () => {
+    expect(monthsActiveInYear(d("2020-01-01"), null, 2026)).toBe(12);
+  });
+  it("Mietbeginn 01.09. = 4 Monate (Sep–Dez)", () => {
+    expect(monthsActiveInYear(d("2026-09-01"), null, 2026)).toBe(4);
+  });
+  it("Mietende 31.03. = 3 Monate (Jan–Mär)", () => {
+    expect(monthsActiveInYear(d("2020-01-01"), d("2026-03-31"), 2026)).toBe(3);
+  });
+  it("außerhalb des Jahres = 0", () => {
+    expect(monthsActiveInYear(d("2027-01-01"), null, 2026)).toBe(0);
+    expect(monthsActiveInYear(d("2020-01-01"), d("2025-12-31"), 2026)).toBe(0);
+  });
+  it("Beginn Mitte Monat zählt den Monat", () => {
+    expect(monthsActiveInYear(d("2026-09-15"), null, 2026)).toBe(4);
+  });
+});
 
 describe("buildStatement", () => {
   const units = [

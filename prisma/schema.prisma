@@ -501,6 +501,7 @@ enum ChargeType {
   MIETE
   NEBENKOSTEN
   HAUSGELD
+  KAUTION
   SONSTIGES
 }
 

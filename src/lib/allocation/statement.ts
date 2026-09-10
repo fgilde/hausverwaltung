@@ -4,6 +4,21 @@ import { allocate, type AllocationMethod, type AllocationParticipant } from "./i
  *  umgelegt wird (zulässig 50–70 %; hier 70 %). Rest = Grundkosten nach Fläche. */
 export const HEATING_CONSUMPTION_SHARE = 0.7;
 
+/**
+ * Anzahl Kalendermonate des Jahres `year`, in denen ein Mietverhältnis aktiv ist.
+ * Grundlage für die anteilige Vorauszahlung bei unterjährigem Miet-Beginn/-Ende
+ * (sonst würde immer mit 12 Monaten gerechnet).
+ */
+export function monthsActiveInYear(start: Date, end: Date | null, year: number): number {
+  let count = 0;
+  for (let m = 0; m < 12; m++) {
+    const monthStart = new Date(Date.UTC(year, m, 1));
+    const monthEnd = new Date(Date.UTC(year, m + 1, 0, 23, 59, 59));
+    if (start <= monthEnd && (!end || end >= monthStart)) count++;
+  }
+  return count;
+}
+
 export interface UnitInput {
   id: string;
   label: string;

@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { buildStatement, type UnitInput, type CostInput } from "@/lib/allocation/statement";
+import { buildStatement, monthsActiveInYear, type UnitInput, type CostInput } from "@/lib/allocation/statement";
 import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
 
@@ -77,7 +77,7 @@ export async function computeStatement(
       area: Number(u.area),
       persons: lease?.personCount ?? 1,
       mea: u.mea ?? undefined,
-      prepayment: prepaymentMonthly * 12,
+      prepayment: prepaymentMonthly * (lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0),
       consumption,
     };
   });

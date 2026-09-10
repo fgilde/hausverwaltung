@@ -210,7 +210,9 @@ finance: {
     <ul>
       <li>Zahlungen manuell einer Sollstellung zuordnen.</li>
       <li><strong>camt.053</strong>-Import: Kontoauszug einlesen, Eingänge werden offenen Posten automatisch zugeordnet (Betragsabgleich).</li>
-    </ul>`,
+    </ul>
+    <h3>Kaution in Raten</h3>
+    <p>Für Kautionszahlungen in Raten legt man je Rate eine Sollstellung vom Typ <strong>Kaution</strong> an (mit Betrag und Fälligkeit). Die Raten erscheinen als offene Posten und Zahlungseingänge werden ihnen zugeordnet — wie bei Miete.</p>`,
   en: `
     <h2>Accounts, charges, payments</h2>
     <p>Under <em>Finances</em> you manage accounts, generate charges and book payments. Positive = credit, negative = arrears.</p>
@@ -222,7 +224,9 @@ finance: {
     <ul>
       <li>Assign payments to a charge manually.</li>
       <li><strong>camt.053</strong> import: read a bank statement; incoming payments are auto-matched to open items (by amount).</li>
-    </ul>`
+    </ul>
+    <h3>Deposit in instalments</h3>
+    <p>For a deposit paid in instalments, create one charge of type <strong>Deposit</strong> per instalment (amount + due date). They show as open items and incoming payments are matched to them — just like rent.</p>`
 },
 
 bank: {
@@ -289,6 +293,8 @@ statements: {
     <div class="warn">Steht „Verbrauch", sind aber keine Zählerstände hinterlegt, fällt die Position automatisch auf <strong>Fläche</strong> zurück.</div>
     <h3>HeizkostenV</h3>
     <p>Heiz-/Warmwasserkosten werden nach HeizkostenV aufgeteilt: standardmäßig <strong>30 % nach Fläche, 70 % nach Verbrauch</strong>. Der Verbrauchsanteil ist einstellbar — als Mandanten-Standard (Einstellungen → Erweitert) und je Kostenposition; 100 % = rein nach gemessenem Verbrauch. Unterjährige Ableseperioden werden per <strong>Gradtagszahl (§9b)</strong> auf einen Jahreswert hochgerechnet.</p>
+    <h3>Vorauszahlungen (anteilig)</h3>
+    <p>Bei unterjährigem Miet-Beginn oder -Ende werden die Nebenkosten-Vorauszahlungen nur für die tatsächlichen Monate des Mietverhältnisses im Abrechnungsjahr angesetzt (nicht pauschal 12).</p>
     <h3>Grundsteuer &amp; Versicherung</h3>
     <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen.</p>`,
   en: `
@@ -306,6 +312,8 @@ statements: {
     <div class="warn">If "consumption" is chosen but no meter readings exist, the item falls back to <strong>area</strong> automatically.</div>
     <h3>Heating costs ordinance</h3>
     <p>Heating/hot-water costs are split per the German ordinance: by default <strong>30% by area, 70% by consumption</strong>. The consumption share is configurable — as a tenant default (Settings → Advanced) and per cost item; 100% = purely by metered consumption. Part-year reading periods are extrapolated to a full year via <strong>degree-days (§9b)</strong>.</p>
+    <h3>Prepayments (prorated)</h3>
+    <p>For a mid-year lease start or end, the service-charge prepayments count only the months the lease actually exists within the statement year (not a flat 12).</p>
     <h3>Property tax &amp; insurance</h3>
     <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost".</p>`
 },

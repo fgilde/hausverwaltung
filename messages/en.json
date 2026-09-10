@@ -657,6 +657,7 @@
     "MIETE": "Rent",
     "NEBENKOSTEN": "Service charges",
     "HAUSGELD": "HOA fee",
+    "KAUTION": "Deposit",
     "SONSTIGES": "Other"
   },
   "paymentDirection": {

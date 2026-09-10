@@ -657,6 +657,7 @@
     "MIETE": "Miete",
     "NEBENKOSTEN": "Nebenkosten",
     "HAUSGELD": "Hausgeld",
+    "KAUTION": "Kaution",
     "SONSTIGES": "Sonstiges"
   },
   "paymentDirection": {

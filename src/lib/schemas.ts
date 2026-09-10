@@ -149,7 +149,7 @@ export const accountSchema = z.object({
 
 export const chargeSchema = z.object({
   leaseId: optionalStr,
-  type: z.enum(["MIETE", "NEBENKOSTEN", "HAUSGELD", "SONSTIGES"]),
+  type: z.enum(["MIETE", "NEBENKOSTEN", "HAUSGELD", "KAUTION", "SONSTIGES"]),
   period: z.coerce.date(),
   dueDate: z.coerce.date(),
   amount: z.coerce.number(),

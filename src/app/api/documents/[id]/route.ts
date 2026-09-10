@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextRequest } from "next/server";
 import { auth } from "@/auth";
 import { actingTenantId } from "@/lib/acting-tenant";
@@ -38,12 +39,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!doc) return new Response("Not found", { status: 404 });
 
   const buf = await readFile(doc.storageKey);
+  // Dateiendung bewahren: fehlt sie im Anzeigenamen, aus dem Storage-Key ergänzen.
+  const ext = path.extname(doc.storageKey);
+  const filename = ext && !path.extname(doc.name) ? doc.name + ext : doc.name;
+  const asciiName = filename.replace(/[^\x20-\x7e]/g, "_").replace(/"/g, "");
   // ?inline=1 → im Browser anzeigen statt herunterladen (Vorschau)
   const inline = new URL(req.url).searchParams.get("inline") === "1";
   return new Response(new Uint8Array(buf), {
     headers: {
       "Content-Type": doc.mime,
-      "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${encodeURIComponent(doc.name)}"`,
+      "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
     },
   });
 }
