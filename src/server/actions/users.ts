@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireRole, assignableRoles, canDeleteUser } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { userCreateSchema, type ActionState } from "@/lib/schemas";
+import { userCreateSchema, userEditSchema, type ActionState } from "@/lib/schemas";
 
 const MANAGE_ROLES = ["VERWALTER"] as const; // ADMIN ist via roleAllows immer dabei
 
@@ -44,6 +44,48 @@ export async function createUser(_p: ActionState, fd: FormData): Promise<ActionS
     },
   });
   await audit(actor, "CREATE", "User", created.id, `${name} (${role})`);
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function updateUser(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const actor = await requireRole([...MANAGE_ROLES]);
+  const id = String(fd.get("id") ?? "");
+  const r = userEditSchema.safeParse(Object.fromEntries(fd));
+  if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
+  const { name, email, role, personId } = r.data;
+
+  const target = await prisma.user.findFirst({
+    where: { id, tenantId: actor.tenantId },
+    select: { id: true, role: true },
+  });
+  if (!target) return { error: "Benutzer nicht gefunden." };
+
+  // Actor muss sowohl die bisherige als auch die neue Rolle verwalten dürfen.
+  // Ausnahme: die unveränderte Rolle ist immer zulässig (z. B. eigenes Profil).
+  const canManage = target.id === actor.id || assignableRoles(actor.role).includes(target.role);
+  const roleOk = role === target.role || assignableRoles(actor.role).includes(role);
+  if (!canManage || !roleOk) {
+    return { error: "Für diese Rolle fehlt die Berechtigung." };
+  }
+
+  // E-Mail global eindeutig (außer beim Nutzer selbst).
+  const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  if (existing && existing.id !== target.id) return { error: "E-Mail-Adresse bereits vergeben." };
+
+  if (personId) {
+    const person = await prisma.person.findFirst({
+      where: { id: personId, tenantId: actor.tenantId },
+      select: { id: true },
+    });
+    if (!person) return { error: "Person nicht gefunden." };
+  }
+
+  await prisma.user.update({
+    where: { id: target.id },
+    data: { name, email, role, personId: personId ?? null },
+  });
+  await audit(actor, "UPDATE", "User", target.id, `${name} (${role})`);
   revalidatePath("/", "layout");
   return { ok: true };
 }

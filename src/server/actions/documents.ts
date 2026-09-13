@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { saveFile, deleteFile } from "@/lib/storage";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
-import type { ActionState } from "@/lib/schemas";
+import { documentEditSchema, type ActionState } from "@/lib/schemas";
 
 const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
 
@@ -55,6 +55,38 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
       eInvoice,
       invoiceNo: parsed?.invoiceNumber ?? null,
       invoiceTotal: parsed?.total ?? null,
+    },
+  });
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function updateDocument(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const id = String(fd.get("id") ?? "");
+  const r = documentEditSchema.safeParse(Object.fromEntries(fd));
+  if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
+  const { name, category, propertyId, unitId, personId } = r.data;
+
+  const doc = await prisma.document.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true } });
+  if (!doc) return { error: "Dokument nicht gefunden" };
+
+  // Zuordnungen müssen zum Mandanten gehören.
+  if (propertyId && !(await prisma.property.findFirst({ where: { id: propertyId, tenantId: user.tenantId }, select: { id: true } })))
+    return { error: "Objekt nicht gefunden" };
+  if (unitId && !(await prisma.unit.findFirst({ where: { id: unitId, tenantId: user.tenantId }, select: { id: true } })))
+    return { error: "Einheit nicht gefunden" };
+  if (personId && !(await prisma.person.findFirst({ where: { id: personId, tenantId: user.tenantId }, select: { id: true } })))
+    return { error: "Person nicht gefunden" };
+
+  await prisma.document.update({
+    where: { id: doc.id },
+    data: {
+      name,
+      category: category as never,
+      propertyId: propertyId ?? null,
+      unitId: unitId ?? null,
+      personId: personId ?? null,
     },
   });
   revalidatePath("/", "layout");

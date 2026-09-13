@@ -86,6 +86,42 @@ export function TextAreaField({
   );
 }
 
+export function MultiSelectField({
+  name,
+  label,
+  options,
+  defaultValues = [],
+}: {
+  name: string;
+  label: string;
+  options: { value: string; label: string }[];
+  defaultValues?: string[];
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-input p-2 dark:bg-input/30">
+        {options.length === 0 ? (
+          <p className="px-1 text-sm text-muted-foreground">—</p>
+        ) : (
+          options.map((o) => (
+            <label key={o.value} className="flex items-center gap-2 px-1 py-0.5 text-sm">
+              <input
+                type="checkbox"
+                name={name}
+                value={o.value}
+                defaultChecked={defaultValues.includes(o.value)}
+                className="size-4 rounded border-input"
+              />
+              {o.label}
+            </label>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function SelectField({
   name,
   label,

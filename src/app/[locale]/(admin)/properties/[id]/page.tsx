@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { computeMgmtFee, type FeeType } from "@/lib/fee";
 import { buildAreaStatement, areaTimeWeights, VACANCY_ID } from "@/lib/allocation/area-time";
 import { AreaAllocationDialog } from "@/components/area-dialogs";
@@ -45,6 +46,7 @@ export default async function PropertyDetailPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const property = await prisma.property.findFirst({
     where: { id, tenantId: user.tenantId },
@@ -246,7 +248,7 @@ export default async function PropertyDetailPage({
                       {a.pricePerSqm != null ? money(Number(a.pricePerSqm), locale) : t("common.none")}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {date(a.from, locale)} – {a.to ? date(a.to, locale) : "…"}
+                      {date(a.from, df)} – {a.to ? date(a.to, df) : "…"}
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">

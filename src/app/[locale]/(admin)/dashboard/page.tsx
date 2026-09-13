@@ -18,6 +18,7 @@ import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import {
   Card,
   CardContent,
@@ -46,6 +47,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
   const now = new Date();
 
@@ -245,7 +247,7 @@ export default async function DashboardPage() {
                     <span>{task.title}</span>
                     {task.dueDate ? (
                       <span className={`ml-2 text-xs ${task.dueDate < now ? "text-destructive" : "text-muted-foreground"}`}>
-                        {date(task.dueDate, locale)}
+                        {date(task.dueDate, df)}
                       </span>
                     ) : null}
                   </div>

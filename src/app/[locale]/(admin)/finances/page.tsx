@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { BankSync } from "@/components/bank-sync";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,7 @@ export default async function FinancesPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
 
   const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks] = await Promise.all([
@@ -181,14 +183,14 @@ export default async function FinancesPage({
               <TableBody>
                 {visibleRows.map(({ c, open, status, dunLevel }) => (
                   <TableRow key={c.id}>
-                    <TableCell>{date(c.period, locale)}</TableCell>
+                    <TableCell>{date(c.period, df)}</TableCell>
                     <TableCell>{t(`chargeType.${c.type}`)}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {c.lease ? `${c.lease.unit.building.property.name} · ${c.lease.unit.label}` : t("common.none")}
                     </TableCell>
                     <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
                     <TableCell className="text-right">{money(Math.max(0, open), locale)}</TableCell>
-                    <TableCell>{date(c.dueDate, locale)}</TableCell>
+                    <TableCell>{date(c.dueDate, df)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Badge variant={statusVariant(status)}>{t(`finances.status${status}`)}</Badge>

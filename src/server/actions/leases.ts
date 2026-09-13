@@ -28,19 +28,28 @@ export async function createLease(_p: ActionState, fd: FormData): Promise<Action
   const entries = Object.fromEntries(fd);
   const r = leaseCreateSchema.safeParse(entries);
   if (!r.success) return fail(r.error.issues[0]?.message);
-  const [unit, person] = await Promise.all([
+
+  // Mehrere Mieter möglich (personIds als Mehrfachfeld); Duplikate entfernen.
+  const personIds = [...new Set(fd.getAll("personIds").map(String).filter(Boolean))];
+  if (personIds.length === 0) return fail("Mindestens eine Person wählen");
+
+  const [unit, persons] = await Promise.all([
     prisma.unit.findFirst({ where: { id: r.data.unitId, tenantId: user.tenantId }, select: { id: true } }),
-    prisma.person.findFirst({ where: { id: r.data.personId, tenantId: user.tenantId }, select: { id: true } }),
+    prisma.person.findMany({ where: { id: { in: personIds }, tenantId: user.tenantId }, select: { id: true } }),
   ]);
-  if (!unit || !person) return fail("Einheit oder Person nicht gefunden");
-  const { unitId, personId, ...data } = r.data;
+  if (!unit) return fail("Einheit nicht gefunden");
+  if (persons.length !== personIds.length) return fail("Person nicht gefunden");
+
+  // personId (API-Feld) hier verwerfen — das Web-Formular nutzt personIds.
+  const { unitId, personId: _ignored, ...data } = r.data;
+  void _ignored;
   await prisma.lease.create({
     data: {
       ...data,
       custom: pickCustom(entries),
       tenantId: user.tenantId,
       unitId,
-      renters: { create: { tenantId: user.tenantId, personId } },
+      renters: { create: personIds.map((personId) => ({ tenantId: user.tenantId, personId })) },
     },
   });
   return done();

@@ -2,6 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -21,6 +22,7 @@ export default async function InsurancePage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
   const now = new Date();
 
@@ -71,7 +73,7 @@ export default async function InsurancePage() {
                     <TableCell className="text-right">{money(Number(i.premium), locale)}</TableCell>
                     <TableCell>
                       {i.endDate ? (
-                        <span className={i.endDate < now ? "text-destructive" : ""}>{date(i.endDate, locale)}</span>
+                        <span className={i.endDate < now ? "text-destructive" : ""}>{date(i.endDate, df)}</span>
                       ) : (
                         <Badge variant="outline">{t("leases.unlimited")}</Badge>
                       )}

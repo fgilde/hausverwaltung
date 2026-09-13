@@ -91,7 +91,9 @@ export const readingSchema = z.object({
 
 export const leaseCreateSchema = z.object({
   unitId: z.string().min(1),
-  personId: z.string().min(1),
+  // Einzelperson für die REST-API (api-write); das Web-Formular nutzt personIds
+  // (Mehrfachauswahl) und liest diese separat via FormData.getAll.
+  personId: optionalStr,
   startDate: z.coerce.date(),
   endDate: optionalDate,
   rentCold: z.coerce.number().nonnegative(),
@@ -343,11 +345,28 @@ export const emailSchema = z.object({
   body: z.string().trim().min(1),
 });
 
+const roleEnum = z.enum(["ADMIN", "VERWALTER", "BUCHHALTUNG", "BEIRAT", "EIGENTUEMER", "MIETER", "HANDWERKER"]);
+
 export const userCreateSchema = z.object({
   name: z.string().trim().min(1),
   email: z.string().trim().email(),
   password: z.string().min(6),
-  role: z.enum(["ADMIN", "VERWALTER", "BUCHHALTUNG", "BEIRAT", "EIGENTUEMER", "MIETER", "HANDWERKER"]),
+  role: roleEnum,
+  personId: optionalStr,
+});
+
+export const userEditSchema = z.object({
+  name: z.string().trim().min(1),
+  email: z.string().trim().email(),
+  role: roleEnum,
+  personId: optionalStr,
+});
+
+export const documentEditSchema = z.object({
+  name: z.string().trim().min(1),
+  category: z.enum(["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "SONSTIGES"]),
+  propertyId: optionalStr,
+  unitId: optionalStr,
   personId: optionalStr,
 });
 

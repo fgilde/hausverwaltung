@@ -37,6 +37,19 @@ export async function updateStatementDefaults(_p: ActionState, fd: FormData): Pr
   return { ok: true };
 }
 
+// --- Datumsformat ---
+
+export async function updateDateFormat(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireRole(["ADMIN"]);
+  const raw = str(fd.get("dateFormat"));
+  const allowed = ["de-DE", "en-GB", "en-US", "iso"];
+  const dateFormat = raw && allowed.includes(raw) ? raw : null; // leer/unbekannt = UI-Sprache
+  await prisma.tenant.update({ where: { id: user.tenantId }, data: { dateFormat } });
+  await audit(user, "UPDATE", "Tenant", user.tenantId, `Datumsformat: ${dateFormat ?? "Auto"}`);
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 // --- KI-Konfiguration ---
 
 export async function updateAiConfig(_p: ActionState, fd: FormData): Promise<ActionState> {

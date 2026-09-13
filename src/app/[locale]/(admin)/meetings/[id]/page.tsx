@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const meeting = await prisma.meeting.findFirst({
     where: { id, tenantId: user.tenantId },
@@ -38,7 +40,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
           </Button>
           <h1 className="text-2xl font-semibold tracking-tight">{meeting.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {meeting.property.name} · {date(meeting.date, locale)}
+            {meeting.property.name} · {date(meeting.date, df)}
             {meeting.location ? ` · ${meeting.location}` : ""}
           </p>
           <Badge variant={meeting.status === "DURCHGEFUEHRT" ? "secondary" : "outline"}>

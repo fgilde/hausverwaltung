@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { depositInterest } from "@/lib/deposit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const lease = await prisma.lease.findFirst({
     where: { id, tenantId: user.tenantId },
@@ -94,7 +96,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
             {lease.unit.building.property.name} · {lease.unit.label}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {date(lease.startDate, locale)} – {lease.endDate ? date(lease.endDate, locale) : t("leases.unlimited")}
+            {date(lease.startDate, df)} – {lease.endDate ? date(lease.endDate, df) : t("leases.unlimited")}
           </p>
         </div>
         <div className="flex gap-1">
@@ -186,7 +188,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                       <div className="text-muted-foreground">
                         {t(`depositType.${dep.type}`)}
                         {dep.account ? ` · ${dep.account.name}` : ""}
-                        {dep.receivedDate ? ` · ${date(dep.receivedDate, locale)}` : ""}
+                        {dep.receivedDate ? ` · ${date(dep.receivedDate, df)}` : ""}
                       </div>
                       {interest > 0 && (
                         <div className="text-muted-foreground">
@@ -196,7 +198,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                       )}
                       {dep.returnedDate && (
                         <div className="text-xs text-muted-foreground">
-                          {t("deposit.returnedDate")}: {date(dep.returnedDate, locale)}
+                          {t("deposit.returnedDate")}: {date(dep.returnedDate, df)}
                         </div>
                       )}
                     </div>
@@ -268,7 +270,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                 {lease.adjustments.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell>{t(`adjustmentType.${a.type}`)}</TableCell>
-                    <TableCell>{date(a.effectiveDate, locale)}</TableCell>
+                    <TableCell>{date(a.effectiveDate, df)}</TableCell>
                     <TableCell className="text-right">{money(Number(a.newRentCold), locale)}</TableCell>
                     <TableCell>
                       <Badge variant={a.applied ? "secondary" : "outline"}>

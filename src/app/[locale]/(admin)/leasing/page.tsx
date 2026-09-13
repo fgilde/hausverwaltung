@@ -2,6 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ export default async function LeasingPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const now = new Date();
   const soon = new Date(now.getTime() + SOON_DAYS * 86_400_000);
 
@@ -117,7 +119,7 @@ export default async function LeasingPage() {
                       {l.unit.building.property.name} · {l.unit.label} ·{" "}
                       {l.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ")}
                     </span>
-                    <Badge variant="secondary">{l.endDate ? date(l.endDate, locale) : ""}</Badge>
+                    <Badge variant="secondary">{l.endDate ? date(l.endDate, df) : ""}</Badge>
                   </Link>
                 ))}
               </div>

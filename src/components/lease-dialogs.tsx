@@ -2,7 +2,7 @@ import { Plus, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
-import { TextField, SelectField, CustomFields } from "@/components/form-fields";
+import { TextField, SelectField, MultiSelectField, CustomFields } from "@/components/form-fields";
 import {
   createLease,
   updateLease,
@@ -88,12 +88,13 @@ export async function LeaseDialog({
         />
       )}
 
-      {/* Mieter-Person nur im Create (im Edit über Mieter-Verwaltung) */}
+      {/* Mieter-Person(en) nur im Create (im Edit über Mieter-Verwaltung).
+          Mehrfachauswahl für Verträge mit mehreren Mietern. */}
       {!edit &&
         (presetPersonId ? (
-          <input type="hidden" name="personId" value={presetPersonId} />
+          <input type="hidden" name="personIds" value={presetPersonId} />
         ) : (
-          <SelectField name="personId" label={t("leases.selectPerson")} options={persons ?? []} />
+          <MultiSelectField name="personIds" label={t("leases.selectPersons")} options={persons ?? []} />
         ))}
       <div className="grid grid-cols-2 gap-4">
         <TextField name="startDate" label={t("leases.start")} type="date" defaultValue={iso(lease?.startDate)} />

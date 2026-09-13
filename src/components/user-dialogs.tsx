@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { UserPlus, KeyRound } from "lucide-react";
-import { createUser, resetPassword } from "@/server/actions/users";
+import { UserPlus, KeyRound, Pencil } from "lucide-react";
+import { createUser, updateUser, resetPassword } from "@/server/actions/users";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField } from "@/components/form-fields";
@@ -22,6 +22,41 @@ export function ResetPasswordDialog({ id }: { id: string }) {
     >
       <input type="hidden" name="id" value={id} />
       <TextField name="password" label={t("fields.password")} type="password" />
+    </CrudDialog>
+  );
+}
+
+export function EditUserDialog({
+  user,
+  roles,
+  persons,
+}: {
+  user: { id: string; name: string; email: string; role: string; personId: string | null };
+  roles: { value: string; label: string }[];
+  persons: { value: string; label: string }[];
+}) {
+  const t = useTranslations();
+  return (
+    <CrudDialog
+      trigger={
+        <Button variant="ghost" size="icon" aria-label={t("common.edit")} title={t("common.edit")}>
+          <Pencil className="size-4" />
+        </Button>
+      }
+      title={t("settings.editUser")}
+      action={updateUser}
+      submitLabel={t("common.save")}
+    >
+      <input type="hidden" name="id" value={user.id} />
+      <TextField name="name" label={t("fields.name")} defaultValue={user.name} />
+      <TextField name="email" label={t("fields.email")} type="email" defaultValue={user.email} />
+      <SelectField name="role" label={t("settings.role")} options={roles} defaultValue={user.role} />
+      <SelectField
+        name="personId"
+        label={t("settings.linkedPerson")}
+        options={[{ value: "", label: t("common.none") }, ...persons]}
+        defaultValue={user.personId ?? ""}
+      />
     </CrudDialog>
   );
 }

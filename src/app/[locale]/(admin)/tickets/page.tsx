@@ -2,6 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,7 @@ export default async function TicketsPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
 
   const [tickets, contractors, maintenance, properties, units, users] = await Promise.all([
@@ -101,7 +103,7 @@ export default async function TicketsPage() {
                         <Badge variant={statusVariant(tk.status)}>{t(`ticketStatus.${tk.status}`)}</Badge>
                       </TableCell>
                       <TableCell className={overdue ? "font-medium text-destructive" : "text-muted-foreground"}>
-                        {tk.dueDate ? date(tk.dueDate, locale) : t("common.none")}
+                        {tk.dueDate ? date(tk.dueDate, df) : t("common.none")}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {tk.assignee?.name ?? t("tickets.unassigned")}
@@ -191,7 +193,7 @@ export default async function TicketsPage() {
                   <div className="text-sm">
                     <span className="font-medium">{m.title}</span>
                     <div className="text-xs text-muted-foreground">
-                      {m.property.name} · {t("tickets.nextDue")}: {date(m.nextDue, locale)}
+                      {m.property.name} · {t("tickets.nextDue")}: {date(m.nextDue, df)}
                       {m.nextDue < now && (
                         <Badge variant="destructive" className="ml-2">
                           {t("tickets.overdue")}

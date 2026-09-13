@@ -72,7 +72,9 @@ concepts: {
       <tr><td>MEA</td><td>Miteigentumsanteile (Tausendstel) — Basis der WEG-Umlage.</td></tr>
     </table>
     <h3>Rollen</h3>
-    <p><strong>Administrator</strong> und <strong>Verwalter</strong> sehen die volle App, <strong>Buchhaltung</strong> die Finanzbereiche. <strong>Mieter</strong>, <strong>Eigentümer</strong> und <strong>Handwerker</strong> landen im Portal. Rollen werden unter <em>Einstellungen → Benutzer</em> vergeben.</p>`,
+    <p><strong>Administrator</strong> und <strong>Verwalter</strong> sehen die volle App, <strong>Buchhaltung</strong> die Finanzbereiche. <strong>Mieter</strong>, <strong>Eigentümer</strong> und <strong>Handwerker</strong> landen im Portal. Rollen werden unter <em>Einstellungen → Benutzer</em> vergeben. Bestehende Benutzer lassen sich dort auch nachträglich bearbeiten (Name, E-Mail, Rolle, verknüpfte Person).</p>
+    <h3>Datumsformat</h3>
+    <p>Unter <em>Einstellungen → Allgemein</em> lässt sich ein <strong>Datumsformat unabhängig von der UI-Sprache</strong> wählen (TT.MM.JJJJ, TT/MM/JJJJ, MM/TT/JJJJ oder ISO). „Automatisch" folgt der Sprache.</p>`,
   en: `
     <h2>Core concepts</h2>
     <table>
@@ -146,7 +148,7 @@ leases: {
     <ul>
       <li>Aus der Einheit heraus: „Mieter zuordnen" (Einheit vorbelegt).</li>
       <li>Aus der Person heraus: „Vertrag anlegen" (Person vorbelegt).</li>
-      <li>Mehrere Mieter je Vertrag über „Mieter hinzufügen".</li>
+      <li>Schon beim Anlegen lassen sich <strong>mehrere Mieter</strong> auswählen; später weitere über „Mieter hinzufügen".</li>
     </ul>
     <h3>Staffel- und Indexmiete</h3>
     <p>Mietanpassungen werden geplant (Staffel oder Index) und per Klick <strong>angewandt</strong> — die Kaltmiete des Vertrags wird gesetzt und die Anpassung als erledigt markiert.</p>
@@ -159,7 +161,7 @@ leases: {
     <ul>
       <li>From a unit: "assign tenant" (unit prefilled).</li>
       <li>From a person: "create lease" (person prefilled).</li>
-      <li>Multiple tenants per lease via "add tenant".</li>
+      <li><strong>Multiple tenants</strong> can be picked right when creating the lease; add more later via "add tenant".</li>
     </ul>
     <h3>Stepped &amp; index rent</h3>
     <p>Rent adjustments are planned (stepped or index) and <strong>applied</strong> with one click — the lease's base rent is set and the adjustment marked done.</p>
@@ -358,10 +360,12 @@ documents: {
   de: `
     <h2>Dokumente</h2>
     <p>Unter <em>Dokumente</em> legst du Dateien ab (Verträge, Rechnungen, Protokolle, Abrechnungen), verknüpfst sie mit Objekt/Einheit/Person und filterst nach Kategorie. Über das <strong>Augen-Symbol</strong> öffnet sich eine Datei-Vorschau direkt im Dialog (PDF, Bilder, Office-Dokumente, Markdown und Audio).</p>
+    <p>Angelegte Dokumente lassen sich über das <strong>Stift-Symbol</strong> nachträglich bearbeiten (Name, Kategorie, Zuordnung zu Objekt/Einheit/Person). Die Filterleiste sucht nach Name, Kategorie, Objekt, Einheit und Person; Dokumente erscheinen zusätzlich in der <strong>globalen Suche</strong> (⌘K) und lassen sich von dort direkt öffnen.</p>
     <p><strong>E-Rechnungen</strong> (ZUGFeRD/XRechnung, XML-Syntaxen) werden beim Upload automatisch ausgelesen (Rechnungsnummer, Betrag). Ablage GoBD-orientiert.</p>`,
   en: `
     <h2>Documents</h2>
     <p>Under <em>Documents</em> you store files (contracts, invoices, minutes, statements), link them to property/unit/person and filter by category. The <strong>eye icon</strong> opens a file preview right in the dialog (PDF, images, office documents, markdown and audio).</p>
+    <p>Existing documents can be edited later via the <strong>pencil icon</strong> (name, category, link to property/unit/person). The filter bar searches by name, category, property, unit and person; documents also appear in the <strong>global search</strong> (⌘K) and open straight from there.</p>
     <p><strong>E-invoices</strong> (ZUGFeRD/XRechnung XML syntaxes) are parsed on upload (invoice number, total). Storage is GoBD-oriented.</p>`
 },
 
@@ -408,7 +412,7 @@ portals: {
     <h2>Portale</h2>
     <p>Mieter und Eigentümer bekommen ein eigenes, schlankes Portal (Login mit ihrem Personen-verknüpften Zugang). Dort sehen sie nur ihre Daten:</p>
     <ul>
-      <li><strong>Mieter</strong>: eigene Mietverhältnisse, offene Posten, Beschlüsse, Dokumente, <strong>Schaden melden</strong> und der Status eigener Meldungen.</li>
+      <li><strong>Mieter</strong>: eigene Mietverhältnisse, offene Posten, <strong>Zahlungsverlauf</strong> (alle erfassten Forderungen mit Status Bezahlt/Teilweise/Offen), Beschlüsse, Dokumente, <strong>Schaden melden</strong> und der Status eigener Meldungen.</li>
       <li><strong>Eigentümer</strong>: eigene Einheiten, Beschlüsse und Dokumente (lesend).</li>
     </ul>
     <p>Zugänge legt der Verwalter unter <em>Einstellungen → Benutzer</em> an und verknüpft sie mit einer Person.</p>
@@ -417,7 +421,7 @@ portals: {
     <h2>Portals</h2>
     <p>Tenants and owners get their own lightweight portal (login via their person-linked account). They only see their own data:</p>
     <ul>
-      <li><strong>Tenant</strong>: own leases, open items, resolutions, documents, <strong>report an issue</strong> and the status of their reports.</li>
+      <li><strong>Tenant</strong>: own leases, open items, <strong>payment history</strong> (all recorded charges with status paid/partial/open), resolutions, documents, <strong>report an issue</strong> and the status of their reports.</li>
       <li><strong>Owner</strong>: own units, resolutions and documents (read-only).</li>
     </ul>
     <p>The manager creates logins under <em>Settings → Users</em> and links them to a person.</p>

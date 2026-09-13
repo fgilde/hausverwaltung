@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ export default async function PortalPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { personId: true } });
   const personId = dbUser?.personId ?? "__none__";
@@ -71,6 +73,18 @@ export default async function PortalPage() {
       .filter((x) => x.open > 0.001),
   );
 
+  // Zahlungsverlauf: alle Forderungen des Mieters mit Zahlstatus (#17).
+  const paymentHistory = renters
+    .flatMap((r) =>
+      r.lease.charges.map((c) => {
+        const amount = Number(c.amount);
+        const paid = c.payments.reduce((a, p) => a + Number(p.amount), 0);
+        const status = paid >= amount - 0.001 ? "paid" : paid > 0.001 ? "partial" : "open";
+        return { id: c.id, period: c.period, type: c.type, amount, paid, status };
+      }),
+    )
+    .sort((a, b) => b.period.getTime() - a.period.getTime());
+
   const warm = (l: (typeof renters)[number]["lease"]) =>
     Number(l.rentCold) + l.components.reduce((a, c) => a + Number(c.amount), 0);
 
@@ -110,7 +124,7 @@ export default async function PortalPage() {
                   {r.lease.unit.building.property.name} · {r.lease.unit.label}
                 </div>
                 <div className="text-muted-foreground">
-                  {t("leases.warmRent")}: {money(warm(r.lease), locale)} · {t("leases.start")}: {date(r.lease.startDate, locale)}
+                  {t("leases.warmRent")}: {money(warm(r.lease), locale)} · {t("leases.start")}: {date(r.lease.startDate, df)}
                 </div>
               </div>
             ))}
@@ -129,7 +143,7 @@ export default async function PortalPage() {
               <div key={tk.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
                 <div>
                   <div className="font-medium">{tk.title}</div>
-                  <div className="text-xs text-muted-foreground">{date(tk.createdAt, locale)}</div>
+                  <div className="text-xs text-muted-foreground">{date(tk.createdAt, df)}</div>
                 </div>
                 <Badge variant={tk.status === "ERLEDIGT" ? "secondary" : "outline"}>
                   {t(`ticketStatus.${tk.status}`)}
@@ -153,9 +167,37 @@ export default async function PortalPage() {
               openItems.map(({ c, open }) => (
                 <div key={c.id} className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {t(`chargeType.${c.type}`)} · {date(c.period, locale)}
+                    {t(`chargeType.${c.type}`)} · {date(c.period, df)}
                   </span>
                   <span className="font-medium">{money(open, locale)}</span>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Mieter: Zahlungsverlauf */}
+      {renters.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("portal.paymentHistory")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {paymentHistory.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("portal.noPayments")}</p>
+            ) : (
+              paymentHistory.map((p) => (
+                <div key={p.id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-muted-foreground">
+                    {t(`chargeType.${p.type}`)} · {date(p.period, df)}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="font-medium">{money(p.amount, locale)}</span>
+                    <Badge variant={p.status === "paid" ? "secondary" : "outline"}>
+                      {t(`portal.chargeStatus.${p.status}`)}
+                    </Badge>
+                  </span>
                 </div>
               ))
             )}

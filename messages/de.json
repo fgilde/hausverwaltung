@@ -106,6 +106,16 @@
     "users": "Benutzer",
     "role": "Rolle",
     "newUser": "Benutzer anlegen",
+    "editUser": "Benutzer bearbeiten",
+    "dateFormat": "Datumsformat",
+    "dateFormatHint": "Format für Datumsanzeigen, unabhängig von der UI-Sprache.",
+    "dateFormatOptions": {
+      "auto": "Automatisch (UI-Sprache)",
+      "de": "31.12.2026 (TT.MM.JJJJ)",
+      "en_gb": "31/12/2026 (TT/MM/JJJJ)",
+      "en_us": "12/31/2026 (MM/TT/JJJJ)",
+      "iso": "2026-12-31 (ISO)"
+    },
     "linkedPerson": "Verknüpfte Person (für Portal)",
     "usersHint": "Legen Sie Zugänge für Mitarbeiter sowie Mieter- und Eigentümer-Portale an.",
     "you": "Sie",
@@ -371,6 +381,7 @@
     "future": "Künftig",
     "selectUnit": "Einheit wählen",
     "selectPerson": "Person wählen",
+    "selectPersons": "Mieter wählen (mehrere möglich)",
     "personCount": "Personenzahl",
     "noticePeriod": "Kündigungsfrist (Monate)",
     "unlimited": "Unbefristet"
@@ -735,6 +746,13 @@
     "issueTitle": "Betreff",
     "myDocuments": "Meine Dokumente",
     "noDocuments": "Keine Dokumente.",
+    "paymentHistory": "Zahlungsverlauf",
+    "noPayments": "Keine Zahlungen erfasst.",
+    "chargeStatus": {
+      "paid": "Bezahlt",
+      "partial": "Teilweise",
+      "open": "Offen"
+    },
     "hoa": "WEG-Informationen",
     "resolutions": "Beschlüsse",
     "noResolutions": "Keine Beschlüsse."
@@ -803,6 +821,7 @@
     "unit": "Einheit (optional)",
     "person": "Person (optional)",
     "preview": "Vorschau",
+    "edit": "Dokument bearbeiten",
     "linkedTo": "Verknüpft mit",
     "searchPlaceholder": "Name suchen…"
   },

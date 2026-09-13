@@ -12,13 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
+import { UserDialog, EditUserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
 import { SettingsConfig } from "@/components/settings-config";
 import { BrandingConfig } from "@/components/branding-config";
 import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
 import { IntegrationInfo } from "@/components/integration-info";
 import { TenantNameForm } from "@/components/tenant-name-form";
+import { DateFormatConfig } from "@/components/date-format-config";
 import { StatementDefaults } from "@/components/statement-defaults";
 import { SettingsTabs, type SettingsTab } from "@/components/settings-tabs";
 import { DeleteButton } from "@/components/delete-button";
@@ -65,6 +66,7 @@ export default async function SettingsPage() {
   const generalContent = (
     <>
       <TenantNameForm name={tenant?.name ?? ""} editable={isAdmin} />
+      {isAdmin && <DateFormatConfig dateFormat={tenant?.dateFormat ?? null} />}
       {isAdmin && tenant && <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />}
     </>
   );
@@ -105,7 +107,18 @@ export default async function SettingsPage() {
                   <TableCell>
                     <div className="flex justify-end gap-1">
                       {(u.id === user.id || assignableRoles(user.role).includes(u.role)) && (
-                        <ResetPasswordDialog id={u.id} />
+                        <>
+                          <EditUserDialog
+                            user={{ id: u.id, name: u.name, email: u.email, role: u.role, personId: u.personId }}
+                            roles={
+                              roleOptions.some((o) => o.value === u.role)
+                                ? roleOptions
+                                : [{ value: u.role, label: t(`userRole.${u.role}`) }, ...roleOptions]
+                            }
+                            persons={personOptions}
+                          />
+                          <ResetPasswordDialog id={u.id} />
+                        </>
                       )}
                       {canDeleteUser(user, u.role, u.id) && <DeleteButton action={deleteUser} id={u.id} />}
                     </div>

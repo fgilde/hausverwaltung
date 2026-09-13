@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +26,7 @@ export default async function MeetingsPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
 
   const wegProps = await prisma.property.findMany({
@@ -103,7 +105,7 @@ export default async function MeetingsPage({
                         {m.title}
                       </Link>
                     </TableCell>
-                    <TableCell>{date(m.date, locale)}</TableCell>
+                    <TableCell>{date(m.date, df)}</TableCell>
                     <TableCell>
                       <Badge variant={m.status === "DURCHGEFUEHRT" ? "secondary" : "outline"}>
                         {t(`meetingStatus.${m.status}`)}
@@ -143,7 +145,7 @@ export default async function MeetingsPage({
                   <TableRow key={r.id}>
                     <TableCell className="font-mono">{r.number}</TableCell>
                     <TableCell className="font-medium">{r.title}</TableCell>
-                    <TableCell>{date(r.date, locale)}</TableCell>
+                    <TableCell>{date(r.date, df)}</TableCell>
                     <TableCell>
                       <Badge variant={r.result === "ANGENOMMEN" ? "secondary" : r.result === "ABGELEHNT" ? "destructive" : "outline"}>
                         {t(`resolutionResult.${r.result}`)}

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Wrench, Gavel, CalendarDays } from "lucide-r
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export default async function CalendarPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
   const now = new Date();
 
@@ -179,7 +181,7 @@ export default async function CalendarPage({
                       <Badge variant="outline">{t(`appointmentType.${a.type}`)}</Badge>
                     </span>
                     <div className="text-xs text-muted-foreground">
-                      {date(a.start, locale)}
+                      {date(a.start, df)}
                       {a.property ? ` · ${a.property.name}` : ""}
                       {a.location ? ` · ${a.location}` : ""}
                     </div>

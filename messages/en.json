@@ -106,6 +106,16 @@
     "users": "Users",
     "role": "Role",
     "newUser": "Add user",
+    "editUser": "Edit user",
+    "dateFormat": "Date format",
+    "dateFormatHint": "Format for date display, independent of the UI language.",
+    "dateFormatOptions": {
+      "auto": "Automatic (UI language)",
+      "de": "31.12.2026 (DD.MM.YYYY)",
+      "en_gb": "31/12/2026 (DD/MM/YYYY)",
+      "en_us": "12/31/2026 (MM/DD/YYYY)",
+      "iso": "2026-12-31 (ISO)"
+    },
     "linkedPerson": "Linked person (for portal)",
     "usersHint": "Create logins for staff as well as tenant and owner portals.",
     "you": "you",
@@ -371,6 +381,7 @@
     "future": "Future",
     "selectUnit": "Select unit",
     "selectPerson": "Select person",
+    "selectPersons": "Select tenants (multiple allowed)",
     "personCount": "Occupants",
     "noticePeriod": "Notice period (months)",
     "unlimited": "Open-ended"
@@ -735,6 +746,13 @@
     "issueTitle": "Subject",
     "myDocuments": "My documents",
     "noDocuments": "No documents.",
+    "paymentHistory": "Payment history",
+    "noPayments": "No payments recorded.",
+    "chargeStatus": {
+      "paid": "Paid",
+      "partial": "Partial",
+      "open": "Open"
+    },
     "hoa": "HOA information",
     "resolutions": "Resolutions",
     "noResolutions": "No resolutions."
@@ -803,6 +821,7 @@
     "unit": "Unit (optional)",
     "person": "Person (optional)",
     "preview": "Preview",
+    "edit": "Edit document",
     "linkedTo": "Linked to",
     "searchPlaceholder": "Search name…"
   },

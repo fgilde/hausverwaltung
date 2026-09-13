@@ -122,6 +122,9 @@ model Tenant {
   brandColor String?
   logoKey    String?
 
+  // Datumsformat unabhängig von der UI-Sprache ("de-DE" | "en-GB" | "en-US" | "iso")
+  dateFormat String?
+
   // HeizkostenV: Standard-Verbrauchsanteil in % (50–100, Rest nach Fläche).
   // null → 70 %. Je Kostenposition überschreibbar (CostEntry.consumptionSharePct).
   heatingConsumptionPct Int?

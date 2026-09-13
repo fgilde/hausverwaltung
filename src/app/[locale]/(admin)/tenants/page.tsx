@@ -2,6 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { requireSuperAdmin } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,7 @@ export default async function TenantsPage() {
   const user = await requireSuperAdmin();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const tenants = await prisma.tenant.findMany({
     orderBy: { createdAt: "asc" },
@@ -62,7 +64,7 @@ export default async function TenantsPage() {
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground">{tn._count.users}</TableCell>
                     <TableCell className="text-right text-muted-foreground">{tn._count.properties}</TableCell>
-                    <TableCell className="text-muted-foreground">{date(tn.createdAt, locale)}</TableCell>
+                    <TableCell className="text-muted-foreground">{date(tn.createdAt, df)}</TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         {isActive ? (

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Download } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,7 @@ export default async function LeasesPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const [leases, units, persons, customDefs] = await Promise.all([
     prisma.lease.findMany({
@@ -114,7 +116,7 @@ export default async function LeasesPage() {
                       </TableCell>
                       <TableCell className="text-right">{money(Number(l.rentCold), locale)}</TableCell>
                       <TableCell className="text-right">{money(warm(l), locale)}</TableCell>
-                      <TableCell>{date(l.startDate, locale)}</TableCell>
+                      <TableCell>{date(l.startDate, df)}</TableCell>
                       <TableCell>
                         <Badge variant={st.variant}>{t(`leases.${st.key}`)}</Badge>
                       </TableCell>

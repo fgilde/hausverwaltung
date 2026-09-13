@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, date } from "@/lib/format";
+import { getDateLocale } from "@/lib/date-locale";
 import { PrintButton } from "@/components/print-button";
 
 // Druckbare Mahnung / Zahlungserinnerung zu einer Sollstellung.
@@ -15,6 +16,7 @@ export default async function PrintDunningPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const df = await getDateLocale(locale);
 
   const chargeId = sp.chargeId;
   if (!chargeId) notFound();
@@ -66,7 +68,7 @@ export default async function PrintDunningPage({
         </div>
       )}
 
-      <div className="mb-2 text-right text-neutral-500">{date(new Date(), locale)}</div>
+      <div className="mb-2 text-right text-neutral-500">{date(new Date(), df)}</div>
       <h1 className="mb-4 text-lg font-bold">{title}</h1>
 
       <p className="mb-4">
@@ -76,7 +78,7 @@ export default async function PrintDunningPage({
       <table className="mb-4 w-full border-collapse">
         <tbody>
           <tr className="border-b border-neutral-300">
-            <td className="py-1">{t(`chargeType.${charge.type}`)} · {date(charge.period, locale)}</td>
+            <td className="py-1">{t(`chargeType.${charge.type}`)} · {date(charge.period, df)}</td>
             <td className="py-1 text-right">{money(open, locale)}</td>
           </tr>
           {fee > 0 && (
