@@ -357,11 +357,11 @@ meetings: {
 documents: {
   de: `
     <h2>Dokumente</h2>
-    <p>Unter <em>Dokumente</em> legst du Dateien ab (Verträge, Rechnungen, Protokolle, Abrechnungen), verknüpfst sie mit Objekt/Einheit/Person und filterst nach Kategorie. Eine Inline-Vorschau ist eingebaut.</p>
+    <p>Unter <em>Dokumente</em> legst du Dateien ab (Verträge, Rechnungen, Protokolle, Abrechnungen), verknüpfst sie mit Objekt/Einheit/Person und filterst nach Kategorie. Über das <strong>Augen-Symbol</strong> öffnet sich eine Datei-Vorschau direkt im Dialog (PDF, Bilder, Office-Dokumente, Markdown und Audio).</p>
     <p><strong>E-Rechnungen</strong> (ZUGFeRD/XRechnung, XML-Syntaxen) werden beim Upload automatisch ausgelesen (Rechnungsnummer, Betrag). Ablage GoBD-orientiert.</p>`,
   en: `
     <h2>Documents</h2>
-    <p>Under <em>Documents</em> you store files (contracts, invoices, minutes, statements), link them to property/unit/person and filter by category. An inline preview is built in.</p>
+    <p>Under <em>Documents</em> you store files (contracts, invoices, minutes, statements), link them to property/unit/person and filter by category. The <strong>eye icon</strong> opens a file preview right in the dialog (PDF, images, office documents, markdown and audio).</p>
     <p><strong>E-invoices</strong> (ZUGFeRD/XRechnung XML syntaxes) are parsed on upload (invoice number, total). Storage is GoBD-oriented.</p>`
 },
 

@@ -144,7 +144,7 @@ export default async function DocumentsPage({
                       <TableCell>{date(d.createdAt, locale)}</TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                          <DocumentPreview id={d.id} name={d.name} />
+                          <DocumentPreview id={d.id} name={d.name} mime={d.mime} />
                           <Button variant="ghost" size="icon" aria-label={t("documents.download")} render={<a href={`/api/documents/${d.id}`} />}>
                             <Download className="size-4" />
                           </Button>
