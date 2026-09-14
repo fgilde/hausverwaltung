@@ -12,27 +12,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// Mudex File-Display rendert PDF, Bilder, Office-Dokumente, Markdown und Audio.
-const MUDEX_SCRIPT = "https://www.mudex.org/wc/mudex.js";
-
-// Für HTML-Attribut-Kontext escapen (Dateiname/MIME/URL stammen aus DB).
-function esc(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-// Der Viewer läuft in einem isolierten iframe (srcdoc): Mudex bringt globale
-// Styles mit, die sonst nach dem Schließen das App-Layout zerlegen würden.
-function buildSrcDoc(url: string, mime: string, name: string) {
-  return `<!doctype html><html><head><meta charset="utf-8">
-<style>html,body{margin:0;height:100%;background:#fff}mudex-file-display{display:block;width:100%;height:100vh}</style>
-<script src="${MUDEX_SCRIPT}"></script></head>
-<body><mudex-file-display url="${esc(url)}" content-type="${esc(mime)}" file-name="${esc(name)}" show-file-name="true"></mudex-file-display></body></html>`;
-}
-
+// Vorschau über Mudex File-Display (PDF, Bilder, Office, Markdown, Audio).
+// Läuft in einem iframe auf eine echte same-origin URL (/viewer): isoliert die
+// globalen Mudex-Styles vom App-Layout und gibt der Blazor-WASM-Komponente eine
+// gültige Base-URI (srcdoc/about:srcdoc scheitert an Blazor).
 export function DocumentPreview({ id, name, mime }: { id: string; name: string; mime: string }) {
   const t = useTranslations("documents");
   const [open, setOpen] = useState(false);
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const src = `/api/documents/${id}/viewer?mime=${encodeURIComponent(mime)}&name=${encodeURIComponent(name)}`;
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
@@ -49,8 +36,8 @@ export function DocumentPreview({ id, name, mime }: { id: string; name: string; 
         {open && (
           <iframe
             title={name}
-            srcDoc={buildSrcDoc(`${origin}/api/documents/${id}?inline=1`, mime, name)}
-            sandbox="allow-scripts allow-same-origin"
+            src={src}
+            sandbox="allow-scripts allow-same-origin allow-downloads"
             className="h-[80vh] w-full rounded-md border bg-white"
           />
         )}
