@@ -38,19 +38,17 @@ export function InfoDrawer({ tenantName }: { tenantName: string }) {
         <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-6 text-white">
           <div className="pointer-events-none absolute -right-10 -top-12 size-48 rounded-full bg-white/15 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-14 -left-8 size-40 rounded-full bg-fuchsia-500/25 blur-3xl" />
-          <div className="relative flex items-center gap-4">
-            <div className="grid size-20 shrink-0 place-items-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/30 backdrop-blur">
+          <div className="relative flex flex-col items-center text-center">
+            <div className="grid size-56 place-items-center rounded-3xl bg-white/15 shadow-lg ring-1 ring-white/30 backdrop-blur">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="HaVeWa" className="size-16 rounded-xl object-contain" />
+              <img src="/logo.png" alt="HaVeWa" className="size-48 rounded-2xl object-contain" />
             </div>
-            <div>
-              <SheetTitle className="text-2xl font-semibold tracking-tight text-white">
-                HaVeWa
-              </SheetTitle>
-              <p className="text-sm text-white/80">{t("tagline")}</p>
-            </div>
+            <SheetTitle className="mt-4 text-2xl font-semibold tracking-tight text-white">
+              HaVeWa
+            </SheetTitle>
+            <p className="text-sm text-white/80">{t("tagline")}</p>
           </div>
-          <div className="relative mt-4 flex items-center gap-2">
+          <div className="relative mt-4 flex items-center justify-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-2.5 py-1 text-xs font-semibold text-amber-950 shadow-sm">
               <span className="size-1.5 animate-pulse rounded-full bg-amber-950" />
               {t("beta")}
