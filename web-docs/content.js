@@ -12,6 +12,7 @@ overview: {
       <li><strong>Mieter/Eigentümer</strong> — ein schlankes Self-Service-Portal.</li>
       <li><strong>Entwickler/KI</strong> — REST-API + MCP zum Lesen und Verwalten des Bestands.</li>
     </ul>
+    <p>Das <strong>Info-Panel</strong> (das <em>i</em>-Symbol oben rechts) zeigt Version und Build, den aktuellen Mandanten sowie Links zu Dokumentation, Webseite und Fehlermeldung — HaVeWa ist aktuell in der <strong>Beta-Phase</strong>.</p>
     <div class="tip">Neu hier? Weiter mit <a href="#start">Erste Schritte</a> und den <a href="#concepts">Grundbegriffen</a>.</div>`,
   en: `
     <h1>HaVeWa — Documentation</h1>
@@ -23,6 +24,7 @@ overview: {
       <li><strong>Tenants/owners</strong> — a lightweight self-service portal.</li>
       <li><strong>Developers/AI</strong> — REST API + MCP to read and manage the portfolio.</li>
     </ul>
+    <p>The <strong>info panel</strong> (the <em>i</em> icon top right) shows the version and build, the current tenant, and links to the documentation, website and issue tracker — HaVeWa is currently in <strong>beta</strong>.</p>
     <div class="tip">New here? Continue with <a href="#start">Getting started</a> and the <a href="#concepts">Core concepts</a>.</div>`
 },
 

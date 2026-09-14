@@ -6,13 +6,15 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
 import { NotificationBell } from "@/components/notification-bell";
+import { InfoDrawer } from "@/components/info-drawer";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   const locale = await getLocale();
-  const [notifs, unread] = await Promise.all([
+  const [notifs, unread, tenant] = await Promise.all([
     prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
     prisma.notification.count({ where: { userId: user.id, read: false } }),
+    prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true } }),
   ]);
   const dtf = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" });
   const notifItems = notifs.map((n) => ({
@@ -33,6 +35,7 @@ export default async function PortalLayout({ children }: { children: React.React
           HaVeWa
         </Link>
         <div className="ml-auto flex items-center gap-1">
+          <InfoDrawer tenantName={tenant?.name ?? "HaVeWa"} />
           <NotificationBell items={notifItems} unread={unread} />
           <LanguageSwitcher />
           <ThemeToggle />

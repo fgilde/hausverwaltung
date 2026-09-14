@@ -3,6 +3,19 @@
     "name": "HaVeWa",
     "tagline": "Property Management"
   },
+  "about": {
+    "title": "About HaVeWa",
+    "tagline": "Property & HOA management",
+    "beta": "Beta",
+    "betaNote": "HaVeWa is in its beta testing phase. Features may change; please report bugs via \"Report an issue\".",
+    "version": "Version",
+    "build": "Build",
+    "tenant": "Tenant",
+    "docs": "Documentation",
+    "website": "Official website",
+    "issues": "Report an issue",
+    "madeBy": "Built by"
+  },
   "common": {
     "search": "Search",
     "loading": "Loading…",

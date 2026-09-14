@@ -3,6 +3,19 @@
     "name": "HaVeWa",
     "tagline": "Hausverwaltung"
   },
+  "about": {
+    "title": "Über HaVeWa",
+    "tagline": "Haus- & WEG-Verwaltung",
+    "beta": "Beta",
+    "betaNote": "HaVeWa befindet sich in der Beta-Testphase. Funktionen können sich ändern; Fehler bitte über „Issue melden“ zurückmelden.",
+    "version": "Version",
+    "build": "Build",
+    "tenant": "Mandant",
+    "docs": "Dokumentation",
+    "website": "Offizielle Webseite",
+    "issues": "Issue melden",
+    "madeBy": "Entwickelt von"
+  },
   "common": {
     "search": "Suchen",
     "loading": "Lädt…",

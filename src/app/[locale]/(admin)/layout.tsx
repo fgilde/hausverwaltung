@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { readableForeground } from "@/lib/color";
 import { NotificationBell } from "@/components/notification-bell";
+import { InfoDrawer } from "@/components/info-drawer";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -66,6 +67,7 @@ export default async function AdminLayout({
             </a>
           )}
           <div className="ml-auto flex items-center gap-1">
+            <InfoDrawer tenantName={tenant?.name ?? "HaVeWa"} />
             <NotificationBell items={notifItems} unread={unread} />
             <LanguageSwitcher />
             <ThemeToggle />
