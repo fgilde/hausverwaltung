@@ -34,20 +34,20 @@ export function InfoDrawer({ tenantName }: { tenantName: string }) {
         <Info className="size-5" />
       </SheetTrigger>
       <SheetContent side="right" className="w-[92vw] gap-0 overflow-y-auto p-0 sm:max-w-sm">
-        {/* Kopf: Verlauf + Logo + Beta-Badge */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/60 p-6 text-primary-foreground">
-          <div className="pointer-events-none absolute -right-8 -top-10 size-40 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-12 -left-6 size-32 rounded-full bg-black/10 blur-2xl" />
-          <div className="relative flex items-center gap-3">
-            <div className="grid size-14 place-items-center rounded-2xl bg-white/15 shadow-inner ring-1 ring-white/25 backdrop-blur">
+        {/* Kopf: satter Verlauf (unabhängig von der Brandfarbe) + großes Logo */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-6 text-white">
+          <div className="pointer-events-none absolute -right-10 -top-12 size-48 rounded-full bg-white/15 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-14 -left-8 size-40 rounded-full bg-fuchsia-500/25 blur-3xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="grid size-20 shrink-0 place-items-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/30 backdrop-blur">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="HaVeWa" className="size-9 rounded-lg object-contain" />
+              <img src="/logo.png" alt="HaVeWa" className="size-16 rounded-xl object-contain" />
             </div>
             <div>
-              <SheetTitle className="text-xl font-semibold tracking-tight text-primary-foreground">
+              <SheetTitle className="text-2xl font-semibold tracking-tight text-white">
                 HaVeWa
               </SheetTitle>
-              <p className="text-sm text-primary-foreground/80">{t("tagline")}</p>
+              <p className="text-sm text-white/80">{t("tagline")}</p>
             </div>
           </div>
           <div className="relative mt-4 flex items-center gap-2">
