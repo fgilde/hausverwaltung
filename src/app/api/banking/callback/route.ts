@@ -38,8 +38,13 @@ export async function GET(req: Request) {
     if (!uid) continue;
     if (await prisma.bankLink.findFirst({ where: { tenantId: user.tenantId, accountUid: uid }, select: { id: true } })) continue;
     const name = (acc.name as string) || `${pending.aspspName} ${uid.slice(0, 6)}`;
+    // IBAN aus den Kontodetails übernehmen, falls die Schnittstelle sie liefert.
+    const iban =
+      typeof acc.account_id === "object" && acc.account_id
+        ? ((acc.account_id as { iban?: string }).iban ?? null)
+        : null;
     const account = await prisma.account.create({
-      data: { tenantId: user.tenantId, name, type: "BANK" },
+      data: { tenantId: user.tenantId, name, type: "BANK", iban },
     });
     await prisma.bankLink.create({
       data: {

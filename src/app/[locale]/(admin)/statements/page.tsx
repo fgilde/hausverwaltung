@@ -164,7 +164,7 @@ export default async function StatementsPage({
               </TableHeader>
               <TableBody>
                 {lines.map((l) => (
-                  <TableRow key={l.id}>
+                  <TableRow key={l.key}>
                     <TableCell className="font-medium">{l.label}</TableCell>
                     <TableCell className="text-right">{money(l.allocated, locale)}</TableCell>
                     <TableCell className="text-right">{money(l.prepayment, locale)}</TableCell>

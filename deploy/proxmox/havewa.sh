@@ -39,8 +39,22 @@ command -v pct >/dev/null || die "this runs on a Proxmox VE host: pct was not fo
 
 pveam update >/dev/null 2>&1 || true
 
+# Host-Architektur (amd64/arm64). pveam listet für Debian 13 beide Archen; ein
+# blindes "sort -V | tail -1" wählte arm64 (sortiert hinter amd64) und schlug auf
+# amd64-Hosts fehl. Darum die zur Host-Arch passende Vorlage bevorzugen.
+HOSTARCH="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
+
 pick_template() {
-  pveam available --section system 2>/dev/null | awk -v pat="$1" '$2 ~ pat {print $2}' | sort -V | tail -1
+  local list match
+  list="$(pveam available --section system 2>/dev/null | awk -v pat="$1" '$2 ~ pat {print $2}')"
+  [ -n "$list" ] || return 0
+  # 1) exakt passende Architektur
+  match="$(printf '%s\n' "$list" | grep -E "_${HOSTARCH}\." | sort -V | tail -1)"
+  # 2) Vorlagen ohne Arch-Suffix (ältere Debian-Namensschemata)
+  [ -n "$match" ] || match="$(printf '%s\n' "$list" | grep -vE '_(amd64|arm64|armhf|i386)\.' | sort -V | tail -1)"
+  # 3) Notnagel: irgendeine
+  [ -n "$match" ] || match="$(printf '%s\n' "$list" | sort -V | tail -1)"
+  printf '%s\n' "$match"
 }
 
 # Newest first, but an older PVE refuses a newer Debian outright ("unsupported debian version") and

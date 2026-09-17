@@ -215,6 +215,10 @@ finance: {
       <li>Zahlungen manuell einer Sollstellung zuordnen.</li>
       <li><strong>camt.053</strong>-Import: Kontoauszug einlesen, Eingänge werden offenen Posten automatisch zugeordnet (Betragsabgleich).</li>
     </ul>
+    <h3>Übersicht &amp; Filter</h3>
+    <p>Die Postenliste zeigt bei wohnungsbezogenen Buchungen den/die <strong>Mieter</strong>; die Einheit verlinkt auf die Wohnungsübersicht, der Mietername auf den Vertrag. Filter nach <strong>Status, Typ, Mieter/Einheit und Jahr</strong> grenzen große Bestände schnell ein.</p>
+    <h3>Konten bearbeiten</h3>
+    <p>Konten lassen sich über das Stift-Symbol nachträglich bearbeiten (Name, Typ, IBAN). Beim Bank-Sync wird die IBAN — sofern die Schnittstelle sie liefert — automatisch übernommen.</p>
     <h3>Kaution in Raten</h3>
     <p>Für Kautionszahlungen in Raten legt man je Rate eine Sollstellung vom Typ <strong>Kaution</strong> an (mit Betrag und Fälligkeit). Die Raten erscheinen als offene Posten und Zahlungseingänge werden ihnen zugeordnet — wie bei Miete.</p>`,
   en: `
@@ -229,6 +233,10 @@ finance: {
       <li>Assign payments to a charge manually.</li>
       <li><strong>camt.053</strong> import: read a bank statement; incoming payments are auto-matched to open items (by amount).</li>
     </ul>
+    <h3>Overview &amp; filters</h3>
+    <p>For unit-linked bookings the open-items list shows the <strong>tenant(s)</strong>; the unit links to the unit overview and the tenant name to the lease. Filters by <strong>status, type, tenant/unit and year</strong> narrow large portfolios quickly.</p>
+    <h3>Editing accounts</h3>
+    <p>Accounts can be edited later via the pencil icon (name, type, IBAN). On bank sync the IBAN is imported automatically where the interface provides it.</p>
     <h3>Deposit in instalments</h3>
     <p>For a deposit paid in instalments, create one charge of type <strong>Deposit</strong> per instalment (amount + due date). They show as open items and incoming payments are matched to them — just like rent.</p>`
 },
@@ -274,11 +282,13 @@ dunning: {
   de: `
     <h2>Mahnwesen</h2>
     <p>Überfällige, nicht voll bezahlte Sollstellungen werden gemahnt — objektübergreifend unter <em>Mahnwesen</em>. Der <strong>Mahnlauf</strong> erzeugt für jede überfällige Forderung die nächste Mahnstufe (max. 3) inkl. Mahngebühr.</p>
-    <p>Einzelne Mahnungen lassen sich als PDF drucken oder als E-Mail an den Mieter erzeugen.</p>`,
+    <p>Einzelne Mahnungen lassen sich als PDF drucken oder als E-Mail an den Mieter erzeugen.</p>
+    <div class="tip">Die nächste Mahnstufe ist erst <strong>14 Tage</strong> nach der letzten möglich; ein zu früher Versuch zeigt einen Hinweis mit den verbleibenden Tagen.</div>`,
   en: `
     <h2>Dunning</h2>
     <p>Overdue, not fully paid charges are dunned — across properties under <em>Dunning</em>. The <strong>dunning run</strong> creates the next level (max 3) incl. a fee for every overdue receivable.</p>
-    <p>Individual reminders can be printed as PDF or generated as an email to the tenant.</p>`
+    <p>Individual reminders can be printed as PDF or generated as an email to the tenant.</p>
+    <div class="tip">The next dunning level is only possible <strong>14 days</strong> after the previous one; an early attempt shows a note with the remaining days.</div>`
 },
 
 statements: {
@@ -301,6 +311,8 @@ statements: {
     <p>Bei unterjährigem Miet-Beginn oder -Ende werden die Nebenkosten-Vorauszahlungen nur für die tatsächlichen Monate des Mietverhältnisses im Abrechnungsjahr angesetzt (nicht pauschal 12).</p>
     <h3>Umlage (zeitanteilig)</h3>
     <p>Auch die umgelegten Kosten werden bei unterjährigem Mietverhältnis zeitanteilig gekürzt: Der Mieter zahlt nur den Anteil seiner aktiven Mietmonate, den <strong>Leerstand trägt der Vermieter</strong>. Verbrauchskosten (Zähler) bleiben ungekürzt, da die Ablesedifferenz bereits nur die Nutzungszeit abdeckt.</p>
+    <h3>Mieterwechsel</h3>
+    <p>Wechselt der Mieter innerhalb des Abrechnungsjahres, erscheint <strong>je Mietverhältnis eine eigene Zeile</strong> (Vor- und Nachmieter) mit eigener Vorauszahlung und zeitanteiligem Kostenanteil — die Summe ergibt wieder die vollen Kosten (etwaiger Leerstand bleibt beim Vermieter).</p>
     <h3>Grundsteuer &amp; Versicherung</h3>
     <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen.</p>`,
   en: `
@@ -322,6 +334,8 @@ statements: {
     <p>For a mid-year lease start or end, the service-charge prepayments count only the months the lease actually exists within the statement year (not a flat 12).</p>
     <h3>Allocation (prorated)</h3>
     <p>The allocated costs are prorated too for a part-year lease: the tenant pays only the share of their active lease months, and the <strong>landlord bears the vacancy</strong>. Consumption costs (meters) are not prorated, since the reading difference already covers only the period of use.</p>
+    <h3>Tenant change</h3>
+    <p>If the tenant changes within the statement year, there is <strong>one line per lease</strong> (previous and new tenant) with its own prepayment and time-share of the costs — the sum adds back up to the full costs (any vacancy stays with the landlord).</p>
     <h3>Property tax &amp; insurance</h3>
     <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost".</p>`
 },

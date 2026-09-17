@@ -1,10 +1,11 @@
-import { Plus, CalendarPlus, Wallet, Upload } from "lucide-react";
+import { Plus, CalendarPlus, Wallet, Upload, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField } from "@/components/form-fields";
 import {
   createAccount,
+  updateAccount,
   createCharge,
   createPayment,
   createMandate,
@@ -21,27 +22,40 @@ async function opts(ns: string, keys: string[]): Promise<Opt[]> {
   return keys.map((k) => ({ value: k, label: t(k) }));
 }
 
-export async function AccountDialog() {
+export async function AccountDialog({
+  account,
+}: {
+  account?: { id: string; name: string; type: string; iban: string | null };
+}) {
   const t = await getTranslations();
+  const edit = !!account;
   return (
     <CrudDialog
       trigger={
-        <Button size="sm" variant="outline">
-          <Plus className="size-4" />
-          {t("finances.newAccount")}
-        </Button>
+        edit ? (
+          <Button variant="ghost" size="icon" aria-label={t("common.edit")} title={t("common.edit")}>
+            <Pencil className="size-4" />
+          </Button>
+        ) : (
+          <Button size="sm" variant="outline">
+            <Plus className="size-4" />
+            {t("finances.newAccount")}
+          </Button>
+        )
       }
-      title={t("finances.newAccount")}
-      action={createAccount}
-      submitLabel={t("common.create")}
+      title={edit ? t("finances.editAccount") : t("finances.newAccount")}
+      action={edit ? updateAccount : createAccount}
+      submitLabel={edit ? t("common.save") : t("common.create")}
     >
-      <TextField name="name" label={t("fields.name")} />
+      {edit && <input type="hidden" name="id" value={account!.id} />}
+      <TextField name="name" label={t("fields.name")} defaultValue={account?.name} />
       <SelectField
         name="type"
         label={t("fields.type")}
+        defaultValue={account?.type ?? "BANK"}
         options={await opts("accountType", ["BANK", "KAUTION", "RUECKLAGE", "SACHKONTO"])}
       />
-      <TextField name="iban" label={t("fields.iban")} required={false} />
+      <TextField name="iban" label={t("fields.iban")} required={false} defaultValue={account?.iban ?? undefined} />
     </CrudDialog>
   );
 }

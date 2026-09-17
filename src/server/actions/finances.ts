@@ -42,6 +42,16 @@ export async function createAccount(_p: ActionState, fd: FormData): Promise<Acti
   await prisma.account.create({ data: { ...r.data, tenantId: user.tenantId } });
   return done();
 }
+export async function updateAccount(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const id = String(fd.get("id") ?? "");
+  const r = accountSchema.safeParse(Object.fromEntries(fd));
+  if (!r.success) return fail(r.error.issues[0]?.message);
+  const acc = await prisma.account.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true } });
+  if (!acc) return fail("Konto nicht gefunden");
+  await prisma.account.update({ where: { id: acc.id }, data: { name: r.data.name, type: r.data.type, iban: r.data.iban ?? null } });
+  return done();
+}
 export async function deleteAccount(fd: FormData): Promise<void> {
   const user = await requireWriter();
   await prisma.account.deleteMany({ where: { id: String(fd.get("id") ?? ""), tenantId: user.tenantId } });
@@ -191,20 +201,34 @@ export async function importCamt(_p: ActionState, fd: FormData): Promise<ActionS
 
 // --- Mahnung: nächste Stufe für überfällige Sollstellung ---
 const DUNNING_FEE: Record<number, number> = { 1: 0, 2: 5, 3: 10 };
-export async function createDunning(fd: FormData): Promise<void> {
+const DUNNING_MIN_DAYS = 14; // Mindestabstand zwischen zwei Mahnstufen
+export async function createDunning(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const chargeId = String(fd.get("chargeId") ?? "");
   const charge = await prisma.charge.findFirst({
     where: { id: chargeId, tenantId: user.tenantId },
-    include: { dunnings: { select: { level: true } } },
+    include: { dunnings: { orderBy: { date: "desc" }, take: 1 } },
   });
-  if (charge) {
-    const level = Math.min(charge.dunnings.length + 1, 3);
-    await prisma.dunningNotice.create({
-      data: { tenantId: user.tenantId, chargeId, level, fee: DUNNING_FEE[level] ?? 0 },
-    });
+  if (!charge) return fail("Sollstellung nicht gefunden");
+
+  // Nächste Stufe erst nach Ablauf der Frist seit der letzten Mahnung.
+  const last = charge.dunnings[0];
+  if (last) {
+    const days = Math.floor((Date.now() - last.date.getTime()) / 86_400_000);
+    if (days < DUNNING_MIN_DAYS) {
+      const remaining = DUNNING_MIN_DAYS - days;
+      return {
+        error: `Letzte Mahnung vor ${days} Tag(en) erstellt. Nächste Mahnstufe frühestens in ${remaining} Tag(en) möglich.`,
+      };
+    }
   }
+
+  const level = Math.min((last?.level ?? 0) + 1, 3);
+  await prisma.dunningNotice.create({
+    data: { tenantId: user.tenantId, chargeId, level, fee: DUNNING_FEE[level] ?? 0 },
+  });
   revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 // --- Mahnung als PDF an den Mieter mailen (Entwurf im Postausgang) + Ablage ---

@@ -5,7 +5,8 @@ import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
 
 export interface StatementUnit {
-  id: string;
+  key: string; // eindeutig je Zeile (leaseId bzw. unitId bei Leerstand)
+  id: string; // Einheit
   label: string;
   leaseId: string | null;
   renterEmails: string[];
@@ -43,11 +44,11 @@ export async function computeStatement(
     prisma.unit.findMany({
       where: { tenantId, building: { propertyId } },
       include: {
+        // ALLE Mietverhältnisse im Jahr (Mieterwechsel!) — nicht nur das neueste.
         leases: {
           where: { startDate: { lte: yEnd }, OR: [{ endDate: null }, { endDate: { gte: yStart } }] },
           include: { components: true, renters: { include: { person: true } } },
-          orderBy: { startDate: "desc" },
-          take: 1,
+          orderBy: { startDate: "asc" },
         },
         meters: {
           where: { type: { in: ["WAERME", "WASSER_WARM"] } },
@@ -58,11 +59,12 @@ export async function computeStatement(
     prisma.costEntry.findMany({ where: { tenantId, propertyId, year }, orderBy: { type: "asc" } }),
   ]);
 
+  const prepaymentMonthlyOf = (lease: (typeof dbUnits)[number]["leases"][number]) =>
+    lease.components
+      .filter((c) => c.type === "NEBENKOSTEN" || c.type === "HEIZKOSTEN")
+      .reduce((a, c) => a + Number(c.amount), 0);
+
   const inputs: UnitInput[] = dbUnits.map((u) => {
-    const lease = u.leases[0];
-    const prepaymentMonthly = lease
-      ? lease.components.filter((c) => c.type === "NEBENKOSTEN" || c.type === "HEIZKOSTEN").reduce((a, c) => a + Number(c.amount), 0)
-      : 0;
     const consumption = u.meters.reduce((sum, m) => {
       if (m.readings.length < 2) return sum;
       const vals = m.readings.map((r) => Number(r.value));
@@ -75,13 +77,15 @@ export async function computeStatement(
       id: u.id,
       label: u.label,
       area: Number(u.area),
-      persons: lease?.personCount ?? 1,
+      // Personenzahl als Umlage-Gewicht: repräsentativ das jüngste Mietverhältnis.
+      // ponytail: keine personen·monat-Gewichtung bei unterjährigem Wechsel.
+      persons: u.leases.at(-1)?.personCount ?? 1,
       mea: u.mea ?? undefined,
-      prepayment: prepaymentMonthly * (lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0),
       consumption,
-      // Zeitanteil: unterjähriges Mietverhältnis kürzt die umgelegten Kosten
-      // (Leerstand trägt der Vermieter). Kein Vertrag → 0 (kein Mieter).
-      monthsActive: lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0,
+      leases: u.leases.map((l) => {
+        const months = monthsActiveInYear(l.startDate, l.endDate, year);
+        return { id: l.id, monthsActive: months, prepayment: prepaymentMonthlyOf(l) * months };
+      }),
     };
   });
 
@@ -101,21 +105,30 @@ export async function computeStatement(
   });
 
   const { lines, totalUmlage } = buildStatement(inputs, costInputs);
-  const byId = new Map(lines.map((l) => [l.unitId, l]));
 
-  const units: StatementUnit[] = dbUnits.map((u) => {
-    const line = byId.get(u.id);
-    const lease = u.leases[0];
+  // Nachschlage-Tabellen: Lease → Mieter, Einheit → Vertragsanzahl (für Label).
+  const leaseById = new Map(dbUnits.flatMap((u) => u.leases.map((l) => [l.id, l] as const)));
+  const leaseCountByUnit = new Map(dbUnits.map((u) => [u.id, u.leases.length] as const));
+  const unitLabelById = new Map(dbUnits.map((u) => [u.id, u.label] as const));
+
+  const units: StatementUnit[] = lines.map((line) => {
+    const lease = line.leaseId ? leaseById.get(line.leaseId) : undefined;
     const renters = lease?.renters ?? [];
+    const names = renters.map((r) => `${r.person.firstName} ${r.person.lastName}`);
+    // Bei Mieterwechsel Einheit mit Mieter/Zeitraum kennzeichnen, sonst nur Label.
+    const multi = (leaseCountByUnit.get(line.unitId) ?? 0) > 1;
+    const baseLabel = unitLabelById.get(line.unitId) ?? line.label;
+    const label = multi && names.length ? `${baseLabel} · ${names.join(", ")}` : baseLabel;
     return {
-      id: u.id,
-      label: u.label,
-      leaseId: lease?.id ?? null,
+      key: line.leaseId ?? line.unitId,
+      id: line.unitId,
+      label,
+      leaseId: line.leaseId,
       renterEmails: renters.map((r) => r.person.email).filter((e): e is string => !!e),
-      renterNames: renters.map((r) => `${r.person.firstName} ${r.person.lastName}`),
-      allocated: line?.allocated ?? 0,
-      prepayment: line?.prepayment ?? 0,
-      balance: line?.balance ?? 0,
+      renterNames: names,
+      allocated: line.allocated,
+      prepayment: line.prepayment,
+      balance: line.balance,
     };
   });
 

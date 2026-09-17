@@ -19,19 +19,28 @@ export function monthsActiveInYear(start: Date, end: Date | null, year: number):
   return count;
 }
 
+/** Ein Mietverhältnis (Zeitscheibe) einer Einheit im Abrechnungsjahr. */
+export interface LeaseSlice {
+  id: string;
+  /** Aktive Mietmonate im Abrechnungsjahr (0..12). */
+  monthsActive: number;
+  /** NK-Vorauszahlung im Zeitraum (monatlich × aktive Monate). */
+  prepayment: number;
+}
+
 export interface UnitInput {
   id: string;
   label: string;
   area: number;
   persons: number;
   mea?: number;
-  prepayment: number; // NK-Vorauszahlung im Abrechnungszeitraum
   consumption?: number; // gemessener Heiz-/Warmwasserverbrauch (Einheiten)
-  /** Aktive Mietmonate im Abrechnungsjahr (0..12). Kürzt die zeitanteilig
-   *  umzulegenden Kosten bei unterjährigem Mietverhältnis; Leerstand trägt der
-   *  Vermieter. Fehlt → 12 (volles Jahr, keine Kürzung). Verbrauchskosten
-   *  bleiben ungekürzt (Zähler deckt bereits nur die Nutzungszeit ab). */
-  monthsActive?: number;
+  /** Mietverhältnisse der Einheit im Abrechnungsjahr (0..n). Bei Mieterwechsel
+   *  mehrere; leer = Leerstand. Zeitanteilige Kosten werden pro Lease nach
+   *  aktiven Monaten gekürzt (Leerstand trägt der Vermieter); Verbrauchskosten
+   *  werden auf die Leases der Einheit nach Monatsanteil verteilt (der Zähler
+   *  deckt nur die Gesamt-Nutzungszeit ab). */
+  leases: LeaseSlice[];
 }
 
 export interface CostInput {
@@ -48,6 +57,7 @@ export interface CostInput {
 
 export interface StatementLine {
   unitId: string;
+  leaseId: string | null; // null = Einheit ohne Mietverhältnis (Leerstand)
   label: string;
   allocated: number; // umgelegte Kosten
   prepayment: number;
@@ -113,17 +123,38 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
   }
 
   const round = (n: number) => Math.round(n * 100) / 100;
-  const lines: StatementLine[] = units.map((u) => {
-    const factor = Math.min(12, Math.max(0, u.monthsActive ?? 12)) / 12;
-    const allocated = round(perUnitTime[u.id] * factor + perUnitCons[u.id]);
-    return {
-      unitId: u.id,
-      label: u.label,
-      allocated,
-      prepayment: round(u.prepayment),
-      balance: round(u.prepayment - allocated),
-    };
-  });
+  const clampMonths = (m: number) => Math.min(12, Math.max(0, m));
+
+  // Eine Zeile je Mietverhältnis. Zeitkosten der Einheit werden nach aktiven
+  // Monaten/12 auf die Leases verteilt (Rest = Leerstand → Vermieter, keine
+  // Zeile). Verbrauchskosten werden auf die Leases der Einheit nach ihrem
+  // Monatsanteil aufgeteilt (eine Lease → voll; kein taggenauer Zwischenstand).
+  const lines: StatementLine[] = [];
+  for (const u of units) {
+    const timeTotal = perUnitTime[u.id];
+    const consTotal = perUnitCons[u.id];
+
+    if (u.leases.length === 0) {
+      lines.push({ unitId: u.id, leaseId: null, label: u.label, allocated: 0, prepayment: 0, balance: 0 });
+      continue;
+    }
+
+    const sumMonths = u.leases.reduce((a, l) => a + clampMonths(l.monthsActive), 0);
+    for (const lease of u.leases) {
+      const m = clampMonths(lease.monthsActive);
+      const timePart = timeTotal * (m / 12);
+      const consPart = sumMonths > 0 ? consTotal * (m / sumMonths) : 0;
+      const allocated = round(timePart + consPart);
+      lines.push({
+        unitId: u.id,
+        leaseId: lease.id,
+        label: u.label,
+        allocated,
+        prepayment: round(lease.prepayment),
+        balance: round(lease.prepayment - allocated),
+      });
+    }
+  }
 
   return { lines, totalUmlage: round(totalUmlage) };
 }

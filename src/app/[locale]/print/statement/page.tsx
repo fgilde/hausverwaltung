@@ -47,7 +47,7 @@ export default async function PrintStatementPage({
         </thead>
         <tbody>
           {st.units.map((l) => (
-            <tr key={l.id} className="border-b border-neutral-300">
+            <tr key={l.key} className="border-b border-neutral-300">
               <td className="py-1">{l.label}</td>
               <td className="py-1 text-right">{money(l.allocated, locale)}</td>
               <td className="py-1 text-right">{money(l.prepayment, locale)}</td>

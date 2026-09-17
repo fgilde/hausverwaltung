@@ -1,4 +1,3 @@
-import { Bell } from "lucide-react";
 import { headers } from "next/headers";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
@@ -28,16 +27,20 @@ import {
   CamtDialog,
 } from "@/components/finance-dialogs";
 import { DeleteButton } from "@/components/delete-button";
+import { DunningButton } from "@/components/dunning-button";
 import { Mail } from "lucide-react";
-import { deleteCharge, deleteAccount, deleteMandate, createDunning, emailDunning, seedDefaultAccounts } from "@/server/actions/finances";
+import { deleteCharge, deleteAccount, deleteMandate, emailDunning, seedDefaultAccounts } from "@/server/actions/finances";
 
 export default async function FinancesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; type?: string; lease?: string; year?: string }>;
 }) {
   const sp = await searchParams;
   const statusFilter = sp.status ?? "";
+  const typeFilter = sp.type ?? "";
+  const leaseFilter = sp.lease ?? "";
+  const yearFilter = sp.year ?? "";
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
@@ -86,7 +89,15 @@ export default async function FinancesPage({
   });
   const totalOpen = rows.reduce((a, r) => a + Math.max(0, r.open), 0);
   const STATUSES = ["OPEN", "PARTIAL", "PAID", "OVERDUE"];
-  const visibleRows = statusFilter ? rows.filter((r) => r.status === statusFilter) : rows;
+  const CHARGE_TYPES = ["MIETE", "NEBENKOSTEN", "HAUSGELD", "KAUTION", "SONSTIGES"];
+  const years = [...new Set(charges.map((c) => c.period.getUTCFullYear()))].sort((a, b) => b - a);
+  const visibleRows = rows.filter(
+    (r) =>
+      (!statusFilter || r.status === statusFilter) &&
+      (!typeFilter || r.c.type === typeFilter) &&
+      (!leaseFilter || r.c.leaseId === leaseFilter) &&
+      (!yearFilter || r.c.period.getUTCFullYear() === Number(yearFilter)),
+  );
 
   const accountOpts = accounts.map((a) => ({ value: a.id, label: a.name }));
   const leaseOpts = leases.map((l) => ({
@@ -149,15 +160,45 @@ export default async function FinancesPage({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("finances.openItems")}</CardTitle>
-          <form className="flex items-center gap-2">
+          <form className="flex flex-wrap items-center gap-2">
             <select
               name="status"
               defaultValue={statusFilter}
               className="flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30"
             >
-              <option value="">{t("common.all")}</option>
+              <option value="">{t("finances.allStatus")}</option>
               {STATUSES.map((s) => (
                 <option key={s} value={s}>{t(`finances.status${s}`)}</option>
+              ))}
+            </select>
+            <select
+              name="type"
+              defaultValue={typeFilter}
+              className="flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30"
+            >
+              <option value="">{t("finances.allTypes")}</option>
+              {CHARGE_TYPES.map((s) => (
+                <option key={s} value={s}>{t(`chargeType.${s}`)}</option>
+              ))}
+            </select>
+            <select
+              name="lease"
+              defaultValue={leaseFilter}
+              className="flex h-8 max-w-48 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30"
+            >
+              <option value="">{t("finances.allLeases")}</option>
+              {leaseOpts.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <select
+              name="year"
+              defaultValue={yearFilter}
+              className="flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30"
+            >
+              <option value="">{t("finances.allYears")}</option>
+              {years.map((y) => (
+                <option key={y} value={y}>{y}</option>
               ))}
             </select>
             <Button type="submit" size="sm" variant="outline">{t("common.search")}</Button>
@@ -186,7 +227,23 @@ export default async function FinancesPage({
                     <TableCell>{date(c.period, df)}</TableCell>
                     <TableCell>{t(`chargeType.${c.type}`)}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {c.lease ? `${c.lease.unit.building.property.name} · ${c.lease.unit.label}` : t("common.none")}
+                      {c.lease ? (
+                        <div className="flex flex-col">
+                          <Link
+                            href={`/units/${c.lease.unit.id}`}
+                            className="font-medium text-foreground hover:underline"
+                          >
+                            {c.lease.unit.building.property.name} · {c.lease.unit.label}
+                          </Link>
+                          {c.lease.renters.length > 0 && (
+                            <Link href={`/leases/${c.leaseId}`} className="text-xs hover:underline">
+                              {c.lease.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ")}
+                            </Link>
+                          )}
+                        </div>
+                      ) : (
+                        t("common.none")
+                      )}
                     </TableCell>
                     <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
                     <TableCell className="text-right">{money(Math.max(0, open), locale)}</TableCell>
@@ -200,14 +257,7 @@ export default async function FinancesPage({
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <PaymentDialog chargeId={c.id} defaultAmount={Math.max(0, open)} accounts={accountOpts} />
-                        {status === "OVERDUE" && dunLevel < 3 && (
-                          <form action={createDunning}>
-                            <input type="hidden" name="chargeId" value={c.id} />
-                            <Button type="submit" variant="ghost" size="icon" aria-label={t("finances.dun")}>
-                              <Bell className="size-4" />
-                            </Button>
-                          </form>
-                        )}
+                        {status === "OVERDUE" && dunLevel < 3 && <DunningButton chargeId={c.id} />}
                         {dunLevel > 0 && (
                           <>
                             <Button
@@ -259,7 +309,10 @@ export default async function FinancesPage({
                     <span className="text-muted-foreground"> · {t(`accountType.${a.type}`)}</span>
                     {a.iban ? <div className="text-xs text-muted-foreground">{a.iban}</div> : null}
                   </div>
-                  <DeleteButton action={deleteAccount} id={a.id} />
+                  <div className="flex items-center gap-1">
+                    <AccountDialog account={{ id: a.id, name: a.name, type: a.type, iban: a.iban }} />
+                    <DeleteButton action={deleteAccount} id={a.id} />
+                  </div>
                 </div>
               ))
             )}
