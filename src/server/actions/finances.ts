@@ -132,6 +132,27 @@ export async function deletePayment(fd: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
+// Kontobewegung: Notiz + verknüpfte Belege/Dokumente setzen (#23).
+export async function updatePaymentDetails(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const id = String(fd.get("id") ?? "");
+  const note = String(fd.get("note") ?? "").trim() || null;
+  const documentIds = [...new Set(fd.getAll("documentIds").map(String).filter(Boolean))];
+
+  const payment = await prisma.payment.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true } });
+  if (!payment) return fail("Buchung nicht gefunden");
+  if (documentIds.length) {
+    const cnt = await prisma.document.count({ where: { tenantId: user.tenantId, id: { in: documentIds } } });
+    if (cnt !== documentIds.length) return fail("Dokument nicht gefunden");
+  }
+
+  await prisma.payment.update({
+    where: { id: payment.id },
+    data: { note, documents: { set: documentIds.map((docId) => ({ id: docId })) } },
+  });
+  return done();
+}
+
 // --- SEPA-Mandat ---
 export async function createMandate(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();

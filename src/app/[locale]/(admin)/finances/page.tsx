@@ -28,7 +28,9 @@ import {
 } from "@/components/finance-dialogs";
 import { DeleteButton } from "@/components/delete-button";
 import { DunningDialog } from "@/components/dunning-dialog";
-import { deleteCharge, deleteAccount, deleteMandate, seedDefaultAccounts } from "@/server/actions/finances";
+import { PaymentEditDialog } from "@/components/payment-dialog-edit";
+import { summarizeTransactions } from "@/lib/transactions";
+import { deleteCharge, deleteAccount, deleteMandate, deletePayment, seedDefaultAccounts } from "@/server/actions/finances";
 
 export default async function FinancesPage({
   searchParams,
@@ -46,7 +48,7 @@ export default async function FinancesPage({
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
 
-  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks] = await Promise.all([
+  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks, payments, allDocuments] = await Promise.all([
     prisma.charge.findMany({
       where: { tenantId },
       include: {
@@ -62,7 +64,22 @@ export default async function FinancesPage({
     prisma.person.findMany({ where: { tenantId }, orderBy: [{ lastName: "asc" }] }),
     prisma.bankConnector.findUnique({ where: { tenantId } }),
     prisma.bankLink.findMany({ where: { tenantId }, include: { account: { select: { name: true } } }, orderBy: { createdAt: "asc" } }),
+    // Kontobewegungen (Zahlungen) inkl. Konto, zugeordneter Sollstellung und Belegen (#23).
+    prisma.payment.findMany({
+      where: { tenantId },
+      include: {
+        account: { select: { name: true } },
+        charge: { select: { type: true } },
+        documents: { select: { id: true, name: true } },
+      },
+      orderBy: { date: "desc" },
+      take: 200,
+    }),
+    prisma.document.findMany({ where: { tenantId }, select: { id: true, name: true }, orderBy: { createdAt: "desc" } }),
   ]);
+  const txnSummary = summarizeTransactions(
+    payments.map((p) => ({ direction: p.direction, amount: Number(p.amount) })),
+  );
   const isAdmin = user.role === "ADMIN";
   const h = await headers();
   const bankHost = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
@@ -278,6 +295,79 @@ export default async function FinancesPage({
                           </Button>
                         )}
                         <DeleteButton action={deleteCharge} id={c.id} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Kontobewegungen (#23) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("finances.transactions")}</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {t("finances.transIn")}: {money(txnSummary.inTotal, locale)} · {t("finances.transOut")}:{" "}
+            {money(txnSummary.outTotal, locale)} · {t("finances.transNet")}: {money(txnSummary.net, locale)}
+          </p>
+        </CardHeader>
+        <CardContent className="p-0">
+          {payments.length === 0 ? (
+            <p className="p-6 text-sm text-muted-foreground">{t("finances.noTransactions")}</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("fields.date")}</TableHead>
+                  <TableHead>{t("finances.account")}</TableHead>
+                  <TableHead>{t("finances.reference")}</TableHead>
+                  <TableHead className="text-right">{t("fields.amount")}</TableHead>
+                  <TableHead>{t("documents.title")}</TableHead>
+                  <TableHead className="w-20 text-right">{t("common.actions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {payments.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell>{date(p.date, df)}</TableCell>
+                    <TableCell className="text-muted-foreground">{p.account?.name ?? t("common.none")}</TableCell>
+                    <TableCell className="max-w-[22rem] truncate text-muted-foreground">
+                      {p.reference || (p.charge ? t(`chargeType.${p.charge.type}`) : "")}
+                      {p.note ? <span className="block text-xs italic">{p.note}</span> : null}
+                    </TableCell>
+                    <TableCell className={`text-right font-medium ${p.direction === "EINGANG" ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
+                      {p.direction === "EINGANG" ? "+" : "−"}
+                      {money(Number(p.amount), locale)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {p.documents.length > 0 ? (
+                        <span className="flex flex-col gap-0.5">
+                          {p.documents.map((d) => (
+                            <a
+                              key={d.id}
+                              href={`/api/documents/${d.id}`}
+                              className="truncate text-xs hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {d.name}
+                            </a>
+                          ))}
+                        </span>
+                      ) : (
+                        <span className="text-xs">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <PaymentEditDialog
+                          payment={{ id: p.id, note: p.note, documentIds: p.documents.map((d) => d.id) }}
+                          documents={allDocuments}
+                        />
+                        <DeleteButton action={deletePayment} id={p.id} />
                       </div>
                     </TableCell>
                   </TableRow>

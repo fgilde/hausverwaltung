@@ -548,6 +548,8 @@ model Payment {
   direction PaymentDirection @default(EINGANG)
   reference String?
   externalId String? // Bank-Sync-Transaktions-ID (Dedup)
+  note      String? // manuelle Notiz zur Kontobewegung
+  documents Document[] // verknüpfte Belege/Dokumente (Rechnungen etc.)
   createdAt DateTime         @default(now())
 
   @@unique([tenantId, externalId])
@@ -734,6 +736,7 @@ model Document {
   invoiceNo   String? // aus E-Rechnung extrahiert
   invoiceTotal Decimal?       @db.Decimal(12, 2) // aus E-Rechnung extrahiert
   emailAttachments EmailAttachment[]
+  payments   Payment[] // als Beleg verknüpfte Kontobewegungen (#23)
   createdAt  DateTime         @default(now())
 
   @@index([tenantId])

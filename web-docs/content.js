@@ -223,6 +223,8 @@ finance: {
     <p>Die Postenliste zeigt bei wohnungsbezogenen Buchungen den/die <strong>Mieter</strong>; die Einheit verlinkt auf die Wohnungsübersicht, der Mietername auf den Vertrag. Filter nach <strong>Status, Typ, Mieter/Einheit und Jahr</strong> grenzen große Bestände schnell ein.</p>
     <h3>Konten bearbeiten</h3>
     <p>Konten lassen sich über das Stift-Symbol nachträglich bearbeiten (Name, Typ, IBAN). Beim Bank-Sync wird die IBAN — sofern die Schnittstelle sie liefert — automatisch übernommen.</p>
+    <h3>Kontobewegungen</h3>
+    <p>Die Liste <strong>Kontobewegungen</strong> zeigt alle Zahlungen (Ein- und Ausgänge, auch aus dem Bank-Sync) mit Konto, Betrag, Verwendungszweck und Saldo. Je Buchung lassen sich eine <strong>Notiz</strong> hinterlegen und <strong>Belege/Dokumente</strong> aus der Dokumentenverwaltung verknüpfen (z. B. Rechnungen).</p>
     <h3>Kaution in Raten</h3>
     <p>Für Kautionszahlungen in Raten legt man je Rate eine Sollstellung vom Typ <strong>Kaution</strong> an (mit Betrag und Fälligkeit). Die Raten erscheinen als offene Posten und Zahlungseingänge werden ihnen zugeordnet — wie bei Miete.</p>`,
   en: `
@@ -241,6 +243,8 @@ finance: {
     <p>For unit-linked bookings the open-items list shows the <strong>tenant(s)</strong>; the unit links to the unit overview and the tenant name to the lease. Filters by <strong>status, type, tenant/unit and year</strong> narrow large portfolios quickly.</p>
     <h3>Editing accounts</h3>
     <p>Accounts can be edited later via the pencil icon (name, type, IBAN). On bank sync the IBAN is imported automatically where the interface provides it.</p>
+    <h3>Account transactions</h3>
+    <p>The <strong>account transactions</strong> list shows all payments (incoming and outgoing, including those from bank sync) with account, amount, reference and running balance. Each entry can carry a <strong>note</strong> and be linked to <strong>documents</strong> from the document store (e.g. invoices/receipts).</p>
     <h3>Deposit in instalments</h3>
     <p>For a deposit paid in instalments, create one charge of type <strong>Deposit</strong> per instalment (amount + due date). They show as open items and incoming payments are matched to them — just like rent.</p>`
 },
