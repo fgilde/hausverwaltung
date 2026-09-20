@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { insuranceSchema, propertyTaxSchema, type ActionState } from "@/lib/schemas";
+import { insuranceYearAmount } from "@/lib/insurance";
 
 async function assertProperty(tenantId: string, propertyId: string) {
   return prisma.property.findFirst({ where: { id: propertyId, tenantId }, select: { id: true } });
@@ -40,14 +41,25 @@ export async function bookGrundsteuerAsCost(fd: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
-// Versicherung als Kostenposition (BetrKV) buchen.
+// Versicherung als Kostenposition (BetrKV) buchen. Es wird der auf das Kalender-
+// jahr entfallende Anteil ALLER Policen des Objekts gebucht (unterjährige Policen
+// anteilig), nicht nur der zuletzt geklickten — siehe insuranceYearAmount (#32).
 export async function bookInsuranceAsCost(fd: FormData): Promise<void> {
   const user = await requireWriter();
   const id = String(fd.get("id") ?? "");
   const year = Number(fd.get("year")) || new Date().getFullYear();
-  const ins = await prisma.insurance.findFirst({ where: { id, tenantId: user.tenantId } });
-  if (!ins || Number(ins.premium) <= 0) return;
-  await upsertCost(user.tenantId, ins.propertyId, year, "VERSICHERUNG", Number(ins.premium));
+  const ins = await prisma.insurance.findFirst({ where: { id, tenantId: user.tenantId }, select: { propertyId: true } });
+  if (!ins) return;
+  const policies = await prisma.insurance.findMany({
+    where: { tenantId: user.tenantId, propertyId: ins.propertyId },
+    select: { premium: true, startDate: true, endDate: true },
+  });
+  const amount = insuranceYearAmount(
+    policies.map((p) => ({ premium: Number(p.premium), startDate: p.startDate, endDate: p.endDate })),
+    year,
+  );
+  if (amount <= 0) return;
+  await upsertCost(user.tenantId, ins.propertyId, year, "VERSICHERUNG", amount);
   revalidatePath("/", "layout");
 }
 

@@ -155,7 +155,9 @@ leases: {
     <h3>Staffel- und Indexmiete</h3>
     <p>Mietanpassungen werden geplant (Staffel oder Index) und per Klick <strong>angewandt</strong> — die Kaltmiete des Vertrags wird gesetzt und die Anpassung als erledigt markiert.</p>
     <h3>Kaution</h3>
-    <p>Kaution je Vertrag (Bar, Bürgschaft, verpfändet, Kautionskonto) inkl. optionaler Verzinsung und Verknüpfung zu einem Konto.</p>`,
+    <p>Kaution je Vertrag (Bar, Bürgschaft, verpfändet, Kautionskonto) inkl. optionaler Verzinsung und Verknüpfung zu einem Konto.</p>
+    <h3>Wohnungsgeberbestätigung</h3>
+    <p>Über „Wohnungsgeberbestätigung" wird eine PDF nach <strong>§ 19 BMG</strong> erzeugt — Mieter, Wohnung, Einzugsdatum und Wohnungsgeber werden automatisch übernommen. Der Mieter braucht sie für die An-/Ummeldung beim Amt.</p>`,
   en: `
     <h2>Leases</h2>
     <p>A lease links a <strong>unit</strong> to one or more <strong>tenants</strong>. It carries base rent, service-charge/heating prepayment (as rent components), term, occupant count and notice period.</p>
@@ -168,7 +170,9 @@ leases: {
     <h3>Stepped &amp; index rent</h3>
     <p>Rent adjustments are planned (stepped or index) and <strong>applied</strong> with one click — the lease's base rent is set and the adjustment marked done.</p>
     <h3>Deposit</h3>
-    <p>Deposit per lease (cash, guarantee, pledged, deposit account) incl. optional interest and a link to an account.</p>`
+    <p>Deposit per lease (cash, guarantee, pledged, deposit account) incl. optional interest and a link to an account.</p>
+    <h3>Landlord confirmation</h3>
+    <p>"Landlord confirmation" generates a PDF per <strong>§ 19 BMG</strong> (German residence registration) — tenant, dwelling, move-in date and landlord are filled in automatically. Tenants need it to register their address with the authorities.</p>`
 },
 
 area: {
@@ -282,12 +286,12 @@ dunning: {
   de: `
     <h2>Mahnwesen</h2>
     <p>Überfällige, nicht voll bezahlte Sollstellungen werden gemahnt — objektübergreifend unter <em>Mahnwesen</em>. Der <strong>Mahnlauf</strong> erzeugt für jede überfällige Forderung die nächste Mahnstufe (max. 3) inkl. Mahngebühr.</p>
-    <p>Einzelne Mahnungen lassen sich als PDF drucken oder als E-Mail an den Mieter erzeugen.</p>
+    <p>In der Finanzübersicht öffnet „Mahnen" ein <strong>zentrales Popup</strong>: Es bestätigt die Erstellung und bietet direkt <strong>Drucken</strong> (erstellt die Mahnung und öffnet das PDF im neuen Tab) und <strong>E-Mail senden</strong> (erstellt die Mahnung und legt einen Entwurf an). Fehlt eine Mieter-E-Mail, weist ein Hinweis darauf hin. Bereits erstellte Mahnungen lassen sich über das Drucker-Symbol erneut als PDF öffnen.</p>
     <div class="tip">Die nächste Mahnstufe ist erst <strong>14 Tage</strong> nach der letzten möglich; ein zu früher Versuch zeigt einen Hinweis mit den verbleibenden Tagen.</div>`,
   en: `
     <h2>Dunning</h2>
     <p>Overdue, not fully paid charges are dunned — across properties under <em>Dunning</em>. The <strong>dunning run</strong> creates the next level (max 3) incl. a fee for every overdue receivable.</p>
-    <p>Individual reminders can be printed as PDF or generated as an email to the tenant.</p>
+    <p>In the finances overview "Dun" opens a <strong>single popup</strong>: it confirms creation and offers <strong>Print</strong> (creates the notice and opens the PDF in a new tab) and <strong>Send email</strong> (creates the notice and saves a draft) right there. If the tenant has no email address, a note is shown. Already-created notices can be reopened as PDF via the printer icon.</p>
     <div class="tip">The next dunning level is only possible <strong>14 days</strong> after the previous one; an early attempt shows a note with the remaining days.</div>`
 },
 
@@ -314,7 +318,7 @@ statements: {
     <h3>Mieterwechsel</h3>
     <p>Wechselt der Mieter innerhalb des Abrechnungsjahres, erscheint <strong>je Mietverhältnis eine eigene Zeile</strong> (Vor- und Nachmieter) mit eigener Vorauszahlung und zeitanteiligem Kostenanteil — die Summe ergibt wieder die vollen Kosten (etwaiger Leerstand bleibt beim Vermieter).</p>
     <h3>Grundsteuer &amp; Versicherung</h3>
-    <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen.</p>`,
+    <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen. Bei <strong>Versicherungen</strong> wird der auf das Kalenderjahr entfallende Anteil <strong>aller</strong> Policen des Objekts gebucht — unterjährig laufende Policen (12 Monate ab Beginn) werden zeitanteilig berücksichtigt (z. B. zwei sich überlappende Jahresprämien anteilig summiert).</p>`,
   en: `
     <h2>Service-charge statements</h2>
     <p>Under <em>Statements</em> you record cost items per property/year (German BetrKV) and allocate them to units by <strong>distribution key</strong>.</p>
@@ -337,7 +341,7 @@ statements: {
     <h3>Tenant change</h3>
     <p>If the tenant changes within the statement year, there is <strong>one line per lease</strong> (previous and new tenant) with its own prepayment and time-share of the costs — the sum adds back up to the full costs (any vacancy stays with the landlord).</p>
     <h3>Property tax &amp; insurance</h3>
-    <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost".</p>`
+    <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost". For <strong>insurance</strong> the amount booked is the calendar-year share of <strong>all</strong> of the property's policies — part-year policies (12 months from their start) are prorated (e.g. two overlapping annual premiums summed proportionally).</p>`
 },
 
 weg: {
@@ -452,7 +456,7 @@ notifications: {
       <li>Meldet ein Mieter einen Schaden, werden alle Verwalter benachrichtigt (Klick → Instandhaltung).</li>
       <li>Ändert sich der Status einer Meldung, wird der meldende Mieter im Portal benachrichtigt.</li>
     </ul>
-    <p>Klick markiert gelesen und springt zum Ziel; „Alle gelesen" leert den Zähler.</p>`,
+    <p>Klick markiert gelesen und springt zum Ziel; „Alle gelesen" leert den Zähler. Einzelne Hinweise lassen sich per <strong>×</strong> entfernen (z. B. eine Meldung zu einem bereits gelöschten Ticket).</p>`,
   en: `
     <h2>Notifications</h2>
     <p>Top right a <strong>bell</strong> shows unread hints with a counter. Events create in-app notifications for the affected users:</p>
@@ -460,7 +464,7 @@ notifications: {
       <li>When a tenant reports an issue, all managers are notified (click → Maintenance).</li>
       <li>When a report's status changes, the reporting tenant is notified in the portal.</li>
     </ul>
-    <p>Clicking marks it read and jumps to the target; "mark all read" clears the counter.</p>`
+    <p>Clicking marks it read and jumps to the target; "mark all read" clears the counter. Single hints can be removed with <strong>×</strong> (e.g. a notice for an already-deleted ticket).</p>`
 },
 
 ai: {

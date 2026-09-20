@@ -27,9 +27,8 @@ import {
   CamtDialog,
 } from "@/components/finance-dialogs";
 import { DeleteButton } from "@/components/delete-button";
-import { DunningButton } from "@/components/dunning-button";
-import { Mail } from "lucide-react";
-import { deleteCharge, deleteAccount, deleteMandate, emailDunning, seedDefaultAccounts } from "@/server/actions/finances";
+import { DunningDialog } from "@/components/dunning-dialog";
+import { deleteCharge, deleteAccount, deleteMandate, seedDefaultAccounts } from "@/server/actions/finances";
 
 export default async function FinancesPage({
   searchParams,
@@ -257,24 +256,26 @@ export default async function FinancesPage({
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <PaymentDialog chargeId={c.id} defaultAmount={Math.max(0, open)} accounts={accountOpts} />
-                        {status === "OVERDUE" && dunLevel < 3 && <DunningButton chargeId={c.id} />}
+                        {status === "OVERDUE" && dunLevel < 3 && (
+                          <DunningDialog
+                            chargeId={c.id}
+                            renterName={
+                              c.lease?.renters[0]
+                                ? `${c.lease.renters[0].person.firstName} ${c.lease.renters[0].person.lastName}`
+                                : ""
+                            }
+                            hasEmail={!!c.lease?.renters[0]?.person.email}
+                          />
+                        )}
                         {dunLevel > 0 && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label={t("print.printPdf")}
-                              render={<Link href={`/print/dunning?chargeId=${c.id}`} target="_blank" />}
-                            >
-                              <Printer className="size-4" />
-                            </Button>
-                            <form action={emailDunning}>
-                              <input type="hidden" name="chargeId" value={c.id} />
-                              <Button type="submit" variant="ghost" size="icon" aria-label={t("finances.mailDunning")}>
-                                <Mail className="size-4" />
-                              </Button>
-                            </form>
-                          </>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t("print.printPdf")}
+                            render={<a href={`/api/dunning/${c.id}/pdf`} target="_blank" rel="noopener noreferrer" />}
+                          >
+                            <Printer className="size-4" />
+                          </Button>
                         )}
                         <DeleteButton action={deleteCharge} id={c.id} />
                       </div>

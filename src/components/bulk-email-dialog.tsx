@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Users } from "lucide-react";
+import { Users, Paperclip } from "lucide-react";
 import { bulkEmail } from "@/server/actions/email";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
@@ -23,9 +23,11 @@ const areaCls = cn(
 export function BulkEmailDialog({
   properties,
   templates,
+  documents = [],
 }: {
   properties: { value: string; label: string }[];
   templates: Tpl[];
+  documents?: { id: string; name: string }[];
 }) {
   const t = useTranslations();
   const [subject, setSubject] = useState("");
@@ -83,6 +85,21 @@ export function BulkEmailDialog({
         <textarea id="bulkBody" name="body" value={body} onChange={(e) => setBody(e.target.value)} required rows={6} className={areaCls} />
       </div>
       <p className="text-xs text-muted-foreground">{t("email.placeholderHint")}</p>
+      {documents.length > 0 && (
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-1.5 text-sm font-medium">
+            <Paperclip className="size-4" /> {t("email.attachments")}
+          </label>
+          <div className="max-h-40 space-y-1 overflow-auto rounded-lg border p-2">
+            {documents.map((d) => (
+              <label key={d.id} className="flex items-center gap-2 rounded px-1.5 py-1 text-sm hover:bg-muted">
+                <input type="checkbox" name="documentIds" value={d.id} className="size-4" />
+                <span className="truncate">{d.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
     </CrudDialog>
   );
 }

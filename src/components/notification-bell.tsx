@@ -1,10 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { markNotificationRead, markAllNotificationsRead } from "@/server/actions/notifications";
+import { markNotificationRead, markAllNotificationsRead, deleteNotification } from "@/server/actions/notifications";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,6 +40,15 @@ export function NotificationBell({ items, unread }: { items: NotificationItem[];
     });
   };
 
+  const dismiss = (id: string) => {
+    start(async () => {
+      const fd = new FormData();
+      fd.set("id", id);
+      await deleteNotification(fd);
+      router.refresh();
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -71,19 +80,29 @@ export function NotificationBell({ items, unread }: { items: NotificationItem[];
         ) : (
           <div className="max-h-96 overflow-y-auto">
             {items.map((n) => (
-              <button
-                key={n.id}
-                type="button"
-                onClick={() => open(n)}
-                className={`flex w-full flex-col items-start gap-0.5 border-b px-3 py-2 text-left text-sm last:border-b-0 hover:bg-muted ${n.read ? "opacity-60" : ""}`}
-              >
-                <div className="flex w-full items-center gap-2">
-                  {!n.read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
-                  <span className="font-medium">{n.title}</span>
-                </div>
-                {n.body && <span className="text-xs text-muted-foreground">{n.body}</span>}
-                <span className="text-[11px] text-muted-foreground">{n.createdAt}</span>
-              </button>
+              <div key={n.id} className="group relative border-b last:border-b-0 hover:bg-muted">
+                <button
+                  type="button"
+                  onClick={() => open(n)}
+                  className={`flex w-full flex-col items-start gap-0.5 px-3 py-2 pr-8 text-left text-sm ${n.read ? "opacity-60" : ""}`}
+                >
+                  <div className="flex w-full items-center gap-2">
+                    {!n.read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
+                    <span className="font-medium">{n.title}</span>
+                  </div>
+                  {n.body && <span className="text-xs text-muted-foreground">{n.body}</span>}
+                  <span className="text-[11px] text-muted-foreground">{n.createdAt}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dismiss(n.id)}
+                  aria-label={t("dismiss")}
+                  title={t("dismiss")}
+                  className="absolute right-1 top-1 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-background hover:text-foreground group-hover:opacity-100"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
             ))}
           </div>
         )}

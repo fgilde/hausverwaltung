@@ -17,7 +17,8 @@ import { generateAreaCharges } from "@/lib/api-ops";
 import { audit } from "@/lib/audit";
 import { simplePdf } from "@/lib/pdf";
 import { saveFile } from "@/lib/storage";
-import { money, date } from "@/lib/format";
+import { money } from "@/lib/format";
+import { dunningDocument } from "@/lib/dunning";
 
 // Standard-Kontenrahmen für den Mandanten anlegen (idempotent).
 export async function seedDefaultAccounts(): Promise<void> {
@@ -232,7 +233,7 @@ export async function createDunning(_p: ActionState, fd: FormData): Promise<Acti
 }
 
 // --- Mahnung als PDF an den Mieter mailen (Entwurf im Postausgang) + Ablage ---
-export async function emailDunning(fd: FormData): Promise<void> {
+export async function emailDunning(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const chargeId = String(fd.get("chargeId") ?? "");
   const charge = await prisma.charge.findFirst({
@@ -248,29 +249,32 @@ export async function emailDunning(fd: FormData): Promise<void> {
       },
     },
   });
-  if (!charge || !charge.lease) return;
+  if (!charge || !charge.lease) return fail("Sollstellung nicht gefunden");
 
   const paid = charge.payments.reduce((a, p) => a + Number(p.amount), 0);
   const open = Number(charge.amount) - paid;
   const dun = charge.dunnings[0];
   const fee = dun ? Number(dun.fee) : 0;
-  const total = open + fee;
   const level = dun?.level ?? 1;
   const property = charge.lease.unit.building.property;
   const renter = charge.lease.renters[0]?.person;
-  if (!renter?.email) return; // ohne E-Mail kein Entwurf
+  if (!renter?.email) return fail("Kein Mieter mit E-Mail-Adresse hinterlegt.");
 
-  const title = level >= 2 ? `${level}. Mahnung` : "Zahlungserinnerung";
-  const pdf = simplePdf(title, [
-    `${property.name} - ${charge.lease.unit.label}`,
-    `Mieter: ${renter.firstName} ${renter.lastName}`,
-    "",
-    `Offener Posten (faellig ${date(charge.dueDate)}): ${money(open)}`,
-    fee > 0 ? `Mahngebuehr: ${money(fee)}` : "",
-    `Offener Gesamtbetrag: ${money(total)}`,
-    "",
-    "Wir bitten um Ausgleich innerhalb von 14 Tagen.",
-  ].filter(Boolean));
+  const built = dunningDocument({
+    level,
+    propertyName: property.name,
+    unitLabel: charge.lease.unit.label,
+    renterName: `${renter.firstName} ${renter.lastName}`,
+    tenantName: property.tenant.name,
+    chargeTypeLabel: charge.type,
+    period: charge.period,
+    dueDate: charge.dueDate,
+    open,
+    fee,
+  });
+  const title = built.title;
+  const total = open + fee;
+  const pdf = simplePdf(title, built.lines);
   const name = `${title} - ${charge.lease.unit.label}.pdf`;
   const storageKey = await saveFile(pdf, name);
   const doc = await prisma.document.create({
@@ -296,4 +300,5 @@ export async function emailDunning(fd: FormData): Promise<void> {
   });
   await audit(user, "CREATE", "EmailMessage", null, `${title} ${charge.lease.unit.label}`);
   revalidatePath("/", "layout");
+  return { ok: true };
 }

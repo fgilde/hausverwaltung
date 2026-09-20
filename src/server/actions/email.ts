@@ -147,6 +147,13 @@ export async function bulkEmail(_p: ActionState, fd: FormData): Promise<ActionSt
   }
   if (recips.size === 0) return { error: "Keine Empfänger mit E-Mail-Adresse gefunden." };
 
+  // Optionale Dokumentanhänge (je Empfänger dieselben) — auf Mandant prüfen.
+  const docIds = fd.getAll("documentIds").map(String).filter(Boolean);
+  if (docIds.length) {
+    const cnt = await prisma.document.count({ where: { tenantId: user.tenantId, id: { in: docIds } } });
+    if (cnt !== docIds.length) return { error: "Dokument nicht gefunden." };
+  }
+
   // Platzhalter je Empfänger füllen (Serienbrief).
   const rows = [...recips.entries()].map(([to, ctx]) => {
     const context: Record<string, string> = {
@@ -165,7 +172,15 @@ export async function bulkEmail(_p: ActionState, fd: FormData): Promise<ActionSt
     };
   });
 
-  await prisma.emailMessage.createMany({ data: rows });
+  // Nicht createMany: Anhänge sind eine verschachtelte Relation, daher je Mail.
+  for (const row of rows) {
+    await prisma.emailMessage.create({
+      data: {
+        ...row,
+        ...(docIds.length ? { attachments: { create: docIds.map((documentId) => ({ documentId })) } } : {}),
+      },
+    });
+  }
   await audit(user, "CREATE", "EmailMessage", null, `Serien-Mail (${rows.length})`);
   revalidatePath("/", "layout");
   return { ok: true };

@@ -18,3 +18,10 @@ export async function markAllNotificationsRead(): Promise<void> {
   await prisma.notification.updateMany({ where: { userId: user.id, read: false }, data: { read: true } });
   revalidatePath("/", "layout");
 }
+
+// Einzelne Benachrichtigung entfernen (z. B. Meldung zu gelöschtem Ticket).
+export async function deleteNotification(fd: FormData): Promise<void> {
+  const user = await requireUser();
+  await prisma.notification.deleteMany({ where: { id: String(fd.get("id") ?? ""), userId: user.id } });
+  revalidatePath("/", "layout");
+}

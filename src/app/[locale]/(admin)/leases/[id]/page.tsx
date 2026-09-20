@@ -1,4 +1,4 @@
-import { ArrowLeft, X, Check } from "lucide-react";
+import { ArrowLeft, X, Check, FileText } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
@@ -100,6 +100,15 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
           </p>
         </div>
         <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            title={t("leases.wohnungsgeber")}
+            render={<a href={`/api/leases/${lease.id}/wohnungsgeber`} target="_blank" rel="noopener noreferrer" />}
+          >
+            <FileText className="size-4" />
+            {t("leases.wohnungsgeber")}
+          </Button>
           <LeaseDialog
             units={unitOpts}
             customDefs={customDefs}

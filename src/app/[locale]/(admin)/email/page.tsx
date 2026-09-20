@@ -76,7 +76,7 @@ export default async function EmailPage() {
           <p className="text-sm text-muted-foreground">{t("email.subtitle")}</p>
         </div>
         <div className="flex gap-2">
-          {propertyOpts.length > 0 && <BulkEmailDialog properties={propertyOpts} templates={templates} />}
+          {propertyOpts.length > 0 && <BulkEmailDialog properties={propertyOpts} templates={templates} documents={documents} />}
           <EmailCompose persons={personOpts} documents={documents} templates={templates} />
         </div>
       </div>

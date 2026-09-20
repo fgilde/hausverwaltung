@@ -397,7 +397,8 @@
     "selectPersons": "Mieter wählen (mehrere möglich)",
     "personCount": "Personenzahl",
     "noticePeriod": "Kündigungsfrist (Monate)",
-    "unlimited": "Unbefristet"
+    "unlimited": "Unbefristet",
+    "wohnungsgeber": "Wohnungsgeberbestätigung"
   },
   "rentComponent": {
     "title": "Miet-Bestandteile",
@@ -542,6 +543,7 @@
   "notifications": {
     "title": "Benachrichtigungen",
     "markAll": "Alle gelesen",
+    "dismiss": "Entfernen",
     "empty": "Keine Benachrichtigungen."
   },
   "tenants": {
@@ -665,6 +667,13 @@
     "account": "Konto",
     "charge": "Sollstellung",
     "dun": "Mahnen",
+    "dunTitle": "Mahnung erstellen",
+    "dunConfirm": "Für {name} wird eine Mahnung erstellt. Danach direkt drucken oder per E-Mail senden.",
+    "dunPrint": "Drucken",
+    "dunEmail": "E-Mail senden",
+    "dunCancel": "Abbrechen",
+    "dunEmailed": "Mahnung als E-Mail-Entwurf erstellt",
+    "dunNoEmail": "Kein Mieter mit E-Mail-Adresse hinterlegt",
     "mailDunning": "Mahnung per E-Mail",
     "dunLevel": "Mahnstufe",
     "statusOPEN": "Offen",

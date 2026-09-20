@@ -397,7 +397,8 @@
     "selectPersons": "Select tenants (multiple allowed)",
     "personCount": "Occupants",
     "noticePeriod": "Notice period (months)",
-    "unlimited": "Open-ended"
+    "unlimited": "Open-ended",
+    "wohnungsgeber": "Landlord confirmation"
   },
   "rentComponent": {
     "title": "Rent components",
@@ -542,6 +543,7 @@
   "notifications": {
     "title": "Notifications",
     "markAll": "Mark all read",
+    "dismiss": "Dismiss",
     "empty": "No notifications."
   },
   "tenants": {
@@ -665,6 +667,13 @@
     "account": "Account",
     "charge": "Charge",
     "dun": "Dun",
+    "dunTitle": "Create dunning notice",
+    "dunConfirm": "A dunning notice will be created for {name}. Then print it or send it by email.",
+    "dunPrint": "Print",
+    "dunEmail": "Send email",
+    "dunCancel": "Cancel",
+    "dunEmailed": "Dunning notice saved as email draft",
+    "dunNoEmail": "No tenant email address on file",
     "mailDunning": "Email dunning notice",
     "dunLevel": "Dunning level",
     "statusOPEN": "Open",
