@@ -239,3 +239,11 @@ funktioniert auf jeder Debian-Maschine; Datenbank, Passwort und hochgeladene Dok
 Zählerintegration auf Fläche zurück · DATEV-Export ist vereinfachtes CSV · das
 zeitabhängige Flächenmodell (`docs/flaechenmodell.md`) ist als Entwurf spezifiziert,
 aber noch nicht implementiert.
+
+## Lizenz
+
+HaVeWa ist **dual-lizenziert**: die Open-Source-Lizenz **GNU AGPLv3** (siehe
+[`LICENSE`](./LICENSE)) oder eine **kommerzielle Lizenz** für geschlossene/proprietäre
+Nutzung. Details und Kontakt in [`LICENSING.md`](./LICENSING.md).
+
+Copyright © 2026 Florian Gilde.

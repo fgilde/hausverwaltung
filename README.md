@@ -267,3 +267,11 @@ Marked with `ponytail:` comments in the code: HeizkostenV consumption allocation
 falls back to area without meter integration · DATEV export is simplified CSV · the
 time-based area model (`docs/flaechenmodell.md`) is specified as a draft but not yet
 implemented.
+
+## License
+
+HaVeWa is **dual-licensed**: the open-source **GNU AGPLv3** (see [`LICENSE`](./LICENSE))
+or a **commercial license** for closed-source/proprietary use. Details and contact in
+[`LICENSING.md`](./LICENSING.md).
+
+Copyright © 2026 Florian Gilde.
