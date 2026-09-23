@@ -54,6 +54,9 @@ export default async function UnitsPage() {
       select: { id: true, firstName: true, lastName: true },
     }),
   ]);
+  const importPresets = (
+    await prisma.importPreset.findMany({ where: { tenantId: user.tenantId, entity: "unit" }, orderBy: { createdAt: "asc" } })
+  ).map((p) => ({ id: p.id, name: p.name, mapping: p.mapping as Record<string, number> }));
 
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
   const now = new Date();
@@ -81,7 +84,7 @@ export default async function UnitsPage() {
           <Button variant="outline" size="sm" render={<a href="/api/export/units" />}>
             {t("common.exportCsv")}
           </Button>
-          <ImportDialog entity="unit" />
+          <ImportDialog entity="unit" presets={importPresets} />
         </div>
       </div>
 

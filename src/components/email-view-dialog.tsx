@@ -10,8 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DocumentPreview } from "@/components/document-preview";
 
-type Attachment = { id: string; name: string };
+type Attachment = { id: string; name: string; mime: string };
 
 // Postausgang: E-Mail-Text und Anhänge einsehen (#34).
 export function EmailViewDialog({
@@ -58,15 +59,17 @@ export function EmailViewDialog({
               </div>
               <div className="space-y-1">
                 {message.attachments.map((a) => (
-                  <a
-                    key={a.id}
-                    href={`/api/documents/${a.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block truncate rounded px-2 py-1 text-sm hover:bg-muted hover:underline"
-                  >
-                    {a.name}
-                  </a>
+                  <div key={a.id} className="flex items-center gap-1 rounded px-1 py-0.5 text-sm hover:bg-muted">
+                    <DocumentPreview id={a.id} name={a.name} mime={a.mime} />
+                    <a
+                      href={`/api/documents/${a.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate hover:underline"
+                    >
+                      {a.name}
+                    </a>
+                  </div>
                 ))}
               </div>
             </div>

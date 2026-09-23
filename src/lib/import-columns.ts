@@ -59,6 +59,26 @@ export const MANAGEMENT_MAP: Record<string, string> = {
   miet: "MIET", miete: "MIET", rental: "MIET", mietverwaltung: "MIET",
   weg: "WEG", weg_verwaltung: "WEG", hoa: "WEG",
 };
+// Zielfelder je Entität (für den Mapping-Assistenten): Pflicht + optional.
+export const ENTITY_FIELDS: Record<string, { required: string[]; optional: string[] }> = {
+  person: { required: ["firstName", "lastName"], optional: ["email", "phone", "type", "note"] },
+  property: { required: ["name", "street", "zip", "city"], optional: ["type", "management"] },
+  unit: { required: ["property", "label"], optional: ["building", "type", "area", "rooms", "mea"] },
+};
+
+export const ENTITY_SPEC: Record<string, ColSpec> = {
+  person: PERSON_COLS,
+  property: PROPERTY_COLS,
+  unit: UNIT_COLS,
+};
+
+/** Nicht zugeordnete Pflichtfelder (cols[field] < 0). Leer = alles ok. */
+export function missingRequired(entity: string, cols: Record<string, number>): string[] {
+  const f = ENTITY_FIELDS[entity];
+  if (!f) return ["__entity__"];
+  return f.required.filter((k) => !(cols[k] >= 0));
+}
+
 export const UNIT_TYPE_MAP: Record<string, string> = {
   wohnung: "WOHNUNG", flat: "WOHNUNG", apartment: "WOHNUNG",
   gewerbe: "GEWERBE", commercial: "GEWERBE",

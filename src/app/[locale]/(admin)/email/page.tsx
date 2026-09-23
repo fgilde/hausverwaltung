@@ -31,7 +31,7 @@ export default async function EmailPage() {
   const [messages, tenant, persons, documents, properties, templates] = await Promise.all([
     prisma.emailMessage.findMany({
       where: { tenantId: user.tenantId },
-      include: { attachments: { include: { document: { select: { id: true, name: true } } } } },
+      include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
       orderBy: { createdAt: "desc" },
     }),
     prisma.tenant.findUnique({
@@ -139,7 +139,7 @@ export default async function EmailPage() {
                             cc: m.cc,
                             subject: m.subject,
                             body: m.body,
-                            attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name })),
+                            attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
                           }}
                         />
                         {m.status !== "GESENDET" && (

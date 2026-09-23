@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mapColumns, normalizeEnum, PROPERTY_COLS, UNIT_COLS, MANAGEMENT_MAP, UNIT_TYPE_MAP } from "./import-columns";
+import { mapColumns, normalizeEnum, missingRequired, PROPERTY_COLS, UNIT_COLS, MANAGEMENT_MAP, UNIT_TYPE_MAP } from "./import-columns";
 
 describe("mapColumns (#33 DE/EN Header)", () => {
   it("englische Property-Header", () => {
@@ -45,5 +45,17 @@ describe("normalizeEnum", () => {
   it("unbekannt -> fallback", () => {
     expect(normalizeEnum("xyz", MANAGEMENT_MAP, "MIET")).toBe("MIET");
     expect(normalizeEnum(undefined, MANAGEMENT_MAP, "MIET")).toBe("MIET");
+  });
+});
+
+describe("missingRequired (#33 Mapping-Validierung)", () => {
+  it("alle Pflichtfelder zugeordnet = leer", () => {
+    expect(missingRequired("property", { name: 0, street: 1, zip: 2, city: 3 })).toEqual([]);
+  });
+  it("fehlende Pflichtfelder werden gelistet", () => {
+    expect(missingRequired("property", { name: 0, street: -1, zip: 2, city: -1 })).toEqual(["street", "city"]);
+  });
+  it("unbekannte Entität", () => {
+    expect(missingRequired("foo", {})).toEqual(["__entity__"]);
   });
 });

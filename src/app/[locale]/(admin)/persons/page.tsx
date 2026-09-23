@@ -41,6 +41,9 @@ export default async function PersonsPage({
       select: { key: true, label: true },
     }),
   ]);
+  const importPresets = (
+    await prisma.importPreset.findMany({ where: { tenantId: user.tenantId, entity: "person" }, orderBy: { createdAt: "asc" } })
+  ).map((p) => ({ id: p.id, name: p.name, mapping: p.mapping as Record<string, number> }));
 
   return (
     <div className="space-y-6">
@@ -53,7 +56,7 @@ export default async function PersonsPage({
           <Button variant="outline" size="sm" render={<a href="/api/export/persons" />}>
             {t("common.exportCsv")}
           </Button>
-          <ImportDialog entity="person" />
+          <ImportDialog entity="person" presets={importPresets} />
           <PersonDialog customDefs={customDefs} />
         </div>
       </div>

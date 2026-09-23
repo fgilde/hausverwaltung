@@ -60,6 +60,18 @@ model Template {
   @@index([tenantId])
 }
 
+// Gespeichertes Spalten-Mapping für den CSV-Import (#33), je Mandant/Entität.
+model ImportPreset {
+  id        String   @id @default(cuid())
+  tenantId  String
+  entity    String // person | property | unit
+  name      String
+  mapping   Json // Feld -> Spaltenindex
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
+
 // Benutzerdefinierte Feld-Definition je Mandant und Entität.
 model CustomFieldDef {
   id        String            @id @default(cuid())

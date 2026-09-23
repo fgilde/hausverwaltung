@@ -35,6 +35,9 @@ export default async function PropertiesPage() {
       select: { key: true, label: true },
     }),
   ]);
+  const importPresets = (
+    await prisma.importPreset.findMany({ where: { tenantId: user.tenantId, entity: "property" }, orderBy: { createdAt: "asc" } })
+  ).map((p) => ({ id: p.id, name: p.name, mapping: p.mapping as Record<string, number> }));
 
   const unitCount = (p: (typeof properties)[number]) =>
     p.buildings.reduce((a, b) => a + b._count.units, 0);
@@ -51,7 +54,7 @@ export default async function PropertiesPage() {
             <Download className="size-4" />
             {t("common.exportCsv")}
           </Button>
-          <ImportDialog entity="property" />
+          <ImportDialog entity="property" presets={importPresets} />
           <PropertyDialog customDefs={customDefs} />
         </div>
       </div>

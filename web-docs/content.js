@@ -531,6 +531,7 @@ io: {
       <li><strong>Export</strong> auf den Listen: Objekte, Einheiten, Personen, Tickets, offene Posten.</li>
       <li><strong>Import</strong>: Personen, Objekte, Einheiten (Objekt per Name, Gebäude wird bei Bedarf angelegt). Ungültige Zeilen werden übersprungen. Trenner „;" oder „,".</li>
       <li>Spaltenüberschriften werden <strong>deutsch oder englisch</strong> erkannt (z. B. <code>Objekt/property</code>, <code>Straße/street</code>, <code>Fläche/area</code>). Im Import-Dialog gibt es „<strong>Vorlage herunterladen</strong>" mit der erwarteten Struktur.</li>
+      <li><strong>Mapping-Assistent</strong>: Nach dem Datei-Upload lassen sich die CSV-Spalten den Zielfeldern frei zuordnen (mit Vorschau), auch bei abweichenden Überschriften. Zuordnungen können als <strong>Vorlage gespeichert</strong> und wiederverwendet werden.</li>
     </ul>
     <h3>Buchhaltung &amp; Bank</h3>
     <ul>
@@ -545,6 +546,7 @@ io: {
       <li><strong>Export</strong> on the lists: properties, units, people, tickets, open items.</li>
       <li><strong>Import</strong>: people, properties, units (property by name, building created if needed). Invalid rows are skipped. Delimiter ";" or ",".</li>
       <li>Column headers are recognized in <strong>German or English</strong> (e.g. <code>Objekt/property</code>, <code>Straße/street</code>, <code>Fläche/area</code>). The import dialog offers "<strong>Download template</strong>" with the expected structure.</li>
+      <li><strong>Mapping wizard</strong>: after uploading a file you can freely map the CSV columns to the target fields (with a preview), even with different headers. Mappings can be <strong>saved as a template</strong> and reused.</li>
     </ul>
     <h3>Accounting &amp; bank</h3>
     <ul>
