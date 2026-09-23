@@ -95,12 +95,19 @@ export function NotificationBell({ items, unread }: { items: NotificationItem[];
                 </button>
                 <button
                   type="button"
-                  onClick={() => dismiss(n.id)}
+                  // pointerDown stoppen, damit das Menü den Klick nicht als
+                  // Schließen/Auswahl abfängt, bevor onClick feuert.
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dismiss(n.id);
+                  }}
                   aria-label={t("dismiss")}
                   title={t("dismiss")}
-                  className="absolute right-1 top-1 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-background hover:text-foreground group-hover:opacity-100"
+                  className="absolute right-1 top-1 rounded p-1 text-muted-foreground opacity-70 transition-colors hover:bg-background hover:text-destructive"
                 >
-                  <X className="size-3.5" />
+                  <X className="size-4" />
                 </button>
               </div>
             ))}
