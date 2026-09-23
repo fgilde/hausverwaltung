@@ -26,13 +26,13 @@ describe("dunningDocument (#28)", () => {
     const text = dunningDocument({ ...base, level: 2 }).lines.join("\n");
     expect(text).toContain("Max Mustermann");
     expect(text).toContain("Haus A · EG Links");
-    expect(text).toContain("Mahngebuehr");
+    expect(text).toContain("Mahngebühr");
     // Gesamt 805 €
     expect(text).toContain("805");
   });
 
   it("ohne Gebühr keine Mahngebühr-Zeile", () => {
     const text = dunningDocument({ ...base, level: 1, fee: 0 }).lines.join("\n");
-    expect(text).not.toContain("Mahngebuehr");
+    expect(text).not.toContain("Mahngebühr");
   });
 });

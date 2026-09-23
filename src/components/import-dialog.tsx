@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, Download } from "lucide-react";
 import { importPersons, importProperties, importUnits, type ImportState } from "@/server/actions/imports";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +52,12 @@ export function ImportDialog({ entity }: { entity: "person" | "property" | "unit
         </DialogHeader>
         <form action={action} className="space-y-4" key={open ? "o" : "c"}>
           <p className="text-xs text-muted-foreground">{t(HINT[entity])}</p>
+          <a
+            href={`/api/import-template/${entity}`}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+          >
+            <Download className="size-3.5" /> {t("template")}
+          </a>
           <div className="space-y-1.5">
             <Label htmlFor="file">{t("file")}</Label>
             <Input id="file" name="file" type="file" accept=".csv,text/csv" required />

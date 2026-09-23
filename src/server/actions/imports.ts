@@ -5,6 +5,16 @@ import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { parseCsv } from "@/lib/csv";
 import { personSchema, propertySchema, unitSchema, type ActionState } from "@/lib/schemas";
+import {
+  mapColumns,
+  normalizeEnum,
+  PERSON_COLS,
+  PROPERTY_COLS,
+  UNIT_COLS,
+  PROPERTY_TYPE_MAP,
+  MANAGEMENT_MAP,
+  UNIT_TYPE_MAP,
+} from "@/lib/import-columns";
 
 export type ImportState = ActionState & { created?: number; skipped?: number };
 
@@ -12,7 +22,7 @@ const PERSON_TYPES = ["MIETER", "EIGENTUEMER", "INTERESSENT", "HANDWERKER", "MAK
 
 /**
  * Personen (Adressbuch) aus CSV importieren. Spalten per Header zugeordnet
- * (firstName, lastName, email, phone, type, note); firstName+lastName Pflicht.
+ * (deutsch oder englisch, siehe import-columns); Vor-/Nachname Pflicht.
  * Ungültige Zeilen werden übersprungen, nicht abgebrochen.
  */
 export async function importPersons(_prev: ImportState, fd: FormData): Promise<ImportState> {
@@ -23,27 +33,22 @@ export async function importPersons(_prev: ImportState, fd: FormData): Promise<I
   const rows = parseCsv(await file.text());
   if (rows.length < 2) return { error: "Keine Datenzeilen gefunden" };
 
-  const header = rows[0].map((h) => h.toLowerCase());
-  const col = (name: string) => header.indexOf(name.toLowerCase());
-  const fi = col("firstName");
-  const li = col("lastName");
-  if (fi < 0 || li < 0) return { error: "Spalten 'firstName' und 'lastName' erforderlich" };
-  const ei = col("email");
-  const pi = col("phone");
-  const ti = col("type");
-  const ni = col("note");
+  const c = mapColumns(rows[0], PERSON_COLS);
+  if (c.firstName < 0 || c.lastName < 0) return { error: "Spalten Vorname/firstName und Nachname/lastName erforderlich" };
+  const at = (r: string[], i: number) => (i >= 0 ? r[i] : undefined);
 
   let created = 0;
   let skipped = 0;
   for (const r of rows.slice(1)) {
-    const type = ti >= 0 && PERSON_TYPES.includes((r[ti] ?? "").toUpperCase()) ? r[ti].toUpperCase() : "SONSTIGE";
+    const rawType = (at(r, c.type) ?? "").toUpperCase();
+    const type = PERSON_TYPES.includes(rawType) ? rawType : "SONSTIGE";
     const parsed = personSchema.safeParse({
-      firstName: r[fi] ?? "",
-      lastName: r[li] ?? "",
-      email: ei >= 0 ? r[ei] : undefined,
-      phone: pi >= 0 ? r[pi] : undefined,
+      firstName: r[c.firstName] ?? "",
+      lastName: r[c.lastName] ?? "",
+      email: at(r, c.email),
+      phone: at(r, c.phone),
       type,
-      note: ni >= 0 ? r[ni] : undefined,
+      note: at(r, c.note),
     });
     if (!parsed.success) {
       skipped++;
@@ -56,15 +61,10 @@ export async function importPersons(_prev: ImportState, fd: FormData): Promise<I
   return { ok: true, created, skipped };
 }
 
-const PROPERTY_TYPES = ["WOHNEN", "GEWERBE", "GEMISCHT"];
-const MANAGEMENT_TYPES = ["MIET", "WEG"];
-const pick = <T extends string>(v: string | undefined, allowed: T[], fallback: T): T =>
-  v && allowed.includes(v.toUpperCase() as T) ? (v.toUpperCase() as T) : fallback;
-
 /**
  * Objekte aus CSV importieren. Spalten: name, street, zip, city (Pflicht),
- * optional type (WOHNEN/GEWERBE/GEMISCHT), management (MIET/WEG). Ungültige
- * Zeilen werden übersprungen.
+ * optional type (Wohnen/Gewerbe/Gemischt), management (Miet/WEG) — deutsch oder
+ * englisch. Ungültige Zeilen werden übersprungen.
  */
 export async function importProperties(_prev: ImportState, fd: FormData): Promise<ImportState> {
   const user = await requireWriter();
@@ -73,26 +73,21 @@ export async function importProperties(_prev: ImportState, fd: FormData): Promis
 
   const rows = parseCsv(await file.text());
   if (rows.length < 2) return { error: "Keine Datenzeilen gefunden" };
-  const header = rows[0].map((h) => h.toLowerCase());
-  const col = (name: string) => header.indexOf(name.toLowerCase());
-  const ni = col("name");
-  const si = col("street");
-  const zi = col("zip");
-  const ci = col("city");
-  if (ni < 0 || si < 0 || zi < 0 || ci < 0) return { error: "Spalten name, street, zip, city erforderlich" };
-  const tyi = col("type");
-  const mi = col("management");
+  const c = mapColumns(rows[0], PROPERTY_COLS);
+  if (c.name < 0 || c.street < 0 || c.zip < 0 || c.city < 0)
+    return { error: "Spalten Name, Straße/street, PLZ/zip, Ort/city erforderlich" };
+  const at = (r: string[], i: number) => (i >= 0 ? r[i] : undefined);
 
   let created = 0;
   let skipped = 0;
   for (const r of rows.slice(1)) {
     const parsed = propertySchema.safeParse({
-      name: r[ni] ?? "",
-      street: r[si] ?? "",
-      zip: r[zi] ?? "",
-      city: r[ci] ?? "",
-      type: pick(tyi >= 0 ? r[tyi] : undefined, PROPERTY_TYPES, "WOHNEN"),
-      management: pick(mi >= 0 ? r[mi] : undefined, MANAGEMENT_TYPES, "MIET"),
+      name: r[c.name] ?? "",
+      street: r[c.street] ?? "",
+      zip: r[c.zip] ?? "",
+      city: r[c.city] ?? "",
+      type: normalizeEnum(at(r, c.type), PROPERTY_TYPE_MAP, "WOHNEN"),
+      management: normalizeEnum(at(r, c.management), MANAGEMENT_MAP, "MIET"),
       feeType: "PAUSCHAL",
     });
     if (!parsed.success) {
@@ -106,12 +101,11 @@ export async function importProperties(_prev: ImportState, fd: FormData): Promis
   return { ok: true, created, skipped };
 }
 
-const UNIT_TYPES = ["WOHNUNG", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"];
-
 /**
- * Einheiten aus CSV importieren. Spalten: property, building, label (Pflicht),
- * optional type, area, rooms, mea. Objekt wird per Name aufgelöst (muss
- * existieren), Gebäude per Name im Objekt (wird bei Bedarf angelegt).
+ * Einheiten aus CSV importieren. Spalten: property/Objekt, building/Gebäude,
+ * label/Bezeichnung (Pflicht: Objekt + Bezeichnung), optional type, area, rooms,
+ * mea — deutsch oder englisch. Objekt wird per Name aufgelöst (muss existieren),
+ * Gebäude per Name im Objekt (wird bei Bedarf angelegt).
  */
 export async function importUnits(_prev: ImportState, fd: FormData): Promise<ImportState> {
   const user = await requireWriter();
@@ -120,16 +114,9 @@ export async function importUnits(_prev: ImportState, fd: FormData): Promise<Imp
 
   const rows = parseCsv(await file.text());
   if (rows.length < 2) return { error: "Keine Datenzeilen gefunden" };
-  const header = rows[0].map((h) => h.toLowerCase());
-  const col = (name: string) => header.indexOf(name.toLowerCase());
-  const pi = col("property");
-  const bi = col("building");
-  const li = col("label");
-  if (pi < 0 || li < 0) return { error: "Spalten 'property' und 'label' erforderlich" };
-  const tyi = col("type");
-  const ai = col("area");
-  const ri = col("rooms");
-  const mi = col("mea");
+  const c = mapColumns(rows[0], UNIT_COLS);
+  if (c.property < 0 || c.label < 0) return { error: "Spalten Objekt/property und Bezeichnung/label erforderlich" };
+  const at = (r: string[], i: number) => (i >= 0 ? r[i] : undefined);
 
   // Objekte + vorhandene Gebäude des Mandanten cachen.
   const properties = await prisma.property.findMany({
@@ -143,12 +130,12 @@ export async function importUnits(_prev: ImportState, fd: FormData): Promise<Imp
   let created = 0;
   let skipped = 0;
   for (const r of rows.slice(1)) {
-    const prop = propByName.get((r[pi] ?? "").toLowerCase());
+    const prop = propByName.get((r[c.property] ?? "").trim().toLowerCase());
     if (!prop) {
       skipped++;
       continue;
     }
-    const bldName = (bi >= 0 ? r[bi] : "") || "Haupthaus";
+    const bldName = (at(r, c.building) || "").trim() || "Haupthaus";
     const cacheKey = `${prop.id}|${bldName.toLowerCase()}`;
     let buildingId = buildingCache.get(cacheKey);
     if (!buildingId) {
@@ -156,14 +143,13 @@ export async function importUnits(_prev: ImportState, fd: FormData): Promise<Imp
       buildingId = b.id;
       buildingCache.set(cacheKey, buildingId);
     }
-    const type = tyi >= 0 && UNIT_TYPES.includes((r[tyi] ?? "").toUpperCase()) ? r[tyi].toUpperCase() : "WOHNUNG";
     const parsed = unitSchema.safeParse({
       buildingId,
-      label: r[li] ?? "",
-      type,
-      area: ai >= 0 ? r[ai] : "0",
-      rooms: ri >= 0 ? r[ri] : undefined,
-      mea: mi >= 0 ? r[mi] : undefined,
+      label: r[c.label] ?? "",
+      type: normalizeEnum(at(r, c.type), UNIT_TYPE_MAP, "WOHNUNG"),
+      area: at(r, c.area) ?? "0",
+      rooms: at(r, c.rooms),
+      mea: at(r, c.mea),
     });
     if (!parsed.success) {
       skipped++;

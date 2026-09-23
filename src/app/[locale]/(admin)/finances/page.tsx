@@ -334,9 +334,12 @@ export default async function FinancesPage({
                   <TableRow key={p.id}>
                     <TableCell>{date(p.date, df)}</TableCell>
                     <TableCell className="text-muted-foreground">{p.account?.name ?? t("common.none")}</TableCell>
-                    <TableCell className="max-w-[22rem] truncate text-muted-foreground">
+                    <TableCell
+                      className="max-w-[28rem] whitespace-normal break-words text-muted-foreground"
+                      title={p.reference || undefined}
+                    >
                       {p.reference || (p.charge ? t(`chargeType.${p.charge.type}`) : "")}
-                      {p.note ? <span className="block text-xs italic">{p.note}</span> : null}
+                      {p.note ? <span className="mt-0.5 block text-xs italic">{p.note}</span> : null}
                     </TableCell>
                     <TableCell className={`text-right font-medium ${p.direction === "EINGANG" ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
                       {p.direction === "EINGANG" ? "+" : "−"}

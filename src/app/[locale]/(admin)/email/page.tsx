@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { EmailCompose } from "@/components/email-compose";
 import { BulkEmailDialog } from "@/components/bulk-email-dialog";
+import { EmailViewDialog } from "@/components/email-view-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { sendEmail, deleteEmail } from "@/server/actions/email";
 
@@ -30,7 +31,7 @@ export default async function EmailPage() {
   const [messages, tenant, persons, documents, properties, templates] = await Promise.all([
     prisma.emailMessage.findMany({
       where: { tenantId: user.tenantId },
-      include: { _count: { select: { attachments: true } } },
+      include: { attachments: { include: { document: { select: { id: true, name: true } } } } },
       orderBy: { createdAt: "desc" },
     }),
     prisma.tenant.findUnique({
@@ -115,10 +116,10 @@ export default async function EmailPage() {
                     <TableCell>
                       <span className="flex items-center gap-2">
                         {m.subject}
-                        {m._count.attachments > 0 && (
+                        {m.attachments.length > 0 && (
                           <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                             <Paperclip className="size-3" />
-                            {m._count.attachments}
+                            {m.attachments.length}
                           </span>
                         )}
                       </span>
@@ -132,6 +133,15 @@ export default async function EmailPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
+                        <EmailViewDialog
+                          message={{
+                            toAddress: m.toAddress,
+                            cc: m.cc,
+                            subject: m.subject,
+                            body: m.body,
+                            attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name })),
+                          }}
+                        />
                         {m.status !== "GESENDET" && (
                           <form action={sendEmail}>
                             <input type="hidden" name="id" value={m.id} />
