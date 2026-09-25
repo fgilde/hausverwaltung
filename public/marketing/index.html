@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HaVeWa — Hausverwaltung für Miet- und WEG-Verwaltung</title>
+<title>HaVeWa, Hausverwaltung für Miet- und WEG-Verwaltung</title>
 <link rel="icon" type="image/png" href="./icon.png" />
 <link rel="apple-touch-icon" href="./icon.png" />
-<meta id="metaDesc" name="description" content="HaVeWa ist die moderne Software für Miet- und WEG-Verwaltung: Betriebskostenabrechnung, HeizkostenV 30/70, WEG-Jahresabrechnung, Versammlungen, Finanzen, Portale und KI-Assistent — DSGVO- und GoBD-orientiert." />
+<meta id="metaDesc" name="description" content="HaVeWa ist die moderne Software für Miet- und WEG-Verwaltung: Betriebskostenabrechnung, HeizkostenV 30/70, WEG-Jahresabrechnung, Versammlungen, Finanzen, Portale und KI-Assistent, DSGVO- und GoBD-orientiert." />
 <style>
 /* ============ Design Tokens ============ */
 :root{
@@ -316,6 +316,7 @@ dialog[open]{animation:modalpop .24s ease}
 .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 </style>
+<script type="module" src="https://connect.gilde.org/widgets/v1.js"></script>
 </head>
 <body>
 
@@ -330,7 +331,7 @@ dialog[open]{animation:modalpop .24s ease}
       <a href="#screenshots" data-i18n="nav.shots">Screenshots</a>
       <a href="#ki" data-i18n="nav.ki">KI-Assistent</a>
       <a href="#mcp" data-i18n="nav.mcp">KI-Steuerung</a>
-      <a href="#preise" data-i18n="nav.preise">Preise</a>
+      <a href="#kontakt" data-i18n="nav.kontakt">Kontakt</a>
       <a href="#faq" data-i18n="nav.faq">FAQ</a>
       <a href="https://fgilde.github.io/hausverwaltung/docs/" data-i18n="nav.docs">Dokumentation</a>
     </nav>
@@ -356,8 +357,8 @@ dialog[open]{animation:modalpop .24s ease}
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <span class="badge"><span class="dot"></span><span data-i18n="hero.badge">Miet- &amp; WEG-Verwaltung in einem System</span></span>
-      <h1 data-i18n="hero.h1">Ihre Immobilien&shy;verwaltung — <em>klar, konform, komplett.</em></h1>
-      <p class="lead" data-i18n="hero.lead">HaVeWa vereint Mietverwaltung und WEG in einer modernen Software: von der Betriebskostenabrechnung nach HeizkostenV bis zur Eigentümerversammlung — DSGVO- und GoBD-orientiert, mit KI-Assistent.</p>
+      <h1 data-i18n="hero.h1">Ihre Immobilien&shy;verwaltung, <em>klar, konform, komplett.</em></h1>
+      <p class="lead" data-i18n="hero.lead">HaVeWa vereint Mietverwaltung und WEG in einer modernen Software: von der Betriebskostenabrechnung nach HeizkostenV bis zur Eigentümerversammlung, DSGVO- und GoBD-orientiert, mit KI-Assistent.</p>
       <div class="hero-cta">
         <button class="btn btn-accent js-demo" type="button"><span data-i18n="btn.demo">Demo starten</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -365,7 +366,7 @@ dialog[open]{animation:modalpop .24s ease}
         <a href="#funktionen" class="btn btn-ghost" data-i18n="hero.ctaFeatures">Funktionen ansehen</a>
       </div>
       <div class="hero-meta">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="hero.meta1">30 Tage kostenlos testen</span></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="hero.meta1">Aktuell kostenlos in der Beta</span></span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="hero.meta2">Keine Einrichtungsgebühr</span></span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="hero.meta3">Server in der EU</span></span>
       </div>
@@ -402,42 +403,42 @@ dialog[open]{animation:modalpop .24s ease}
     <div class="section-head reveal">
       <span class="eyebrow" data-i18n="feat.eyebrow">Funktionen</span>
       <h2 data-i18n="feat.h2">Alles, was eine Verwaltung wirklich braucht</h2>
-      <p data-i18n="feat.sub">Ein durchgängiges System vom Stammdatensatz bis zur Jahresabrechnung — statt fünf Insellösungen, die nicht miteinander sprechen.</p>
+      <p data-i18n="feat.sub">Ein durchgängiges System vom Stammdatensatz bis zur Jahresabrechnung, statt fünf Insellösungen, die nicht miteinander sprechen.</p>
     </div>
 
     <div class="group reveal">
       <div class="group-head"><span class="tag miet" data-i18n="g.miet.tag">Mietverwaltung</span><h3 data-i18n="g.miet.title">Vom Vertrag bis zur Mahnung</h3></div>
       <div class="cards">
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg></span><h4 data-i18n="c1.h">Objekte, Einheiten &amp; Personen</h4><p data-i18n="c1.p">Gebäude, Wohn- und Gewerbeeinheiten, Mieter, Eigentümer und Zähler — sauber strukturiert und jederzeit auffindbar.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h4"/></svg></span><h4 data-i18n="c2.h">Mietverträge</h4><p data-i18n="c2.p">Staffel- und Indexmiete, Kaution, Laufzeiten und Fristen — Anpassungen werden automatisch fortgeschrieben.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span><h4 data-i18n="c3.h">Finanzen &amp; Sollstellung</h4><p data-i18n="c3.p">Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen — der Zahlungsstatus stets im Blick.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><h4 data-i18n="c4.h">Betriebskostenabrechnung</h4><p data-i18n="c4.p">BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong> — prüfsicher und nachvollziehbar.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v4H3zM3 10h18v10H3z"/><path d="M8 14h8M8 17h5"/></svg></span><h4 data-i18n="c5.h">Bankimport &amp; Export</h4><p data-i18n="c5.p">camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export — die Buchhaltung bleibt anschlussfähig.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="m4 6 8 5 8-5"/><path d="M2 20h20"/></svg></span><h4 data-i18n="c6.h">Postausgang</h4><p data-i18n="c6.p">E-Mails an Mieter und Eigentümer direkt aus dem System — mit Vorlagen, Anhängen und lückenloser Historie.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg></span><h4 data-i18n="c1.h">Objekte, Einheiten &amp; Personen</h4><p data-i18n="c1.p">Gebäude, Wohn- und Gewerbeeinheiten, Mieter, Eigentümer und Zähler, sauber strukturiert und jederzeit auffindbar.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h4"/></svg></span><h4 data-i18n="c2.h">Mietverträge</h4><p data-i18n="c2.p">Staffel- und Indexmiete, Kaution, Laufzeiten und Fristen, Anpassungen werden automatisch fortgeschrieben.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span><h4 data-i18n="c3.h">Finanzen &amp; Sollstellung</h4><p data-i18n="c3.p">Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus stets im Blick.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><h4 data-i18n="c4.h">Betriebskostenabrechnung</h4><p data-i18n="c4.p">BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong>, prüfsicher und nachvollziehbar.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v4H3zM3 10h18v10H3z"/><path d="M8 14h8M8 17h5"/></svg></span><h4 data-i18n="c5.h">Bankimport &amp; Export</h4><p data-i18n="c5.p">camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export, die Buchhaltung bleibt anschlussfähig.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="m4 6 8 5 8-5"/><path d="M2 20h20"/></svg></span><h4 data-i18n="c6.h">Postausgang</h4><p data-i18n="c6.p">E-Mails an Mieter und Eigentümer direkt aus dem System, mit Vorlagen, Anhängen und lückenloser Historie.</p></div>
       </div>
     </div>
 
     <div class="group reveal">
       <div class="group-head"><span class="tag weg" data-i18n="g.weg.tag">WEG-Verwaltung</span><h3 data-i18n="g.weg.title">Wohnungseigentum rechtssicher managen</h3></div>
       <div class="cards">
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M12 5v16"/></svg></span><h4 data-i18n="c7.h">MEA &amp; Wirtschaftsplan</h4><p data-i18n="c7.p">Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr — als Basis für jede Abrechnung.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3M16 3v3M4 8h16"/><rect x="4" y="6" width="16" height="15" rx="2"/><path d="M9 14l2 2 4-4"/></svg></span><h4 data-i18n="c8.h">Jahresabrechnung</h4><p data-i18n="c8.p">Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden — transparent bis auf die einzelne Einheit.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M12 5v16"/></svg></span><h4 data-i18n="c7.h">MEA &amp; Wirtschaftsplan</h4><p data-i18n="c7.p">Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr, als Basis für jede Abrechnung.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3M16 3v3M4 8h16"/><rect x="4" y="6" width="16" height="15" rx="2"/><path d="M9 14l2 2 4-4"/></svg></span><h4 data-i18n="c8.h">Jahresabrechnung</h4><p data-i18n="c8.p">Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden, transparent bis auf die einzelne Einheit.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M6 8h12l-1 5H7z"/><path d="M5 21h14"/><path d="M9 13v8M15 13v8"/></svg></span><h4 data-i18n="c9.h">Erhaltungsrücklagen</h4><p data-i18n="c9.p">Rücklagen führen, Zuführungen und Entnahmen buchen und den Vermögensbericht auf Knopfdruck erzeugen.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="m6 21 6-16 6 16"/><path d="M12 5 4 9m8-4 8 4"/><circle cx="12" cy="4" r="1.5"/></svg></span><h4 data-i18n="c10.h">Eigentümerversammlung</h4><p data-i18n="c10.p">Tagesordnung, Einladungen und Abstimmungen — mit rechtssicherer Beschlusssammlung nach §24 WEG.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13A4 4 0 0 1 16 11"/></svg></span><h4 data-i18n="c11.h">Eigentümer-Portal</h4><p data-i18n="c11.p">Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar — weniger Rückfragen.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.5 8 9 9 5.5-1 9-4 9-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><h4 data-i18n="c12.h">Vermögensbericht</h4><p data-i18n="c12.p">Rücklagenbestände und Vermögensübersicht gemäß WEG-Reform — vorbereitet für Prüfung und Beirat.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="m6 21 6-16 6 16"/><path d="M12 5 4 9m8-4 8 4"/><circle cx="12" cy="4" r="1.5"/></svg></span><h4 data-i18n="c10.h">Eigentümerversammlung</h4><p data-i18n="c10.p">Tagesordnung, Einladungen und Abstimmungen, mit rechtssicherer Beschlusssammlung nach §24 WEG.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13A4 4 0 0 1 16 11"/></svg></span><h4 data-i18n="c11.h">Eigentümer-Portal</h4><p data-i18n="c11.p">Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar, weniger Rückfragen.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.5 8 9 9 5.5-1 9-4 9-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><h4 data-i18n="c12.h">Vermögensbericht</h4><p data-i18n="c12.p">Rücklagenbestände und Vermögensübersicht gemäß WEG-Reform, vorbereitet für Prüfung und Beirat.</p></div>
       </div>
     </div>
 
     <div class="group reveal">
       <div class="group-head"><span class="tag betrieb" data-i18n="g.betrieb.tag">Betrieb &amp; Compliance</span><h3 data-i18n="g.betrieb.title">Der Alltag, digital &amp; prüfsicher</h3></div>
       <div class="cards">
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15h.01M12 15h.01M16 15h.01"/></svg></span><h4 data-i18n="c13.h">Kalender, Termine &amp; Fristen</h4><p data-i18n="c13.p">Monatsübersicht für Wartungen, Versammlungen und gesetzliche Fristen — nichts läuft mehr unbemerkt aus.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6l-6 6 2 2 6-6a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2z"/></svg></span><h4 data-i18n="c14.h">Instandhaltung &amp; Tickets</h4><p data-i18n="c14.p">Tickets, Handwerker und Wartungsverträge mit Fristen — von der Meldung bis zur erledigten Reparatur.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6a2 2 0 0 1 2-2h5l2 2h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg></span><h4 data-i18n="c15.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="c15.p">GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong> — revisionssicher archiviert.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><h4 data-i18n="c16.h">Globale Suche</h4><p data-i18n="c16.p">Objekt, Einheit, Person oder Beleg in Sekunden gefunden — eine Suche über den gesamten Bestand.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v5h5"/><path d="M8 17h8v3H8zM8 12h8"/></svg></span><h4 data-i18n="c17.h">Druck &amp; PDF-Ausgabe</h4><p data-i18n="c17.p">Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF — im Corporate-Layout der Verwaltung.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5z"/><path d="M9 12h6M12 9v6"/></svg></span><h4 data-i18n="c18.h">Audit-Log &amp; RBAC</h4><p data-i18n="c18.p">Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit — DE/EN zweisprachig.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15h.01M12 15h.01M16 15h.01"/></svg></span><h4 data-i18n="c13.h">Kalender, Termine &amp; Fristen</h4><p data-i18n="c13.p">Monatsübersicht für Wartungen, Versammlungen und gesetzliche Fristen, nichts läuft mehr unbemerkt aus.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6l-6 6 2 2 6-6a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2z"/></svg></span><h4 data-i18n="c14.h">Instandhaltung &amp; Tickets</h4><p data-i18n="c14.p">Tickets, Handwerker und Wartungsverträge mit Fristen, von der Meldung bis zur erledigten Reparatur.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6a2 2 0 0 1 2-2h5l2 2h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg></span><h4 data-i18n="c15.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="c15.p">GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong>, revisionssicher archiviert.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><h4 data-i18n="c16.h">Globale Suche</h4><p data-i18n="c16.p">Objekt, Einheit, Person oder Beleg in Sekunden gefunden, eine Suche über den gesamten Bestand.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v5h5"/><path d="M8 17h8v3H8zM8 12h8"/></svg></span><h4 data-i18n="c17.h">Druck &amp; PDF-Ausgabe</h4><p data-i18n="c17.p">Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF, im Corporate-Layout der Verwaltung.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5z"/><path d="M9 12h6M12 9v6"/></svg></span><h4 data-i18n="c18.h">Audit-Log &amp; RBAC</h4><p data-i18n="c18.p">Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit, DE/EN zweisprachig.</p></div>
       </div>
     </div>
   </div>
@@ -449,7 +450,7 @@ dialog[open]{animation:modalpop .24s ease}
     <div class="section-head reveal">
       <span class="eyebrow" data-i18n="show.eyebrow">Einblicke</span>
       <h2 data-i18n="show.h2">Eine Oberfläche, die man gerne benutzt</h2>
-      <p data-i18n="show.sub">Ruhig, aufgeräumt, schnell. Echte Ansichten aus HaVeWa — vom Dashboard bis zur druckfertigen Abrechnung.</p>
+      <p data-i18n="show.sub">Ruhig, aufgeräumt, schnell. Echte Ansichten aus HaVeWa, vom Dashboard bis zur druckfertigen Abrechnung.</p>
     </div>
     <div class="tabs reveal" role="tablist" aria-label="Screenshot-Auswahl">
       <button class="tab" role="tab" aria-selected="true" data-tab="s1" data-i18n="tab1">Objekte</button>
@@ -465,32 +466,32 @@ dialog[open]{animation:modalpop .24s ease}
     <div class="panel active" id="s1" role="tabpanel">
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/objekte</div></div>
         <img src="./screenshots/properties.png" alt="Objekt-, Gebäude- und Einheitenverwaltung in HaVeWa" data-i18n-alt="alt.properties" loading="lazy"></div>
-      <div class="cap"><span class="num">01</span><div><h4 data-i18n="p1.h">Objekte, Gebäude &amp; Einheiten</h4><p data-i18n="p1.p">Der komplette Bestand auf einen Blick — Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.</p></div></div>
+      <div class="cap"><span class="num">01</span><div><h4 data-i18n="p1.h">Objekte, Gebäude &amp; Einheiten</h4><p data-i18n="p1.p">Der komplette Bestand auf einen Blick, Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.</p></div></div>
     </div>
     <div class="panel" id="s2" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/finanzen</div></div>
         <img src="./screenshots/finances.png" alt="Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa" data-i18n-alt="alt.finances" loading="lazy"></div>
-      <div class="cap"><span class="num">02</span><div><h4 data-i18n="p2.h">Finanzen &amp; Mahnwesen</h4><p data-i18n="p2.p">Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen — der Zahlungsstatus jederzeit aktuell.</p></div></div>
+      <div class="cap"><span class="num">02</span><div><h4 data-i18n="p2.h">Finanzen &amp; Mahnwesen</h4><p data-i18n="p2.p">Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus jederzeit aktuell.</p></div></div>
     </div>
     <div class="panel" id="s3" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/abrechnungen</div></div>
         <img src="./screenshots/statements.png" alt="Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa" data-i18n-alt="alt.statements" loading="lazy"></div>
-      <div class="cap"><span class="num">03</span><div><h4 data-i18n="p3.h">Betriebskostenabrechnung</h4><p data-i18n="p3.p">Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch — prüfsicher aufbereitet für jeden Mieter.</p></div></div>
+      <div class="cap"><span class="num">03</span><div><h4 data-i18n="p3.h">Betriebskostenabrechnung</h4><p data-i18n="p3.p">Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch, prüfsicher aufbereitet für jeden Mieter.</p></div></div>
     </div>
     <div class="panel" id="s4" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/versammlungen</div></div>
         <img src="./screenshots/meetings.png" alt="Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa" data-i18n-alt="alt.meetings" loading="lazy"></div>
-      <div class="cap"><span class="num">04</span><div><h4 data-i18n="p4.h">Eigentümerversammlung</h4><p data-i18n="p4.p">Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG — vollständig dokumentiert.</p></div></div>
+      <div class="cap"><span class="num">04</span><div><h4 data-i18n="p4.h">Eigentümerversammlung</h4><p data-i18n="p4.p">Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG, vollständig dokumentiert.</p></div></div>
     </div>
     <div class="panel" id="s5" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/instandhaltung</div></div>
         <img src="./screenshots/tickets.png" alt="Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa" data-i18n-alt="alt.tickets" loading="lazy"></div>
-      <div class="cap"><span class="num">05</span><div><h4 data-i18n="p5.h">Instandhaltung &amp; Tickets</h4><p data-i18n="p5.p">Von der Schadensmeldung bis zum beauftragten Handwerker — inklusive Wartungsfristen und Historie.</p></div></div>
+      <div class="cap"><span class="num">05</span><div><h4 data-i18n="p5.h">Instandhaltung &amp; Tickets</h4><p data-i18n="p5.p">Von der Schadensmeldung bis zum beauftragten Handwerker, inklusive Wartungsfristen und Historie.</p></div></div>
     </div>
     <div class="panel" id="s6" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/dokumente</div></div>
         <img src="./screenshots/documents.png" alt="GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa" data-i18n-alt="alt.documents" loading="lazy"></div>
-      <div class="cap"><span class="num">06</span><div><h4 data-i18n="p6.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="p6.p">GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD) — revisionssicher.</p></div></div>
+      <div class="cap"><span class="num">06</span><div><h4 data-i18n="p6.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="p6.p">GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD), revisionssicher.</p></div></div>
     </div>
     <div class="panel" id="s7" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/kalender</div></div>
@@ -500,7 +501,7 @@ dialog[open]{animation:modalpop .24s ease}
     <div class="panel" id="s8" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">portal.havewa.app</div></div>
         <img src="./screenshots/portal.png" alt="Self-Service-Portal für Mieter und Eigentümer in HaVeWa" data-i18n-alt="alt.portal" loading="lazy"></div>
-      <div class="cap"><span class="num">08</span><div><h4 data-i18n="p8.h">Mieter- &amp; Eigentümer-Portal</h4><p data-i18n="p8.p">Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen — rund um die Uhr, ohne Rückfragen.</p></div></div>
+      <div class="cap"><span class="num">08</span><div><h4 data-i18n="p8.h">Mieter- &amp; Eigentümer-Portal</h4><p data-i18n="p8.p">Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen, rund um die Uhr, ohne Rückfragen.</p></div></div>
     </div>
   </div>
 </section>
@@ -510,8 +511,8 @@ dialog[open]{animation:modalpop .24s ease}
   <div class="wrap">
     <div class="unite reveal">
       <span class="eyebrow" style="justify-content:center" data-i18n="unite.eyebrow">Ein System</span>
-      <h2 style="font-size:clamp(30px,4vw,46px);margin-bottom:16px" data-i18n="unite.h2">Miet- <span style="font-style:italic">und</span> WEG-Verwaltung — endlich vereint</h2>
-      <p class="muted" style="font-size:19px" data-i18n="unite.sub">Die meisten Verwaltungen betreuen beides. HaVeWa auch. Gleiche Objekte, gleiche Personen, gleiche Belege — ohne Datensilos und doppelte Pflege.</p>
+      <h2 style="font-size:clamp(30px,4vw,46px);margin-bottom:16px" data-i18n="unite.h2">Miet- <span style="font-style:italic">und</span> WEG-Verwaltung, endlich vereint</h2>
+      <p class="muted" style="font-size:19px" data-i18n="unite.sub">Die meisten Verwaltungen betreuen beides. HaVeWa auch. Gleiche Objekte, gleiche Personen, gleiche Belege, ohne Datensilos und doppelte Pflege.</p>
     </div>
     <div class="split reveal">
       <div class="col miet">
@@ -545,8 +546,8 @@ dialog[open]{animation:modalpop .24s ease}
       <div class="ai-grid">
         <div>
           <span class="eyebrow" data-i18n="ki.eyebrow">KI-Assistent · powered by Claude</span>
-          <h2 data-i18n="ki.h2">Fragen Sie Ihren Bestand — in Ihrer Sprache</h2>
-          <p data-i18n="ki.p">Der integrierte KI-Assistent beantwortet Fragen zu Objekten, Mietern, Finanzen und Fristen in natürlicher Sprache. Kein Filtern, kein Suchen durch Menüs — einfach fragen.</p>
+          <h2 data-i18n="ki.h2">Fragen Sie Ihren Bestand, in Ihrer Sprache</h2>
+          <p data-i18n="ki.p">Der integrierte KI-Assistent beantwortet Fragen zu Objekten, Mietern, Finanzen und Fristen in natürlicher Sprache. Kein Filtern, kein Suchen durch Menüs, einfach fragen.</p>
           <div class="ai-tags">
             <span data-i18n="ki.tag1">Offene Posten je Objekt</span>
             <span data-i18n="ki.tag2">Fällige Wartungen</span>
@@ -559,7 +560,7 @@ dialog[open]{animation:modalpop .24s ease}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6L17 18l-5-3.7L7 18l1.9-5.6L4 8.8h6.1z"/></svg>
             <span data-i18n="ki.q">„Welche Mietverträge laufen dieses Jahr aus und wo droht Leerstand?“</span>
           </div>
-          <div class="ai-a" data-i18n="ki.a">Drei Verträge enden 2026 — davon <b>Whg 4 (Objekt Parkblick)</b> ohne Nachmieter. Für zwei Einheiten liegen bereits Verlängerungen vor. Die Leerstandsquote läge bei Auszug bei <b>29 %</b>.</div>
+          <div class="ai-a" data-i18n="ki.a">Drei Verträge enden 2026, davon <b>Whg 4 (Objekt Parkblick)</b> ohne Nachmieter. Für zwei Einheiten liegen bereits Verlängerungen vor. Die Leerstandsquote läge bei Auszug bei <b>29 %</b>.</div>
           <p class="ai-note" data-i18n="ki.note">Beispielhafte Darstellung. Der Assistent greift nur auf Ihren eigenen Mandanten zu.</p>
         </div>
       </div>
@@ -575,7 +576,7 @@ dialog[open]{animation:modalpop .24s ease}
         <div>
           <span class="eyebrow" data-i18n="mcp.eyebrow">Neu · KI-Steuerung</span>
           <h2 data-i18n="mcp.h2">Verwalten Sie Ihre Immobilien direkt mit Ihrer KI</h2>
-          <p data-i18n="mcp.p">Verbinden Sie Ihren KI-Assistenten — ob ChatGPT, Claude oder ein anderer — sicher mit HaVeWa. Danach fragen und erledigen Sie alles im Gespräch: ganz ohne Klicken durch Menüs. Ihre KI kennt Ihren Bestand und arbeitet für Sie.</p>
+          <p data-i18n="mcp.p">Verbinden Sie Ihren KI-Assistenten, ob ChatGPT, Claude oder ein anderer, sicher mit HaVeWa. Danach fragen und erledigen Sie alles im Gespräch: ganz ohne Klicken durch Menüs. Ihre KI kennt Ihren Bestand und arbeitet für Sie.</p>
           <div class="ai-tags">
             <span data-i18n="mcp.tag1">Bestand per Sprache abfragen</span>
             <span data-i18n="mcp.tag2">Tickets & Kontakte anlegen lassen</span>
@@ -588,73 +589,28 @@ dialog[open]{animation:modalpop .24s ease}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6L17 18l-5-3.7L7 18l1.9-5.6L4 8.8h6.1z"/></svg>
             <span data-i18n="mcp.q">„Leg für das Objekt Parkblick ein Ticket ‚Heizung im Treppenhaus prüfen‘ an und zeig mir die offenen Posten.“</span>
           </div>
-          <div class="ai-a" data-i18n="mcp.a">Ticket <b>„Heizung im Treppenhaus prüfen“</b> für Parkblick angelegt. Offene Posten gesamt: <b>3.480 €</b> über vier Mieter — zwei davon überfällig.</div>
-          <p class="ai-note" data-i18n="mcp.note">Sicher: Zugriff nur mit Ihrem persönlichen Token und nur auf Ihre eigenen Daten — jederzeit widerrufbar.</p>
+          <div class="ai-a" data-i18n="mcp.a">Ticket <b>„Heizung im Treppenhaus prüfen“</b> für Parkblick angelegt. Offene Posten gesamt: <b>3.480 €</b> über vier Mieter, zwei davon überfällig.</div>
+          <p class="ai-note" data-i18n="mcp.note">Sicher: Zugriff nur mit Ihrem persönlichen Token und nur auf Ihre eigenen Daten, jederzeit widerrufbar.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ PRICING ============ -->
-<section class="section" id="preise">
+<!-- ============ KONTAKT & SUPPORT ============ -->
+<section class="section" id="kontakt">
   <div class="wrap">
     <div class="section-head reveal" style="max-width:660px;margin-left:auto;margin-right:auto;text-align:center">
-      <span class="eyebrow" style="justify-content:center" data-i18n="price.eyebrow">Preise</span>
-      <h2 data-i18n="price.h2">Faire Staffelung nach Einheiten</h2>
-      <p data-i18n="price.sub">Ein Preis, alle Updates inklusive. Wachsen Sie in Ruhe — der Tarif wächst mit.</p>
+      <span class="eyebrow" style="justify-content:center" data-i18n="kontakt.eyebrow">Kontakt</span>
+      <h2 data-i18n="kontakt.h2">Fragen, Feedback oder Interesse?</h2>
+      <p data-i18n="kontakt.sub">Schreib uns direkt. HaVeWa steckt noch in der Beta und ist derzeit kostenlos nutzbar; eine Preisstaffelung folgt später.</p>
     </div>
-    <div class="price-grid reveal">
-      <div class="price">
-        <div class="pname" data-i18n="p.starter.name">Starter</div>
-        <div class="pfor" data-i18n="p.starter.for">Für kleine Verwalter und Selbstverwalter mit überschaubarem Bestand.</div>
-        <div class="amt"><span class="v">49&nbsp;€</span><span class="p" data-i18n="price.per">/ Monat</span></div>
-        <div class="units" data-i18n="p.starter.units">bis 50 Einheiten</div>
-        <button class="btn btn-ghost js-demo" type="button" data-i18n="p.starter.btn">Kostenlos testen</button>
-        <ul>
-          <li class="head" data-i18n="p.starter.head">Kernmodule</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.starter.f1">Objekte, Einheiten &amp; Personen</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.starter.f2">Mietverwaltung &amp; Verträge</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.starter.f3">Finanzen &amp; Sollstellung</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.starter.f4">Betriebskostenabrechnung (HeizkostenV)</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.starter.f5">Dokumente (GoBD)</span></li>
-        </ul>
-      </div>
-      <div class="price pop" data-pop="Beliebt" id="popCard">
-        <div class="pname" data-i18n="p.pro.name">Professional</div>
-        <div class="pfor" data-i18n="p.pro.for">Für professionelle Verwaltungen mit Miet- und WEG-Beständen.</div>
-        <div class="amt"><span class="v">149&nbsp;€</span><span class="p" data-i18n="price.per">/ Monat</span></div>
-        <div class="units" data-i18n="p.pro.units">bis 500 Einheiten</div>
-        <button class="btn btn-accent js-demo" type="button"><span data-i18n="btn.demo">Demo starten</span></button>
-        <ul>
-          <li class="head" data-i18n="p.pro.head">Alles aus Starter, plus</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.pro.f1">WEG-Verwaltung &amp; Jahresabrechnung</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.pro.f2">Eigentümerversammlungen &amp; Beschlüsse</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.pro.f3">Mieter- &amp; Eigentümerportale</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.pro.f4">Instandhaltung &amp; Kalender</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.pro.f5">Bankimport, DATEV- &amp; SEPA-Export</span></li>
-        </ul>
-      </div>
-      <div class="price">
-        <div class="pname" data-i18n="p.ent.name">Enterprise</div>
-        <div class="pfor" data-i18n="p.ent.for">Für große Verwaltungen mit mehreren Mandanten und eigenen Prozessen.</div>
-        <div class="amt"><span class="v" data-i18n="p.ent.amt">Auf Anfrage</span></div>
-        <div class="units" data-i18n="p.ent.units">unbegrenzte Einheiten &amp; Mandanten</div>
-        <button class="btn btn-ghost js-contact" type="button" data-i18n="p.ent.btn">Kontakt aufnehmen</button>
-        <ul>
-          <li class="head" data-i18n="p.ent.head">Alles aus Professional, plus</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.ent.f1">KI-Assistent (Claude)</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.ent.f2">SSO &amp; erweiterte RBAC-Rollen</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.ent.f3">Self-Hosting (Docker, EU)</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.ent.f4">Individuelle Schnittstellen</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p.ent.f5">Priorisierter Support &amp; SLA</span></li>
-        </ul>
-      </div>
+    <div class="reveal" style="max-width:820px;margin:0 auto 28px;text-align:center">
+      <p style="display:inline-flex;gap:10px;align-items:center;background:var(--pine-050);color:var(--pine);border:1px solid var(--border);border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:600" data-i18n="kontakt.beta">In Entwicklung (Beta) · aktuell gratis</p>
     </div>
-    <div class="price-note">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="price.note1">Alle Preise zzgl. MwSt.</span></span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="price.note2">30 Tage kostenlos testen</span></span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="price.note3">Monatlich, jederzeit kündbar</span></span>
+    <div class="reveal" style="display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start">
+      <gilde-contact project="fgilde/hausverwaltung" widget="contact" inline theme="light" accent="#1E4E3C" language="auto" title="Kontakt HaVeWa" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false">Kontakt HaVeWa</gilde-contact>
+      <gilde-support project="fgilde/hausverwaltung" widget="support" inline theme="light" accent="#1E4E3C" language="auto" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false" support-layout="rows" show-support-icons="true" show-support-qr="true">HaVeWa unterst&#252;tzen</gilde-support>
     </div>
   </div>
 </section>
@@ -669,7 +625,7 @@ dialog[open]{animation:modalpop .24s ease}
     <div class="faq reveal">
       <details>
         <summary><span data-i18n="faq.q1">Deckt HaVeWa sowohl Miet- als auch WEG-Verwaltung ab?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="ans" data-i18n="faq.a1">Ja. HaVeWa ist von Grund auf für beide Welten gebaut. Sie verwalten vermietete Objekte und Wohnungseigentümergemeinschaften in einem System — mit gemeinsamen Stammdaten für Objekte, Einheiten und Personen, ohne doppelte Pflege.</div>
+        <div class="ans" data-i18n="faq.a1">Ja. HaVeWa ist von Grund auf für beide Welten gebaut. Sie verwalten vermietete Objekte und Wohnungseigentümergemeinschaften in einem System, mit gemeinsamen Stammdaten für Objekte, Einheiten und Personen, ohne doppelte Pflege.</div>
       </details>
       <details>
         <summary><span data-i18n="faq.q2">Ist die Betriebskostenabrechnung rechtssicher?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
@@ -681,15 +637,15 @@ dialog[open]{animation:modalpop .24s ease}
       </details>
       <details>
         <summary><span data-i18n="faq.q4">Kann ich Bankdaten importieren und an DATEV übergeben?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="ans" data-i18n="faq.a4">Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit — inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.</div>
+        <div class="ans" data-i18n="faq.a4">Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.</div>
       </details>
       <details>
         <summary><span data-i18n="faq.q5">Was leistet der KI-Assistent genau?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="ans" data-i18n="faq.a5">Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache — etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.</div>
+        <div class="ans" data-i18n="faq.a5">Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.</div>
       </details>
       <details>
         <summary><span data-i18n="faq.q6">Wie starte ich, und bin ich langfristig gebunden?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="ans" data-i18n="faq.a6">Sie testen HaVeWa 30 Tage kostenlos und ohne Einrichtungsgebühr. Die Abrechnung erfolgt monatlich und ist jederzeit kündbar. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.</div>
+        <div class="ans" data-i18n="faq.a6">HaVeWa ist aktuell in der Beta und kostenlos nutzbar. Eine Preisstaffelung folgt später; wir informieren rechtzeitig, bevor sich etwas ändert. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.</div>
       </details>
     </div>
   </div>
@@ -700,7 +656,7 @@ dialog[open]{animation:modalpop .24s ease}
   <div class="wrap">
     <div class="cta-band reveal">
       <h2 data-i18n="cta.h2">Bereit für eine ruhigere Verwaltung?</h2>
-      <p data-i18n="cta.p">Starten Sie Ihre kostenlose Demo — in wenigen Minuten eingerichtet, ohne Risiko.</p>
+      <p data-i18n="cta.p">Starten Sie Ihre kostenlose Demo, in wenigen Minuten eingerichtet, ohne Risiko.</p>
       <div class="hero-cta" style="justify-content:center">
         <button class="btn btn-primary js-demo" type="button"><span data-i18n="btn.demo">Demo starten</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -720,21 +676,21 @@ dialog[open]{animation:modalpop .24s ease}
           <span class="mark" aria-hidden="true"><img src="./icon.png" alt=""></span>
           <span><span class="name">HaVeWa</span><br><span class="sub" data-i18n="brand.sub">Hausverwaltung</span></span>
         </a>
-        <p data-i18n="foot.tagline">Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer — DSGVO- und GoBD-orientiert.</p>
+        <p data-i18n="foot.tagline">Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer, DSGVO- und GoBD-orientiert.</p>
       </div>
       <div class="foot-col">
         <h5 data-i18n="foot.col1">Produkt</h5>
         <a href="#funktionen" data-i18n="nav.func">Funktionen</a>
         <a href="#screenshots" data-i18n="nav.shots">Screenshots</a>
         <a href="#ki" data-i18n="nav.ki">KI-Assistent</a>
-        <a href="#preise" data-i18n="nav.preise">Preise</a>
+        <a href="#kontakt" data-i18n="nav.kontakt">Kontakt</a>
       </div>
       <div class="foot-col">
         <h5 data-i18n="foot.col2">Lösungen</h5>
         <a href="#einssystem" data-i18n="foot.sol1">Mietverwaltung</a>
         <a href="#einssystem" data-i18n="foot.sol2">WEG-Verwaltung</a>
         <a href="#screenshots" data-i18n="foot.sol3">Betriebskostenabrechnung</a>
-        <a href="#preise" data-i18n="foot.sol4">Self-Hosting</a>
+        <a href="https://github.com/fgilde/hausverwaltung#deployment" data-i18n="foot.sol4">Self-Hosting</a>
       </div>
       <div class="foot-col">
         <h5 data-i18n="foot.col3">Ressourcen</h5>
@@ -760,7 +716,7 @@ dialog[open]{animation:modalpop .24s ease}
   <div class="modal-card">
     <button class="modal-close js-close" type="button" aria-label="Schließen" data-i18n-aria="aria.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-    <h3 id="demoTitle" data-i18n="coming.title">Demo — bald verfügbar</h3>
+    <h3 id="demoTitle" data-i18n="coming.title">Demo, bald verfügbar</h3>
     <p data-i18n="coming.text">Die interaktive Demo steht in Kürze bereit. Fragen Sie solange eine persönliche Beratung an.</p>
     <button class="btn btn-accent js-contact" type="button" style="width:100%" data-i18n="coming.btn">Beratung anfragen</button>
   </div>
@@ -772,7 +728,7 @@ dialog[open]{animation:modalpop .24s ease}
     <button class="modal-close js-close" type="button" aria-label="Schließen" data-i18n-aria="aria.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v14H4z"/><path d="m4 6 8 5 8-5"/></svg></div>
     <h3 id="contactTitle" data-i18n="contact.title">Persönliche Beratung anfragen</h3>
-    <p data-i18n="contact.desc">Schreiben Sie uns kurz, worum es geht — wir melden uns zeitnah.</p>
+    <p data-i18n="contact.desc">Schreiben Sie uns kurz, worum es geht, wir melden uns zeitnah.</p>
     <form id="contactForm" novalidate>
       <div class="field"><label for="cfName" data-i18n="form.name">Name</label><input id="cfName" name="name" type="text" required autocomplete="name" placeholder="Ihr Name" data-i18n-placeholder="form.namePh"></div>
       <div class="field"><label for="cfEmail" data-i18n="form.email">E-Mail</label><input id="cfEmail" name="email" type="email" required autocomplete="email" placeholder="ihre@email.de" data-i18n-placeholder="form.emailPh"></div>
@@ -788,174 +744,160 @@ dialog[open]{animation:modalpop .24s ease}
   var root=document.documentElement;
   var D={de:{},en:{}};
   D.de={
-    'doc.title':'HaVeWa — Hausverwaltung für Miet- und WEG-Verwaltung',
-    'doc.desc':'HaVeWa ist die moderne Software für Miet- und WEG-Verwaltung: Betriebskostenabrechnung, HeizkostenV 30/70, WEG-Jahresabrechnung, Versammlungen, Finanzen, Portale und KI-Assistent — DSGVO- und GoBD-orientiert.',
+    'doc.title':'HaVeWa, Hausverwaltung für Miet- und WEG-Verwaltung',
+    'doc.desc':'HaVeWa ist die moderne Software für Miet- und WEG-Verwaltung: Betriebskostenabrechnung, HeizkostenV 30/70, WEG-Jahresabrechnung, Versammlungen, Finanzen, Portale und KI-Assistent, DSGVO- und GoBD-orientiert.',
     'brand.sub':'Hausverwaltung',
     'aria.lang':'Sprache wechseln','aria.theme':'Farbschema wechseln','aria.menu':'Menü öffnen','aria.close':'Schließen',
-    'nav.func':'Funktionen','nav.shots':'Screenshots','nav.ki':'KI-Assistent','nav.mcp':'KI-Steuerung','nav.preise':'Preise','nav.faq':'FAQ','nav.docs':'Dokumentation',
+    'nav.func':'Funktionen','nav.shots':'Screenshots','nav.ki':'KI-Assistent','nav.mcp':'KI-Steuerung','nav.preise':'Preise','nav.kontakt':'Kontakt','nav.faq':'FAQ','nav.docs':'Dokumentation',
+    'kontakt.eyebrow':'Kontakt','kontakt.h2':'Fragen, Feedback oder Interesse?','kontakt.sub':'Schreib uns direkt. HaVeWa steckt noch in der Beta und ist derzeit kostenlos nutzbar; eine Preisstaffelung folgt später.','kontakt.beta':'In Entwicklung (Beta) · aktuell gratis',
     'btn.demo':'Demo starten',
     'hero.badge':'Miet- &amp; WEG-Verwaltung in einem System',
-    'hero.h1':'Ihre Immobilien&shy;verwaltung — <em>klar, konform, komplett.</em>',
-    'hero.lead':'HaVeWa vereint Mietverwaltung und WEG in einer modernen Software: von der Betriebskostenabrechnung nach HeizkostenV bis zur Eigentümerversammlung — DSGVO- und GoBD-orientiert, mit KI-Assistent.',
+    'hero.h1':'Ihre Immobilien&shy;verwaltung, <em>klar, konform, komplett.</em>',
+    'hero.lead':'HaVeWa vereint Mietverwaltung und WEG in einer modernen Software: von der Betriebskostenabrechnung nach HeizkostenV bis zur Eigentümerversammlung, DSGVO- und GoBD-orientiert, mit KI-Assistent.',
     'hero.ctaFeatures':'Funktionen ansehen',
-    'hero.meta1':'30 Tage kostenlos testen','hero.meta2':'Keine Einrichtungsgebühr','hero.meta3':'Server in der EU',
+    'hero.meta1':'Aktuell kostenlos in der Beta','hero.meta2':'Keine Einrichtungsgebühr','hero.meta3':'Server in der EU',
     'hero.floatT':'KI-Assistent','hero.floatS':'Volle Integration · API · MCP',
     'alt.dashboard':'HaVeWa Dashboard mit Kennzahlen zu Objekten, Einheiten, Sollmiete, offenen Posten sowie Aufgaben, Fristen und KI-Assistent',
     'stat1':'Miet- &amp; WEG-Verwaltung vereint','stat2':'HeizkostenV-konforme Verteilung','stat3':'integrierte Fachmodule','stat4':'DSGVO- &amp; GoBD-orientiert, EU-Hosting',
-    'feat.eyebrow':'Funktionen','feat.h2':'Alles, was eine Verwaltung wirklich braucht','feat.sub':'Ein durchgängiges System vom Stammdatensatz bis zur Jahresabrechnung — statt fünf Insellösungen, die nicht miteinander sprechen.',
+    'feat.eyebrow':'Funktionen','feat.h2':'Alles, was eine Verwaltung wirklich braucht','feat.sub':'Ein durchgängiges System vom Stammdatensatz bis zur Jahresabrechnung, statt fünf Insellösungen, die nicht miteinander sprechen.',
     'g.miet.tag':'Mietverwaltung','g.miet.title':'Vom Vertrag bis zur Mahnung',
-    'c1.h':'Objekte, Einheiten &amp; Personen','c1.p':'Gebäude, Wohn- und Gewerbeeinheiten, Mieter, Eigentümer und Zähler — sauber strukturiert und jederzeit auffindbar.',
-    'c2.h':'Mietverträge','c2.p':'Staffel- und Indexmiete, Kaution, Laufzeiten und Fristen — Anpassungen werden automatisch fortgeschrieben.',
-    'c3.h':'Finanzen &amp; Sollstellung','c3.p':'Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen — der Zahlungsstatus stets im Blick.',
-    'c4.h':'Betriebskostenabrechnung','c4.p':'BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong> — prüfsicher und nachvollziehbar.',
-    'c5.h':'Bankimport &amp; Export','c5.p':'camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export — die Buchhaltung bleibt anschlussfähig.',
-    'c6.h':'Postausgang','c6.p':'E-Mails an Mieter und Eigentümer direkt aus dem System — mit Vorlagen, Anhängen und lückenloser Historie.',
+    'c1.h':'Objekte, Einheiten &amp; Personen','c1.p':'Gebäude, Wohn- und Gewerbeeinheiten, Mieter, Eigentümer und Zähler, sauber strukturiert und jederzeit auffindbar.',
+    'c2.h':'Mietverträge','c2.p':'Staffel- und Indexmiete, Kaution, Laufzeiten und Fristen, Anpassungen werden automatisch fortgeschrieben.',
+    'c3.h':'Finanzen &amp; Sollstellung','c3.p':'Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus stets im Blick.',
+    'c4.h':'Betriebskostenabrechnung','c4.p':'BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong>, prüfsicher und nachvollziehbar.',
+    'c5.h':'Bankimport &amp; Export','c5.p':'camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export, die Buchhaltung bleibt anschlussfähig.',
+    'c6.h':'Postausgang','c6.p':'E-Mails an Mieter und Eigentümer direkt aus dem System, mit Vorlagen, Anhängen und lückenloser Historie.',
     'g.weg.tag':'WEG-Verwaltung','g.weg.title':'Wohnungseigentum rechtssicher managen',
-    'c7.h':'MEA &amp; Wirtschaftsplan','c7.p':'Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr — als Basis für jede Abrechnung.',
-    'c8.h':'Jahresabrechnung','c8.p':'Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden — transparent bis auf die einzelne Einheit.',
+    'c7.h':'MEA &amp; Wirtschaftsplan','c7.p':'Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr, als Basis für jede Abrechnung.',
+    'c8.h':'Jahresabrechnung','c8.p':'Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden, transparent bis auf die einzelne Einheit.',
     'c9.h':'Erhaltungsrücklagen','c9.p':'Rücklagen führen, Zuführungen und Entnahmen buchen und den Vermögensbericht auf Knopfdruck erzeugen.',
-    'c10.h':'Eigentümerversammlung','c10.p':'Tagesordnung, Einladungen und Abstimmungen — mit rechtssicherer Beschlusssammlung nach §24 WEG.',
-    'c11.h':'Eigentümer-Portal','c11.p':'Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar — weniger Rückfragen.',
-    'c12.h':'Vermögensbericht','c12.p':'Rücklagenbestände und Vermögensübersicht gemäß WEG-Reform — vorbereitet für Prüfung und Beirat.',
+    'c10.h':'Eigentümerversammlung','c10.p':'Tagesordnung, Einladungen und Abstimmungen, mit rechtssicherer Beschlusssammlung nach §24 WEG.',
+    'c11.h':'Eigentümer-Portal','c11.p':'Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar, weniger Rückfragen.',
+    'c12.h':'Vermögensbericht','c12.p':'Rücklagenbestände und Vermögensübersicht gemäß WEG-Reform, vorbereitet für Prüfung und Beirat.',
     'g.betrieb.tag':'Betrieb &amp; Compliance','g.betrieb.title':'Der Alltag, digital &amp; prüfsicher',
-    'c13.h':'Kalender, Termine &amp; Fristen','c13.p':'Monatsübersicht für Wartungen, Versammlungen und gesetzliche Fristen — nichts läuft mehr unbemerkt aus.',
-    'c14.h':'Instandhaltung &amp; Tickets','c14.p':'Tickets, Handwerker und Wartungsverträge mit Fristen — von der Meldung bis zur erledigten Reparatur.',
-    'c15.h':'Dokumente &amp; E-Rechnung','c15.p':'GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong> — revisionssicher archiviert.',
-    'c16.h':'Globale Suche','c16.p':'Objekt, Einheit, Person oder Beleg in Sekunden gefunden — eine Suche über den gesamten Bestand.',
-    'c17.h':'Druck &amp; PDF-Ausgabe','c17.p':'Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF — im Corporate-Layout der Verwaltung.',
-    'c18.h':'Audit-Log &amp; RBAC','c18.p':'Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit — DE/EN zweisprachig.',
-    'show.eyebrow':'Einblicke','show.h2':'Eine Oberfläche, die man gerne benutzt','show.sub':'Ruhig, aufgeräumt, schnell. Echte Ansichten aus HaVeWa — vom Dashboard bis zur druckfertigen Abrechnung.',
+    'c13.h':'Kalender, Termine &amp; Fristen','c13.p':'Monatsübersicht für Wartungen, Versammlungen und gesetzliche Fristen, nichts läuft mehr unbemerkt aus.',
+    'c14.h':'Instandhaltung &amp; Tickets','c14.p':'Tickets, Handwerker und Wartungsverträge mit Fristen, von der Meldung bis zur erledigten Reparatur.',
+    'c15.h':'Dokumente &amp; E-Rechnung','c15.p':'GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong>, revisionssicher archiviert.',
+    'c16.h':'Globale Suche','c16.p':'Objekt, Einheit, Person oder Beleg in Sekunden gefunden, eine Suche über den gesamten Bestand.',
+    'c17.h':'Druck &amp; PDF-Ausgabe','c17.p':'Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF, im Corporate-Layout der Verwaltung.',
+    'c18.h':'Audit-Log &amp; RBAC','c18.p':'Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit, DE/EN zweisprachig.',
+    'show.eyebrow':'Einblicke','show.h2':'Eine Oberfläche, die man gerne benutzt','show.sub':'Ruhig, aufgeräumt, schnell. Echte Ansichten aus HaVeWa, vom Dashboard bis zur druckfertigen Abrechnung.',
     'tab1':'Objekte','tab2':'Finanzen','tab3':'Betriebskosten','tab4':'Versammlung','tab5':'Instandhaltung','tab6':'Dokumente','tab7':'Kalender','tab8':'Portal',
-    'p1.h':'Objekte, Gebäude &amp; Einheiten','p1.p':'Der komplette Bestand auf einen Blick — Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.','alt.properties':'Objekt-, Gebäude- und Einheitenverwaltung in HaVeWa',
-    'p2.h':'Finanzen &amp; Mahnwesen','p2.p':'Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen — der Zahlungsstatus jederzeit aktuell.','alt.finances':'Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa',
-    'p3.h':'Betriebskostenabrechnung','p3.p':'Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch — prüfsicher aufbereitet für jeden Mieter.','alt.statements':'Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa',
-    'p4.h':'Eigentümerversammlung','p4.p':'Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG — vollständig dokumentiert.','alt.meetings':'Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa',
-    'p5.h':'Instandhaltung &amp; Tickets','p5.p':'Von der Schadensmeldung bis zum beauftragten Handwerker — inklusive Wartungsfristen und Historie.','alt.tickets':'Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa',
-    'p6.h':'Dokumente &amp; E-Rechnung','p6.p':'GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD) — revisionssicher.','alt.documents':'GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa',
+    'p1.h':'Objekte, Gebäude &amp; Einheiten','p1.p':'Der komplette Bestand auf einen Blick, Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.','alt.properties':'Objekt-, Gebäude- und Einheitenverwaltung in HaVeWa',
+    'p2.h':'Finanzen &amp; Mahnwesen','p2.p':'Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus jederzeit aktuell.','alt.finances':'Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa',
+    'p3.h':'Betriebskostenabrechnung','p3.p':'Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch, prüfsicher aufbereitet für jeden Mieter.','alt.statements':'Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa',
+    'p4.h':'Eigentümerversammlung','p4.p':'Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG, vollständig dokumentiert.','alt.meetings':'Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa',
+    'p5.h':'Instandhaltung &amp; Tickets','p5.p':'Von der Schadensmeldung bis zum beauftragten Handwerker, inklusive Wartungsfristen und Historie.','alt.tickets':'Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa',
+    'p6.h':'Dokumente &amp; E-Rechnung','p6.p':'GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD), revisionssicher.','alt.documents':'GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa',
     'p7.h':'Kalender &amp; Fristen','p7.p':'Wartungen, Versammlungen und gesetzliche Fristen in einer übersichtlichen Monatsansicht.','alt.calendar':'Kalender mit Monatsansicht für Termine und Fristen in HaVeWa',
-    'p8.h':'Mieter- &amp; Eigentümer-Portal','p8.p':'Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen — rund um die Uhr, ohne Rückfragen.','alt.portal':'Self-Service-Portal für Mieter und Eigentümer in HaVeWa',
-    'unite.eyebrow':'Ein System','unite.h2':'Miet- <span style="font-style:italic">und</span> WEG-Verwaltung — endlich vereint','unite.sub':'Die meisten Verwaltungen betreuen beides. HaVeWa auch. Gleiche Objekte, gleiche Personen, gleiche Belege — ohne Datensilos und doppelte Pflege.',
+    'p8.h':'Mieter- &amp; Eigentümer-Portal','p8.p':'Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen, rund um die Uhr, ohne Rückfragen.','alt.portal':'Self-Service-Portal für Mieter und Eigentümer in HaVeWa',
+    'unite.eyebrow':'Ein System','unite.h2':'Miet- <span style="font-style:italic">und</span> WEG-Verwaltung, endlich vereint','unite.sub':'Die meisten Verwaltungen betreuen beides. HaVeWa auch. Gleiche Objekte, gleiche Personen, gleiche Belege, ohne Datensilos und doppelte Pflege.',
     'mcol.h':'Mietverwaltung','mcol.p':'Für Eigentümer und Verwalter von vermieteten Objekten.',
     'mcol.li1':'Miet- &amp; Gewerbeverträge, Staffel-/Indexmiete, Kaution','mcol.li2':'Sollstellung, offene Posten &amp; dreistufiges Mahnwesen','mcol.li3':'Betriebskostenabrechnung nach BetrKV &amp; HeizkostenV 30/70','mcol.li4':'Mieterportal für Self-Service &amp; Kommunikation',
     'wcol.h':'WEG-Verwaltung','wcol.p':'Für Wohnungseigentümergemeinschaften und Beiräte.',
     'wcol.li1':'MEA, Wirtschaftsplan, Hausgeld &amp; Jahresabrechnung','wcol.li2':'Erhaltungsrücklagen &amp; Vermögensbericht (WEG-Reform)','wcol.li3':'Eigentümerversammlung &amp; Beschlusssammlung §24 WEG','wcol.li4':'Eigentümerportal für Abrechnungen &amp; Beschlüsse',
-    'ki.eyebrow':'KI-Assistent · powered by Claude','ki.h2':'Fragen Sie Ihren Bestand — in Ihrer Sprache','ki.p':'Der integrierte KI-Assistent beantwortet Fragen zu Objekten, Mietern, Finanzen und Fristen in natürlicher Sprache. Kein Filtern, kein Suchen durch Menüs — einfach fragen.',
+    'ki.eyebrow':'KI-Assistent · powered by Claude','ki.h2':'Fragen Sie Ihren Bestand, in Ihrer Sprache','ki.p':'Der integrierte KI-Assistent beantwortet Fragen zu Objekten, Mietern, Finanzen und Fristen in natürlicher Sprache. Kein Filtern, kein Suchen durch Menüs, einfach fragen.',
     'ki.tag1':'Offene Posten je Objekt','ki.tag2':'Fällige Wartungen','ki.tag3':'Auslaufende Verträge','ki.tag4':'Leerstandsquote',
     'ki.q':'„Welche Mietverträge laufen dieses Jahr aus und wo droht Leerstand?“',
-    'ki.a':'Drei Verträge enden 2026 — davon <b>Whg 4 (Objekt Parkblick)</b> ohne Nachmieter. Für zwei Einheiten liegen bereits Verlängerungen vor. Die Leerstandsquote läge bei Auszug bei <b>29 %</b>.',
+    'ki.a':'Drei Verträge enden 2026, davon <b>Whg 4 (Objekt Parkblick)</b> ohne Nachmieter. Für zwei Einheiten liegen bereits Verlängerungen vor. Die Leerstandsquote läge bei Auszug bei <b>29 %</b>.',
     'ki.note':'Beispielhafte Darstellung. Der Assistent greift nur auf Ihren eigenen Mandanten zu.',
-    'mcp.eyebrow':'Neu · KI-Steuerung','mcp.h2':'Verwalten Sie Ihre Immobilien direkt mit Ihrer KI','mcp.p':'Verbinden Sie Ihren KI-Assistenten — ob ChatGPT, Claude oder ein anderer — sicher mit HaVeWa. Danach fragen und erledigen Sie alles im Gespräch: ganz ohne Klicken durch Menüs. Ihre KI kennt Ihren Bestand und arbeitet für Sie.',
+    'mcp.eyebrow':'Neu · KI-Steuerung','mcp.h2':'Verwalten Sie Ihre Immobilien direkt mit Ihrer KI','mcp.p':'Verbinden Sie Ihren KI-Assistenten, ob ChatGPT, Claude oder ein anderer, sicher mit HaVeWa. Danach fragen und erledigen Sie alles im Gespräch: ganz ohne Klicken durch Menüs. Ihre KI kennt Ihren Bestand und arbeitet für Sie.',
     'mcp.tag1':'Bestand per Sprache abfragen','mcp.tag2':'Tickets & Kontakte anlegen lassen','mcp.tag3':'Offene Posten & Fristen im Blick','mcp.tag4':'Ihre KI, Ihre Wahl',
-    'mcp.q':'„Leg für das Objekt Parkblick ein Ticket ‚Heizung im Treppenhaus prüfen‘ an und zeig mir die offenen Posten.“','mcp.a':'Ticket „Heizung im Treppenhaus prüfen“ für Parkblick angelegt. Offene Posten gesamt: 3.480 € über vier Mieter — zwei davon überfällig.','mcp.note':'Sicher: Zugriff nur mit Ihrem persönlichen Token und nur auf Ihre eigenen Daten — jederzeit widerrufbar.',
-    'price.eyebrow':'Preise','price.h2':'Faire Staffelung nach Einheiten','price.sub':'Ein Preis, alle Updates inklusive. Wachsen Sie in Ruhe — der Tarif wächst mit.','price.per':'/ Monat','price.pop':'Beliebt',
-    'p.starter.name':'Starter','p.starter.for':'Für kleine Verwalter und Selbstverwalter mit überschaubarem Bestand.','p.starter.units':'bis 50 Einheiten','p.starter.btn':'Kostenlos testen','p.starter.head':'Kernmodule',
-    'p.starter.f1':'Objekte, Einheiten &amp; Personen','p.starter.f2':'Mietverwaltung &amp; Verträge','p.starter.f3':'Finanzen &amp; Sollstellung','p.starter.f4':'Betriebskostenabrechnung (HeizkostenV)','p.starter.f5':'Dokumente (GoBD)',
-    'p.pro.name':'Professional','p.pro.for':'Für professionelle Verwaltungen mit Miet- und WEG-Beständen.','p.pro.units':'bis 500 Einheiten','p.pro.head':'Alles aus Starter, plus',
-    'p.pro.f1':'WEG-Verwaltung &amp; Jahresabrechnung','p.pro.f2':'Eigentümerversammlungen &amp; Beschlüsse','p.pro.f3':'Mieter- &amp; Eigentümerportale','p.pro.f4':'Instandhaltung &amp; Kalender','p.pro.f5':'Bankimport, DATEV- &amp; SEPA-Export',
-    'p.ent.name':'Enterprise','p.ent.for':'Für große Verwaltungen mit mehreren Mandanten und eigenen Prozessen.','p.ent.amt':'Auf Anfrage','p.ent.units':'unbegrenzte Einheiten &amp; Mandanten','p.ent.btn':'Kontakt aufnehmen','p.ent.head':'Alles aus Professional, plus',
-    'p.ent.f1':'KI-Assistent (Claude)','p.ent.f2':'SSO &amp; erweiterte RBAC-Rollen','p.ent.f3':'Self-Hosting (Docker, EU)','p.ent.f4':'Individuelle Schnittstellen','p.ent.f5':'Priorisierter Support &amp; SLA',
-    'price.note1':'Alle Preise zzgl. MwSt.','price.note2':'30 Tage kostenlos testen','price.note3':'Monatlich, jederzeit kündbar',
+    'mcp.q':'„Leg für das Objekt Parkblick ein Ticket ‚Heizung im Treppenhaus prüfen‘ an und zeig mir die offenen Posten.“','mcp.a':'Ticket „Heizung im Treppenhaus prüfen“ für Parkblick angelegt. Offene Posten gesamt: 3.480 € über vier Mieter, zwei davon überfällig.','mcp.note':'Sicher: Zugriff nur mit Ihrem persönlichen Token und nur auf Ihre eigenen Daten, jederzeit widerrufbar.',
     'faq.eyebrow':'FAQ','faq.h2':'Häufige Fragen',
-    'faq.q1':'Deckt HaVeWa sowohl Miet- als auch WEG-Verwaltung ab?','faq.a1':'Ja. HaVeWa ist von Grund auf für beide Welten gebaut. Sie verwalten vermietete Objekte und Wohnungseigentümergemeinschaften in einem System — mit gemeinsamen Stammdaten für Objekte, Einheiten und Personen, ohne doppelte Pflege.',
+    'faq.q1':'Deckt HaVeWa sowohl Miet- als auch WEG-Verwaltung ab?','faq.a1':'Ja. HaVeWa ist von Grund auf für beide Welten gebaut. Sie verwalten vermietete Objekte und Wohnungseigentümergemeinschaften in einem System, mit gemeinsamen Stammdaten für Objekte, Einheiten und Personen, ohne doppelte Pflege.',
     'faq.q2':'Ist die Betriebskostenabrechnung rechtssicher?','faq.a2':'Die Abrechnung folgt der BetrKV, unterstützt frei konfigurierbare Verteilerschlüssel und rechnet Heizkosten nach der HeizkostenV im Verhältnis 30/70 (Grundkosten/Verbrauch) ab. Jede Abrechnung ist nachvollziehbar aufgeschlüsselt und druck- bzw. PDF-fertig.',
     'faq.q3':'Wie steht es um Datenschutz, GoBD und Hosting?','faq.a3':'HaVeWa ist DSGVO- und GoBD-orientiert: revisionssichere Dokumentenablage, lückenloses Änderungsprotokoll und rollenbasierte Rechte. Betrieben wird die Software auf Servern in der EU; auf Wunsch ist Self-Hosting per Docker mit automatischem HTTPS möglich.',
-    'faq.q4':'Kann ich Bankdaten importieren und an DATEV übergeben?','faq.a4':'Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit — inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.',
-    'faq.q5':'Was leistet der KI-Assistent genau?','faq.a5':'Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache — etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.',
-    'faq.q6':'Wie starte ich, und bin ich langfristig gebunden?','faq.a6':'Sie testen HaVeWa 30 Tage kostenlos und ohne Einrichtungsgebühr. Die Abrechnung erfolgt monatlich und ist jederzeit kündbar. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.',
-    'cta.h2':'Bereit für eine ruhigere Verwaltung?','cta.p':'Starten Sie Ihre kostenlose Demo — in wenigen Minuten eingerichtet, ohne Risiko.','cta.consult':'Beratung anfragen',
-    'foot.tagline':'Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer — DSGVO- und GoBD-orientiert.',
+    'faq.q4':'Kann ich Bankdaten importieren und an DATEV übergeben?','faq.a4':'Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.',
+    'faq.q5':'Was leistet der KI-Assistent genau?','faq.a5':'Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.',
+    'faq.q6':'Wie starte ich, und bin ich langfristig gebunden?','faq.a6':'HaVeWa ist aktuell in der Beta und kostenlos nutzbar. Eine Preisstaffelung folgt später; wir informieren rechtzeitig, bevor sich etwas ändert. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.',
+    'cta.h2':'Bereit für eine ruhigere Verwaltung?','cta.p':'Starten Sie Ihre kostenlose Demo, in wenigen Minuten eingerichtet, ohne Risiko.','cta.consult':'Beratung anfragen',
+    'foot.tagline':'Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer, DSGVO- und GoBD-orientiert.',
     'foot.col1':'Produkt','foot.col2':'Lösungen','foot.col3':'Ressourcen',
     'foot.sol1':'Mietverwaltung','foot.sol2':'WEG-Verwaltung','foot.sol3':'Betriebskostenabrechnung','foot.sol4':'Self-Hosting',
     'foot.res1':'FAQ','foot.res2':'Kontakt','foot.res3':'Demo starten','foot.res4':'Nach oben','foot.docs':'Dokumentation & Hilfe',
     'foot.lic':'© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Server in der EU',
-    'coming.title':'Demo — bald verfügbar','coming.text':'Die interaktive Demo steht in Kürze bereit. Fragen Sie solange eine persönliche Beratung an.','coming.btn':'Beratung anfragen',
-    'contact.title':'Persönliche Beratung anfragen','contact.desc':'Schreiben Sie uns kurz, worum es geht — wir melden uns zeitnah.',
+    'coming.title':'Demo, bald verfügbar','coming.text':'Die interaktive Demo steht in Kürze bereit. Fragen Sie solange eine persönliche Beratung an.','coming.btn':'Beratung anfragen',
+    'contact.title':'Persönliche Beratung anfragen','contact.desc':'Schreiben Sie uns kurz, worum es geht, wir melden uns zeitnah.',
     'form.name':'Name','form.email':'E-Mail','form.msg':'Nachricht','form.namePh':'Ihr Name','form.emailPh':'ihre@email.de','form.msgPh':'Wie können wir helfen?','form.submit':'Anfrage senden','form.hint':'Öffnet Ihr E-Mail-Programm.',
     'mail.subject':'Beratungsanfrage HaVeWa','mail.body':'Name: {n}\nE-Mail: {e}\n\nNachricht:\n{m}'
   };
   D.en={
-    'doc.title':'HaVeWa — Property management for rentals and condominiums',
-    'doc.desc':'HaVeWa is the modern software for rental and condominium (HOA) management: service-charge statements, HeizkostenV 30/70, annual condominium statements, owners’ meetings, finances, portals and an AI assistant — GDPR- and GoBD-oriented.',
+    'doc.title':'HaVeWa, Property management for rentals and condominiums',
+    'doc.desc':'HaVeWa is the modern software for rental and condominium (HOA) management: service-charge statements, HeizkostenV 30/70, annual condominium statements, owners’ meetings, finances, portals and an AI assistant, GDPR- and GoBD-oriented.',
     'brand.sub':'Property Management',
     'aria.lang':'Switch language','aria.theme':'Toggle colour scheme','aria.menu':'Open menu','aria.close':'Close',
-    'nav.func':'Features','nav.shots':'Screenshots','nav.ki':'AI Assistant','nav.mcp':'AI control','nav.preise':'Pricing','nav.faq':'FAQ','nav.docs':'Documentation',
+    'nav.func':'Features','nav.shots':'Screenshots','nav.ki':'AI Assistant','nav.mcp':'AI control','nav.preise':'Pricing','nav.kontakt':'Contact','nav.faq':'FAQ','nav.docs':'Documentation',
+    'kontakt.eyebrow':'Contact','kontakt.h2':'Questions, feedback or interested?','kontakt.sub':'Write to us directly. HaVeWa is still in beta and free to use for now; pricing tiers will follow later.','kontakt.beta':'In development (beta) · free for now',
     'btn.demo':'Start demo',
     'hero.badge':'Rental &amp; condominium management in one system',
-    'hero.h1':'Your property management — <em>clear, compliant, complete.</em>',
-    'hero.lead':'HaVeWa unites rental and condominium (HOA) management in one modern platform — from service-charge statements under the German Heating Costs Ordinance (HeizkostenV) to owners’ meetings. GDPR- and GoBD-oriented, with an AI assistant.',
+    'hero.h1':'Your property management, <em>clear, compliant, complete.</em>',
+    'hero.lead':'HaVeWa unites rental and condominium (HOA) management in one modern platform, from service-charge statements under the German Heating Costs Ordinance (HeizkostenV) to owners’ meetings. GDPR- and GoBD-oriented, with an AI assistant.',
     'hero.ctaFeatures':'Explore features',
-    'hero.meta1':'30-day free trial','hero.meta2':'No setup fee','hero.meta3':'Servers in the EU',
+    'hero.meta1':'Free while in beta','hero.meta2':'No setup fee','hero.meta3':'Servers in the EU',
     'hero.floatT':'AI Assistant','hero.floatS':'Full integration · API · MCP',
     'alt.dashboard':'HaVeWa dashboard with key figures on properties, units, target rent and open items, plus tasks, deadlines and the AI assistant',
     'stat1':'Rental &amp; condominium management, unified','stat2':'Heating-cost split per HeizkostenV','stat3':'integrated modules','stat4':'GDPR- &amp; GoBD-oriented, EU hosting',
-    'feat.eyebrow':'Features','feat.h2':'Everything a property manager actually needs','feat.sub':'One end-to-end system from master data to the annual statement — instead of five disconnected tools that don’t talk to each other.',
+    'feat.eyebrow':'Features','feat.h2':'Everything a property manager actually needs','feat.sub':'One end-to-end system from master data to the annual statement, instead of five disconnected tools that don’t talk to each other.',
     'g.miet.tag':'Rental management','g.miet.title':'From lease to dunning',
-    'c1.h':'Properties, units &amp; people','c1.p':'Buildings, residential and commercial units, tenants, owners and meters — cleanly structured and always findable.',
-    'c2.h':'Leases','c2.p':'Graduated and index-linked rent, deposits, terms and deadlines — adjustments are carried forward automatically.',
-    'c3.h':'Finances &amp; receivables','c3.p':'Charges, payments, open items, SEPA mandates and three-stage dunning — the payment status always in view.',
-    'c4.h':'Service-charge statement','c4.p':'Compliant with the German Operating Costs Ordinance (BetrKV), a flexible allocation-key engine and <strong>HeizkostenV 30/70 by consumption</strong> — audit-proof and transparent.',
-    'c5.h':'Bank import &amp; export','c5.p':'camt.053 bank import with matching plus DATEV and SEPA export — your accounting stays connected.',
-    'c6.h':'Outbox','c6.p':'Email tenants and owners straight from the system — with templates, attachments and a complete history.',
+    'c1.h':'Properties, units &amp; people','c1.p':'Buildings, residential and commercial units, tenants, owners and meters, cleanly structured and always findable.',
+    'c2.h':'Leases','c2.p':'Graduated and index-linked rent, deposits, terms and deadlines, adjustments are carried forward automatically.',
+    'c3.h':'Finances &amp; receivables','c3.p':'Charges, payments, open items, SEPA mandates and three-stage dunning, the payment status always in view.',
+    'c4.h':'Service-charge statement','c4.p':'Compliant with the German Operating Costs Ordinance (BetrKV), a flexible allocation-key engine and <strong>HeizkostenV 30/70 by consumption</strong>, audit-proof and transparent.',
+    'c5.h':'Bank import &amp; export','c5.p':'camt.053 bank import with matching plus DATEV and SEPA export, your accounting stays connected.',
+    'c6.h':'Outbox','c6.p':'Email tenants and owners straight from the system, with templates, attachments and a complete history.',
     'g.weg.tag':'Condominium (HOA)','g.weg.title':'Manage condominiums with legal certainty',
-    'c7.h':'Ownership shares &amp; budget','c7.p':'Co-ownership shares (MEA), service fees and the annual budget per property and year — the basis for every statement.',
-    'c8.h':'Annual statement','c8.p':'Actual costs allocated per owner, service-fee reconciliation and balances — transparent down to the individual unit.',
+    'c7.h':'Ownership shares &amp; budget','c7.p':'Co-ownership shares (MEA), service fees and the annual budget per property and year, the basis for every statement.',
+    'c8.h':'Annual statement','c8.p':'Actual costs allocated per owner, service-fee reconciliation and balances, transparent down to the individual unit.',
     'c9.h':'Maintenance reserves','c9.p':'Manage reserves, post contributions and withdrawals, and generate the asset report at the click of a button.',
-    'c10.h':'Owners’ meeting','c10.p':'Agenda, invitations and voting — with a legally compliant register of resolutions under §24 WEG.',
-    'c11.h':'Owner portal','c11.p':'Self-service for owners: statements, resolutions and documents available anytime — fewer queries.',
-    'c12.h':'Asset report','c12.p':'Reserve balances and asset overview in line with the German condominium reform — ready for audit and advisory board.',
-    'g.betrieb.tag':'Operations &amp; compliance','g.betrieb.title':'Daily operations — digital &amp; audit-proof',
-    'c13.h':'Calendar, appointments &amp; deadlines','c13.p':'A monthly overview of maintenance, meetings and statutory deadlines — nothing lapses unnoticed.',
-    'c14.h':'Maintenance &amp; tickets','c14.p':'Tickets, contractors and service agreements with deadlines — from report to completed repair.',
-    'c15.h':'Documents &amp; e-invoicing','c15.p':'GoBD-compliant filing with automatic reading of <strong>e-invoices / ZUGFeRD</strong> — archived in an audit-proof manner.',
-    'c16.h':'Global search','c16.p':'Find a property, unit, person or document in seconds — one search across your entire portfolio.',
-    'c17.h':'Print &amp; PDF output','c17.p':'Statements, letters and reports as clean, print-ready PDFs — in your firm’s corporate layout.',
-    'c18.h':'Audit log &amp; RBAC','c18.p':'A complete change log, role-based access control (RBAC) and multi-tenancy — bilingual DE/EN.',
-    'show.eyebrow':'Inside HaVeWa','show.h2':'An interface you’ll enjoy using','show.sub':'Calm, tidy, fast. Real views from HaVeWa — from the dashboard to the print-ready statement.',
+    'c10.h':'Owners’ meeting','c10.p':'Agenda, invitations and voting, with a legally compliant register of resolutions under §24 WEG.',
+    'c11.h':'Owner portal','c11.p':'Self-service for owners: statements, resolutions and documents available anytime, fewer queries.',
+    'c12.h':'Asset report','c12.p':'Reserve balances and asset overview in line with the German condominium reform, ready for audit and advisory board.',
+    'g.betrieb.tag':'Operations &amp; compliance','g.betrieb.title':'Daily operations, digital &amp; audit-proof',
+    'c13.h':'Calendar, appointments &amp; deadlines','c13.p':'A monthly overview of maintenance, meetings and statutory deadlines, nothing lapses unnoticed.',
+    'c14.h':'Maintenance &amp; tickets','c14.p':'Tickets, contractors and service agreements with deadlines, from report to completed repair.',
+    'c15.h':'Documents &amp; e-invoicing','c15.p':'GoBD-compliant filing with automatic reading of <strong>e-invoices / ZUGFeRD</strong>, archived in an audit-proof manner.',
+    'c16.h':'Global search','c16.p':'Find a property, unit, person or document in seconds, one search across your entire portfolio.',
+    'c17.h':'Print &amp; PDF output','c17.p':'Statements, letters and reports as clean, print-ready PDFs, in your firm’s corporate layout.',
+    'c18.h':'Audit log &amp; RBAC','c18.p':'A complete change log, role-based access control (RBAC) and multi-tenancy, bilingual DE/EN.',
+    'show.eyebrow':'Inside HaVeWa','show.h2':'An interface you’ll enjoy using','show.sub':'Calm, tidy, fast. Real views from HaVeWa, from the dashboard to the print-ready statement.',
     'tab1':'Properties','tab2':'Finances','tab3':'Service charges','tab4':'Meeting','tab5':'Maintenance','tab6':'Documents','tab7':'Calendar','tab8':'Portal',
-    'p1.h':'Properties, buildings &amp; units','p1.p':'Your whole portfolio at a glance — buildings, units, people and meters in a clear structure.','alt.properties':'Property, building and unit management in HaVeWa',
-    'p2.h':'Finances &amp; dunning','p2.p':'Charges, open items, SEPA mandates and three-stage dunning — payment status always up to date.','alt.finances':'Finances with charges, open items, dunning and SEPA in HaVeWa',
-    'p3.h':'Service-charge statement','p3.p':'An allocation-key engine and HeizkostenV 30/70 by consumption — audit-proof for every tenant.','alt.statements':'Service-charge statement with allocation keys and HeizkostenV 30/70 in HaVeWa',
-    'p4.h':'Owners’ meeting','p4.p':'Agenda, voting and register of resolutions under §24 WEG — fully documented.','alt.meetings':'Owners’ meeting with agenda and resolutions in HaVeWa',
-    'p5.h':'Maintenance &amp; tickets','p5.p':'From damage report to assigned contractor — including maintenance deadlines and history.','alt.tickets':'Maintenance with tickets, contractors and service agreements in HaVeWa',
-    'p6.h':'Documents &amp; e-invoicing','p6.p':'GoBD-compliant filing with automatic recognition of e-invoices (ZUGFeRD) — audit-proof.','alt.documents':'GoBD-compliant document management with e-invoice recognition in HaVeWa',
+    'p1.h':'Properties, buildings &amp; units','p1.p':'Your whole portfolio at a glance, buildings, units, people and meters in a clear structure.','alt.properties':'Property, building and unit management in HaVeWa',
+    'p2.h':'Finances &amp; dunning','p2.p':'Charges, open items, SEPA mandates and three-stage dunning, payment status always up to date.','alt.finances':'Finances with charges, open items, dunning and SEPA in HaVeWa',
+    'p3.h':'Service-charge statement','p3.p':'An allocation-key engine and HeizkostenV 30/70 by consumption, audit-proof for every tenant.','alt.statements':'Service-charge statement with allocation keys and HeizkostenV 30/70 in HaVeWa',
+    'p4.h':'Owners’ meeting','p4.p':'Agenda, voting and register of resolutions under §24 WEG, fully documented.','alt.meetings':'Owners’ meeting with agenda and resolutions in HaVeWa',
+    'p5.h':'Maintenance &amp; tickets','p5.p':'From damage report to assigned contractor, including maintenance deadlines and history.','alt.tickets':'Maintenance with tickets, contractors and service agreements in HaVeWa',
+    'p6.h':'Documents &amp; e-invoicing','p6.p':'GoBD-compliant filing with automatic recognition of e-invoices (ZUGFeRD), audit-proof.','alt.documents':'GoBD-compliant document management with e-invoice recognition in HaVeWa',
     'p7.h':'Calendar &amp; deadlines','p7.p':'Maintenance, meetings and statutory deadlines in a clear monthly view.','alt.calendar':'Calendar with monthly view for appointments and deadlines in HaVeWa',
-    'p8.h':'Tenant &amp; owner portal','p8.p':'Self-service for residents: documents, statements and requests — around the clock, without queries.','alt.portal':'Self-service portal for tenants and owners in HaVeWa',
-    'unite.eyebrow':'One system','unite.h2':'Rental <span style="font-style:italic">and</span> condominium management — finally unified','unite.sub':'Most firms manage both. So does HaVeWa. Same properties, same people, same documents — no data silos, no duplicate work.',
+    'p8.h':'Tenant &amp; owner portal','p8.p':'Self-service for residents: documents, statements and requests, around the clock, without queries.','alt.portal':'Self-service portal for tenants and owners in HaVeWa',
+    'unite.eyebrow':'One system','unite.h2':'Rental <span style="font-style:italic">and</span> condominium management, finally unified','unite.sub':'Most firms manage both. So does HaVeWa. Same properties, same people, same documents, no data silos, no duplicate work.',
     'mcol.h':'Rental management','mcol.p':'For owners and managers of rented properties.',
     'mcol.li1':'Residential &amp; commercial leases, graduated/index rent, deposits','mcol.li2':'Charges, open items &amp; three-stage dunning','mcol.li3':'Service-charge statements per BetrKV &amp; HeizkostenV 30/70','mcol.li4':'Tenant portal for self-service &amp; communication',
     'wcol.h':'Condominium (HOA) management','wcol.p':'For condominium associations and advisory boards.',
     'wcol.li1':'Ownership shares, budget, service fees &amp; annual statement','wcol.li2':'Maintenance reserves &amp; asset report (condominium reform)','wcol.li3':'Owners’ meeting &amp; register of resolutions §24 WEG','wcol.li4':'Owner portal for statements &amp; resolutions',
-    'ki.eyebrow':'AI Assistant · powered by Claude','ki.h2':'Ask your portfolio — in plain language','ki.p':'The built-in AI assistant answers questions about properties, tenants, finances and deadlines in natural language. No filtering, no digging through menus — just ask.',
+    'ki.eyebrow':'AI Assistant · powered by Claude','ki.h2':'Ask your portfolio, in plain language','ki.p':'The built-in AI assistant answers questions about properties, tenants, finances and deadlines in natural language. No filtering, no digging through menus, just ask.',
     'ki.tag1':'Open items per property','ki.tag2':'Due maintenance','ki.tag3':'Expiring leases','ki.tag4':'Vacancy rate',
     'ki.q':'“Which leases expire this year and where is vacancy looming?”',
-    'ki.a':'Three leases end in 2026 — of which <b>Flat 4 (Parkblick property)</b> has no successor tenant. Two units already have renewals in place. On move-out, the vacancy rate would be <b>29%</b>.',
+    'ki.a':'Three leases end in 2026, of which <b>Flat 4 (Parkblick property)</b> has no successor tenant. Two units already have renewals in place. On move-out, the vacancy rate would be <b>29%</b>.',
     'ki.note':'Illustrative example. The assistant only accesses your own tenant data.',
-    'mcp.eyebrow':'New · AI control','mcp.h2':'Manage your properties directly with your AI','mcp.p':'Securely connect your AI assistant — ChatGPT, Claude or any other — to HaVeWa. Then ask and get things done in conversation: no clicking through menus. Your AI knows your portfolio and works for you.',
+    'mcp.eyebrow':'New · AI control','mcp.h2':'Manage your properties directly with your AI','mcp.p':'Securely connect your AI assistant, ChatGPT, Claude or any other, to HaVeWa. Then ask and get things done in conversation: no clicking through menus. Your AI knows your portfolio and works for you.',
     'mcp.tag1':'Query your portfolio in plain language','mcp.tag2':'Have tickets & contacts created','mcp.tag3':'Open items & deadlines at a glance','mcp.tag4':'Your AI, your choice',
-    'mcp.q':'“For the Parkblick property, create a ticket ‘check stairwell heating’ and show me the open items.”','mcp.a':'Ticket “check stairwell heating” created for Parkblick. Total open items: €3,480 across four tenants — two overdue.','mcp.note':'Secure: access only with your personal token and only to your own data — revocable at any time.',
-    'price.eyebrow':'Pricing','price.h2':'Fair pricing that scales by units','price.sub':'One price, all updates included. Grow at your own pace — your plan grows with you.','price.per':'/ month','price.pop':'Popular',
-    'p.starter.name':'Starter','p.starter.for':'For small managers and self-managers with a modest portfolio.','p.starter.units':'up to 50 units','p.starter.btn':'Start free trial','p.starter.head':'Core modules',
-    'p.starter.f1':'Properties, units &amp; people','p.starter.f2':'Rental management &amp; leases','p.starter.f3':'Finances &amp; receivables','p.starter.f4':'Service-charge statement (HeizkostenV)','p.starter.f5':'Documents (GoBD)',
-    'p.pro.name':'Professional','p.pro.for':'For professional firms managing both rental and condominium portfolios.','p.pro.units':'up to 500 units','p.pro.head':'Everything in Starter, plus',
-    'p.pro.f1':'Condominium management &amp; annual statement','p.pro.f2':'Owners’ meetings &amp; resolutions','p.pro.f3':'Tenant &amp; owner portals','p.pro.f4':'Maintenance &amp; calendar','p.pro.f5':'Bank import, DATEV &amp; SEPA export',
-    'p.ent.name':'Enterprise','p.ent.for':'For large firms with multiple tenants and their own processes.','p.ent.amt':'On request','p.ent.units':'unlimited units &amp; tenants','p.ent.btn':'Contact us','p.ent.head':'Everything in Professional, plus',
-    'p.ent.f1':'AI Assistant (Claude)','p.ent.f2':'SSO &amp; advanced RBAC roles','p.ent.f3':'Self-hosting (Docker, EU)','p.ent.f4':'Custom integrations','p.ent.f5':'Priority support &amp; SLA',
-    'price.note1':'All prices excl. VAT','price.note2':'30-day free trial','price.note3':'Monthly, cancel anytime',
+    'mcp.q':'“For the Parkblick property, create a ticket ‘check stairwell heating’ and show me the open items.”','mcp.a':'Ticket “check stairwell heating” created for Parkblick. Total open items: €3,480 across four tenants, two overdue.','mcp.note':'Secure: access only with your personal token and only to your own data, revocable at any time.',
     'faq.eyebrow':'FAQ','faq.h2':'Frequently asked questions',
-    'faq.q1':'Does HaVeWa cover both rental and condominium management?','faq.a1':'Yes. HaVeWa is built for both worlds from the ground up. You manage rented properties and condominium associations in one system — with shared master data for properties, units and people, and no duplicate work.',
+    'faq.q1':'Does HaVeWa cover both rental and condominium management?','faq.a1':'Yes. HaVeWa is built for both worlds from the ground up. You manage rented properties and condominium associations in one system, with shared master data for properties, units and people, and no duplicate work.',
     'faq.q2':'Is the service-charge statement legally sound?','faq.a2':'Statements follow the German Operating Costs Ordinance (BetrKV), support freely configurable allocation keys and split heating costs under the German Heating Costs Ordinance (HeizkostenV) at a 30/70 ratio (base cost/consumption). Every statement is itemised transparently and ready to print or export as PDF.',
     'faq.q3':'What about data protection, GoBD and hosting?','faq.a3':'HaVeWa is GDPR- and GoBD-oriented: audit-proof document storage, a complete change log and role-based access. The software runs on servers in the EU; self-hosting via Docker with automatic HTTPS is available on request.',
-    'faq.q4':'Can I import bank data and hand it over to DATEV?','faq.a4':'Yes. Account transactions can be imported via camt.053 and matched to open items. DATEV and SEPA exports are available for downstream accounting — including e-invoice recognition (ZUGFeRD) for incoming documents.',
-    'faq.q5':'What exactly does the AI assistant do?','faq.a5':'The Claude-based assistant answers questions about your portfolio in natural language — such as open items, due maintenance or expiring leases. It accesses only your own, tenant-isolated data and is included in the Enterprise plan.',
-    'faq.q6':'How do I get started, and am I locked in?','faq.a6':'You trial HaVeWa free for 30 days with no setup fee. Billing is monthly and you can cancel anytime. When you switch, we help import your existing data.',
-    'cta.h2':'Ready for calmer property management?','cta.p':'Start your free demo — set up in minutes, no risk.','cta.consult':'Request a consultation',
-    'foot.tagline':'The modern software for rental and condominium management. One system for properties, finances, statements and owners — GDPR- and GoBD-oriented.',
+    'faq.q4':'Can I import bank data and hand it over to DATEV?','faq.a4':'Yes. Account transactions can be imported via camt.053 and matched to open items. DATEV and SEPA exports are available for downstream accounting, including e-invoice recognition (ZUGFeRD) for incoming documents.',
+    'faq.q5':'What exactly does the AI assistant do?','faq.a5':'The Claude-based assistant answers questions about your portfolio in natural language, such as open items, due maintenance or expiring leases. It accesses only your own, tenant-isolated data and is included in the Enterprise plan.',
+    'faq.q6':'How do I get started, and am I locked in?','faq.a6':'HaVeWa is currently in beta and free to use. Pricing tiers will follow later, and we will let you know in good time before anything changes. When you switch, we help import your existing data.',
+    'cta.h2':'Ready for calmer property management?','cta.p':'Start your free demo, set up in minutes, no risk.','cta.consult':'Request a consultation',
+    'foot.tagline':'The modern software for rental and condominium management. One system for properties, finances, statements and owners, GDPR- and GoBD-oriented.',
     'foot.col1':'Product','foot.col2':'Solutions','foot.col3':'Resources',
     'foot.sol1':'Rental management','foot.sol2':'Condominium management','foot.sol3':'Service-charge statement','foot.sol4':'Self-hosting',
     'foot.res1':'FAQ','foot.res2':'Contact','foot.res3':'Start demo','foot.res4':'Back to top','foot.docs':'Documentation & help',
     'foot.lic':'© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Servers in the EU',
-    'coming.title':'Demo — coming soon','coming.text':'The interactive demo will be available shortly. In the meantime, request a personal consultation.','coming.btn':'Request a consultation',
-    'contact.title':'Request a personal consultation','contact.desc':'Tell us briefly what you need — we’ll get back to you soon.',
+    'coming.title':'Demo, coming soon','coming.text':'The interactive demo will be available shortly. In the meantime, request a personal consultation.','coming.btn':'Request a consultation',
+    'contact.title':'Request a personal consultation','contact.desc':'Tell us briefly what you need, we’ll get back to you soon.',
     'form.name':'Name','form.email':'Email','form.msg':'Message','form.namePh':'Your name','form.emailPh':'you@email.com','form.msgPh':'How can we help?','form.submit':'Send request','form.hint':'Opens your email client.',
     'mail.subject':'HaVeWa consultation request','mail.body':'Name: {n}\nEmail: {e}\n\nMessage:\n{m}'
   };
@@ -1014,7 +956,7 @@ dialog[open]{animation:modalpop .24s ease}
     var base=location.hostname.endsWith('github.io')?'https://havewa.app':'';
     location.href=base+'/'+lang+'/login';
   });});
-  document.querySelectorAll('.js-contact').forEach(function(b){b.addEventListener('click',function(){if(demoDlg.open)close(demoDlg);open(contactDlg);setTimeout(function(){var f=document.getElementById('cfName');if(f)f.focus();},60);});});
+  document.querySelectorAll('.js-contact').forEach(function(b){b.addEventListener('click',function(){var k=document.getElementById('kontakt');if(k)k.scrollIntoView({behavior:'smooth'});});});
   document.querySelectorAll('.js-close').forEach(function(b){b.addEventListener('click',function(){close(b.closest('dialog'));});});
   [demoDlg,contactDlg].forEach(function(dlg){dlg.addEventListener('click',function(e){if(e.target===dlg)close(dlg);});});
 

@@ -28,7 +28,7 @@ export default async function PortalPage() {
           include: {
             unit: { include: { building: { include: { property: true } } } },
             components: true,
-            charges: { include: { payments: { select: { amount: true } } }, orderBy: { dueDate: "desc" } },
+            charges: { include: { payments: { select: { id: true, amount: true, date: true } } }, orderBy: { dueDate: "desc" } },
           },
         },
       },
@@ -73,17 +73,15 @@ export default async function PortalPage() {
       .filter((x) => x.open > 0.001),
   );
 
-  // Zahlungsverlauf: alle Forderungen des Mieters mit Zahlstatus (#17).
+  // Zahlungsverlauf: NUR tatsächlich erfasste Zahlungen (nicht offene Posten,
+  // die stehen bereits unter „Offene Posten") — #37.
   const paymentHistory = renters
     .flatMap((r) =>
-      r.lease.charges.map((c) => {
-        const amount = Number(c.amount);
-        const paid = c.payments.reduce((a, p) => a + Number(p.amount), 0);
-        const status = paid >= amount - 0.001 ? "paid" : paid > 0.001 ? "partial" : "open";
-        return { id: c.id, period: c.period, type: c.type, amount, paid, status };
-      }),
+      r.lease.charges.flatMap((c) =>
+        c.payments.map((p) => ({ id: p.id, date: p.date, amount: Number(p.amount), type: c.type })),
+      ),
     )
-    .sort((a, b) => b.period.getTime() - a.period.getTime());
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
 
   const warm = (l: (typeof renters)[number]["lease"]) =>
     Number(l.rentCold) + l.components.reduce((a, c) => a + Number(c.amount), 0);
@@ -190,13 +188,11 @@ export default async function PortalPage() {
               paymentHistory.map((p) => (
                 <div key={p.id} className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-muted-foreground">
-                    {t(`chargeType.${p.type}`)} · {date(p.period, df)}
+                    {t(`chargeType.${p.type}`)} · {date(p.date, df)}
                   </span>
                   <span className="flex items-center gap-2">
                     <span className="font-medium">{money(p.amount, locale)}</span>
-                    <Badge variant={p.status === "paid" ? "secondary" : "outline"}>
-                      {t(`portal.chargeStatus.${p.status}`)}
-                    </Badge>
+                    <Badge variant="secondary">{t("portal.chargeStatus.paid")}</Badge>
                   </span>
                 </div>
               ))
