@@ -331,7 +331,10 @@
     "tenancies": "Tenancies",
     "noTenancies": "No tenancies.",
     "ownerships": "Ownership",
-    "noOwnerships": "No ownership on record."
+    "noOwnerships": "No ownership on record.",
+    "communication": "Email communication",
+    "communicationHint": "Emails sent to this address (chronological). Incoming replies are not captured yet.",
+    "noCommunication": "No emails sent to this contact yet."
   },
   "personType": {
     "MIETER": "Tenant",

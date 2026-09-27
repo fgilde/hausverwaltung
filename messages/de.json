@@ -331,7 +331,10 @@
     "tenancies": "Mietverhältnisse",
     "noTenancies": "Keine Mietverhältnisse.",
     "ownerships": "Eigentum",
-    "noOwnerships": "Kein Eigentum hinterlegt."
+    "noOwnerships": "Kein Eigentum hinterlegt.",
+    "communication": "E-Mail-Kommunikation",
+    "communicationHint": "Gesendete E-Mails an diese Adresse (chronologisch). Eingehende Antworten werden noch nicht erfasst.",
+    "noCommunication": "Noch keine E-Mails an diesen Kontakt gesendet."
   },
   "personType": {
     "MIETER": "Mieter",
