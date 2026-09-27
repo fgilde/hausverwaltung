@@ -321,9 +321,10 @@ dialog[open]{animation:modalpop .24s ease}
    Tokens, damit Flächen, Eingaben, Ränder und Schrift zur Seite passen. */
 gilde-form,gilde-contact,gilde-support{
   display:block;width:100%;margin:0 auto;font:inherit;color:var(--ink);
-  --text:var(--ink);--muted:var(--muted);--input:var(--surface-2);--line:var(--border-strong);
-  --raised:var(--surface);--accent:var(--pine);--accent-ink:#fff;
-  --widget-radius:var(--radius)
+  --bg:var(--surface);--raised:var(--surface-2);--input:var(--surface-2);
+  --text:var(--ink);--muted:var(--muted);--line:var(--border-strong);
+  --accent:var(--pine);--accent-ink:#fff;
+  --widget-radius:var(--radius);--widget-padding:28px
 }
 [data-theme="dark"] gilde-form,[data-theme="dark"] gilde-contact,[data-theme="dark"] gilde-support{--accent-ink:#12100B}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) gilde-form,:root:not([data-theme="light"]) gilde-contact,:root:not([data-theme="light"]) gilde-support{--accent-ink:#12100B}}
