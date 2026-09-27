@@ -290,23 +290,14 @@ footer.site{padding:70px 0 40px;border-top:1px solid var(--border);background:va
 /* ============ Modals (native dialog) ============ */
 dialog{border:none;padding:0;background:transparent;max-width:92vw;margin:auto;color:var(--ink)}
 dialog::backdrop{background:rgba(16,14,11,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);
-  width:460px;max-width:100%;padding:34px 32px;position:relative}
-.modal-card h3{font-size:26px;margin-bottom:12px;padding-right:30px}
-.modal-card > p{color:var(--muted);font-size:15.5px;margin-bottom:22px}
+.widget-dialog-inner{position:relative;width:560px;max-width:100%;border-radius:26px;overflow:hidden}
+.widget-dialog-inner.demo-dlg{width:760px}
+.widget-dialog-inner .modal-close{z-index:2;background:rgba(243,239,230,.08);border-color:rgba(243,239,230,.18);color:#F3EFE6}
+dialog.widget-dialog{max-height:92vh;overflow:auto}
 .modal-close{position:absolute;top:16px;right:16px;width:34px;height:34px;min-width:0;padding:0;border-radius:9px;
   border:1px solid var(--border);background:var(--surface-2);color:var(--ink);display:grid;place-items:center;cursor:pointer}
 .modal-close:hover{border-color:var(--muted)}
 .modal-close svg{width:17px;height:17px}
-.modal-ic{width:52px;height:52px;border-radius:14px;background:var(--pine-050);color:var(--pine);display:grid;place-items:center;margin-bottom:20px}
-.modal-ic svg{width:26px;height:26px}
-.field{margin-bottom:15px}
-.field label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px}
-.field input,.field textarea{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--border-strong);
-  border-radius:10px;background:var(--surface-2);color:var(--ink)}
-.field textarea{min-height:112px;resize:vertical}
-.field input:focus,.field textarea:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px var(--pine-050)}
-.form-hint{font-size:13px;color:var(--muted);margin-top:14px;text-align:center}
 dialog[open]{animation:modalpop .24s ease}
 @keyframes modalpop{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){dialog[open]{animation:none}}
@@ -686,7 +677,8 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
         <button class="btn btn-primary js-demo" type="button"><span data-i18n="btn.demo">Demo starten</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
-        <button class="btn btn-ghost js-contact" type="button" data-i18n="cta.consult">Beratung anfragen</button>
+        <button class="btn btn-ghost js-demo-own" type="button" data-i18n="cta.own">Demo-Instanz erstellen</button>
+        <button class="btn btn-ghost js-contact-dlg" type="button" data-i18n="cta.consult">Beratung anfragen</button>
       </div>
     </div>
   </div>
@@ -736,31 +728,19 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
   </div>
 </footer>
 
-<!-- ============ MODAL: Coming soon ============ -->
-<dialog id="demoDialog" aria-labelledby="demoTitle">
-  <div class="modal-card">
+<!-- ============ MODAL: Demo-Instanz erstellen (Gilde-Form) ============ -->
+<dialog id="demoDialog" class="widget-dialog" aria-label="Demo-Instanz erstellen" data-i18n-aria="cta.own">
+  <div class="widget-dialog-inner demo-dlg">
     <button class="modal-close js-close" type="button" aria-label="Schließen" data-i18n-aria="aria.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-    <h3 id="demoTitle" data-i18n="coming.title">Demo, bald verfügbar</h3>
-    <p data-i18n="coming.text">Die interaktive Demo steht in Kürze bereit. Fragen Sie solange eine persönliche Beratung an.</p>
-    <button class="btn btn-accent js-contact" type="button" style="width:100%" data-i18n="coming.btn">Beratung anfragen</button>
+    <gilde-form widget="f_39a26653fcc347f58f69501f27336f16" language="de" inline icon="https://havewa.app/marketing/icon.png" show-footer="false" loading-text=""></gilde-form>
   </div>
 </dialog>
 
-<!-- ============ MODAL: Contact ============ -->
-<dialog id="contactDialog" aria-labelledby="contactTitle">
-  <div class="modal-card">
+<!-- ============ MODAL: Kontakt (Gilde-Contact) ============ -->
+<dialog id="contactDialog" class="widget-dialog" aria-label="Beratung anfragen" data-i18n-aria="cta.consult">
+  <div class="widget-dialog-inner">
     <button class="modal-close js-close" type="button" aria-label="Schließen" data-i18n-aria="aria.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v14H4z"/><path d="m4 6 8 5 8-5"/></svg></div>
-    <h3 id="contactTitle" data-i18n="contact.title">Persönliche Beratung anfragen</h3>
-    <p data-i18n="contact.desc">Schreiben Sie uns kurz, worum es geht, wir melden uns zeitnah.</p>
-    <form id="contactForm" novalidate>
-      <div class="field"><label for="cfName" data-i18n="form.name">Name</label><input id="cfName" name="name" type="text" required autocomplete="name" placeholder="Ihr Name" data-i18n-placeholder="form.namePh"></div>
-      <div class="field"><label for="cfEmail" data-i18n="form.email">E-Mail</label><input id="cfEmail" name="email" type="email" required autocomplete="email" placeholder="ihre@email.de" data-i18n-placeholder="form.emailPh"></div>
-      <div class="field"><label for="cfMsg" data-i18n="form.msg">Nachricht</label><textarea id="cfMsg" name="message" required placeholder="Wie können wir helfen?" data-i18n-placeholder="form.msgPh"></textarea></div>
-      <button class="btn btn-accent" type="submit" style="width:100%" data-i18n="form.submit">Anfrage senden</button>
-      <p class="form-hint" data-i18n="form.hint">Öffnet Ihr E-Mail-Programm.</p>
-    </form>
+    <gilde-contact project="fgilde/hausverwaltung" widget="contact" inline theme="light" language="de" title="Kontakt HaVeWa" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false">Kontakt HaVeWa</gilde-contact>
   </div>
 </dialog>
 
@@ -839,16 +819,12 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'faq.q4':'Kann ich Bankdaten importieren und an DATEV übergeben?','faq.a4':'Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.',
     'faq.q5':'Was leistet der KI-Assistent genau?','faq.a5':'Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.',
     'faq.q6':'Wie starte ich, und bin ich langfristig gebunden?','faq.a6':'HaVeWa ist aktuell in der Beta und kostenlos nutzbar. Eine Preisstaffelung folgt später; wir informieren rechtzeitig, bevor sich etwas ändert. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.',
-    'cta.h2':'Bereit für eine ruhigere Verwaltung?','cta.p':'Starten Sie Ihre kostenlose Demo, in wenigen Minuten eingerichtet, ohne Risiko.','cta.consult':'Beratung anfragen',
+    'cta.h2':'Bereit für eine ruhigere Verwaltung?','cta.p':'Starten Sie Ihre kostenlose Demo, in wenigen Minuten eingerichtet, ohne Risiko.','cta.consult':'Beratung anfragen','cta.own':'Demo-Instanz erstellen',
     'foot.tagline':'Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer, DSGVO- und GoBD-orientiert.',
     'foot.col1':'Produkt','foot.col2':'Lösungen','foot.col3':'Ressourcen',
     'foot.sol1':'Mietverwaltung','foot.sol2':'WEG-Verwaltung','foot.sol3':'Betriebskostenabrechnung','foot.sol4':'Self-Hosting',
     'foot.res1':'FAQ','foot.res2':'Kontakt','foot.res3':'Demo starten','foot.res4':'Nach oben','foot.docs':'Dokumentation & Hilfe',
     'foot.lic':'© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Server in der EU',
-    'coming.title':'Demo, bald verfügbar','coming.text':'Die interaktive Demo steht in Kürze bereit. Fragen Sie solange eine persönliche Beratung an.','coming.btn':'Beratung anfragen',
-    'contact.title':'Persönliche Beratung anfragen','contact.desc':'Schreiben Sie uns kurz, worum es geht, wir melden uns zeitnah.',
-    'form.name':'Name','form.email':'E-Mail','form.msg':'Nachricht','form.namePh':'Ihr Name','form.emailPh':'ihre@email.de','form.msgPh':'Wie können wir helfen?','form.submit':'Anfrage senden','form.hint':'Öffnet Ihr E-Mail-Programm.',
-    'mail.subject':'Beratungsanfrage HaVeWa','mail.body':'Name: {n}\nE-Mail: {e}\n\nNachricht:\n{m}'
   };
   D.en={
     'doc.title':'HaVeWa, Property management for rentals and condominiums',
@@ -921,16 +897,12 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'faq.q4':'Can I import bank data and hand it over to DATEV?','faq.a4':'Yes. Account transactions can be imported via camt.053 and matched to open items. DATEV and SEPA exports are available for downstream accounting, including e-invoice recognition (ZUGFeRD) for incoming documents.',
     'faq.q5':'What exactly does the AI assistant do?','faq.a5':'The Claude-based assistant answers questions about your portfolio in natural language, such as open items, due maintenance or expiring leases. It accesses only your own, tenant-isolated data and is included in the Enterprise plan.',
     'faq.q6':'How do I get started, and am I locked in?','faq.a6':'HaVeWa is currently in beta and free to use. Pricing tiers will follow later, and we will let you know in good time before anything changes. When you switch, we help import your existing data.',
-    'cta.h2':'Ready for calmer property management?','cta.p':'Start your free demo, set up in minutes, no risk.','cta.consult':'Request a consultation',
+    'cta.h2':'Ready for calmer property management?','cta.p':'Start your free demo, set up in minutes, no risk.','cta.consult':'Request a consultation','cta.own':'Create demo instance',
     'foot.tagline':'The modern software for rental and condominium management. One system for properties, finances, statements and owners, GDPR- and GoBD-oriented.',
     'foot.col1':'Product','foot.col2':'Solutions','foot.col3':'Resources',
     'foot.sol1':'Rental management','foot.sol2':'Condominium management','foot.sol3':'Service-charge statement','foot.sol4':'Self-hosting',
     'foot.res1':'FAQ','foot.res2':'Contact','foot.res3':'Start demo','foot.res4':'Back to top','foot.docs':'Documentation & help',
     'foot.lic':'© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Servers in the EU',
-    'coming.title':'Demo, coming soon','coming.text':'The interactive demo will be available shortly. In the meantime, request a personal consultation.','coming.btn':'Request a consultation',
-    'contact.title':'Request a personal consultation','contact.desc':'Tell us briefly what you need, we’ll get back to you soon.',
-    'form.name':'Name','form.email':'Email','form.msg':'Message','form.namePh':'Your name','form.emailPh':'you@email.com','form.msgPh':'How can we help?','form.submit':'Send request','form.hint':'Opens your email client.',
-    'mail.subject':'HaVeWa consultation request','mail.body':'Name: {n}\nEmail: {e}\n\nMessage:\n{m}'
   };
 
   /* ---- Theme ---- */
@@ -1031,22 +1003,10 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
   // "Demo"-Button oben rechts: zum Demo-Block scrollen (statt direkt zur Instanz).
   document.querySelectorAll('.js-demo-scroll').forEach(function(b){b.addEventListener('click',function(){var d=document.getElementById('demo');if(d)d.scrollIntoView({behavior:'smooth'});});});
   document.querySelectorAll('.js-contact').forEach(function(b){b.addEventListener('click',function(){var k=document.getElementById('kontakt');if(k)k.scrollIntoView({behavior:'smooth'});});});
+  document.querySelectorAll('.js-demo-own').forEach(function(b){b.addEventListener('click',function(){open(demoDlg);});});
+  document.querySelectorAll('.js-contact-dlg').forEach(function(b){b.addEventListener('click',function(){open(contactDlg);});});
   document.querySelectorAll('.js-close').forEach(function(b){b.addEventListener('click',function(){close(b.closest('dialog'));});});
   [demoDlg,contactDlg].forEach(function(dlg){dlg.addEventListener('click',function(e){if(e.target===dlg)close(dlg);});});
-
-  /* ---- Contact form -> mailto ---- */
-  document.getElementById('contactForm').addEventListener('submit',function(e){
-    e.preventDefault();
-    if(!this.checkValidity()){this.reportValidity();return;}
-    var n=document.getElementById('cfName').value.trim();
-    var em=document.getElementById('cfEmail').value.trim();
-    var m=document.getElementById('cfMsg').value.trim();
-    var dict=D[lang]||D.de;
-    var subject=dict['mail.subject']||'Beratungsanfrage HaVeWa';
-    var body=(dict['mail.body']||'Name: {n}\nE-Mail: {e}\n\nNachricht:\n{m}').replace('{n}',n).replace('{e}',em).replace('{m}',m);
-    window.location.href='mailto:hausverwaltung@gilde.org?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
-    close(contactDlg);
-  });
 
   /* ---- Reveal ---- */
   var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
