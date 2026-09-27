@@ -126,6 +126,18 @@
   }
   html {
     @apply font-sans;
+    color-scheme: light;
+  }
+  /* Native Formular-Elemente (Select-Listen, Datumspicker, Scrollbars) im
+     Dark Mode dunkel rendern — sonst zeigt der Browser weiße Options-Listen
+     mit heller Schrift (weiß auf weiß). */
+  html.dark {
+    color-scheme: dark;
+  }
+  select option,
+  select optgroup {
+    background-color: var(--popover);
+    color: var(--popover-foreground);
   }
 }
 @layer base {
