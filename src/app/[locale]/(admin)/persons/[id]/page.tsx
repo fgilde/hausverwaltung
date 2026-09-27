@@ -47,24 +47,40 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       select: { key: true, label: true },
     }),
   ]);
-  // E-Mail-Kommunikationshistorie (#39): gesendete Nachrichten an die Adresse
-  // des Kontakts (To oder Cc), chronologisch. Eingehende Mails/Antworten sind
-  // nicht enthalten — dafür fehlt eine Mail-Empfangsanbindung (IMAP o. Ä.).
-  const emails = person.email
-    ? await prisma.emailMessage.findMany({
-        where: {
-          tenantId: user.tenantId,
-          OR: [
-            { toAddress: { contains: person.email, mode: "insensitive" } },
-            { cc: { contains: person.email, mode: "insensitive" } },
-          ],
-        },
-        include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
-        orderBy: { createdAt: "desc" },
-      })
-    : [];
+  // E-Mail-Kommunikationsverlauf (#39): ausgehende Mails (an To/Cc) und eingehende
+  // Mails (per IMAP-Import, Absender = Kontakt) chronologisch zusammengeführt.
+  const [outbound, inbound] = person.email
+    ? await Promise.all([
+        prisma.emailMessage.findMany({
+          where: {
+            tenantId: user.tenantId,
+            OR: [
+              { toAddress: { contains: person.email, mode: "insensitive" } },
+              { cc: { contains: person.email, mode: "insensitive" } },
+            ],
+          },
+          include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.inboundEmail.findMany({
+          where: {
+            tenantId: user.tenantId,
+            OR: [{ personId: person.id }, { fromAddress: { equals: person.email, mode: "insensitive" } }],
+          },
+          orderBy: { receivedAt: "desc" },
+        }),
+      ])
+    : [[], []];
   const emailStatusVariant = (s: string) =>
     s === "GESENDET" ? "secondary" : s === "FEHLER" ? "destructive" : "outline";
+
+  type CommItem =
+    | { dir: "out"; id: string; date: Date; subject: string; msg: (typeof outbound)[number] }
+    | { dir: "in"; id: string; date: Date; subject: string; from: string; body: string };
+  const communication: CommItem[] = [
+    ...outbound.map((m) => ({ dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, msg: m })),
+    ...inbound.map((m) => ({ dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", from: m.fromName || m.fromAddress, body: m.body })),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   const customValues = (person.custom as Record<string, string>) ?? {};
   const unitOpts = units.map((u) => ({
@@ -172,37 +188,49 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             <p className="text-xs text-muted-foreground">{t("persons.communicationHint")}</p>
           </CardHeader>
           <CardContent className="space-y-1.5">
-            {emails.length === 0 ? (
+            {communication.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("persons.noCommunication")}</p>
             ) : (
-              emails.map((m) => (
-                <div key={m.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 font-medium">
-                      <span className="truncate">{m.subject}</span>
-                      {m.attachments.length > 0 && (
-                        <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                          <Paperclip className="size-3" />
-                          {m.attachments.length}
-                        </span>
-                      )}
+              communication.map((c) =>
+                c.dir === "out" ? (
+                  <div key={"o" + c.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 font-medium">
+                        <Badge variant="outline">{t("persons.dirOut")}</Badge>
+                        <span className="truncate">{c.msg.subject}</span>
+                        {c.msg.attachments.length > 0 && (
+                          <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                            <Paperclip className="size-3" />
+                            {c.msg.attachments.length}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{date(c.date, df)}</div>
                     </div>
-                    <div className="text-xs text-muted-foreground">{date(m.sentAt ?? m.createdAt, df)}</div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge variant={emailStatusVariant(c.msg.status)}>{t(`emailStatus.${c.msg.status}`)}</Badge>
+                      <EmailViewDialog
+                        message={{
+                          toAddress: c.msg.toAddress,
+                          cc: c.msg.cc,
+                          subject: c.msg.subject,
+                          body: c.msg.body,
+                          attachments: c.msg.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <Badge variant={emailStatusVariant(m.status)}>{t(`emailStatus.${m.status}`)}</Badge>
-                    <EmailViewDialog
-                      message={{
-                        toAddress: m.toAddress,
-                        cc: m.cc,
-                        subject: m.subject,
-                        body: m.body,
-                        attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
-                      }}
-                    />
-                  </div>
-                </div>
-              ))
+                ) : (
+                  <details key={"i" + c.id} className="rounded-md border px-3 py-2 text-sm">
+                    <summary className="flex cursor-pointer items-center gap-2 font-medium">
+                      <Badge variant="secondary">{t("persons.dirIn")}</Badge>
+                      <span className="truncate">{c.subject}</span>
+                      <span className="ml-auto shrink-0 text-xs font-normal text-muted-foreground">{date(c.date, df)}</span>
+                    </summary>
+                    <div className="mt-2 whitespace-pre-wrap border-t pt-2 text-muted-foreground">{c.body || "—"}</div>
+                  </details>
+                ),
+              )
             )}
           </CardContent>
         </Card>

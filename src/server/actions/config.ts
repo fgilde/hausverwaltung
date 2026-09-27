@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { pingAi } from "@/lib/ai";
 import { verifyMailer } from "@/lib/adapters/mailer";
+import { verifyImap } from "@/lib/adapters/imap";
 import type { ActionState } from "@/lib/schemas";
 
 const str = (v: FormDataEntryValue | null) => {
@@ -125,5 +126,44 @@ export async function testSmtpConfig(_p: ActionState, _fd: FormData): Promise<Ac
     return { ok: true };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "SMTP-Test fehlgeschlagen" };
+  }
+}
+
+// --- IMAP-Konfiguration (E-Mail-Empfang, #39) ---
+
+export async function updateImapConfig(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireRole(["ADMIN"]);
+  const password = str(fd.get("imapPassword")); // leer = unverändert lassen
+  const portRaw = str(fd.get("imapPort"));
+  await prisma.tenant.update({
+    where: { id: user.tenantId },
+    data: {
+      imapHost: str(fd.get("imapHost")) ?? null,
+      imapPort: portRaw ? Number(portRaw) : null,
+      imapUser: str(fd.get("imapUser")) ?? null,
+      imapMailbox: str(fd.get("imapMailbox")) ?? null,
+      imapSecure: String(fd.get("imapSecure")) === "true",
+      ...(password ? { imapPassword: password } : {}),
+    },
+  });
+  await audit(user, "UPDATE", "Tenant", user.tenantId, "IMAP-Konfiguration");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function testImapConfig(_p: ActionState, _fd: FormData): Promise<ActionState> {
+  const user = await requireRole(["ADMIN"]);
+  const t = await prisma.tenant.findUnique({
+    where: { id: user.tenantId },
+    select: { imapHost: true, imapPort: true, imapUser: true, imapPassword: true, imapSecure: true, imapMailbox: true },
+  });
+  try {
+    await verifyImap({
+      host: t?.imapHost, port: t?.imapPort, user: t?.imapUser,
+      password: t?.imapPassword, secure: t?.imapSecure, mailbox: t?.imapMailbox,
+    });
+    return { ok: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "IMAP-Test fehlgeschlagen" };
   }
 }

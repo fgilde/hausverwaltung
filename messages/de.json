@@ -182,6 +182,12 @@
     "testing": "Teste…",
     "aiOk": "KI erreichbar",
     "smtpOk": "SMTP-Verbindung OK",
+    "imapTitle": "Posteingang (IMAP)",
+    "imapHint": "Für den eingehenden E-Mail-Verlauf pro Kontakt. Meist dasselbe Konto wie beim Versand, Port 993 (SSL).",
+    "imapOk": "IMAP-Verbindung OK",
+    "mailbox": "Postfach",
+    "syncNow": "Postfach synchronisieren",
+    "syncing": "Synchronisiere…",
     "keySet": "•••••••• (gesetzt)"
   },
   "setup": {
@@ -333,8 +339,10 @@
     "ownerships": "Eigentum",
     "noOwnerships": "Kein Eigentum hinterlegt.",
     "communication": "E-Mail-Kommunikation",
-    "communicationHint": "Gesendete E-Mails an diese Adresse (chronologisch). Eingehende Antworten werden noch nicht erfasst.",
-    "noCommunication": "Noch keine E-Mails an diesen Kontakt gesendet."
+    "communicationHint": "Gesendete und (per IMAP) eingegangene E-Mails zu diesem Kontakt, chronologisch.",
+    "noCommunication": "Noch keine E-Mails mit diesem Kontakt.",
+    "dirIn": "Eingang",
+    "dirOut": "Ausgang"
   },
   "personType": {
     "MIETER": "Mieter",

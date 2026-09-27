@@ -130,7 +130,7 @@ people: {
     <ul>
       <li>Interessenten mit Notiz (Mietgesuch) tauchen in der <a href="#leasing">Vermarktung</a> auf.</li>
       <li>Personen können mit einem Portal-Zugang verknüpft werden (Einstellungen → Benutzer).</li>
-      <li>Beim Öffnen einer Person zeigt die <strong>E-Mail-Kommunikation</strong> alle an ihre Adresse gesendeten E-Mails chronologisch, inklusive Anhängen und Status. (Eingehende Antworten werden noch nicht erfasst.)</li>
+      <li>Beim Öffnen einer Person zeigt der <strong>E-Mail-Verlauf</strong> gesendete und eingegangene Nachrichten chronologisch (Ein-/Ausgang), inklusive Anhängen und Status. Eingehende Mails werden per <strong>IMAP</strong> abgerufen (Einstellungen → E-Mail-Empfang, Button „Postfach synchronisieren"); die Zuordnung erfolgt über die Absenderadresse.</li>
       <li>CSV-Import fürs Adressbuch: Spalten <code>firstName, lastName</code> Pflicht, optional <code>email, phone, type, note</code>.</li>
     </ul>`,
   en: `
@@ -139,7 +139,7 @@ people: {
     <ul>
       <li>Prospects with a note (housing request) show up in <a href="#leasing">Leasing</a>.</li>
       <li>People can be linked to a portal login (Settings → Users).</li>
-      <li>Opening a person shows an <strong>email communication</strong> history: every email sent to their address in chronological order, with attachments and status. (Incoming replies are not captured yet.)</li>
+      <li>Opening a person shows an <strong>email history</strong>: sent and received messages in chronological order (incoming/outgoing), with attachments and status. Incoming mail is fetched via <strong>IMAP</strong> (Settings → Email inbox, "Sync mailbox"); matching is by sender address.</li>
       <li>Address-book CSV import: columns <code>firstName, lastName</code> required, optional <code>email, phone, type, note</code>.</li>
     </ul>`
 },

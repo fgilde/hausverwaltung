@@ -130,6 +130,15 @@ model Tenant {
   smtpFrom     String?
   smtpSecure   Boolean @default(false)
 
+  // IMAP-Postfach für eingehende Mails (Kommunikationsverlauf, #39)
+  imapHost     String?
+  imapPort     Int?
+  imapUser     String?
+  imapPassword String?
+  imapSecure   Boolean @default(true)
+  imapMailbox  String? // Standard: INBOX
+  lastInboundSyncAt DateTime?
+
   // Branding (Theme-Farbe als HEX, Logo im Storage)
   brandColor String?
   logoKey    String?
@@ -324,10 +333,30 @@ model Person {
   users     User[]
   documents Document[]
   areaAllocations AreaAllocation[]
+  inboundEmails InboundEmail[]
   custom    Json          @default("{}")
   createdAt DateTime @default(now())
 
   @@index([tenantId])
+}
+
+// Eingehende E-Mail (IMAP-Import) für den Kommunikationsverlauf (#39).
+model InboundEmail {
+  id          String   @id @default(cuid())
+  tenantId    String
+  messageId   String // Message-ID oder Fallback-Schlüssel (Dedup)
+  fromAddress String
+  fromName    String?
+  subject     String?
+  body        String
+  receivedAt  DateTime
+  personId    String?
+  person      Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@unique([tenantId, messageId])
+  @@index([tenantId])
+  @@index([personId])
 }
 
 // Eigentümer einer Einheit (WEG / Mietobjekt-Eigentümer)

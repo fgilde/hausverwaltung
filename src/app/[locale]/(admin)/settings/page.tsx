@@ -176,6 +176,7 @@ export default async function SettingsPage() {
     ? {
         ai: { provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey },
         smtp: { host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword },
+        imap: { host: tenant.imapHost, port: tenant.imapPort, user: tenant.imapUser, mailbox: tenant.imapMailbox, secure: tenant.imapSecure, hasPassword: !!tenant.imapPassword },
       }
     : null;
 
@@ -193,7 +194,12 @@ export default async function SettingsPage() {
     tabs.push({
       value: "email",
       label: t("settings.tabEmail"),
-      content: <SettingsConfig section="smtp" ai={cfgProps.ai} smtp={cfgProps.smtp} />,
+      content: (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SettingsConfig section="smtp" ai={cfgProps.ai} smtp={cfgProps.smtp} />
+          <SettingsConfig section="imap" ai={cfgProps.ai} smtp={cfgProps.smtp} imap={cfgProps.imap} />
+        </div>
+      ),
     });
   }
   tabs.push({ value: "users", label: t("settings.tabUsers"), content: usersContent });

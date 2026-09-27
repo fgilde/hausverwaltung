@@ -182,6 +182,12 @@
     "testing": "Testing…",
     "aiOk": "AI reachable",
     "smtpOk": "SMTP connection OK",
+    "imapTitle": "Inbox (IMAP)",
+    "imapHint": "For the incoming email history per contact. Usually the same account as for sending, port 993 (SSL).",
+    "imapOk": "IMAP connection OK",
+    "mailbox": "Mailbox",
+    "syncNow": "Sync mailbox",
+    "syncing": "Syncing…",
     "keySet": "•••••••• (set)"
   },
   "setup": {
@@ -333,8 +339,10 @@
     "ownerships": "Ownership",
     "noOwnerships": "No ownership on record.",
     "communication": "Email communication",
-    "communicationHint": "Emails sent to this address (chronological). Incoming replies are not captured yet.",
-    "noCommunication": "No emails sent to this contact yet."
+    "communicationHint": "Emails sent to and (via IMAP) received from this contact, chronological.",
+    "noCommunication": "No emails with this contact yet.",
+    "dirIn": "Incoming",
+    "dirOut": "Outgoing"
   },
   "personType": {
     "MIETER": "Tenant",

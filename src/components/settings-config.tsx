@@ -2,13 +2,16 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { Sparkles, Mail, Check, TriangleAlert } from "lucide-react";
+import { Sparkles, Mail, Check, TriangleAlert, Inbox, RefreshCw } from "lucide-react";
 import {
   updateAiConfig,
   testAiConfig,
   updateSmtpConfig,
   testSmtpConfig,
+  updateImapConfig,
+  testImapConfig,
 } from "@/server/actions/config";
+import { syncInbox } from "@/server/actions/inbound";
 import type { ActionState } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,6 +59,7 @@ function Field({
 export function SettingsConfig({
   ai,
   smtp,
+  imap,
   section,
 }: {
   ai: { provider: string | null; baseUrl: string | null; model: string | null; hasKey: boolean };
@@ -67,13 +71,25 @@ export function SettingsConfig({
     secure: boolean;
     hasPassword: boolean;
   };
-  section?: "ai" | "smtp";
+  imap?: {
+    host: string | null;
+    port: number | null;
+    user: string | null;
+    mailbox: string | null;
+    secure: boolean;
+    hasPassword: boolean;
+  };
+  section?: "ai" | "smtp" | "imap";
 }) {
   const t = useTranslations("config");
   const [aiSave, aiSaveAction, aiSaving] = useActionState<ActionState, FormData>(updateAiConfig, {});
   const [aiTest, aiTestAction, aiTesting] = useActionState<ActionState, FormData>(testAiConfig, {});
   const [smSave, smSaveAction, smSaving] = useActionState<ActionState, FormData>(updateSmtpConfig, {});
   const [smTest, smTestAction, smTesting] = useActionState<ActionState, FormData>(testSmtpConfig, {});
+  const [imSave, imSaveAction, imSaving] = useActionState<ActionState, FormData>(updateImapConfig, {});
+  const [imTest, imTestAction, imTesting] = useActionState<ActionState, FormData>(testImapConfig, {});
+  const [imSync, imSyncAction, imSyncing] = useActionState<ActionState, FormData>(syncInbox, {});
+  const imapPwPlaceholder = imap?.hasPassword ? t("keySet") : "";
 
   const keyPlaceholder = ai.hasKey ? t("keySet") : "sk-ant-…";
   const pwPlaceholder = smtp.hasPassword ? t("keySet") : "";
@@ -170,8 +186,72 @@ export function SettingsConfig({
       </Card>
   );
 
+  const imapCard = imap ? (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Inbox className="size-4" /> {t("imapTitle")}
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">{t("imapHint")}</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <form action={imSaveAction} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Field name="imapHost" label={t("host")} defaultValue={imap.host ?? ""} placeholder="imap.example.de" />
+            <Field name="imapPort" label={t("port")} type="number" defaultValue={imap.port ?? 993} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field name="imapUser" label={t("user")} defaultValue={imap.user ?? ""} />
+            <Field name="imapPassword" label={t("password")} type="password" placeholder={imapPwPlaceholder} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field name="imapMailbox" label={t("mailbox")} defaultValue={imap.mailbox ?? ""} placeholder="INBOX" />
+            <div className="space-y-1.5">
+              <Label htmlFor="imapSecure">{t("secure")}</Label>
+              <select
+                id="imapSecure"
+                name="imapSecure"
+                defaultValue={imap.secure ? "true" : "false"}
+                className={cn(
+                  "flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm shadow-xs",
+                  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none dark:bg-input/30",
+                )}
+              >
+                <option value="true">{t("secureYes")}</option>
+                <option value="false">{t("secureNo")}</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button type="submit" disabled={imSaving}>{t("save")}</Button>
+            <Feedback state={imSave} okLabel={t("saved")} />
+          </div>
+        </form>
+        <form action={imTestAction} className="flex items-center gap-3 border-t pt-4">
+          <Button type="submit" variant="outline" disabled={imTesting}>
+            {imTesting ? t("testing") : t("test")}
+          </Button>
+          <Feedback state={imTest} okLabel={t("imapOk")} />
+        </form>
+        <form action={imSyncAction} className="flex items-center gap-3 border-t pt-4">
+          <Button type="submit" variant="outline" disabled={imSyncing}>
+            <RefreshCw className={cn("size-4", imSyncing && "animate-spin")} /> {imSyncing ? t("syncing") : t("syncNow")}
+          </Button>
+          {/* Sync gibt die Trefferzahl über error-Feld als neutralen Hinweis zurück. */}
+          {imSync.ok && imSync.error && <span className="text-sm text-muted-foreground">{imSync.error}</span>}
+          {imSync.error && !imSync.ok && (
+            <span className="flex items-center gap-1.5 text-sm text-destructive">
+              <TriangleAlert className="size-4" /> {imSync.error}
+            </span>
+          )}
+        </form>
+      </CardContent>
+    </Card>
+  ) : null;
+
   if (section === "ai") return aiCard;
   if (section === "smtp") return smtpCard;
+  if (section === "imap") return imapCard;
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {aiCard}
