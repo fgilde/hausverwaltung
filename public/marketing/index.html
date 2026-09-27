@@ -315,17 +315,23 @@ dialog[open]{animation:modalpop .24s ease}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
-/* ============ Gilde-Widgets (Kontakt, Support, Demo-Formular) ============ */
-gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;margin:0 auto}
-.widget-wrap{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start}
-.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch;max-width:1160px;margin:0 auto}
-@media(max-width:900px){.demo-grid{grid-template-columns:1fr;max-width:560px}}
-.demo-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:30px 28px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;text-align:left}
-.demo-card h3{font-family:var(--serif);font-size:22px;margin:0 0 8px}
-.demo-card p{color:var(--muted);font-size:15px;line-height:1.55;margin:0 0 20px}
-.demo-card .btn{margin-top:auto;align-self:flex-start}
-.demo-card--form{padding:22px}
-.demo-card--form gilde-form{max-width:none}
+/* ============ Gilde-Widgets in die Seite einpassen ============
+   Die Widgets nutzen Shadow-DOM, lesen aber CSS-Variablen, die durch den
+   Shadow hindurch vererben. Wir mappen sie auf unsere (theme-abhängigen)
+   Tokens, damit Flächen, Eingaben, Ränder und Schrift zur Seite passen. */
+gilde-form,gilde-contact,gilde-support{
+  display:block;width:100%;margin:0 auto;font:inherit;color:var(--ink);
+  --text:var(--ink);--muted:var(--muted);--input:var(--surface-2);--line:var(--border);
+  --raised:var(--surface);--accent:var(--pine);--accent-ink:#fff;
+  --widget-radius:var(--radius)
+}
+[data-theme="dark"] gilde-form,[data-theme="dark"] gilde-contact,[data-theme="dark"] gilde-support{--accent-ink:#12100B}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) gilde-form,:root:not([data-theme="light"]) gilde-contact,:root:not([data-theme="light"]) gilde-support{--accent-ink:#12100B}}
+.demo-form{max-width:840px;margin:0 auto}
+.demo-shared{max-width:640px;margin:22px auto 0;text-align:center}
+.demo-shared p{color:var(--muted);font-size:15px;margin:0 0 14px}
+.widget-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;max-width:1160px;margin:0 auto}
+@media(max-width:900px){.widget-wrap{grid-template-columns:1fr;max-width:560px}}
 </style>
 <script type="module" src="https://connect.gilde.org/widgets/v1.js"></script>
 </head>
@@ -617,17 +623,12 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;
       <h2 data-i18n="demo.h2">HaVeWa ausprobieren</h2>
       <p data-i18n="demo.sub">Schau dich in einer fertigen Demo mit Beispieldaten um, oder richte dir deine eigene, private Demo-Instanz ein und teste in Ruhe mit eigenen Daten.</p>
     </div>
-    <div class="demo-grid reveal" style="margin-top:30px">
-      <div class="demo-card">
-        <h3 data-i18n="demo.sharedH">Sofort reinschauen</h3>
-        <p data-i18n="demo.sharedP">Die öffentliche Demo ist mit Beispielobjekten, Mietern, Verträgen und Abrechnungen gefüllt. Gut für einen schnellen Rundgang, ohne Einrichtung.</p>
-        <button class="btn btn-accent js-demo" type="button" data-i18n="demo.sharedBtn">Allgemeine Demo öffnen</button>
-      </div>
-      <div class="demo-card demo-card--form">
-        <h3 data-i18n="demo.ownH">Eigene Demo-Instanz</h3>
-        <p data-i18n="demo.ownP">In wenigen Minuten bekommst du deine eigene, abgetrennte HaVeWa-Umgebung zum Testen mit eigenen Daten. Trag einfach deine Angaben ein.</p>
-        <gilde-form widget="f_39a26653fcc347f58f69501f27336f16" language="auto" inline accent="#1E4E3C" icon="https://havewa.app/marketing/icon.png" loading-text=""></gilde-form>
-      </div>
+    <div class="demo-form reveal" style="margin-top:30px">
+      <gilde-form widget="f_39a26653fcc347f58f69501f27336f16" language="de" inline icon="https://havewa.app/marketing/icon.png" loading-text=""></gilde-form>
+    </div>
+    <div class="demo-shared reveal">
+      <p data-i18n="demo.sharedP">Nur kurz reinschauen? Öffne die gehostete Demo mit Beispieldaten, ganz ohne Einrichtung.</p>
+      <button class="btn btn-ghost js-demo" type="button" data-i18n="demo.sharedBtn">Allgemeine Demo öffnen</button>
     </div>
 
     <!-- Kontakt & Support -->
@@ -640,8 +641,8 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;
       <p style="display:inline-flex;gap:10px;align-items:center;background:var(--pine-050);color:var(--pine);border:1px solid var(--border);border-radius:999px;padding:10px 18px;font-size:14.5px;font-weight:600" data-i18n="kontakt.beta">In Entwicklung (Beta) · aktuell gratis</p>
     </div>
     <div class="widget-wrap reveal">
-      <gilde-contact project="fgilde/hausverwaltung" widget="contact" inline theme="light" accent="#1E4E3C" language="auto" title="Kontakt HaVeWa" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false">Kontakt HaVeWa</gilde-contact>
-      <gilde-support project="fgilde/hausverwaltung" widget="support" inline theme="light" accent="#1E4E3C" language="auto" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false" support-layout="rows" show-support-icons="true" show-support-qr="true">HaVeWa unterst&#252;tzen</gilde-support>
+      <gilde-contact project="fgilde/hausverwaltung" widget="contact" inline theme="light" language="de" title="Kontakt HaVeWa" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false">Kontakt HaVeWa</gilde-contact>
+      <gilde-support project="fgilde/hausverwaltung" widget="support" inline theme="light" language="de" width="560" radius="18" padding="28" show-logo="true" show-description="false" show-homepage="false" show-preview-notice="false" show-footer="false" support-layout="rows" show-support-icons="true" show-support-qr="true">HaVeWa unterst&#252;tzen</gilde-support>
     </div>
   </div>
 </section>
@@ -783,7 +784,7 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;
     'kontakt.eyebrow':'Kontakt','kontakt.h2':'Fragen, Feedback oder Interesse?','kontakt.sub':'Schreib uns direkt. HaVeWa steckt noch in der Beta und ist derzeit kostenlos nutzbar; eine Preisstaffelung folgt später.','kontakt.beta':'In Entwicklung (Beta) · aktuell gratis',
     'btn.demo':'Demo starten','btn.demoShort':'Demo',
     'demo.eyebrow':'Demo','demo.h2':'HaVeWa ausprobieren','demo.sub':'Schau dich in einer fertigen Demo mit Beispieldaten um, oder richte dir deine eigene, private Demo-Instanz ein und teste in Ruhe mit eigenen Daten.',
-    'demo.sharedH':'Sofort reinschauen','demo.sharedP':'Die öffentliche Demo ist mit Beispielobjekten, Mietern, Verträgen und Abrechnungen gefüllt. Gut für einen schnellen Rundgang, ohne Einrichtung.','demo.sharedBtn':'Allgemeine Demo öffnen',
+    'demo.sharedH':'Sofort reinschauen','demo.sharedP':'Nur kurz reinschauen? Öffne die gehostete Demo mit Beispieldaten, ganz ohne Einrichtung.','demo.sharedBtn':'Allgemeine Demo öffnen',
     'demo.ownH':'Eigene Demo-Instanz','demo.ownP':'In wenigen Minuten bekommst du deine eigene, abgetrennte HaVeWa-Umgebung zum Testen mit eigenen Daten. Trag einfach deine Angaben ein.',
     'hero.badge':'Miet- &amp; WEG-Verwaltung in einem System',
     'hero.h1':'Ihre Immobilien&shy;verwaltung, <em>klar, konform, komplett.</em>',
@@ -865,7 +866,7 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;
     'kontakt.eyebrow':'Contact','kontakt.h2':'Questions, feedback or interested?','kontakt.sub':'Write to us directly. HaVeWa is still in beta and free to use for now; pricing tiers will follow later.','kontakt.beta':'In development (beta) · free for now',
     'btn.demo':'Start demo','btn.demoShort':'Demo',
     'demo.eyebrow':'Demo','demo.h2':'Try HaVeWa','demo.sub':'Take a look around a ready-made demo with sample data, or spin up your own private demo instance and test in peace with your own data.',
-    'demo.sharedH':'Take a quick look','demo.sharedP':'The public demo is filled with sample properties, tenants, leases and statements. Good for a quick tour, no setup needed.','demo.sharedBtn':'Open the public demo',
+    'demo.sharedH':'Take a quick look','demo.sharedP':'Just want a quick look? Open the hosted demo with sample data, no setup required.','demo.sharedBtn':'Open the public demo',
     'demo.ownH':'Your own demo instance','demo.ownP':'In a few minutes you get your own separate HaVeWa environment to test with your own data. Just enter your details.',
     'hero.badge':'Rental &amp; condominium management in one system',
     'hero.h1':'Your property management, <em>clear, compliant, complete.</em>',
@@ -941,12 +942,17 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;
 
   /* ---- Theme ---- */
   try{var st=localStorage.getItem('havewa-theme');if(st)root.setAttribute('data-theme',st);}catch(e){}
+  function effTheme(){var cur=root.getAttribute('data-theme');return cur?cur:(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');}
+  // Gilde-Widgets an das Seiten-Theme angleichen (Farben kommen zusätzlich über
+  // CSS-Variablen, die durch den Shadow-DOM vererben).
+  function syncWidgetTheme(){var th=effTheme();document.querySelectorAll('gilde-contact,gilde-support,gilde-form').forEach(function(w){w.setAttribute('theme',th);});}
   document.getElementById('themeToggle').addEventListener('click',function(){
-    var cur=root.getAttribute('data-theme');
-    var isDark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;
-    var next=isDark?'light':'dark';root.setAttribute('data-theme',next);
+    var next=effTheme()==='dark'?'light':'dark';root.setAttribute('data-theme',next);
     try{localStorage.setItem('havewa-theme',next);}catch(e){}
+    syncWidgetTheme();
   });
+  try{window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){if(!root.getAttribute('data-theme'))syncWidgetTheme();});}catch(e){}
+  syncWidgetTheme();
 
   /* ---- i18n ---- */
   var lang='de';
@@ -962,6 +968,8 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;max-width:560px;
     var md=document.getElementById('metaDesc');if(md&&dict['doc.desc'])md.setAttribute('content',dict['doc.desc']);
     var pop=document.getElementById('popCard');if(pop&&dict['price.pop'])pop.setAttribute('data-pop',dict['price.pop']);
     var lc=document.getElementById('langCode');if(lc)lc.textContent=l.toUpperCase();
+    // Gilde-Widgets auf die aktuelle Seitensprache setzen (de/en).
+    document.querySelectorAll('gilde-contact,gilde-support,gilde-form').forEach(function(w){w.setAttribute('language',l);});
     try{localStorage.setItem('havewa-lang',l);}catch(e){}
   }
   document.getElementById('langToggle').addEventListener('click',function(){applyLang(lang==='de'?'en':'de');});
