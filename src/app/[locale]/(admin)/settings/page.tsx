@@ -176,7 +176,14 @@ export default async function SettingsPage() {
     ? {
         ai: { provider: tenant.aiProvider, baseUrl: tenant.aiBaseUrl, model: tenant.aiModel, hasKey: !!tenant.aiApiKey },
         smtp: { host: tenant.smtpHost, port: tenant.smtpPort, user: tenant.smtpUser, from: tenant.smtpFrom, secure: tenant.smtpSecure, hasPassword: !!tenant.smtpPassword },
-        imap: { host: tenant.imapHost, port: tenant.imapPort, user: tenant.imapUser, mailbox: tenant.imapMailbox, secure: tenant.imapSecure, hasPassword: !!tenant.imapPassword },
+        imap: {
+          host: tenant.imapHost, port: tenant.imapPort, user: tenant.imapUser, mailbox: tenant.imapMailbox,
+          secure: tenant.imapSecure, hasPassword: !!tenant.imapPassword,
+          autoSync: tenant.imapAutoSync, intervalMin: tenant.imapSyncIntervalMin,
+          lastSyncAt: tenant.lastInboundSyncAt
+            ? new Intl.DateTimeFormat("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" }).format(tenant.lastInboundSyncAt)
+            : null,
+        },
       }
     : null;
 

@@ -1,5 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { dedupKey, matchPersonId } from "./inbound";
+import { dedupKey, matchPersonId, isSyncDue, clampSyncInterval } from "./inbound";
+
+describe("Auto-Sync-Fälligkeit (#39)", () => {
+  const now = new Date("2026-09-28T12:00:00Z");
+  it("noch nie synchronisiert → fällig", () => {
+    expect(isSyncDue(null, 30, now)).toBe(true);
+  });
+  it("vor 29 Min → nicht fällig, vor 30 Min → fällig", () => {
+    expect(isSyncDue(new Date(now.getTime() - 29 * 60_000), 30, now)).toBe(false);
+    expect(isSyncDue(new Date(now.getTime() - 30 * 60_000), 30, now)).toBe(true);
+  });
+  it("Intervall wird auf 5 Min … 24 h begrenzt", () => {
+    expect(clampSyncInterval(1)).toBe(5);
+    expect(clampSyncInterval(99999)).toBe(1440);
+    expect(clampSyncInterval(null)).toBe(30);
+    expect(clampSyncInterval(15)).toBe(15);
+  });
+});
 
 const d = (s: string) => new Date(s + "T00:00:00Z");
 

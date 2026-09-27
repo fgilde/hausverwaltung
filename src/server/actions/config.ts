@@ -7,6 +7,7 @@ import { audit } from "@/lib/audit";
 import { pingAi } from "@/lib/ai";
 import { verifyMailer } from "@/lib/adapters/mailer";
 import { verifyImap } from "@/lib/adapters/imap";
+import { clampSyncInterval } from "@/lib/inbound";
 import type { ActionState } from "@/lib/schemas";
 
 const str = (v: FormDataEntryValue | null) => {
@@ -143,6 +144,8 @@ export async function updateImapConfig(_p: ActionState, fd: FormData): Promise<A
       imapUser: str(fd.get("imapUser")) ?? null,
       imapMailbox: str(fd.get("imapMailbox")) ?? null,
       imapSecure: String(fd.get("imapSecure")) === "true",
+      imapAutoSync: fd.get("imapAutoSync") === "on",
+      imapSyncIntervalMin: clampSyncInterval(Number(fd.get("imapSyncIntervalMin"))),
       ...(password ? { imapPassword: password } : {}),
     },
   });

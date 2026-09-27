@@ -78,6 +78,9 @@ export function SettingsConfig({
     mailbox: string | null;
     secure: boolean;
     hasPassword: boolean;
+    autoSync: boolean;
+    intervalMin: number;
+    lastSyncAt: string | null;
   };
   section?: "ai" | "smtp" | "imap";
 }) {
@@ -222,6 +225,17 @@ export function SettingsConfig({
               </select>
             </div>
           </div>
+          <div className="grid grid-cols-2 items-end gap-3">
+            <label className="flex h-9 items-center gap-2 text-sm">
+              <input type="checkbox" name="imapAutoSync" defaultChecked={imap.autoSync} className="size-4" />
+              {t("autoSync")}
+            </label>
+            <Field name="imapSyncIntervalMin" label={t("syncInterval")} type="number" defaultValue={imap.intervalMin ?? 30} />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("autoSyncHint")}
+            {imap.lastSyncAt ? ` ${t("lastSync")}: ${imap.lastSyncAt}` : ""}
+          </p>
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={imSaving}>{t("save")}</Button>
             <Feedback state={imSave} okLabel={t("saved")} />

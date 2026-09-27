@@ -188,7 +188,11 @@
     "mailbox": "Mailbox",
     "syncNow": "Sync mailbox",
     "syncing": "Syncing…",
-    "keySet": "•••••••• (set)"
+    "keySet": "•••••••• (set)",
+    "autoSync": "Sync automatically",
+    "syncInterval": "Interval (minutes)",
+    "autoSyncHint": "Fetches new mail in the background at this interval (5 to 1440 minutes, default 30).",
+    "lastSync": "Last synced"
   },
   "setup": {
     "title": "First-run setup",

@@ -188,7 +188,11 @@
     "mailbox": "Postfach",
     "syncNow": "Postfach synchronisieren",
     "syncing": "Synchronisiere…",
-    "keySet": "•••••••• (gesetzt)"
+    "keySet": "•••••••• (gesetzt)",
+    "autoSync": "Automatisch synchronisieren",
+    "syncInterval": "Intervall (Minuten)",
+    "autoSyncHint": "Holt neue Mails im Hintergrund in diesem Abstand ab (5 bis 1440 Minuten, Standard 30).",
+    "lastSync": "Zuletzt synchronisiert"
   },
   "setup": {
     "title": "Ersteinrichtung",

@@ -138,6 +138,8 @@ model Tenant {
   imapSecure   Boolean @default(true)
   imapMailbox  String? // Standard: INBOX
   lastInboundSyncAt DateTime?
+  imapAutoSync Boolean @default(false) // automatisch im Hintergrund abrufen
+  imapSyncIntervalMin Int @default(30) // Intervall in Minuten (min. 5)
 
   // Branding (Theme-Farbe als HEX, Logo im Storage)
   brandColor String?

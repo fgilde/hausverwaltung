@@ -1,4 +1,3 @@
-import "server-only";
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 

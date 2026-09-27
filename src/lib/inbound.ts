@@ -16,6 +16,19 @@ export function dedupKey(m: ParsedInbound): string {
   return `${m.fromAddress.toLowerCase()}|${m.receivedAt.toISOString()}|${m.subject ?? ""}`;
 }
 
+/** Sync-Intervall auf sinnvolle Grenzen (5 Min … 24 h) begrenzen. */
+export function clampSyncInterval(min: number | null | undefined): number {
+  const n = Math.round(Number(min));
+  if (!Number.isFinite(n) || n <= 0) return 30;
+  return Math.min(1440, Math.max(5, n));
+}
+
+/** Ist ein automatischer Abruf fällig? Noch nie synchronisiert → ja. */
+export function isSyncDue(lastSyncAt: Date | null, intervalMin: number, now: Date = new Date()): boolean {
+  if (!lastSyncAt) return true;
+  return now.getTime() - lastSyncAt.getTime() >= clampSyncInterval(intervalMin) * 60_000;
+}
+
 /**
  * Ordnet eine Absenderadresse einer Person zu (exakter, case-insensitiver
  * E-Mail-Vergleich). Gibt die Personen-ID zurück oder null.
