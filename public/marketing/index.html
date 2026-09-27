@@ -315,19 +315,11 @@ dialog[open]{animation:modalpop .24s ease}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
-/* ============ Gilde-Widgets in die Seite einpassen ============
-   Die Widgets nutzen Shadow-DOM, lesen aber CSS-Variablen, die durch den
-   Shadow hindurch vererben. Wir mappen sie auf unsere (theme-abhängigen)
-   Tokens, damit Flächen, Eingaben, Ränder und Schrift zur Seite passen. */
-gilde-form,gilde-contact,gilde-support{
-  display:block;width:100%;margin:0 auto;font:inherit;color:var(--ink);
-  --bg:var(--surface);--raised:var(--surface-2);--input:var(--surface-2);
-  --text:var(--ink);--muted:var(--muted);--line:var(--border-strong);
-  --accent:var(--pine);--accent-ink:#fff;
-  --widget-radius:var(--radius);--widget-padding:28px
-}
-[data-theme="dark"] gilde-form,[data-theme="dark"] gilde-contact,[data-theme="dark"] gilde-support{--accent-ink:#12100B}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) gilde-form,:root:not([data-theme="light"]) gilde-contact,:root:not([data-theme="light"]) gilde-support{--accent-ink:#12100B}}
+/* ============ Gilde-Widgets: Host-Layout ============
+   Die Optik innerhalb der Widgets (Shadow-DOM) kommt per injiziertem
+   Stylesheet im Script unten (styleGildeWidgets), da das Widget seine Farben
+   auf einem inneren .surface setzt und äußeres CSS dort nicht greift. */
+gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
 .demo-form{max-width:840px;margin:0 auto}
 .demo-shared{max-width:640px;margin:22px auto 0;text-align:center}
 .demo-shared p{color:var(--muted);font-size:15px;margin:0 0 14px}
@@ -954,6 +946,40 @@ gilde-form,gilde-contact,gilde-support{
   });
   try{window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){if(!root.getAttribute('data-theme'))syncWidgetTheme();});}catch(e){}
   syncWidgetTheme();
+
+  /* ---- Gilde-Widgets optisch an unsere Boxen angleichen ----
+     Das Widget setzt seine Farben auf .surface im (offenen) Shadow-DOM. Wir
+     hängen ein eigenes Stylesheet in den Shadow-Root: brauner Verlauf + grüner
+     Lichtschein wie die KI-Box, warme Schrift, dezente Felder. */
+  var GILDE_CSS=
+    '.surface,.surface[data-theme=light],.surface[data-theme=auto]{'+
+      '--bg:#1c1812;--raised:rgba(243,239,230,.05);--input:rgba(0,0,0,.28);--line:rgba(243,239,230,.14);'+
+      '--text:#F3EFE6;--muted:#b3ab9c;--accent:#5FB894!important;--accent-ink:#0e1a14!important;color-scheme:dark}'+
+    '.bar{display:none!important}'+
+    '.card{background:linear-gradient(160deg,#211d15 0%,#12100b 100%)!important;border:1px solid rgba(243,239,230,.12)!important;'+
+      'border-radius:26px!important;box-shadow:0 40px 80px -32px rgba(24,20,12,.45),0 12px 32px -16px rgba(24,20,12,.25)!important;'+
+      'overflow:hidden;isolation:isolate}'+
+    '.card::after{content:"";position:absolute;width:420px;height:420px;right:-120px;top:-140px;border-radius:50%;'+
+      'background:radial-gradient(circle,rgba(95,184,148,.28),transparent 70%);pointer-events:none;z-index:-1}'+
+    'input,textarea,select{background:var(--input)!important;border:1px solid var(--line)!important;color:var(--text)!important;border-radius:10px!important}'+
+    'input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(95,184,148,.18)!important}'+
+    'input::placeholder,textarea::placeholder{color:rgba(243,239,230,.38)}';
+  var gildeSheet=null;
+  try{gildeSheet=new CSSStyleSheet();gildeSheet.replaceSync(GILDE_CSS);}catch(e){gildeSheet=null;}
+  function styleGildeWidget(el){
+    var sr=el.shadowRoot;if(!sr)return;
+    if(gildeSheet&&'adoptedStyleSheets' in sr){
+      // adoptedStyleSheets überleben Neu-Renderings (innerHTML) des Widgets.
+      if(sr.adoptedStyleSheets.indexOf(gildeSheet)<0)sr.adoptedStyleSheets=sr.adoptedStyleSheets.concat([gildeSheet]);
+    }else{
+      var ensure=function(){if(!sr.querySelector('style[data-hv]')){var s=document.createElement('style');s.setAttribute('data-hv','');s.textContent=GILDE_CSS;sr.appendChild(s);}};
+      ensure();new MutationObserver(ensure).observe(sr,{childList:true});
+    }
+  }
+  ['gilde-contact','gilde-support','gilde-form'].forEach(function(tag){
+    if(!window.customElements)return;
+    customElements.whenDefined(tag).then(function(){document.querySelectorAll(tag).forEach(styleGildeWidget);});
+  });
 
   /* ---- i18n ---- */
   var lang='de';
