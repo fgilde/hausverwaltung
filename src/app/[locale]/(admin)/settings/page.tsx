@@ -65,7 +65,7 @@ export default async function SettingsPage() {
 
   const generalContent = (
     <>
-      <TenantNameForm name={tenant?.name ?? ""} editable={isAdmin} />
+      <TenantNameForm name={tenant?.name ?? ""} address={tenant?.address ?? ""} editable={isAdmin} />
       {isAdmin && <DateFormatConfig dateFormat={tenant?.dateFormat ?? null} />}
       {isAdmin && tenant && <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />}
     </>

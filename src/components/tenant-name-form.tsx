@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function TenantNameForm({ name, editable }: { name: string; editable: boolean }) {
+export function TenantNameForm({ name, address, editable }: { name: string; address: string; editable: boolean }) {
   const t = useTranslations("settings");
   const [state, action, pending] = useActionState<ActionState, FormData>(updateTenantName, {});
 
@@ -22,9 +22,13 @@ export function TenantNameForm({ name, editable }: { name: string; editable: boo
       <CardContent>
         {editable ? (
           <form action={action} className="flex flex-wrap items-end gap-3">
-            <div className="flex-1 space-y-1.5">
+            <div className="min-w-56 flex-1 space-y-1.5">
               <Label htmlFor="tenantName">{t("tenantName")}</Label>
               <Input id="tenantName" name="name" defaultValue={name} required />
+            </div>
+            <div className="min-w-56 flex-[2] space-y-1.5">
+              <Label htmlFor="tenantAddress">{t("tenantAddress")}</Label>
+              <Input id="tenantAddress" name="address" defaultValue={address} placeholder={t("tenantAddressPlaceholder")} />
             </div>
             <Button type="submit" disabled={pending}>{t("save")}</Button>
             {state.error && (
@@ -39,8 +43,12 @@ export function TenantNameForm({ name, editable }: { name: string; editable: boo
             )}
           </form>
         ) : (
-          <div className="text-lg font-medium">{name}</div>
+          <div>
+            <div className="text-lg font-medium">{name}</div>
+            {address && <div className="text-sm text-muted-foreground">{address}</div>}
+          </div>
         )}
+        {editable && <p className="mt-2 text-xs text-muted-foreground">{t("tenantAddressHint")}</p>}
       </CardContent>
     </Card>
   );

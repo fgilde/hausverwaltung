@@ -142,7 +142,10 @@
     "tabIntegration": "AI & API",
     "tenantName": "Tenant name",
     "save": "Save",
-    "saved": "Saved"
+    "saved": "Saved",
+    "tenantAddress": "Management address",
+    "tenantAddressPlaceholder": "e.g. 1 Sample Street, 12345 Sample City",
+    "tenantAddressHint": "Used e.g. as the landlord address in the landlord confirmation (Wohnungsgeberbestätigung)."
   },
   "account": {
     "changePassword": "Change password",
@@ -417,7 +420,13 @@
     "personCount": "Occupants",
     "noticePeriod": "Notice period (months)",
     "unlimited": "Open-ended",
-    "wohnungsgeber": "Landlord confirmation"
+    "wohnungsgeber": "Landlord confirmation",
+    "wgHint": "The landlord (Wohnungsgeber) is whoever provides the dwelling (owner or the commissioned management). Prefilled with the management details, adjust here if needed.",
+    "wgName": "Landlord name",
+    "wgAddress": "Landlord address",
+    "wgAddressPlaceholder": "Street no., ZIP city",
+    "wgNoAddress": "Tip: set the management address under Settings → General so it is prefilled here.",
+    "wgCreate": "Create PDF"
   },
   "rentComponent": {
     "title": "Rent components",

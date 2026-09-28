@@ -142,7 +142,10 @@
     "tabIntegration": "KI & API",
     "tenantName": "Mandantenname",
     "save": "Speichern",
-    "saved": "Gespeichert"
+    "saved": "Gespeichert",
+    "tenantAddress": "Anschrift der Verwaltung",
+    "tenantAddressPlaceholder": "z. B. Musterstraße 1, 12345 Musterstadt",
+    "tenantAddressHint": "Die Anschrift wird u. a. als Wohnungsgeber-Anschrift in der Wohnungsgeberbestätigung vorbelegt."
   },
   "account": {
     "changePassword": "Passwort ändern",
@@ -417,7 +420,13 @@
     "personCount": "Personenzahl",
     "noticePeriod": "Kündigungsfrist (Monate)",
     "unlimited": "Unbefristet",
-    "wohnungsgeber": "Wohnungsgeberbestätigung"
+    "wohnungsgeber": "Wohnungsgeberbestätigung",
+    "wgHint": "Wohnungsgeber ist, wer die Wohnung überlässt (Eigentümer oder beauftragte Verwaltung). Vorbelegt mit den Angaben der Verwaltung, bei Bedarf hier anpassen.",
+    "wgName": "Name des Wohnungsgebers",
+    "wgAddress": "Anschrift des Wohnungsgebers",
+    "wgAddressPlaceholder": "Straße Nr., PLZ Ort",
+    "wgNoAddress": "Tipp: Anschrift der Verwaltung unter Einstellungen → Allgemein hinterlegen, dann ist sie hier vorbelegt.",
+    "wgCreate": "PDF erstellen"
   },
   "rentComponent": {
     "title": "Miet-Bestandteile",

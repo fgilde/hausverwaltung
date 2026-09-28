@@ -21,7 +21,8 @@ export async function updateTenantName(_p: ActionState, fd: FormData): Promise<A
   const user = await requireRole(["ADMIN"]);
   const name = str(fd.get("name"));
   if (!name) return { error: "Name erforderlich" };
-  await prisma.tenant.update({ where: { id: user.tenantId }, data: { name } });
+  const address = str(fd.get("address")) ?? null;
+  await prisma.tenant.update({ where: { id: user.tenantId }, data: { name, address } });
   await audit(user, "UPDATE", "Tenant", user.tenantId, `Name: ${name}`);
   revalidatePath("/", "layout");
   return { ok: true };

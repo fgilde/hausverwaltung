@@ -111,6 +111,7 @@ enum MeterType {
 model Tenant {
   id         String     @id @default(cuid())
   name       String
+  address    String? // Anschrift der Verwaltung (z. B. Wohnungsgeberbestätigung, #41)
   createdAt  DateTime   @default(now())
   users      User[]
   properties Property[]
