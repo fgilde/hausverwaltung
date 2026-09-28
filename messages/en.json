@@ -174,8 +174,8 @@
     "password": "Password",
     "from": "Sender",
     "secure": "Encryption (SSL/TLS)",
-    "secureYes": "SSL/TLS (port 465)",
-    "secureNo": "STARTTLS/none (port 587/25)",
+    "secureYes": "SSL/TLS",
+    "secureNo": "STARTTLS / none",
     "save": "Save",
     "saved": "Saved",
     "test": "Test connection",
@@ -192,7 +192,10 @@
     "autoSync": "Sync automatically",
     "syncInterval": "Interval (minutes)",
     "autoSyncHint": "Fetches new mail in the background at this interval (5 to 1440 minutes, default 30).",
-    "lastSync": "Last synced"
+    "lastSync": "Last synced",
+    "attachSave": "Save attachments",
+    "attachMaxMb": "Max. size per attachment (MB)",
+    "attachHint": "Attachments are only saved from known contacts and stored as documents on the contact (1 to 50 MB per file, at most 20 per email, embedded images are skipped)."
   },
   "setup": {
     "title": "First-run setup",
@@ -346,7 +349,8 @@
     "communicationHint": "Emails sent to and (via IMAP) received from this contact, chronological.",
     "noCommunication": "No emails with this contact yet.",
     "dirIn": "Incoming",
-    "dirOut": "Outgoing"
+    "dirOut": "Outgoing",
+    "received": "Received"
   },
   "personType": {
     "MIETER": "Tenant",
@@ -1057,7 +1061,8 @@
         "subject": "Your service-charge statement",
         "body": "Dear Sir or Madam,\n\nplease find attached your service-charge statement. We are happy to answer any questions.\n\nKind regards\nYour property management"
       }
-    }
+    },
+    "from": "From"
   },
   "emailStatus": {
     "ENTWURF": "Draft",

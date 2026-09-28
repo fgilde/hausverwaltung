@@ -174,8 +174,8 @@
     "password": "Passwort",
     "from": "Absender",
     "secure": "Verschlüsselung (SSL/TLS)",
-    "secureYes": "SSL/TLS (Port 465)",
-    "secureNo": "STARTTLS/keine (Port 587/25)",
+    "secureYes": "SSL/TLS",
+    "secureNo": "STARTTLS / keine",
     "save": "Speichern",
     "saved": "Gespeichert",
     "test": "Verbindung testen",
@@ -192,7 +192,10 @@
     "autoSync": "Automatisch synchronisieren",
     "syncInterval": "Intervall (Minuten)",
     "autoSyncHint": "Holt neue Mails im Hintergrund in diesem Abstand ab (5 bis 1440 Minuten, Standard 30).",
-    "lastSync": "Zuletzt synchronisiert"
+    "lastSync": "Zuletzt synchronisiert",
+    "attachSave": "Anhänge speichern",
+    "attachMaxMb": "Max. Größe je Anhang (MB)",
+    "attachHint": "Anhänge werden nur von bekannten Kontakten gespeichert und als Dokument am Kontakt abgelegt (1 bis 50 MB je Datei, höchstens 20 je Mail, eingebettete Bilder werden übersprungen)."
   },
   "setup": {
     "title": "Ersteinrichtung",
@@ -346,7 +349,8 @@
     "communicationHint": "Gesendete und (per IMAP) eingegangene E-Mails zu diesem Kontakt, chronologisch.",
     "noCommunication": "Noch keine E-Mails mit diesem Kontakt.",
     "dirIn": "Eingang",
-    "dirOut": "Ausgang"
+    "dirOut": "Ausgang",
+    "received": "Empfangen"
   },
   "personType": {
     "MIETER": "Mieter",
@@ -1057,7 +1061,8 @@
         "subject": "Ihre Betriebskostenabrechnung",
         "body": "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie Ihre Betriebskostenabrechnung. Bei Rückfragen stehen wir gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhre Hausverwaltung"
       }
-    }
+    },
+    "from": "Von"
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",

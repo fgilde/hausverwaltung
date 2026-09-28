@@ -1,5 +1,6 @@
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
+import { selectAttachments } from "@/lib/inbound";
 
 // Eingehende Mails per IMAP abrufen (Kommunikationsverlauf, #39). Konfiguration
 // je Mandant (Einstellungen), sonst ENV-Fallback.
@@ -20,6 +21,14 @@ export interface FetchedMail {
   subject: string | null;
   body: string;
   receivedAt: Date;
+  attachments: FetchedAttachment[];
+}
+
+export interface FetchedAttachment {
+  filename: string;
+  contentType: string;
+  size: number;
+  content: Buffer;
 }
 
 function resolve(cfg?: ImapConfig) {
@@ -59,9 +68,14 @@ export async function verifyImap(cfg?: ImapConfig): Promise<void> {
 
 /**
  * Holt Nachrichten seit `since` (max. `limit`, neueste zuerst) aus dem Postfach.
- * Nur Kopf + Textkörper, keine Anhänge.
+ * Anhänge nur, wenn `attachMaxBytes` > 0 (ohne eingebettete Bilder, je Datei
+ * höchstens `attachMaxBytes`), sonst nur Kopf + Textkörper.
  */
-export async function fetchInbox(cfg: ImapConfig | undefined, since: Date, limit = 200): Promise<FetchedMail[]> {
+export async function fetchInbox(
+  cfg: ImapConfig | undefined,
+  since: Date,
+  { limit = 200, attachMaxBytes = 0 }: { limit?: number; attachMaxBytes?: number } = {},
+): Promise<FetchedMail[]> {
   const { imap, mailbox } = client(cfg);
   const out: FetchedMail[] = [];
   await imap.connect();
@@ -83,6 +97,14 @@ export async function fetchInbox(cfg: ImapConfig | undefined, since: Date, limit
           subject: p.subject ?? null,
           body: (p.text ?? "").trim() || (p.html ? String(p.html).replace(/<[^>]+>/g, " ").trim() : ""),
           receivedAt: p.date ?? new Date(),
+          attachments: attachMaxBytes > 0
+            ? selectAttachments(p.attachments ?? [], attachMaxBytes).map((a, i) => ({
+                filename: a.filename || `anhang-${i + 1}`,
+                contentType: a.contentType || "application/octet-stream",
+                size: a.size,
+                content: a.content,
+              }))
+            : [],
         });
       }
     } finally {

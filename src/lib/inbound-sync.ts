@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { fetchInbox, isImapConfigured } from "@/lib/adapters/imap";
-import { dedupKey, matchPersonId } from "@/lib/inbound";
+import { dedupKey, matchPersonId, clampAttachMaxMb } from "@/lib/inbound";
+import { saveFile } from "@/lib/storage";
 
 export type InboundSyncResult = { imported: number; matched: number } | { error: string };
 
@@ -13,7 +14,7 @@ export type InboundSyncResult = { imported: number; matched: number } | { error:
 export async function syncTenantInbox(tenantId: string): Promise<InboundSyncResult> {
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
-    select: { imapHost: true, imapPort: true, imapUser: true, imapPassword: true, imapSecure: true, imapMailbox: true, lastInboundSyncAt: true },
+    select: { imapHost: true, imapPort: true, imapUser: true, imapPassword: true, imapSecure: true, imapMailbox: true, lastInboundSyncAt: true, imapAttachments: true, imapAttachMaxMb: true },
   });
   const cfg = {
     host: tenant?.imapHost, port: tenant?.imapPort, user: tenant?.imapUser,
@@ -28,7 +29,9 @@ export async function syncTenantInbox(tenantId: string): Promise<InboundSyncResu
 
   let mails;
   try {
-    mails = await fetchInbox(cfg, since);
+    mails = await fetchInbox(cfg, since, {
+      attachMaxBytes: tenant?.imapAttachments ? clampAttachMaxMb(tenant.imapAttachMaxMb) * 1024 * 1024 : 0,
+    });
   } catch (e) {
     return { error: e instanceof Error ? e.message : "IMAP-Abruf fehlgeschlagen" };
   }
@@ -49,7 +52,7 @@ export async function syncTenantInbox(tenantId: string): Promise<InboundSyncResu
     if (exists) continue;
     const personId = matchPersonId(m.fromAddress, persons);
     if (personId) matched++;
-    await prisma.inboundEmail.create({
+    const mail = await prisma.inboundEmail.create({
       data: {
         tenantId,
         messageId: key,
@@ -60,7 +63,23 @@ export async function syncTenantInbox(tenantId: string): Promise<InboundSyncResu
         receivedAt: m.receivedAt,
         personId,
       },
+      select: { id: true },
     });
+    // Anhänge nur von bekannten Kontakten speichern, damit Spam/Fremdmails die
+    // Ablage nicht füllen. Abgelegt als Dokument am Kontakt (Vorschau/Download).
+    if (personId) {
+      for (const a of m.attachments) {
+        const storageKey = await saveFile(a.content, a.filename);
+        const doc = await prisma.document.create({
+          data: {
+            tenantId, personId, name: a.filename, category: "SONSTIGES",
+            mime: a.contentType, size: a.size, storageKey,
+          },
+          select: { id: true },
+        });
+        await prisma.inboundEmailAttachment.create({ data: { inboundEmailId: mail.id, documentId: doc.id } });
+      }
+    }
     imported++;
   }
 

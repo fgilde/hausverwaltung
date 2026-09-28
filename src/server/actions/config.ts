@@ -7,7 +7,7 @@ import { audit } from "@/lib/audit";
 import { pingAi } from "@/lib/ai";
 import { verifyMailer } from "@/lib/adapters/mailer";
 import { verifyImap } from "@/lib/adapters/imap";
-import { clampSyncInterval } from "@/lib/inbound";
+import { clampSyncInterval, clampAttachMaxMb } from "@/lib/inbound";
 import type { ActionState } from "@/lib/schemas";
 
 const str = (v: FormDataEntryValue | null) => {
@@ -146,6 +146,8 @@ export async function updateImapConfig(_p: ActionState, fd: FormData): Promise<A
       imapSecure: String(fd.get("imapSecure")) === "true",
       imapAutoSync: fd.get("imapAutoSync") === "on",
       imapSyncIntervalMin: clampSyncInterval(Number(fd.get("imapSyncIntervalMin"))),
+      imapAttachments: fd.get("imapAttachments") === "on",
+      imapAttachMaxMb: clampAttachMaxMb(Number(fd.get("imapAttachMaxMb"))),
       ...(password ? { imapPassword: password } : {}),
     },
   });

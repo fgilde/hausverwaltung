@@ -42,3 +42,30 @@ export function matchPersonId(
   const hit = persons.find((p) => (p.email ?? "").trim().toLowerCase() === addr);
   return hit ? hit.id : null;
 }
+
+export interface MailAttachment {
+  filename?: string | null;
+  contentType: string;
+  size: number;
+  related?: boolean; // eingebettetes Bild (cid, z. B. Signatur-Logo)
+}
+
+// ponytail: feste Obergrenze je Mail, Setting erst wenn jemand mehr braucht.
+export const MAX_ATTACHMENTS_PER_MAIL = 20;
+
+/** Anhänge-Größe (MB) aus dem Setting auf 1 … 50 MB begrenzen. */
+export function clampAttachMaxMb(mb: number | null | undefined): number {
+  const n = Math.round(Number(mb));
+  if (!Number.isFinite(n) || n <= 0) return 10;
+  return Math.min(50, Math.max(1, n));
+}
+
+/**
+ * Welche Anhänge einer eingehenden Mail gespeichert werden: keine eingebetteten
+ * Bilder, nur bis `maxBytes` je Datei und höchstens MAX_ATTACHMENTS_PER_MAIL.
+ */
+export function selectAttachments<T extends MailAttachment>(list: T[], maxBytes: number): T[] {
+  return list
+    .filter((a) => !a.related && a.size > 0 && a.size <= maxBytes)
+    .slice(0, MAX_ATTACHMENTS_PER_MAIL);
+}

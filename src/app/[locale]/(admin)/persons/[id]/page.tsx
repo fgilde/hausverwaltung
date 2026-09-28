@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
-import { money, date } from "@/lib/format";
+import { money, date, dateTime } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             tenantId: user.tenantId,
             OR: [{ personId: person.id }, { fromAddress: { equals: person.email, mode: "insensitive" } }],
           },
+          include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
           orderBy: { receivedAt: "desc" },
         }),
       ])
@@ -74,12 +75,19 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   const emailStatusVariant = (s: string) =>
     s === "GESENDET" ? "secondary" : s === "FEHLER" ? "destructive" : "outline";
 
-  type CommItem =
-    | { dir: "out"; id: string; date: Date; subject: string; msg: (typeof outbound)[number] }
-    | { dir: "in"; id: string; date: Date; subject: string; from: string; body: string };
-  const communication: CommItem[] = [
-    ...outbound.map((m) => ({ dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, msg: m })),
-    ...inbound.map((m) => ({ dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", from: m.fromName || m.fromAddress, body: m.body })),
+  // Ein- und ausgehende Mails in einheitlicher Form (gleiche Zeile, gleicher Dialog).
+  type Att = { document: { id: string; name: string; mime: string } };
+  const toAtt = (list: Att[]) => list.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime }));
+  const communication = [
+    ...outbound.map((m) => ({
+      dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, status: m.status as string | null,
+      from: null, toAddress: m.toAddress, cc: m.cc, body: m.body, attachments: toAtt(m.attachments),
+    })),
+    ...inbound.map((m) => ({
+      dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", status: null,
+      from: m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress, toAddress: null, cc: null, body: m.body,
+      attachments: toAtt(m.attachments),
+    })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   const customValues = (person.custom as Record<string, string>) ?? {};
@@ -191,46 +199,39 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             {communication.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("persons.noCommunication")}</p>
             ) : (
-              communication.map((c) =>
-                c.dir === "out" ? (
-                  <div key={"o" + c.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 font-medium">
-                        <Badge variant="outline">{t("persons.dirOut")}</Badge>
-                        <span className="truncate">{c.msg.subject}</span>
-                        {c.msg.attachments.length > 0 && (
-                          <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                            <Paperclip className="size-3" />
-                            {c.msg.attachments.length}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{date(c.date, df)}</div>
+              communication.map((c) => (
+                <div key={c.dir + c.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 font-medium">
+                      <Badge variant={c.dir === "in" ? "secondary" : "outline"}>{t(c.dir === "in" ? "persons.dirIn" : "persons.dirOut")}</Badge>
+                      <span className="truncate">{c.subject}</span>
+                      {c.attachments.length > 0 && (
+                        <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                          <Paperclip className="size-3" />
+                          {c.attachments.length}
+                        </span>
+                      )}
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <Badge variant={emailStatusVariant(c.msg.status)}>{t(`emailStatus.${c.msg.status}`)}</Badge>
-                      <EmailViewDialog
-                        message={{
-                          toAddress: c.msg.toAddress,
-                          cc: c.msg.cc,
-                          subject: c.msg.subject,
-                          body: c.msg.body,
-                          attachments: c.msg.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
-                        }}
-                      />
+                    <div className="text-xs text-muted-foreground">
+                      {dateTime(c.date, df)}
+                      {c.dir === "in" ? ` · ${c.from}` : ""}
                     </div>
                   </div>
-                ) : (
-                  <details key={"i" + c.id} className="rounded-md border px-3 py-2 text-sm">
-                    <summary className="flex cursor-pointer items-center gap-2 font-medium">
-                      <Badge variant="secondary">{t("persons.dirIn")}</Badge>
-                      <span className="truncate">{c.subject}</span>
-                      <span className="ml-auto shrink-0 text-xs font-normal text-muted-foreground">{date(c.date, df)}</span>
-                    </summary>
-                    <div className="mt-2 whitespace-pre-wrap border-t pt-2 text-muted-foreground">{c.body || "—"}</div>
-                  </details>
-                ),
-              )
+                  <div className="flex shrink-0 items-center gap-2">
+                    {c.status ? (
+                      <Badge variant={emailStatusVariant(c.status)}>{t(`emailStatus.${c.status}`)}</Badge>
+                    ) : (
+                      <Badge variant="secondary">{t("persons.received")}</Badge>
+                    )}
+                    <EmailViewDialog
+                      message={{
+                        from: c.from, toAddress: c.toAddress, cc: c.cc, date: dateTime(c.date, df),
+                        subject: c.subject, body: c.body, attachments: c.attachments,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))
             )}
           </CardContent>
         </Card>

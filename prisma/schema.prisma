@@ -140,6 +140,8 @@ model Tenant {
   lastInboundSyncAt DateTime?
   imapAutoSync Boolean @default(false) // automatisch im Hintergrund abrufen
   imapSyncIntervalMin Int @default(30) // Intervall in Minuten (min. 5)
+  imapAttachments   Boolean @default(true) // Anhänge eingehender Mails speichern (nur bekannte Kontakte)
+  imapAttachMaxMb   Int     @default(10)   // max. Größe je Anhang in MB
 
   // Branding (Theme-Farbe als HEX, Logo im Storage)
   brandColor String?
@@ -354,11 +356,23 @@ model InboundEmail {
   receivedAt  DateTime
   personId    String?
   person      Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
+  attachments InboundEmailAttachment[]
   createdAt   DateTime @default(now())
 
   @@unique([tenantId, messageId])
   @@index([tenantId])
   @@index([personId])
+}
+
+// Anhang einer eingehenden Mail, abgelegt als Dokument am Kontakt.
+model InboundEmailAttachment {
+  id             String       @id @default(cuid())
+  inboundEmailId String
+  inboundEmail   InboundEmail @relation(fields: [inboundEmailId], references: [id], onDelete: Cascade)
+  documentId     String
+  document       Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([inboundEmailId])
 }
 
 // Eigentümer einer Einheit (WEG / Mietobjekt-Eigentümer)
@@ -779,6 +793,7 @@ model Document {
   invoiceNo   String? // aus E-Rechnung extrahiert
   invoiceTotal Decimal?       @db.Decimal(12, 2) // aus E-Rechnung extrahiert
   emailAttachments EmailAttachment[]
+  inboundAttachments InboundEmailAttachment[]
   payments   Payment[] // als Beleg verknüpfte Kontobewegungen (#23)
   createdAt  DateTime         @default(now())
 

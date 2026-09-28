@@ -14,13 +14,16 @@ import { DocumentPreview } from "@/components/document-preview";
 
 type Attachment = { id: string; name: string; mime: string };
 
-// Postausgang: E-Mail-Text und Anhänge einsehen (#34).
+// E-Mail-Text und Anhänge einsehen: Postausgang (#34) und Kommunikationsverlauf
+// eines Kontakts, ein- wie ausgehend (#39).
 export function EmailViewDialog({
   message,
 }: {
   message: {
-    toAddress: string;
-    cc: string | null;
+    from?: string | null;
+    toAddress?: string | null;
+    cc?: string | null;
+    date?: string | null;
     subject: string;
     body: string;
     attachments: Attachment[];
@@ -40,17 +43,25 @@ export function EmailViewDialog({
         </DialogHeader>
         <div className="space-y-3 text-sm">
           <div className="text-muted-foreground">
-            <div>
-              <span className="font-medium text-foreground">{t("email.to")}:</span> {message.toAddress}
-            </div>
+            {message.from ? (
+              <div>
+                <span className="font-medium text-foreground">{t("email.from")}:</span> {message.from}
+              </div>
+            ) : null}
+            {message.toAddress ? (
+              <div>
+                <span className="font-medium text-foreground">{t("email.to")}:</span> {message.toAddress}
+              </div>
+            ) : null}
             {message.cc ? (
               <div>
                 <span className="font-medium text-foreground">Cc:</span> {message.cc}
               </div>
             ) : null}
+            {message.date ? <div>{message.date}</div> : null}
           </div>
           <div className="max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-md border bg-muted/30 p-3">
-            {message.body}
+            {message.body || "—"}
           </div>
           {message.attachments.length > 0 && (
             <div className="space-y-1">

@@ -80,6 +80,8 @@ export function SettingsConfig({
     hasPassword: boolean;
     autoSync: boolean;
     intervalMin: number;
+    attachments: boolean;
+    attachMaxMb: number;
     lastSyncAt: string | null;
   };
   section?: "ai" | "smtp" | "imap";
@@ -236,6 +238,14 @@ export function SettingsConfig({
             {t("autoSyncHint")}
             {imap.lastSyncAt ? ` ${t("lastSync")}: ${imap.lastSyncAt}` : ""}
           </p>
+          <div className="grid grid-cols-2 items-end gap-3">
+            <label className="flex h-9 items-center gap-2 text-sm">
+              <input type="checkbox" name="imapAttachments" defaultChecked={imap.attachments} className="size-4" />
+              {t("attachSave")}
+            </label>
+            <Field name="imapAttachMaxMb" label={t("attachMaxMb")} type="number" defaultValue={imap.attachMaxMb ?? 10} />
+          </div>
+          <p className="text-xs text-muted-foreground">{t("attachHint")}</p>
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={imSaving}>{t("save")}</Button>
             <Feedback state={imSave} okLabel={t("saved")} />

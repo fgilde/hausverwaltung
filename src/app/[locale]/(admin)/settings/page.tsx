@@ -180,6 +180,7 @@ export default async function SettingsPage() {
           host: tenant.imapHost, port: tenant.imapPort, user: tenant.imapUser, mailbox: tenant.imapMailbox,
           secure: tenant.imapSecure, hasPassword: !!tenant.imapPassword,
           autoSync: tenant.imapAutoSync, intervalMin: tenant.imapSyncIntervalMin,
+          attachments: tenant.imapAttachments, attachMaxMb: tenant.imapAttachMaxMb,
           lastSyncAt: tenant.lastInboundSyncAt
             ? new Intl.DateTimeFormat("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" }).format(tenant.lastInboundSyncAt)
             : null,

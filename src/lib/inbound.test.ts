@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { dedupKey, matchPersonId, isSyncDue, clampSyncInterval } from "./inbound";
+import { dedupKey, matchPersonId, isSyncDue, clampSyncInterval, selectAttachments, clampAttachMaxMb, MAX_ATTACHMENTS_PER_MAIL } from "./inbound";
 
 describe("Auto-Sync-Fälligkeit (#39)", () => {
   const now = new Date("2026-09-28T12:00:00Z");
@@ -48,5 +48,21 @@ describe("matchPersonId (#39 Inbound)", () => {
   });
   it("leere Adresse → null", () => {
     expect(matchPersonId("", persons)).toBeNull();
+  });
+});
+
+describe("Anhänge eingehender Mails (#39)", () => {
+  const a = (size: number, related = false) => ({ filename: "x.pdf", contentType: "application/pdf", size, related });
+  it("filtert eingebettete Bilder, leere und zu große Dateien", () => {
+    const r = selectAttachments([a(100), a(100, true), a(0), a(2_000_000), a(1_000_000)], 1_000_000);
+    expect(r.map((x) => x.size)).toEqual([100, 1_000_000]);
+  });
+  it("höchstens MAX_ATTACHMENTS_PER_MAIL", () => {
+    expect(selectAttachments(Array.from({ length: 30 }, () => a(1)), 10)).toHaveLength(MAX_ATTACHMENTS_PER_MAIL);
+  });
+  it("Max-Größe wird auf 1 … 50 MB begrenzt", () => {
+    expect(clampAttachMaxMb(0)).toBe(10);
+    expect(clampAttachMaxMb(500)).toBe(50);
+    expect(clampAttachMaxMb(5)).toBe(5);
   });
 });
