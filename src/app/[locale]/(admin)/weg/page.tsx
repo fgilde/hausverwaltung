@@ -1,7 +1,7 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { money } from "@/lib/format";
+import { money, decimal } from "@/lib/format";
 import { allocate, type AllocationParticipant } from "@/lib/allocation";
 import { checkMeaTotal } from "@/lib/weg-validation";
 import { Badge } from "@/components/ui/badge";
@@ -136,7 +136,7 @@ export default async function WegPage({
             {t("weg.meaCheck")}
           </CardTitle>
           <Badge variant={meaCheck.ok ? "secondary" : "destructive"}>
-            {meaCheck.sum} / {meaCheck.meaTotal} ‰ {meaCheck.ok ? "✓" : `(${meaCheck.diff > 0 ? "+" : ""}${meaCheck.diff})`}
+            {decimal(meaCheck.sum, locale)} / {decimal(meaCheck.meaTotal, locale)} ‰ {meaCheck.ok ? "✓" : `(${meaCheck.diff > 0 ? "+" : ""}${decimal(meaCheck.diff, locale)})`}
           </Badge>
         </CardHeader>
         {!meaCheck.ok && (
@@ -175,7 +175,7 @@ export default async function WegPage({
                       {o.person.firstName} {o.person.lastName}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{o.unit.label}</TableCell>
-                    <TableCell className="text-right">{weightOf(o)}</TableCell>
+                    <TableCell className="text-right">{decimal(weightOf(o), locale)}</TableCell>
                     <TableCell className="text-right">
                       {money((hgById.get(o.id) ?? 0) / 12, locale)}
                     </TableCell>

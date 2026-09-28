@@ -33,7 +33,7 @@ export async function OwnerDialog({ units, persons }: { units: Opt[]; persons: O
     >
       <SelectField name="personId" label={t("leases.selectPerson")} options={persons} />
       <SelectField name="unitId" label={t("leases.selectUnit")} options={units} />
-      <TextField name="share" label={t("weg.share")} type="number" defaultValue={1000} />
+      <TextField name="share" label={t("weg.share")} type="number" step="any" defaultValue={1000} />
     </CrudDialog>
   );
 }

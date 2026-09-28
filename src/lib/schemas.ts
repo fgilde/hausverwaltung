@@ -14,11 +14,23 @@ const optionalDate = z
   .optional()
   .transform((v) => (v ? new Date(v) : undefined));
 
+// Dezimalzahl aus Formular/Import/API: akzeptiert "53.9" und "53,9"
+// (Komma nur, wenn kein Punkt vorkommt, damit "1.000,5" nicht falsch gelesen wird).
+export function parseDecimal(v: string): number {
+  const s = v.trim().replace(/\s/g, "");
+  if (s.includes(",") && s.includes(".")) return Number(s.replace(/\./g, "").replace(",", "."));
+  return Number(s.replace(",", "."));
+}
+
 const optionalNum = z
   .string()
   .trim()
   .optional()
-  .transform((v) => (v ? Number(v) : undefined));
+  .transform((v) => (v ? parseDecimal(v) : undefined))
+  .refine((v) => v === undefined || Number.isFinite(v), "Ungültige Zahl");
+
+// MEA/Anteile: Dezimalzahl ≥ 0, auf 4 Nachkommastellen gerundet (#40).
+const round4 = (n: number) => Math.round(n * 10_000) / 10_000;
 
 export const propertySchema = z.object({
   name: z.string().trim().min(1),
@@ -27,7 +39,9 @@ export const propertySchema = z.object({
   city: z.string().trim().min(1),
   type: z.enum(["WOHNEN", "GEWERBE", "GEMISCHT"]),
   management: z.enum(["MIET", "WEG"]),
-  meaTotal: optionalNum,
+  meaTotal: optionalNum
+    .refine((v) => v === undefined || v > 0, "MEA-Summe muss größer 0 sein")
+    .transform((v) => (v === undefined ? undefined : round4(v))),
   feeType: z.enum(["PAUSCHAL", "PRO_EINHEIT", "PROZENT"]),
   feeValue: optionalNum,
   areaModel: z
@@ -56,11 +70,9 @@ export const unitSchema = z.object({
     .trim()
     .optional()
     .transform((v) => (v ? Number(v) : undefined)),
-  mea: z
-    .string()
-    .trim()
-    .optional()
-    .transform((v) => (v ? parseInt(v, 10) : undefined)),
+  mea: optionalNum
+    .refine((v) => v === undefined || v >= 0, "MEA darf nicht negativ sein")
+    .transform((v) => (v === undefined ? undefined : round4(v))),
 });
 
 // Beim Bearbeiten ändert sich die Gebäude-Zuordnung nicht → buildingId nicht
@@ -202,7 +214,10 @@ export const costEntrySchema = z.object({
 export const ownerSchema = z.object({
   personId: z.string().min(1),
   unitId: z.string().min(1),
-  share: z.coerce.number().int().positive().max(1000),
+  share: z
+    .union([z.number(), z.string()])
+    .transform((v) => round4(typeof v === "number" ? v : parseDecimal(v)))
+    .refine((v) => Number.isFinite(v) && v > 0 && v <= 1000, "Anteil muss zwischen 0 und 1000 ‰ liegen"),
 });
 
 export const areaAllocationSchema = z.object({

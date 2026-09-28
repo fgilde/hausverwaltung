@@ -6,6 +6,12 @@ export function money(value: number | string, locale = "de") {
   }).format(n);
 }
 
+// Dezimalzahl lokalisiert, bis 4 Nachkommastellen (z. B. MEA 53,9, #40).
+export function decimal(value: number | null | undefined, locale = "de") {
+  if (value == null) return "—";
+  return new Intl.NumberFormat(locale === "de" ? "de-DE" : "en-US", { maximumFractionDigits: 4 }).format(value);
+}
+
 // Datumsformat. `fmt` akzeptiert die UI-Sprache ("de"/"en", Altverhalten), eine
 // BCP-47-Locale ("de-DE", "en-GB", "en-US") oder "iso" (YYYY-MM-DD). Das erlaubt
 // ein vom UI unabhängiges Datumsformat (Mandanten-Einstellung, siehe getDateLocale).

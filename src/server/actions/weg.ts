@@ -10,6 +10,7 @@ import {
   reserveTxSchema,
   type ActionState,
 } from "@/lib/schemas";
+import { unitShareSum } from "@/lib/weg-validation";
 
 function fail(msg?: string): ActionState {
   return { error: msg ?? "Ungültige Eingabe" };
@@ -34,7 +35,7 @@ export async function createOwner(_p: ActionState, fd: FormData): Promise<Action
     where: { unitId: r.data.unitId, tenantId: user.tenantId },
     _sum: { share: true },
   });
-  if ((existing._sum.share ?? 0) + r.data.share > 1000) {
+  if (unitShareSum([existing._sum.share ?? 0, r.data.share]) > 1000) {
     return fail("Summe der Eigentümeranteile dieser Einheit überschreitet 1000‰");
   }
   await prisma.owner.create({ data: { ...r.data, tenantId: user.tenantId } });

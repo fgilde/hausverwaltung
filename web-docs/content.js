@@ -101,7 +101,7 @@ properties: {
     <h3>Einheit</h3>
     <ul>
       <li>Bezeichnung, Typ (Wohnung, Gewerbe, Stellplatz, Keller, Sonstiges), Fläche (m²), Zimmer.</li>
-      <li><strong>MEA</strong> (Tausendstel) für WEG-Objekte.</li>
+      <li><strong>MEA</strong> (Tausendstel) für WEG-Objekte, auch mit Nachkommastellen (z. B. 53,9 oder 124,55; bis 4 Stellen). Gleiches gilt für die MEA-Sollsumme des Objekts und den Anteil eines Eigentümers an einer Einheit.</li>
       <li>Zähler (Strom, Wasser, Wärme …) mit Ablesungen — Basis für die Verbrauchsumlage.</li>
     </ul>
     <p>In der Einheiten-Liste siehst du je Einheit den <strong>aktuellen Mieter</strong> und den Vermietungsstatus; bei Leerstand kannst du direkt „Mieter zuordnen".</p>
@@ -114,7 +114,7 @@ properties: {
     <h3>Unit</h3>
     <ul>
       <li>Label, type (flat, commercial, parking, cellar, other), area (m²), rooms.</li>
-      <li><strong>MEA</strong> (per mille) for HOA properties.</li>
+      <li><strong>MEA</strong> (per mille) for HOA properties, decimals allowed (e.g. 53.9 or 124.55; up to 4 places). The same applies to the property's MEA total and an owner's share of a unit.</li>
       <li>Meters (electricity, water, heat …) with readings — basis for consumption allocation.</li>
     </ul>
     <p>The units list shows each unit's <strong>current tenant</strong> and occupancy status; for vacant units you can "assign tenant" right there.</p>

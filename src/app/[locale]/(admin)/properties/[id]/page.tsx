@@ -3,7 +3,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { money, date } from "@/lib/format";
+import { money, date, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { computeMgmtFee, type FeeType } from "@/lib/fee";
 import { buildAreaStatement, areaTimeWeights, VACANCY_ID } from "@/lib/allocation/area-time";
@@ -382,7 +382,7 @@ export default async function PropertyDetailPage({
                         <TableCell className="text-right">
                           {u.rooms ? String(u.rooms) : t("common.none")}
                         </TableCell>
-                        <TableCell className="text-right">{u.mea ?? t("common.none")}</TableCell>
+                        <TableCell className="text-right">{u.mea != null ? decimal(u.mea, locale) : t("common.none")}</TableCell>
                         <TableCell>
                           <div className="flex justify-end gap-1">
                             <UnitDialog

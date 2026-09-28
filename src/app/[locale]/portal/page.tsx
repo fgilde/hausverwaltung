@@ -2,7 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { Plus } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { money, date } from "@/lib/format";
+import { money, date, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -214,7 +214,7 @@ export default async function PortalPage() {
                   {o.unit.building.property.name} · {o.unit.label}
                 </div>
                 <div className="text-muted-foreground">
-                  MEA {o.unit.mea ?? "—"} · {t("weg.share")}: {o.share}‰
+                  MEA {decimal(o.unit.mea, locale)} · {t("weg.share")}: {decimal(o.share, locale)}‰
                 </div>
               </div>
             ))}

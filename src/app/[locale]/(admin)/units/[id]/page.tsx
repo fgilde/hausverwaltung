@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
-import { money, date } from "@/lib/format";
+import { money, date, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,7 +86,7 @@ export default async function UnitDetailPage({
           <span>
             {String(unit.area)} m²
             {unit.rooms ? ` · ${String(unit.rooms)} ${t("fields.rooms")}` : ""}
-            {unit.mea != null ? ` · MEA ${unit.mea}` : ""}
+            {unit.mea != null ? ` · MEA ${decimal(unit.mea, locale)}` : ""}
           </span>
         </div>
       </div>

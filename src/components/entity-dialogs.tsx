@@ -92,6 +92,7 @@ export async function PropertyDialog({
         name="meaTotal"
         label={t("weg.meaTotalLabel")}
         type="number"
+        step="any"
         required={false}
         defaultValue={property?.meaTotal ?? 1000}
       />
@@ -224,6 +225,7 @@ export async function UnitDialog({
         name="mea"
         label={t("fields.mea")}
         type="number"
+        step="any"
         required={false}
         defaultValue={unit?.mea}
       />

@@ -45,3 +45,15 @@ describe("allocate", () => {
     expect(sum(res)).toBe(0);
   });
 });
+
+describe("MEA mit Nachkommastellen (#40)", () => {
+  it("verteilt cent-genau und proportional", () => {
+    const r = allocate(1000, "MEA", [
+      { id: "a", mea: 53.9 },
+      { id: "b", mea: 124.55 },
+      { id: "c", mea: 821.55 },
+    ]);
+    expect(sum(r)).toBe(1000);
+    expect(r.map((x) => x.amount)).toEqual([53.9, 124.55, 821.55]);
+  });
+});

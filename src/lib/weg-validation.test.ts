@@ -27,3 +27,15 @@ describe("unitShareSum", () => {
     expect(unitShareSum([1000])).toBe(1000);
   });
 });
+
+describe("MEA dezimal (#40)", () => {
+  it("Gleitkomma-Summe wird nicht fälschlich als Abweichung gemeldet", () => {
+    const c = checkMeaTotal([0.1, 0.2, 999.7], 1000);
+    expect(c.ok).toBe(true);
+    expect(c.diff).toBe(0);
+    expect(checkMeaTotal([53.9, 124.55, 821.5], 1000).diff).toBe(-0.05);
+  });
+  it("Anteilsumme gerundet", () => {
+    expect(unitShareSum([333.3333, 333.3333, 333.3334])).toBe(1000);
+  });
+});
