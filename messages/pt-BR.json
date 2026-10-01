@@ -198,7 +198,7 @@
     "lastSync": "Última sincronização",
     "attachSave": "Salvar anexos",
     "attachMaxMb": "Tamanho máx. por anexo (MB)",
-    "attachHint": "Anexos são salvos somente de contatos conhecidos e guardados como documentos do contato (de 1 a 50 MB por arquivo, no máximo 20 por e-mail; imagens incorporadas são ignoradas)."
+    "attachHint": "Os anexos são salvos junto ao e-mail, independentemente do remetente (1 a 50 MB por arquivo, no máximo 20 por e-mail, imagens incorporadas são ignoradas). Eles só vão para o arquivo de documentos quando você os importa a partir do e-mail."
   },
   "setup": {
     "title": "Configuração inicial",
@@ -927,7 +927,8 @@
     "ERECHNUNG": "Fatura eletrônica",
     "PROTOKOLL": "Ata",
     "ABRECHNUNG": "Demonstrativo",
-    "SONSTIGES": "Outros"
+    "SONSTIGES": "Outros",
+    "EMAIL_ANHANG": "Anexo de e-mail"
   },
   "meetings": {
     "title": "Assembleias de proprietários",
@@ -1107,7 +1108,11 @@
     "threads": "Conversas",
     "noThreads": "Ainda não há e-mails.",
     "messageCount": "{count, plural, one {# mensagem} other {# mensagens}}",
-    "unreadCount": "{count} novas"
+    "unreadCount": "{count} novas",
+    "import": "Importar",
+    "importAttachment": "Importar anexo como documento",
+    "imported": "Importado",
+    "attachmentsShort": "Anexos"
   },
   "emailStatus": {
     "ENTWURF": "Rascunho",

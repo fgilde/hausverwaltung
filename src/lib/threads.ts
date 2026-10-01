@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { threadKey } from "@/lib/inbound";
+import { fromInbound, fromOutbound } from "@/lib/mail-attachments";
 import { smtpFromAddress } from "@/lib/adapters/mailer";
 import { imapAddress } from "@/lib/adapters/imap";
 
@@ -84,19 +85,20 @@ export async function listThreads(tenantId: string): Promise<ThreadSummary[]> {
   return [...threads.values()].sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
 }
 
-const attachmentsInclude = { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } };
 
 /** Alle Mails einer Unterhaltung, älteste zuerst. */
 export async function loadThread(tenantId: string, key: string) {
   const where = threadWhere(tenantId, key);
   const [outbound, inbound] = await Promise.all([
-    prisma.emailMessage.findMany({ where, include: { ...attachmentsInclude, sentBy: { select: { name: true } } } }),
-    prisma.inboundEmail.findMany({ where, include: { ...attachmentsInclude, person: { select: { id: true, firstName: true, lastName: true } } } }),
+    prisma.emailMessage.findMany({
+      where,
+      include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } }, sentBy: { select: { name: true } } },
+    }),
+    prisma.inboundEmail.findMany({ where, include: { attachments: true, person: { select: { id: true, firstName: true, lastName: true } } } }),
   ]);
-  const toAtt = (list: { document: { id: string; name: string; mime: string } }[]) => list.map((a) => a.document);
   return [
-    ...outbound.map((m) => ({ dir: "out" as const, at: m.sentAt ?? m.createdAt, ...m, attachments: toAtt(m.attachments) })),
-    ...inbound.map((m) => ({ dir: "in" as const, at: m.receivedAt, ...m, attachments: toAtt(m.attachments) })),
+    ...outbound.map((m) => ({ dir: "out" as const, at: m.sentAt ?? m.createdAt, ...m, attachments: m.attachments.map(fromOutbound) })),
+    ...inbound.map((m) => ({ dir: "in" as const, at: m.receivedAt, ...m, attachments: m.attachments.map(fromInbound) })),
   ].sort((a, b) => a.at.getTime() - b.at.getTime());
 }
 

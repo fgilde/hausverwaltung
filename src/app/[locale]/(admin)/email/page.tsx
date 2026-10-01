@@ -23,7 +23,10 @@ import { BulkEmailDialog } from "@/components/bulk-email-dialog";
 import { EmailViewDialog } from "@/components/email-view-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { sendEmail, deleteEmail } from "@/server/actions/email";
-import { setInboundFlag } from "@/server/actions/inbound";
+import { setInboundFlag, deleteInboundEmail } from "@/server/actions/inbound";
+import { AttachmentImportProvider } from "@/components/mail-attachments";
+import { fromInbound, fromOutbound } from "@/lib/mail-attachments";
+import { attachmentDefaults, attachmentImportOptions } from "@/server/attachments";
 import { InboxSyncButton } from "@/components/inbox-sync-button";
 import { cn } from "@/lib/utils";
 import { listThreads } from "@/lib/threads";
@@ -73,7 +76,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
           where: { tenantId: user.tenantId },
           include: {
             person: { select: { id: true, firstName: true, lastName: true } },
-            attachments: { include: { document: { select: { id: true, name: true, mime: true } } } },
+            attachments: true,
           },
           orderBy: { receivedAt: "desc" },
           take: 200,
@@ -83,6 +86,11 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
     box === "threads" ? listThreads(user.tenantId) : [],
   ]);
   const imapConfigured = isImapConfigured({ host: tenant?.imapHost, user: tenant?.imapUser });
+  // Anhänge übernehmen (#52): Auswahllisten + Vorbelegung je Absender (#51)
+  const [importOptions, importDefaults] =
+    box === "in" && canWrite
+      ? await Promise.all([attachmentImportOptions(user.tenantId), attachmentDefaults(user.tenantId, inbound.map((m) => m.personId))])
+      : [null, new Map()];
   const personOpts = persons.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName}`, email: p.email! }));
   const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
   const configured = isMailerConfigured({
@@ -97,6 +105,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
     s === "GESENDET" ? "secondary" : s === "FEHLER" ? "destructive" : "outline";
 
   return (
+    <AttachmentImportProvider options={importOptions}>
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -233,8 +242,10 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                                 date: dateTime(m.receivedAt, df),
                                 subject,
                                 body: m.body,
-                                attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
+                                attachments: m.attachments.map(fromInbound),
                               }}
+                              inbound
+                              importDefaults={m.personId ? importDefaults.get(m.personId) : undefined}
                             />
                             {canWrite && (
                               <>
@@ -281,6 +292,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                                     <Check className={cn("size-4", m.doneAt && "text-primary")} />
                                   </Button>
                                 </form>
+                                <DeleteButton action={deleteInboundEmail} id={m.id} />
                               </>
                             )}
                           </div>
@@ -354,7 +366,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                             cc: m.cc,
                             subject: m.subject,
                             body: m.body,
-                            attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
+                            attachments: m.attachments.map(fromOutbound),
                           }}
                         />
                         {m.status !== "GESENDET" && (
@@ -379,5 +391,6 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
       </>
       ) : null}
     </div>
+    </AttachmentImportProvider>
   );
 }

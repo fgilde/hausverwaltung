@@ -1,7 +1,7 @@
 import { ArrowLeft, Landmark, Mail, Phone } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/rbac";
+import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { money, date, dateTime, decimal } from "@/lib/format";
@@ -12,6 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PersonDialog } from "@/components/entity-dialogs";
 import { LeaseDialog } from "@/components/lease-dialogs";
 import { EmailViewDialog } from "@/components/email-view-dialog";
+import { AttachmentImportProvider } from "@/components/mail-attachments";
+import { fromInbound, fromOutbound } from "@/lib/mail-attachments";
+import { attachmentDefaults, attachmentImportOptions } from "@/server/attachments";
 import { EmailCompose } from "@/components/email-compose";
 import { sendEmail } from "@/server/actions/email";
 import { addr, ownMailIdentity } from "@/lib/threads";
@@ -86,7 +89,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             tenantId: user.tenantId,
             OR: [{ personId: person.id }, { fromAddress: { equals: person.email, mode: "insensitive" } }],
           },
-          include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
+          include: { attachments: true },
           orderBy: { receivedAt: "desc" },
         }),
       ])
@@ -97,8 +100,6 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   // Ein- und ausgehende Mails in einheitlicher Form (gleiche Zeile, gleicher Dialog).
   // Von/An immer als „Name <Adresse>“: Verwaltung = Mandantenname + SMTP- bzw.
   // IMAP-Adresse, Kontakt = Kontaktname (#44).
-  type Att = { document: { id: string; name: string; mime: string } };
-  const toAtt = (list: Att[]) => list.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime }));
   const personName = `${person.firstName} ${person.lastName}`;
   const toLabel = (to: string) =>
     to.trim().toLowerCase() === person.email?.toLowerCase() ? addr(personName, person.email!) : to;
@@ -106,14 +107,22 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
     ...outbound.map((m) => ({
       dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, status: m.status as string | null,
       thread: threadKey(m), sender: m.sentBy?.name ?? null, from: own.from, toAddress: toLabel(m.toAddress), cc: m.cc, body: m.body,
-      attachments: toAtt(m.attachments),
+      attachments: m.attachments.map(fromOutbound),
     })),
     ...inbound.map((m) => ({
       dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", status: null,
       thread: threadKey(m), sender: m.fromName || personName, from: addr(m.fromName || personName, m.fromAddress), toAddress: own.inbox,
-      cc: null, body: m.body, attachments: toAtt(m.attachments),
+      cc: null, body: m.body, attachments: m.attachments.map(fromInbound),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  // Anhänge übernehmen (#52), vorbelegt mit Kontakt + Objekt/Einheit (#51)
+  const canWrite = roleAllows(user.role, WRITE_ROLES);
+  const [importOptions, defaultsMap] =
+    canWrite && inbound.length
+      ? await Promise.all([attachmentImportOptions(user.tenantId), attachmentDefaults(user.tenantId, [person.id])])
+      : [null, new Map()];
+  const importDefaults = defaultsMap.get(person.id);
 
   const customValues = (person.custom as Record<string, string>) ?? {};
   const unitOpts = units.map((u) => ({
@@ -122,6 +131,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   }));
 
   return (
+    <AttachmentImportProvider options={importOptions}>
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -277,6 +287,8 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                         from: c.from, toAddress: c.toAddress, cc: c.cc, date: dateTime(c.date, df),
                         subject: c.subject, body: c.body, attachments: c.attachments,
                       }}
+                      inbound={c.dir === "in"}
+                      importDefaults={importDefaults}
                     />
                   </div>
                 </div>
@@ -302,5 +314,6 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
         </Card>
       )}
     </div>
+    </AttachmentImportProvider>
   );
 }

@@ -16,10 +16,20 @@ import {
 // Läuft in einem iframe auf eine echte same-origin URL (/viewer): isoliert die
 // globalen Mudex-Styles vom App-Layout und gibt der Blazor-WASM-Komponente eine
 // gültige Base-URI (srcdoc/about:srcdoc scheitert an Blazor).
-export function DocumentPreview({ id, name, mime }: { id: string; name: string; mime: string }) {
+export function DocumentPreview({
+  id,
+  name,
+  mime,
+  attachment,
+}: {
+  id: string;
+  name: string;
+  mime: string;
+  attachment?: boolean; // noch nicht übernommener Mail-Anhang (#52)
+}) {
   const t = useTranslations("documents");
   const [open, setOpen] = useState(false);
-  const src = `/api/documents/${id}/viewer?mime=${encodeURIComponent(mime)}&name=${encodeURIComponent(name)}`;
+  const src = `/api/documents/${id}/viewer?mime=${encodeURIComponent(mime)}&name=${encodeURIComponent(name)}${attachment ? "&src=att" : ""}`;
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger

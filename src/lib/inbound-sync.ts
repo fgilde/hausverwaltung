@@ -110,20 +110,13 @@ export async function syncTenantInbox(tenantId: string): Promise<InboundSyncResu
       },
       select: { id: true },
     });
-    // Anhänge nur von bekannten Kontakten speichern, damit Spam/Fremdmails die
-    // Ablage nicht füllen. Abgelegt als Dokument am Kontakt (Vorschau/Download).
-    if (personId) {
-      for (const a of m.attachments) {
-        const storageKey = await saveFile(a.content, a.filename);
-        const doc = await prisma.document.create({
-          data: {
-            tenantId, personId, name: a.filename, category: "SONSTIGES",
-            mime: a.contentType, size: a.size, storageKey,
-          },
-          select: { id: true },
-        });
-        await prisma.inboundEmailAttachment.create({ data: { inboundEmailId: mail.id, documentId: doc.id } });
-      }
+    // Anhänge aller Absender zunächst nur an der Mail ablegen (#52); in die
+    // Dokumentenablage kommen sie erst per „Übernehmen“. Größe/Anzahl begrenzt.
+    for (const a of m.attachments) {
+      const storageKey = await saveFile(a.content, a.filename);
+      await prisma.inboundEmailAttachment.create({
+        data: { inboundEmailId: mail.id, name: a.filename, mime: a.contentType, size: a.size, storageKey },
+      });
     }
     imported++;
   }

@@ -1,4 +1,5 @@
 import { Download, FileText } from "lucide-react";
+import { DOCUMENT_CATEGORIES } from "@/lib/schemas";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -20,7 +21,7 @@ import { DocumentPreview } from "@/components/document-preview";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteDocument } from "@/server/actions/documents";
 
-const CATS = ["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "SONSTIGES"];
+const CATS: readonly string[] = DOCUMENT_CATEGORIES;
 
 function fmtSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;

@@ -198,7 +198,7 @@
     "lastSync": "Zuletzt synchronisiert",
     "attachSave": "Anhänge speichern",
     "attachMaxMb": "Max. Größe je Anhang (MB)",
-    "attachHint": "Anhänge werden nur von bekannten Kontakten gespeichert und als Dokument am Kontakt abgelegt (1 bis 50 MB je Datei, höchstens 20 je Mail, eingebettete Bilder werden übersprungen)."
+    "attachHint": "Anhänge werden an der Mail gespeichert, unabhängig vom Absender (1 bis 50 MB je Datei, höchstens 20 je Mail, eingebettete Bilder werden übersprungen). In die Dokumentenablage kommen sie erst, wenn du sie an der Mail übernimmst."
   },
   "setup": {
     "title": "Ersteinrichtung",
@@ -927,7 +927,8 @@
     "ERECHNUNG": "E-Rechnung",
     "PROTOKOLL": "Protokoll",
     "ABRECHNUNG": "Abrechnung",
-    "SONSTIGES": "Sonstiges"
+    "SONSTIGES": "Sonstiges",
+    "EMAIL_ANHANG": "E-Mail-Anhang"
   },
   "meetings": {
     "title": "Eigentümerversammlungen",
@@ -1107,7 +1108,11 @@
     "threads": "Unterhaltungen",
     "noThreads": "Noch keine E-Mails.",
     "messageCount": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
-    "unreadCount": "{count} neu"
+    "unreadCount": "{count} neu",
+    "import": "Übernehmen",
+    "importAttachment": "Anhang als Dokument übernehmen",
+    "imported": "Übernommen",
+    "attachmentsShort": "Anhänge"
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",

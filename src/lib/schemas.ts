@@ -402,9 +402,11 @@ export const userEditSchema = z.object({
   personId: optionalStr,
 });
 
+export const DOCUMENT_CATEGORIES = ["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "EMAIL_ANHANG", "SONSTIGES"] as const;
+
 export const documentEditSchema = z.object({
   name: z.string().trim().min(1),
-  category: z.enum(["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "SONSTIGES"]),
+  category: z.enum(DOCUMENT_CATEGORIES),
   propertyId: optionalStr,
   unitId: optionalStr,
   personId: optionalStr,

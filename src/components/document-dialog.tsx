@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField } from "@/components/form-fields";
 import { uploadDocument, updateDocument } from "@/server/actions/documents";
+import { DOCUMENT_CATEGORIES as CATS } from "@/lib/schemas";
 
 type Opt = { value: string; label: string };
-const CATS = ["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "SONSTIGES"];
 
 type DocData = {
   id: string;

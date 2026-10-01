@@ -411,13 +411,19 @@ model InboundEmail {
   @@index([tenantId, threadId])
 }
 
-// Anhang einer eingehenden Mail, abgelegt als Dokument am Kontakt.
+// Anhang einer eingehenden Mail (#52): liegt zunächst nur an der Mail (eigene
+// Datei im Storage) und wird erst per Klick als Dokument übernommen (documentId).
+// Übernommen teilen sich Anhang und Dokument dieselbe Datei.
 model InboundEmailAttachment {
   id             String       @id @default(cuid())
   inboundEmailId String
   inboundEmail   InboundEmail @relation(fields: [inboundEmailId], references: [id], onDelete: Cascade)
-  documentId     String
-  document       Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  name           String
+  mime           String
+  size           Int
+  storageKey     String
+  documentId     String?
+  document       Document?    @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([inboundEmailId])
 }
@@ -821,6 +827,7 @@ enum DocumentCategory {
   ERECHNUNG
   PROTOKOLL
   ABRECHNUNG
+  EMAIL_ANHANG // aus einer E-Mail übernommen (#51)
   SONSTIGES
 }
 

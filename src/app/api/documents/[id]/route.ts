@@ -36,6 +36,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     headers: {
       "Content-Type": doc.mime,
       "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      // Dokumente können aus fremden Mails stammen (#52): keine Skripte unter unserer Origin.
+      "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "sandbox",
     },
   });
 }

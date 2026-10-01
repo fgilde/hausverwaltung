@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Paperclip } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,16 +10,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DocumentPreview } from "@/components/document-preview";
+import { MailAttachmentList, type ImportDefaults } from "@/components/mail-attachments";
+import type { MailAttachment } from "@/lib/mail-attachments";
 import { markInboundRead } from "@/server/actions/inbound";
-
-type Attachment = { id: string; name: string; mime: string };
 
 // E-Mail-Text und Anhänge einsehen: Postausgang (#34) und Kommunikationsverlauf
 // eines Kontakts, ein- wie ausgehend (#39).
 export function EmailViewDialog({
   message,
   markReadId,
+  inbound,
+  importDefaults,
 }: {
   message: {
     from?: string | null;
@@ -28,8 +29,10 @@ export function EmailViewDialog({
     date?: string | null;
     subject: string;
     body: string;
-    attachments: Attachment[];
+    attachments: MailAttachment[];
   };
+  inbound?: boolean; // eingehende Mail: Anhänge lassen sich übernehmen (#52)
+  importDefaults?: ImportDefaults;
   markReadId?: string; // ungelesene eingehende Mail: beim Öffnen als gelesen markieren (#43)
 }) {
   const t = useTranslations();
@@ -66,28 +69,7 @@ export function EmailViewDialog({
           <div className="max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-md border bg-muted/30 p-3">
             {message.body || "—"}
           </div>
-          {message.attachments.length > 0 && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-sm font-medium">
-                <Paperclip className="size-4" /> {t("email.attachments")}
-              </div>
-              <div className="space-y-1">
-                {message.attachments.map((a) => (
-                  <div key={a.id} className="flex items-center gap-1 rounded px-1 py-0.5 text-sm hover:bg-muted">
-                    <DocumentPreview id={a.id} name={a.name} mime={a.mime} />
-                    <a
-                      href={`/api/documents/${a.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="truncate hover:underline"
-                    >
-                      {a.name}
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <MailAttachmentList attachments={message.attachments} inbound={inbound} defaults={importDefaults} />
         </div>
       </DialogContent>
     </Dialog>

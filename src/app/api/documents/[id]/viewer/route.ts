@@ -24,7 +24,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const sp = new URL(req.url).searchParams;
   const mime = sp.get("mime") ?? "";
   const name = sp.get("name") ?? "Dokument";
-  const fileUrl = `/api/documents/${encodeURIComponent(id)}?inline=1`;
+  // src=att: noch nicht übernommener Mail-Anhang (#52), sonst Dokument
+  const base = sp.get("src") === "att" ? "/api/inbound-attachments" : "/api/documents";
+  const fileUrl = `${base}/${encodeURIComponent(id)}?inline=1`;
 
   const html = `<!doctype html>
 <html>

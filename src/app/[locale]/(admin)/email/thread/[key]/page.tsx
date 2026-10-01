@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Paperclip, Reply, Send } from "lucide-react";
+import { ArrowLeft, Check, Reply, Send } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
@@ -10,10 +10,12 @@ import { addr, loadThread, ownMailIdentity, threadWhere } from "@/lib/threads";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DocumentPreview } from "@/components/document-preview";
+import { AttachmentImportProvider, MailAttachmentList } from "@/components/mail-attachments";
+import { DeleteButton } from "@/components/delete-button";
+import { attachmentDefaults, attachmentImportOptions } from "@/server/attachments";
 import { EmailCompose } from "@/components/email-compose";
 import { sendEmail } from "@/server/actions/email";
-import { setThreadDone } from "@/server/actions/inbound";
+import { setThreadDone, deleteThread } from "@/server/actions/inbound";
 import { cn } from "@/lib/utils";
 
 // Unterhaltung (#43): alle ein- und ausgehenden Mails eines Threads chronologisch.
@@ -48,6 +50,14 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
   ]);
   if (messages.length === 0) notFound();
 
+  // Anhänge übernehmen (#52), vorbelegt je Absender (#51)
+  const inboundMails = messages.flatMap((m) => (m.dir === "in" ? [m] : []));
+  const hasPending = inboundMails.some((m) => m.attachments.some((a) => !a.documentId));
+  const [importOptions, importDefaults] =
+    canWrite && hasPending
+      ? await Promise.all([attachmentImportOptions(user.tenantId), attachmentDefaults(user.tenantId, inboundMails.map((m) => m.personId))])
+      : [null, new Map()];
+
   // Namen der Empfänger ausgehender Mails (Kontakte), für „An: Name <Adresse>“ (#44)
   const outAddrs = [...new Set(messages.flatMap((m) => (m.dir === "out" ? m.toAddress.split(/[,;]/).map((a) => a.trim()) : [])))];
   const contacts = await prisma.person.findMany({
@@ -73,6 +83,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
     : first.dir === "out" ? first.toAddress : "";
 
   return (
+    <AttachmentImportProvider options={importOptions}>
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-1">
@@ -86,7 +97,8 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
           </p>
         </div>
         {canWrite && (
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 items-center gap-2">
+            <DeleteButton action={deleteThread} id={key} />
             {inbound.length > 0 && (
               <form action={setThreadDone}>
                 <input type="hidden" name="key" value={key} />
@@ -163,16 +175,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
                 {m.subject && m.subject !== subject && <div className="text-sm font-medium">{m.subject}</div>}
                 <div className="whitespace-pre-wrap text-sm">{m.body || "—"}</div>
                 {m.attachments.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2 border-t pt-2 text-sm">
-                    <Paperclip className="size-4 text-muted-foreground" />
-                    {m.attachments.map((a) => (
-                      <span key={a.id} className="flex items-center gap-1">
-                        <DocumentPreview id={a.id} name={a.name} mime={a.mime} />
-                        <a href={`/api/documents/${a.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                          {a.name}
-                        </a>
-                      </span>
-                    ))}
+                  <div className="border-t pt-2">
+                    <MailAttachmentList
+                      attachments={m.attachments}
+                      inbound={m.dir === "in"}
+                      defaults={m.dir === "in" && m.personId ? importDefaults.get(m.personId) : undefined}
+                    />
                   </div>
                 )}
               </CardContent>
@@ -181,5 +189,6 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
         })}
       </div>
     </div>
+    </AttachmentImportProvider>
   );
 }

@@ -198,7 +198,7 @@
     "lastSync": "Last synced",
     "attachSave": "Save attachments",
     "attachMaxMb": "Max. size per attachment (MB)",
-    "attachHint": "Attachments are only saved from known contacts and stored as documents on the contact (1 to 50 MB per file, at most 20 per email, embedded images are skipped)."
+    "attachHint": "Attachments are stored with the email regardless of the sender (1 to 50 MB per file, at most 20 per email, embedded images are skipped). They only go to the document store once you import them from the email."
   },
   "setup": {
     "title": "First-run setup",
@@ -927,7 +927,8 @@
     "ERECHNUNG": "E-invoice",
     "PROTOKOLL": "Minutes",
     "ABRECHNUNG": "Statement",
-    "SONSTIGES": "Other"
+    "SONSTIGES": "Other",
+    "EMAIL_ANHANG": "Email attachment"
   },
   "meetings": {
     "title": "Owners' meetings",
@@ -1107,7 +1108,11 @@
     "threads": "Conversations",
     "noThreads": "No emails yet.",
     "messageCount": "{count, plural, one {# message} other {# messages}}",
-    "unreadCount": "{count} new"
+    "unreadCount": "{count} new",
+    "import": "Import",
+    "importAttachment": "Import attachment as document",
+    "imported": "Imported",
+    "attachmentsShort": "Attachments"
   },
   "emailStatus": {
     "ENTWURF": "Draft",
