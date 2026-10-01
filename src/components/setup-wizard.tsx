@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { routing, localeLabels } from "@/i18n/routing";
 
 const PRESETS = [
   { name: "Indigo", color: "#4f46e5" },
@@ -101,8 +102,9 @@ export function SetupWizard() {
             <div className="space-y-2">
               <Label htmlFor="locale">{t("common.language")}</Label>
               <select id="locale" name="locale" value={f.locale} onChange={set("locale")} className={selectCls}>
-                <option value="de">Deutsch</option>
-                <option value="en">English</option>
+                {routing.locales.map((l) => (
+                  <option key={l} value={l}>{localeLabels[l]}</option>
+                ))}
               </select>
             </div>
           </div>

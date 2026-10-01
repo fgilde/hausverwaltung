@@ -3,7 +3,7 @@
 import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { routing, localeLabels } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,8 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const labels: Record<string, string> = { de: "Deutsch", en: "English" };
 
 export function LanguageSwitcher() {
   const t = useTranslations();
@@ -34,7 +32,7 @@ export function LanguageSwitcher() {
             disabled={l === locale}
             onClick={() => router.replace(pathname, { locale: l })}
           >
-            {labels[l] ?? l}
+            {localeLabels[l]}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

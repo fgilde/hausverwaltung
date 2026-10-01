@@ -17,7 +17,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { money, date } from "@/lib/format";
+import { money, date, intlLocale } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import {
   Card,
@@ -133,7 +133,7 @@ export default async function DashboardPage() {
     const zahlung = paymentsRecent
       .filter((p) => { const x = new Date(p.date); return x.getUTCFullYear() === y && x.getUTCMonth() === m; })
       .reduce((a, p) => a + Number(p.amount), 0);
-    const label = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", { month: "short" }).format(d);
+    const label = new Intl.DateTimeFormat(intlLocale(locale), { month: "short" }).format(d);
     return { label, soll, zahlung };
   });
 

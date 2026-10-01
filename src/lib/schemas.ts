@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { routing } from "@/i18n/routing";
 
 export type ActionState = { ok?: boolean; error?: string };
 
@@ -298,7 +299,7 @@ export const setupSchema = z.object({
   name: z.string().trim().min(1),
   email: z.string().trim().email(),
   password: z.string().min(6),
-  locale: z.enum(["de", "en"]),
+  locale: z.enum(routing.locales),
   brandColor: optionalStr,
   // optionales erstes Objekt
   propertyName: optionalStr,

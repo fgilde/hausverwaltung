@@ -2,7 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { ChevronLeft, ChevronRight, Wrench, Gavel, CalendarDays } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { date } from "@/lib/format";
+import { date, intlLocale } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -83,7 +83,7 @@ export default async function CalendarPage({
 
   const prev = month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 };
   const next = month === 11 ? { year: year + 1, month: 0 } : { year, month: month + 1 };
-  const monthName = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", {
+  const monthName = new Intl.DateTimeFormat(intlLocale(locale), {
     month: "long",
     year: "numeric",
   }).format(new Date(Date.UTC(year, month, 1)));
