@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DocumentPreview } from "@/components/document-preview";
+import { markInboundRead } from "@/server/actions/inbound";
 
 type Attachment = { id: string; name: string; mime: string };
 
@@ -18,6 +19,7 @@ type Attachment = { id: string; name: string; mime: string };
 // eines Kontakts, ein- wie ausgehend (#39).
 export function EmailViewDialog({
   message,
+  markReadId,
 }: {
   message: {
     from?: string | null;
@@ -28,10 +30,11 @@ export function EmailViewDialog({
     body: string;
     attachments: Attachment[];
   };
+  markReadId?: string; // ungelesene eingehende Mail: beim Öffnen als gelesen markieren (#43)
 }) {
   const t = useTranslations();
   return (
-    <Dialog>
+    <Dialog onOpenChange={(open) => open && markReadId && markInboundRead(markReadId)}>
       <DialogTrigger
         render={<Button variant="ghost" size="icon" aria-label={t("email.view")} title={t("email.view")} />}
       >

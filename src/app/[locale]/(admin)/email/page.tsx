@@ -1,10 +1,12 @@
 import { getTranslations, getLocale } from "next-intl/server";
-import { Send, Mail, Paperclip } from "lucide-react";
-import { requireUser } from "@/lib/rbac";
+import { Send, Mail, Paperclip, Reply, Check, CircleDot } from "lucide-react";
+import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
+import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import { date } from "@/lib/format";
+import { date, dateTime } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { isMailerConfigured } from "@/lib/adapters/mailer";
+import { isImapConfigured } from "@/lib/adapters/imap";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,14 +23,20 @@ import { BulkEmailDialog } from "@/components/bulk-email-dialog";
 import { EmailViewDialog } from "@/components/email-view-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { sendEmail, deleteEmail } from "@/server/actions/email";
+import { setInboundFlag } from "@/server/actions/inbound";
+import { InboxSyncButton } from "@/components/inbox-sync-button";
+import { cn } from "@/lib/utils";
 
-export default async function EmailPage() {
+// Kommunikation (#43): Posteingang (IMAP-Import) und Postausgang auf einer Seite.
+export default async function EmailPage({ searchParams }: { searchParams: Promise<{ box?: string }> }) {
+  const box = (await searchParams).box === "out" ? "out" : "in";
   const user = await requireUser();
+  const canWrite = roleAllows(user.role, WRITE_ROLES);
   const t = await getTranslations();
   const locale = await getLocale();
   const df = await getDateLocale(locale);
 
-  const [messages, tenant, persons, documents, properties, templates] = await Promise.all([
+  const [messages, tenant, persons, documents, properties, templates, inbound, unread] = await Promise.all([
     prisma.emailMessage.findMany({
       where: { tenantId: user.tenantId },
       include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
@@ -36,7 +44,7 @@ export default async function EmailPage() {
     }),
     prisma.tenant.findUnique({
       where: { id: user.tenantId },
-      select: { smtpHost: true, smtpPort: true, smtpUser: true, smtpFrom: true, smtpSecure: true },
+      select: { smtpHost: true, smtpPort: true, smtpUser: true, smtpFrom: true, smtpSecure: true, imapHost: true, imapUser: true },
     }),
     prisma.person.findMany({
       where: { tenantId: user.tenantId, email: { not: null } },
@@ -55,7 +63,21 @@ export default async function EmailPage() {
       orderBy: [{ category: "asc" }, { name: "asc" }],
       select: { id: true, name: true, subject: true, body: true },
     }),
+    // ponytail: feste Obergrenze statt Paginierung, Seiten wenn Postfächer größer werden
+    box === "in"
+      ? prisma.inboundEmail.findMany({
+          where: { tenantId: user.tenantId },
+          include: {
+            person: { select: { id: true, firstName: true, lastName: true } },
+            attachments: { include: { document: { select: { id: true, name: true, mime: true } } } },
+          },
+          orderBy: { receivedAt: "desc" },
+          take: 200,
+        })
+      : [],
+    prisma.inboundEmail.count({ where: { tenantId: user.tenantId, readAt: null } }),
   ]);
+  const imapConfigured = isImapConfigured({ host: tenant?.imapHost, user: tenant?.imapUser });
   const personOpts = persons.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName}`, email: p.email! }));
   const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
   const configured = isMailerConfigured({
@@ -82,6 +104,151 @@ export default async function EmailPage() {
         </div>
       </div>
 
+      <div className="flex items-center justify-between gap-4 border-b">
+        <div className="flex gap-1">
+          {(["in", "out"] as const).map((b) => (
+            <Link
+              key={b}
+              href={b === "in" ? "/email" : "/email?box=out"}
+              className={cn(
+                "-mb-px border-b-2 px-3 py-2 text-sm font-medium",
+                box === b ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t(b === "in" ? "email.inbox" : "email.outbox")}
+              {b === "in" && unread > 0 && <Badge className="ml-2">{unread}</Badge>}
+            </Link>
+          ))}
+        </div>
+        {box === "in" && imapConfigured && canWrite && <InboxSyncButton />}
+      </div>
+
+      {box === "in" ? (
+        <Card>
+          <CardContent className="p-0">
+            {inbound.length === 0 ? (
+              <p className="p-6 text-sm text-muted-foreground">{t(imapConfigured ? "email.inboxEmpty" : "email.noImap")}</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("email.from")}</TableHead>
+                    <TableHead>{t("email.subject")}</TableHead>
+                    <TableHead>{t("email.status")}</TableHead>
+                    <TableHead>{t("fields.date")}</TableHead>
+                    <TableHead className="w-40 text-right">{t("common.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {inbound.map((m) => {
+                    const name = m.person ? `${m.person.firstName} ${m.person.lastName}` : m.fromName || m.fromAddress;
+                    const subject = m.subject ?? "(ohne Betreff)";
+                    return (
+                      <TableRow key={m.id} className={cn(!m.readAt && "bg-muted/40")}>
+                        <TableCell className={cn(!m.readAt && "font-semibold")}>
+                          {m.person ? (
+                            <Link href={`/persons/${m.person.id}`} className="hover:underline">
+                              {name}
+                            </Link>
+                          ) : (
+                            name
+                          )}
+                          {name !== m.fromAddress && (
+                            <div className="text-xs font-normal text-muted-foreground">{m.fromAddress}</div>
+                          )}
+                        </TableCell>
+                        <TableCell className={cn(!m.readAt && "font-semibold")}>
+                          <span className="flex items-center gap-2">
+                            {subject}
+                            {m.attachments.length > 0 && (
+                              <span className="flex items-center gap-0.5 text-xs font-normal text-muted-foreground">
+                                <Paperclip className="size-3" />
+                                {m.attachments.length}
+                              </span>
+                            )}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {!m.readAt && <Badge>{t("email.unread")}</Badge>}
+                            {m.doneAt ? (
+                              <Badge variant="secondary">{t("email.done")}</Badge>
+                            ) : (
+                              <Badge variant="outline">{t("email.open")}</Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{dateTime(m.receivedAt, df)}</TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            <EmailViewDialog
+                              markReadId={canWrite && !m.readAt ? m.id : undefined}
+                              message={{
+                                from: m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress,
+                                date: dateTime(m.receivedAt, df),
+                                subject,
+                                body: m.body,
+                                attachments: m.attachments.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime })),
+                              }}
+                            />
+                            {canWrite && (
+                              <>
+                                <EmailCompose
+                                  persons={[]}
+                                  documents={documents}
+                                  templates={templates}
+                                  defaultTo={m.fromAddress}
+                                  defaultSubject={/^re:/i.test(subject) ? subject : `Re: ${subject}`}
+                                  defaultBody={`\n\n${m.body.split("\n").map((l) => `> ${l}`).join("\n")}`}
+                                  triggerLabel={t("email.reply")}
+                                  trigger={
+                                    <Button variant="ghost" size="icon" aria-label={t("email.reply")} title={t("email.reply")}>
+                                      <Reply className="size-4" />
+                                    </Button>
+                                  }
+                                />
+                                <form action={setInboundFlag}>
+                                  <input type="hidden" name="id" value={m.id} />
+                                  <input type="hidden" name="flag" value="read" />
+                                  <input type="hidden" name="value" value={m.readAt ? "false" : "true"} />
+                                  <Button
+                                    type="submit"
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={t(m.readAt ? "email.markUnread" : "email.markRead")}
+                                    title={t(m.readAt ? "email.markUnread" : "email.markRead")}
+                                  >
+                                    <CircleDot className="size-4" />
+                                  </Button>
+                                </form>
+                                <form action={setInboundFlag}>
+                                  <input type="hidden" name="id" value={m.id} />
+                                  <input type="hidden" name="flag" value="done" />
+                                  <input type="hidden" name="value" value={m.doneAt ? "false" : "true"} />
+                                  <Button
+                                    type="submit"
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={t(m.doneAt ? "email.markOpen" : "email.markDone")}
+                                    title={t(m.doneAt ? "email.markOpen" : "email.markDone")}
+                                  >
+                                    <Check className={cn("size-4", m.doneAt && "text-primary")} />
+                                  </Button>
+                                </form>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+      <>
       {!configured && (
         <div className="rounded-md border-l-2 border-amber-500 bg-amber-500/10 px-3 py-2 text-sm text-muted-foreground">
           {t("email.noSmtp")}
@@ -161,6 +328,8 @@ export default async function EmailPage() {
           )}
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }

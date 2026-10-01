@@ -361,6 +361,8 @@ model InboundEmail {
   personId    String?
   person      Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
   attachments InboundEmailAttachment[]
+  readAt      DateTime? // gelesen (Posteingang, #43)
+  doneAt      DateTime? // bearbeitet/erledigt
   createdAt   DateTime @default(now())
 
   @@unique([tenantId, messageId])

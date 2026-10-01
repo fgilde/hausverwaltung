@@ -65,7 +65,7 @@
     "templates": "Templates",
     "settings": "Settings",
     "calendar": "Calendar",
-    "email": "Outbox",
+    "email": "Communication",
     "audit": "Audit log",
     "tenants": "Tenants",
     "insurance": "Insurance",
@@ -1034,8 +1034,8 @@
     "DELETE": "Deleted"
   },
   "email": {
-    "title": "Outbox",
-    "subtitle": "Compose and send emails to tenants and owners",
+    "title": "Communication",
+    "subtitle": "Incoming and outgoing emails in one place",
     "compose": "New email",
     "to": "To",
     "toPlaceholder": "address@example.com, separate multiple with commas",
@@ -1071,7 +1071,19 @@
         "body": "Dear Sir or Madam,\n\nplease find attached your service-charge statement. We are happy to answer any questions.\n\nKind regards\nYour property management"
       }
     },
-    "from": "From"
+    "from": "From",
+    "inbox": "Inbox",
+    "outbox": "Outbox",
+    "inboxEmpty": "No incoming emails.",
+    "noImap": "No IMAP mailbox configured. Add credentials under Settings → Email and incoming mail will show up here.",
+    "unread": "Unread",
+    "open": "Open",
+    "done": "Done",
+    "reply": "Reply",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "markDone": "Mark as done",
+    "markOpen": "Reopen"
   },
   "emailStatus": {
     "ENTWURF": "Draft",

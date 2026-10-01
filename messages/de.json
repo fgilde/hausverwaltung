@@ -65,7 +65,7 @@
     "templates": "Vorlagen",
     "settings": "Einstellungen",
     "calendar": "Kalender",
-    "email": "Postausgang",
+    "email": "Kommunikation",
     "audit": "Änderungsprotokoll",
     "tenants": "Mandanten",
     "insurance": "Versicherungen",
@@ -1034,8 +1034,8 @@
     "DELETE": "Gelöscht"
   },
   "email": {
-    "title": "Postausgang",
-    "subtitle": "E-Mails an Mieter und Eigentümer erfassen und versenden",
+    "title": "Kommunikation",
+    "subtitle": "Eingehende und ausgehende E-Mails an einem Ort",
     "compose": "Neue E-Mail",
     "to": "An",
     "toPlaceholder": "adresse@example.de, mehrere mit Komma",
@@ -1071,7 +1071,19 @@
         "body": "Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie Ihre Betriebskostenabrechnung. Bei Rückfragen stehen wir gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhre Hausverwaltung"
       }
     },
-    "from": "Von"
+    "from": "Von",
+    "inbox": "Posteingang",
+    "outbox": "Postausgang",
+    "inboxEmpty": "Keine eingegangenen E-Mails.",
+    "noImap": "Kein IMAP-Postfach konfiguriert. Zugangsdaten unter Einstellungen → E-Mail eintragen, dann erscheinen eingehende Mails hier.",
+    "unread": "Ungelesen",
+    "open": "Offen",
+    "done": "Erledigt",
+    "reply": "Antworten",
+    "markRead": "Als gelesen markieren",
+    "markUnread": "Als ungelesen markieren",
+    "markDone": "Als erledigt markieren",
+    "markOpen": "Wieder öffnen"
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",

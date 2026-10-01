@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { useTranslations } from "next-intl";
 import { Plus, Paperclip } from "lucide-react";
 import { createEmail } from "@/server/actions/email";
@@ -26,18 +26,24 @@ export function EmailCompose({
   documents,
   templates,
   defaultTo,
+  defaultSubject,
+  defaultBody,
   triggerLabel,
+  trigger,
 }: {
   persons: Person[];
   documents: Doc[];
   templates: Tpl[];
   defaultTo?: string; // vorbelegter Empfänger, z. B. „Neue Nachricht" am Kontakt (#44)
+  defaultSubject?: string;
+  defaultBody?: string;
   triggerLabel?: string;
+  trigger?: ReactElement; // eigener Auslöser, z. B. Antworten-Icon im Posteingang (#43)
 }) {
   const t = useTranslations();
   const [to, setTo] = useState(defaultTo ?? "");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [subject, setSubject] = useState(defaultSubject ?? "");
+  const [body, setBody] = useState(defaultBody ?? "");
 
   function addPerson(email: string) {
     if (!email) return;
@@ -57,10 +63,12 @@ export function EmailCompose({
   return (
     <CrudDialog
       trigger={
-        <Button size="sm">
-          <Plus className="size-4" />
-          {triggerLabel ?? t("email.compose")}
-        </Button>
+        trigger ?? (
+          <Button size="sm">
+            <Plus className="size-4" />
+            {triggerLabel ?? t("email.compose")}
+          </Button>
+        )
       }
       title={triggerLabel ?? t("email.compose")}
       action={createEmail}
