@@ -302,6 +302,45 @@ dialog[open]{animation:modalpop .24s ease}
 @keyframes modalpop{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){dialog[open]{animation:none}}
 
+/* ============ Lightbox (Screenshots groß) ============ */
+.frame{position:relative}
+img[data-zoom]{cursor:zoom-in}
+.zoom-hint{position:absolute;right:14px;bottom:14px;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--ink) 78%,transparent);color:var(--paper);opacity:0;transform:translateY(4px);
+  transition:opacity .2s,transform .2s;pointer-events:none}
+.zoom-hint svg{width:18px;height:18px}
+.frame:hover .zoom-hint{opacity:1;transform:none}
+@media (hover:none){.zoom-hint{opacity:.85;transform:none}}
+dialog.lightbox{max-width:none;width:100vw;height:100vh;max-height:none;margin:0;padding:0}
+dialog.lightbox::backdrop{background:rgba(10,9,7,.88)}
+.lb-stage{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:56px 72px 28px}
+.lb-scroll{max-width:100%;max-height:calc(100vh - 140px);overflow:auto;border-radius:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
+.lb-scroll img{display:block;max-width:min(1600px,calc(100vw - 144px));max-height:calc(100vh - 140px);width:auto;height:auto;cursor:zoom-in}
+.lb-scroll.full img{max-width:none;max-height:none;width:2880px;cursor:zoom-out}
+.lb-cap{color:#F3EFE6;font-size:15px;text-align:center;max-width:900px;display:flex;gap:12px;align-items:baseline;justify-content:center;flex-wrap:wrap}
+.lb-cap .lb-count{color:rgba(243,239,230,.55);font-size:13px;font-variant-numeric:tabular-nums}
+.lb-btn{position:absolute;width:46px;height:46px;border-radius:12px;border:1px solid rgba(243,239,230,.22);background:rgba(243,239,230,.08);
+  color:#F3EFE6;display:grid;place-items:center;cursor:pointer;transition:background .18s}
+.lb-btn:hover{background:rgba(243,239,230,.18)}
+.lb-btn svg{width:22px;height:22px}
+.lb-prev{left:14px;top:50%;transform:translateY(-50%)}
+.lb-next{right:14px;top:50%;transform:translateY(-50%)}
+.lb-close{right:14px;top:14px}
+@media(max-width:700px){.lb-stage{padding:60px 10px 20px}.lb-scroll img{max-width:calc(100vw - 20px)}.lb-prev,.lb-next{top:auto;bottom:14px;transform:none}}
+
+/* ============ Galerie: weitere Ansichten ============ */
+.gallery{margin-top:56px}
+.gallery h3{font-family:var(--serif);font-size:24px;margin:0 0 6px}
+.gallery > p{color:var(--muted);font-size:15.5px;margin:0 0 22px}
+.gal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:900px){.gal-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.gal-grid{grid-template-columns:1fr}}
+.gal-item{margin:0}
+.gal-item .frame{box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s}
+.gal-item .frame:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.gal-item figcaption{font-size:14px;color:var(--ink-soft);font-weight:600;margin-top:10px}
+@media (prefers-reduced-motion:reduce){.gal-item .frame:hover{transform:none}}
+
 /* ============ Reveal on scroll ============ */
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
@@ -378,7 +417,7 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
         <div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div>
           <div class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>app.havewa.app/dashboard</div>
         </div>
-        <img src="./screenshots/dashboard.png" alt="HaVeWa Dashboard mit Kennzahlen zu Objekten, Einheiten, Sollmiete, offenen Posten sowie Aufgaben, Fristen und KI-Assistent" data-i18n-alt="alt.dashboard" loading="eager">
+        <img src="./screenshots/dashboard.png" alt="HaVeWa Dashboard mit Kennzahlen zu Objekten, Einheiten, Sollmiete, offenen Posten sowie Aufgaben, Fristen und KI-Assistent" data-i18n-alt="alt.dashboard" loading="eager" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
       </div>
       <div class="hero-float">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6L17 18l-5-3.7L7 18l1.9-5.6L4 8.8h6.1z"/></svg></span>
@@ -415,15 +454,15 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span><h4 data-i18n="c3.h">Finanzen &amp; Sollstellung</h4><p data-i18n="c3.p">Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus stets im Blick.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><h4 data-i18n="c4.h">Betriebskostenabrechnung</h4><p data-i18n="c4.p">BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong>, prüfsicher und nachvollziehbar.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v4H3zM3 10h18v10H3z"/><path d="M8 14h8M8 17h5"/></svg></span><h4 data-i18n="c5.h">Bankimport &amp; Export</h4><p data-i18n="c5.p">camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export, die Buchhaltung bleibt anschlussfähig.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="m4 6 8 5 8-5"/><path d="M2 20h20"/></svg></span><h4 data-i18n="c6.h">Postausgang</h4><p data-i18n="c6.p">E-Mails an Mieter und Eigentümer direkt aus dem System, mit Vorlagen, Anhängen und lückenloser Historie.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="m4 6 8 5 8-5"/><path d="M2 20h20"/></svg></span><h4 data-i18n="c6.h">Kommunikation</h4><p data-i18n="c6.p">Posteingang und Postausgang in einem: Mails per IMAP abrufen, Antworten als Unterhaltung bündeln und direkt aus HaVeWa beantworten.</p></div>
       </div>
     </div>
 
     <div class="group reveal">
       <div class="group-head"><span class="tag weg" data-i18n="g.weg.tag">WEG-Verwaltung</span><h3 data-i18n="g.weg.title">Wohnungseigentum rechtssicher managen</h3></div>
       <div class="cards">
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M12 5v16"/></svg></span><h4 data-i18n="c7.h">MEA &amp; Wirtschaftsplan</h4><p data-i18n="c7.p">Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr, als Basis für jede Abrechnung.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3M16 3v3M4 8h16"/><rect x="4" y="6" width="16" height="15" rx="2"/><path d="M9 14l2 2 4-4"/></svg></span><h4 data-i18n="c8.h">Jahresabrechnung</h4><p data-i18n="c8.p">Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden, transparent bis auf die einzelne Einheit.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M12 5v16"/></svg></span><h4 data-i18n="c7.h">MEA, Wirtschaftsplan &amp; Untergemeinschaften</h4><p data-i18n="c7.p">Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr, auf Wunsch getrennt nach Untergemeinschaften mit eigener MEA-Basis.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3M16 3v3M4 8h16"/><rect x="4" y="6" width="16" height="15" rx="2"/><path d="M9 14l2 2 4-4"/></svg></span><h4 data-i18n="c8.h">Jahresabrechnung</h4><p data-i18n="c8.p">Jede Kostenposition nach ihrem eigenen Verteilerschlüssel umgelegt, Hausgeldabgleich und Salden, transparent bis auf die einzelne Einheit.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M6 8h12l-1 5H7z"/><path d="M5 21h14"/><path d="M9 13v8M15 13v8"/></svg></span><h4 data-i18n="c9.h">Erhaltungsrücklagen</h4><p data-i18n="c9.p">Rücklagen führen, Zuführungen und Entnahmen buchen und den Vermögensbericht auf Knopfdruck erzeugen.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="m6 21 6-16 6 16"/><path d="M12 5 4 9m8-4 8 4"/><circle cx="12" cy="4" r="1.5"/></svg></span><h4 data-i18n="c10.h">Eigentümerversammlung</h4><p data-i18n="c10.p">Tagesordnung, Einladungen und Abstimmungen, mit rechtssicherer Beschlusssammlung nach §24 WEG.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13A4 4 0 0 1 16 11"/></svg></span><h4 data-i18n="c11.h">Eigentümer-Portal</h4><p data-i18n="c11.p">Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar, weniger Rückfragen.</p></div>
@@ -439,7 +478,7 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6a2 2 0 0 1 2-2h5l2 2h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg></span><h4 data-i18n="c15.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="c15.p">GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong>, revisionssicher archiviert.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><h4 data-i18n="c16.h">Globale Suche</h4><p data-i18n="c16.p">Objekt, Einheit, Person oder Beleg in Sekunden gefunden, eine Suche über den gesamten Bestand.</p></div>
         <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v5h5"/><path d="M8 17h8v3H8zM8 12h8"/></svg></span><h4 data-i18n="c17.h">Druck &amp; PDF-Ausgabe</h4><p data-i18n="c17.p">Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF, im Corporate-Layout der Verwaltung.</p></div>
-        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5z"/><path d="M9 12h6M12 9v6"/></svg></span><h4 data-i18n="c18.h">Audit-Log &amp; RBAC</h4><p data-i18n="c18.p">Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit, DE/EN zweisprachig.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5z"/><path d="M9 12h6M12 9v6"/></svg></span><h4 data-i18n="c18.h">Audit-Log &amp; RBAC</h4><p data-i18n="c18.p">Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC), Mandantenfähigkeit und Single Sign-on, auf Deutsch, Englisch und Portugiesisch.</p></div>
       </div>
     </div>
   </div>
@@ -457,52 +496,83 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
       <button class="tab" role="tab" aria-selected="true" data-tab="s1" data-i18n="tab1">Objekte</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="s2" data-i18n="tab2">Finanzen</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="s3" data-i18n="tab3">Betriebskosten</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="s4" data-i18n="tab4">Versammlung</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="s5" data-i18n="tab5">Instandhaltung</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="s6" data-i18n="tab6">Dokumente</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="s7" data-i18n="tab7">Kalender</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="s8" data-i18n="tab8">Portal</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s4" data-i18n="tab4">WEG</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s5" data-i18n="tab5">Versammlung</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s6" data-i18n="tab6">Kommunikation</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s7" data-i18n="tab7">Instandhaltung</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s8" data-i18n="tab8">Dokumente</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s9" data-i18n="tab9">Kalender</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="s10" data-i18n="tab10">Portal</button>
     </div>
 
     <div class="panel active" id="s1" role="tabpanel">
-      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/objekte</div></div>
-        <img src="./screenshots/properties.png" alt="Objekt-, Gebäude- und Einheitenverwaltung in HaVeWa" data-i18n-alt="alt.properties" loading="lazy"></div>
-      <div class="cap"><span class="num">01</span><div><h4 data-i18n="p1.h">Objekte, Gebäude &amp; Einheiten</h4><p data-i18n="p1.p">Der komplette Bestand auf einen Blick, Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.</p></div></div>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/objekte/lindenstrasse</div></div>
+        <img src="./screenshots/properties.png" alt="Objektansicht mit Gebäuden und Einheiten in HaVeWa" data-i18n-alt="alt.properties" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">01</span><div><h4 data-i18n="p1.h">Objekte, Gebäude &amp; Einheiten</h4><p data-i18n="p1.p">Der komplette Bestand auf einen Blick: Gebäude, Einheiten, Flächen und Verwalterhonorar je Objekt, klar strukturiert.</p></div></div>
     </div>
     <div class="panel" id="s2" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/finanzen</div></div>
-        <img src="./screenshots/finances.png" alt="Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa" data-i18n-alt="alt.finances" loading="lazy"></div>
+        <img src="./screenshots/finances.png" alt="Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa" data-i18n-alt="alt.finances" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
       <div class="cap"><span class="num">02</span><div><h4 data-i18n="p2.h">Finanzen &amp; Mahnwesen</h4><p data-i18n="p2.p">Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus jederzeit aktuell.</p></div></div>
     </div>
     <div class="panel" id="s3" role="tabpanel" hidden>
       <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/abrechnungen</div></div>
-        <img src="./screenshots/statements.png" alt="Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa" data-i18n-alt="alt.statements" loading="lazy"></div>
-      <div class="cap"><span class="num">03</span><div><h4 data-i18n="p3.h">Betriebskostenabrechnung</h4><p data-i18n="p3.p">Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch, prüfsicher aufbereitet für jeden Mieter.</p></div></div>
+        <img src="./screenshots/statements.png" alt="Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa" data-i18n-alt="alt.statements" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">03</span><div><h4 data-i18n="p3.h">Betriebskostenabrechnung</h4><p data-i18n="p3.p">Verteilerschlüssel je Kostenposition und HeizkostenV 30/70 nach Verbrauch, mit Ergebnis je Mieter und KI-Erklärung.</p></div></div>
     </div>
     <div class="panel" id="s4" role="tabpanel" hidden>
-      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/versammlungen</div></div>
-        <img src="./screenshots/meetings.png" alt="Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa" data-i18n-alt="alt.meetings" loading="lazy"></div>
-      <div class="cap"><span class="num">04</span><div><h4 data-i18n="p4.h">Eigentümerversammlung</h4><p data-i18n="p4.p">Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG, vollständig dokumentiert.</p></div></div>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/weg/parkblick</div></div>
+        <img src="./screenshots/weg.png" alt="WEG-Verwaltung mit Untergemeinschaften, MEA-Basis und Eigentümern in HaVeWa" data-i18n-alt="alt.weg" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">04</span><div><h4 data-i18n="p4.h">WEG &amp; Untergemeinschaften</h4><p data-i18n="p4.p">Miteigentumsanteile, Hausgeld und Jahresabrechnung, auf Wunsch getrennt nach Untergemeinschaften wie Haupt- und Gartenhaus, mit eigener MEA-Basis.</p></div></div>
     </div>
     <div class="panel" id="s5" role="tabpanel" hidden>
-      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/instandhaltung</div></div>
-        <img src="./screenshots/tickets.png" alt="Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa" data-i18n-alt="alt.tickets" loading="lazy"></div>
-      <div class="cap"><span class="num">05</span><div><h4 data-i18n="p5.h">Instandhaltung &amp; Tickets</h4><p data-i18n="p5.p">Von der Schadensmeldung bis zum beauftragten Handwerker, inklusive Wartungsfristen und Historie.</p></div></div>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/versammlungen</div></div>
+        <img src="./screenshots/meetings.png" alt="Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa" data-i18n-alt="alt.meetings" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">05</span><div><h4 data-i18n="p5.h">Eigentümerversammlung</h4><p data-i18n="p5.p">Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG, auch für Beschlüsse einzelner Untergemeinschaften.</p></div></div>
     </div>
     <div class="panel" id="s6" role="tabpanel" hidden>
-      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/dokumente</div></div>
-        <img src="./screenshots/documents.png" alt="GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa" data-i18n-alt="alt.documents" loading="lazy"></div>
-      <div class="cap"><span class="num">06</span><div><h4 data-i18n="p6.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="p6.p">GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD), revisionssicher.</p></div></div>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/kommunikation</div></div>
+        <img src="./screenshots/email.png" alt="Kommunikation mit Unterhaltungen, Posteingang und Postausgang in HaVeWa" data-i18n-alt="alt.email" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">06</span><div><h4 data-i18n="p6.h">Kommunikation</h4><p data-i18n="p6.p">Posteingang und Postausgang an einem Ort: eingehende Mails per IMAP, Antworten automatisch als Unterhaltung gebündelt, gelesen und erledigt im Blick.</p></div></div>
     </div>
     <div class="panel" id="s7" role="tabpanel" hidden>
-      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/kalender</div></div>
-        <img src="./screenshots/calendar.png" alt="Kalender mit Monatsansicht für Termine und Fristen in HaVeWa" data-i18n-alt="alt.calendar" loading="lazy"></div>
-      <div class="cap"><span class="num">07</span><div><h4 data-i18n="p7.h">Kalender &amp; Fristen</h4><p data-i18n="p7.p">Wartungen, Versammlungen und gesetzliche Fristen in einer übersichtlichen Monatsansicht.</p></div></div>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/instandhaltung</div></div>
+        <img src="./screenshots/tickets.png" alt="Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa" data-i18n-alt="alt.tickets" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">07</span><div><h4 data-i18n="p7.h">Instandhaltung &amp; Tickets</h4><p data-i18n="p7.p">Von der Schadensmeldung bis zum beauftragten Handwerker, inklusive Wartungsfristen und Historie.</p></div></div>
     </div>
     <div class="panel" id="s8" role="tabpanel" hidden>
-      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">portal.havewa.app</div></div>
-        <img src="./screenshots/portal.png" alt="Self-Service-Portal für Mieter und Eigentümer in HaVeWa" data-i18n-alt="alt.portal" loading="lazy"></div>
-      <div class="cap"><span class="num">08</span><div><h4 data-i18n="p8.h">Mieter- &amp; Eigentümer-Portal</h4><p data-i18n="p8.p">Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen, rund um die Uhr, ohne Rückfragen.</p></div></div>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/dokumente</div></div>
+        <img src="./screenshots/documents.png" alt="GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa" data-i18n-alt="alt.documents" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">08</span><div><h4 data-i18n="p8.h">Dokumente &amp; E-Rechnung</h4><p data-i18n="p8.p">GoBD-konforme Ablage mit Vorschau und automatischer Erkennung von E-Rechnungen (ZUGFeRD), revisionssicher.</p></div></div>
+    </div>
+    <div class="panel" id="s9" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/kalender</div></div>
+        <img src="./screenshots/calendar.png" alt="Kalender mit Monatsansicht für Termine und Fristen in HaVeWa" data-i18n-alt="alt.calendar" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">09</span><div><h4 data-i18n="p9.h">Kalender &amp; Fristen</h4><p data-i18n="p9.p">Wartungen, Versammlungen und gesetzliche Fristen in einer übersichtlichen Monatsansicht.</p></div></div>
+    </div>
+    <div class="panel" id="s10" role="tabpanel" hidden>
+      <div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">app.havewa.app/portal</div></div>
+        <img src="./screenshots/portal.png" alt="Self-Service-Portal für Mieter und Eigentümer in HaVeWa" data-i18n-alt="alt.portal" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+      <div class="cap"><span class="num">10</span><div><h4 data-i18n="p10.h">Mieter- &amp; Eigentümer-Portal</h4><p data-i18n="p10.p">Self-Service für Bewohner: Eigentum, Beschlüsse und Dokumente, rund um die Uhr, ohne Rückfragen.</p></div></div>
+    </div>
+
+    <div class="gallery reveal">
+      <h3 data-i18n="gal.h">Weitere Ansichten</h3>
+      <p data-i18n="gal.p">Ein Klick auf ein Bild öffnet es in voller Größe, mit den Pfeiltasten blättern Sie durch alle Ansichten.</p>
+      <div class="gal-grid">
+        <figure class="gal-item"><div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div></div>
+          <img src="./screenshots/thread.png" alt="Eine Unterhaltung mit Mieterin: Abrechnung, Rückfrage, Antwort und Rückmeldung chronologisch" data-i18n-alt="alt.thread" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+          <figcaption data-i18n="gal.thread">Unterhaltung als Thread</figcaption></figure>
+        <figure class="gal-item"><div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div></div>
+          <img src="./screenshots/person.png" alt="Kontaktansicht mit Mietverhältnis und vollständigem E-Mail-Verlauf" data-i18n-alt="alt.person" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+          <figcaption data-i18n="gal.person">Kontakt mit E-Mail-Verlauf</figcaption></figure>
+        <figure class="gal-item"><div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div></div>
+          <img src="./screenshots/print.png" alt="Druckansicht der WEG-Jahresabrechnung mit Kostenaufstellung je Untergemeinschaft" data-i18n-alt="alt.print" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+          <figcaption data-i18n="gal.print">WEG-Abrechnung als PDF</figcaption></figure>
+        <figure class="gal-item"><div class="frame"><div class="frame-bar"><div class="dots"><i></i><i></i><i></i></div></div>
+          <img src="./screenshots/audit.png" alt="Lückenloses Änderungsprotokoll mit Benutzer, Aktion und Zeitpunkt" data-i18n-alt="alt.audit" loading="lazy" data-zoom><span class="zoom-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span></div>
+          <figcaption data-i18n="gal.audit">Änderungsprotokoll</figcaption></figure>
+      </div>
     </div>
   </div>
 </section>
@@ -653,15 +723,47 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
       </details>
       <details>
         <summary><span data-i18n="faq.q4">Kann ich Bankdaten importieren und an DATEV übergeben?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="ans" data-i18n="faq.a4">Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.</div>
+        <div class="ans" data-i18n="faq.a4">Ja. Kontoumsätze lassen sich per camt.053 importieren oder per Open Banking automatisch abrufen und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.</div>
       </details>
       <details>
         <summary><span data-i18n="faq.q5">Was leistet der KI-Assistent genau?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="ans" data-i18n="faq.a5">Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.</div>
+        <div class="ans" data-i18n="faq.a5">Der Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen, und erklärt Abrechnungen. Sie hinterlegen dafür Ihren eigenen Schlüssel für Claude (Anthropic) oder einen OpenAI-kompatiblen Anbieter. Er sieht ausschließlich Ihren eigenen, mandantengetrennten Datenbestand.</div>
       </details>
       <details>
         <summary><span data-i18n="faq.q6">Wie starte ich, und bin ich langfristig gebunden?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
         <div class="ans" data-i18n="faq.a6">HaVeWa ist aktuell in der Beta und kostenlos nutzbar. Eine Preisstaffelung folgt später; wir informieren rechtzeitig, bevor sich etwas ändert. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q7">Kann ich HaVeWa selbst hosten?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a7">Ja. HaVeWa läuft per Docker Compose auf jedem Server, mit automatischem HTTPS über Caddy. Für Heimserver gibt es fertige Vorlagen für Unraid, Umbrel, CasaOS und Cosmos sowie ein Skript für Proxmox. Ein Einrichtungsassistent führt durch den ersten Start.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q8">Ist HaVeWa Open Source?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a8">Ja. Der Quellcode steht unter der GNU AGPLv3 auf GitHub, Sie können ihn frei nutzen, prüfen und anpassen. Wer HaVeWa ohne die Offenlegungspflicht der AGPL einsetzen möchte, etwa in einem geschlossenen Produkt, kann eine kommerzielle Lizenz erhalten.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q9">Unterstützt HaVeWa Untergemeinschaften in einer WEG?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a9">Ja. Einheiten lassen sich Untergemeinschaften zuordnen, etwa Vorder- und Hinterhaus. Kostenpositionen, Erhaltungsrücklagen, Beschlüsse und ein eigener Wirtschaftsplan können einer Untergemeinschaft gehören. Verteilt und abgestimmt wird dann nur unter deren Einheiten, mit deren MEA-Summe als Nenner.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q10">Wie funktioniert die E-Mail-Kommunikation?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a10">HaVeWa versendet über Ihren SMTP-Server und ruft eingehende Mails per IMAP ab, auf Wunsch automatisch im Hintergrund. Mails werden Kontakten zugeordnet, Antworten über die Mail-Header als Unterhaltung gebündelt und lassen sich direkt beantworten. Anhänge landen in der Dokumentenablage.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q11">Kann ich bestehende Daten übernehmen?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a11">Ja. Objekte, Einheiten und Personen lassen sich per CSV importieren, passende Vorlagen stehen zum Download bereit. Spaltennamen werden auf Deutsch und Englisch erkannt, eigene Felder je Objekt, Einheit und Person sind möglich.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q12">Welche Sprachen gibt es?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a12">Die Oberfläche ist auf Deutsch, Englisch und brasilianischem Portugiesisch verfügbar und lässt sich je Benutzer umschalten. Das Datumsformat ist unabhängig von der Sprache je Mandant einstellbar.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q13">Kann ich mehrere Verwaltungen oder Mandanten betreuen?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a13">Ja. Eine Instanz verwaltet beliebig viele datengetrennte Mandanten, jeweils mit eigenem Branding, eigener E-Mail-Konfiguration und eigenen Benutzern. Rollen regeln, wer was sehen und ändern darf, und per OIDC ist Single Sign-on etwa mit Authentik oder Keycloak möglich.</div>
+      </details>
+      <details>
+        <summary><span data-i18n="faq.q14">Gibt es eine Schnittstelle (API)?</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="ans" data-i18n="faq.a14">Ja. Eine dokumentierte REST-API und ein MCP-Server erlauben Integrationen und die Steuerung per KI-Agent. Der Zugriff erfolgt mit persönlichen Tokens, ist auf den eigenen Mandanten beschränkt und jederzeit widerrufbar.</div>
       </details>
     </div>
   </div>
@@ -736,6 +838,17 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
   </div>
 </dialog>
 
+<!-- ============ LIGHTBOX: Screenshots groß ============ -->
+<dialog id="lightbox" class="lightbox" aria-label="Screenshot" data-i18n-aria="lb.label">
+  <div class="lb-stage">
+    <button class="lb-btn lb-close js-close" type="button" aria-label="Schließen" data-i18n-aria="aria.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="lb-btn lb-prev" type="button" aria-label="Vorheriges Bild" data-i18n-aria="lb.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="lb-scroll"><img alt="" title="Klicken zum Vergrößern" data-i18n-title="lb.toggle"></div>
+    <div class="lb-cap"><span class="lb-text"></span><span class="lb-count"></span></div>
+    <button class="lb-btn lb-next" type="button" aria-label="Nächstes Bild" data-i18n-aria="lb.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+  </div>
+</dialog>
+
 <!-- ============ MODAL: Kontakt (Gilde-Contact) ============ -->
 <dialog id="contactDialog" class="widget-dialog" aria-label="Beratung anfragen" data-i18n-aria="cta.consult">
   <div class="widget-dialog-inner">
@@ -774,10 +887,10 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'c3.h':'Finanzen &amp; Sollstellung','c3.p':'Sollstellungen, Zahlungen, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus stets im Blick.',
     'c4.h':'Betriebskostenabrechnung','c4.p':'BetrKV-konform mit flexibler Verteilerschlüssel-Engine und <strong>HeizkostenV 30/70 nach Verbrauch</strong>, prüfsicher und nachvollziehbar.',
     'c5.h':'Bankimport &amp; Export','c5.p':'camt.053-Bankimport mit Zuordnung sowie DATEV- und SEPA-Export, die Buchhaltung bleibt anschlussfähig.',
-    'c6.h':'Postausgang','c6.p':'E-Mails an Mieter und Eigentümer direkt aus dem System, mit Vorlagen, Anhängen und lückenloser Historie.',
+    'c6.h':'Kommunikation','c6.p':'Posteingang und Postausgang in einem: Mails per IMAP abrufen, Antworten als Unterhaltung bündeln und direkt aus HaVeWa beantworten.',
     'g.weg.tag':'WEG-Verwaltung','g.weg.title':'Wohnungseigentum rechtssicher managen',
-    'c7.h':'MEA &amp; Wirtschaftsplan','c7.p':'Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr, als Basis für jede Abrechnung.',
-    'c8.h':'Jahresabrechnung','c8.p':'Ist-Kosten je Eigentümer umgelegt, Hausgeldabgleich und Salden, transparent bis auf die einzelne Einheit.',
+    'c7.h':'MEA, Wirtschaftsplan &amp; Untergemeinschaften','c7.p':'Miteigentumsanteile, Hausgeld und Wirtschaftsplan je Objekt und Jahr, auf Wunsch getrennt nach Untergemeinschaften mit eigener MEA-Basis.',
+    'c8.h':'Jahresabrechnung','c8.p':'Jede Kostenposition nach ihrem eigenen Verteilerschlüssel umgelegt, Hausgeldabgleich und Salden, transparent bis auf die einzelne Einheit.',
     'c9.h':'Erhaltungsrücklagen','c9.p':'Rücklagen führen, Zuführungen und Entnahmen buchen und den Vermögensbericht auf Knopfdruck erzeugen.',
     'c10.h':'Eigentümerversammlung','c10.p':'Tagesordnung, Einladungen und Abstimmungen, mit rechtssicherer Beschlusssammlung nach §24 WEG.',
     'c11.h':'Eigentümer-Portal','c11.p':'Self-Service für Eigentümer: Abrechnungen, Beschlüsse und Dokumente jederzeit einsehbar, weniger Rückfragen.',
@@ -788,17 +901,17 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'c15.h':'Dokumente &amp; E-Rechnung','c15.p':'GoBD-konforme Ablage mit automatischem Auslesen von <strong>E-Rechnungen / ZUGFeRD</strong>, revisionssicher archiviert.',
     'c16.h':'Globale Suche','c16.p':'Objekt, Einheit, Person oder Beleg in Sekunden gefunden, eine Suche über den gesamten Bestand.',
     'c17.h':'Druck &amp; PDF-Ausgabe','c17.p':'Abrechnungen, Anschreiben und Berichte als sauberes, druckfertiges PDF, im Corporate-Layout der Verwaltung.',
-    'c18.h':'Audit-Log &amp; RBAC','c18.p':'Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC) und Mandantenfähigkeit, DE/EN zweisprachig.',
+    'c18.h':'Audit-Log &amp; RBAC','c18.p':'Lückenloses Änderungsprotokoll, rollenbasierte Rechte (RBAC), Mandantenfähigkeit und Single Sign-on, auf Deutsch, Englisch und Portugiesisch.',
     'show.eyebrow':'Einblicke','show.h2':'Eine Oberfläche, die man gerne benutzt','show.sub':'Ruhig, aufgeräumt, schnell. Echte Ansichten aus HaVeWa, vom Dashboard bis zur druckfertigen Abrechnung.',
-    'tab1':'Objekte','tab2':'Finanzen','tab3':'Betriebskosten','tab4':'Versammlung','tab5':'Instandhaltung','tab6':'Dokumente','tab7':'Kalender','tab8':'Portal',
-    'p1.h':'Objekte, Gebäude &amp; Einheiten','p1.p':'Der komplette Bestand auf einen Blick, Gebäude, Einheiten, Personen und Zähler in einer klaren Struktur.','alt.properties':'Objekt-, Gebäude- und Einheitenverwaltung in HaVeWa',
+    'tab1':'Objekte','tab2':'Finanzen','tab3':'Betriebskosten','tab4':'WEG','tab5':'Versammlung','tab6':'Kommunikation','tab7':'Instandhaltung','tab8':'Dokumente',
+    'p1.h':'Objekte, Gebäude &amp; Einheiten','p1.p':'Der komplette Bestand auf einen Blick: Gebäude, Einheiten, Flächen und Verwalterhonorar je Objekt, klar strukturiert.','alt.properties':'Objektansicht mit Gebäuden und Einheiten in HaVeWa',
     'p2.h':'Finanzen &amp; Mahnwesen','p2.p':'Sollstellung, offene Posten, SEPA-Mandate und dreistufiges Mahnwesen, der Zahlungsstatus jederzeit aktuell.','alt.finances':'Finanzen mit Sollstellung, offenen Posten, Mahnwesen und SEPA in HaVeWa',
-    'p3.h':'Betriebskostenabrechnung','p3.p':'Verteilerschlüssel-Engine und HeizkostenV 30/70 nach Verbrauch, prüfsicher aufbereitet für jeden Mieter.','alt.statements':'Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa',
-    'p4.h':'Eigentümerversammlung','p4.p':'Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG, vollständig dokumentiert.','alt.meetings':'Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa',
-    'p5.h':'Instandhaltung &amp; Tickets','p5.p':'Von der Schadensmeldung bis zum beauftragten Handwerker, inklusive Wartungsfristen und Historie.','alt.tickets':'Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa',
-    'p6.h':'Dokumente &amp; E-Rechnung','p6.p':'GoBD-konforme Ablage mit automatischer Erkennung von E-Rechnungen (ZUGFeRD), revisionssicher.','alt.documents':'GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa',
-    'p7.h':'Kalender &amp; Fristen','p7.p':'Wartungen, Versammlungen und gesetzliche Fristen in einer übersichtlichen Monatsansicht.','alt.calendar':'Kalender mit Monatsansicht für Termine und Fristen in HaVeWa',
-    'p8.h':'Mieter- &amp; Eigentümer-Portal','p8.p':'Self-Service für Bewohner: Dokumente, Abrechnungen und Anliegen, rund um die Uhr, ohne Rückfragen.','alt.portal':'Self-Service-Portal für Mieter und Eigentümer in HaVeWa',
+    'p3.h':'Betriebskostenabrechnung','p3.p':'Verteilerschlüssel je Kostenposition und HeizkostenV 30/70 nach Verbrauch, mit Ergebnis je Mieter und KI-Erklärung.','alt.statements':'Betriebskostenabrechnung mit Verteilerschlüsseln und HeizkostenV 30/70 in HaVeWa',
+    'p4.h':'WEG &amp; Untergemeinschaften','p4.p':'Miteigentumsanteile, Hausgeld und Jahresabrechnung, auf Wunsch getrennt nach Untergemeinschaften wie Haupt- und Gartenhaus, mit eigener MEA-Basis.','alt.meetings':'Eigentümerversammlung mit Tagesordnung und Beschlüssen in HaVeWa',
+    'p5.h':'Eigentümerversammlung','p5.p':'Tagesordnung, Abstimmungen und Beschlusssammlung nach §24 WEG, auch für Beschlüsse einzelner Untergemeinschaften.','alt.tickets':'Instandhaltung mit Tickets, Handwerkern und Wartungsverträgen in HaVeWa',
+    'p6.h':'Kommunikation','p6.p':'Posteingang und Postausgang an einem Ort: eingehende Mails per IMAP, Antworten automatisch als Unterhaltung gebündelt, gelesen und erledigt im Blick.','alt.documents':'GoBD-konforme Dokumentenverwaltung mit E-Rechnungs-Erkennung in HaVeWa',
+    'p7.h':'Instandhaltung &amp; Tickets','p7.p':'Von der Schadensmeldung bis zum beauftragten Handwerker, inklusive Wartungsfristen und Historie.','alt.calendar':'Kalender mit Monatsansicht für Termine und Fristen in HaVeWa',
+    'p8.h':'Dokumente &amp; E-Rechnung','p8.p':'GoBD-konforme Ablage mit Vorschau und automatischer Erkennung von E-Rechnungen (ZUGFeRD), revisionssicher.','alt.portal':'Self-Service-Portal für Mieter und Eigentümer in HaVeWa',
     'unite.eyebrow':'Ein System','unite.h2':'Miet- <span style="font-style:italic">und</span> WEG-Verwaltung, endlich vereint','unite.sub':'Die meisten Verwaltungen betreuen beides. HaVeWa auch. Gleiche Objekte, gleiche Personen, gleiche Belege, ohne Datensilos und doppelte Pflege.',
     'mcol.h':'Mietverwaltung','mcol.p':'Für Eigentümer und Verwalter von vermieteten Objekten.',
     'mcol.li1':'Miet- &amp; Gewerbeverträge, Staffel-/Indexmiete, Kaution','mcol.li2':'Sollstellung, offene Posten &amp; dreistufiges Mahnwesen','mcol.li3':'Betriebskostenabrechnung nach BetrKV &amp; HeizkostenV 30/70','mcol.li4':'Mieterportal für Self-Service &amp; Kommunikation',
@@ -816,8 +929,8 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'faq.q1':'Deckt HaVeWa sowohl Miet- als auch WEG-Verwaltung ab?','faq.a1':'Ja. HaVeWa ist von Grund auf für beide Welten gebaut. Sie verwalten vermietete Objekte und Wohnungseigentümergemeinschaften in einem System, mit gemeinsamen Stammdaten für Objekte, Einheiten und Personen, ohne doppelte Pflege.',
     'faq.q2':'Ist die Betriebskostenabrechnung rechtssicher?','faq.a2':'Die Abrechnung folgt der BetrKV, unterstützt frei konfigurierbare Verteilerschlüssel und rechnet Heizkosten nach der HeizkostenV im Verhältnis 30/70 (Grundkosten/Verbrauch) ab. Jede Abrechnung ist nachvollziehbar aufgeschlüsselt und druck- bzw. PDF-fertig.',
     'faq.q3':'Wie steht es um Datenschutz, GoBD und Hosting?','faq.a3':'HaVeWa ist DSGVO- und GoBD-orientiert: revisionssichere Dokumentenablage, lückenloses Änderungsprotokoll und rollenbasierte Rechte. Betrieben wird die Software auf Servern in der EU; auf Wunsch ist Self-Hosting per Docker mit automatischem HTTPS möglich.',
-    'faq.q4':'Kann ich Bankdaten importieren und an DATEV übergeben?','faq.a4':'Ja. Kontoumsätze lassen sich per camt.053 importieren und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.',
-    'faq.q5':'Was leistet der KI-Assistent genau?','faq.a5':'Der auf Claude basierende Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen. Er greift ausschließlich auf Ihren eigenen, mandantengetrennten Datenbestand zu und ist im Enterprise-Tarif enthalten.',
+    'faq.q4':'Kann ich Bankdaten importieren und an DATEV übergeben?','faq.a4':'Ja. Kontoumsätze lassen sich per camt.053 importieren oder per Open Banking automatisch abrufen und offenen Posten zuordnen. Für die weitere Buchhaltung stehen DATEV- und SEPA-Exporte bereit, inklusive E-Rechnungs-Erkennung (ZUGFeRD) für Eingangsbelege.',
+    'faq.q5':'Was leistet der KI-Assistent genau?','faq.a5':'Der Assistent beantwortet Fragen zu Ihrem Bestand in natürlicher Sprache, etwa zu offenen Posten, fälligen Wartungen oder auslaufenden Verträgen, und erklärt Abrechnungen. Sie hinterlegen dafür Ihren eigenen Schlüssel für Claude (Anthropic) oder einen OpenAI-kompatiblen Anbieter. Er sieht ausschließlich Ihren eigenen, mandantengetrennten Datenbestand.',
     'faq.q6':'Wie starte ich, und bin ich langfristig gebunden?','faq.a6':'HaVeWa ist aktuell in der Beta und kostenlos nutzbar. Eine Preisstaffelung folgt später; wir informieren rechtzeitig, bevor sich etwas ändert. Beim Umstieg unterstützen wir beim Import Ihrer Bestandsdaten.',
     'cta.h2':'Bereit für eine ruhigere Verwaltung?','cta.p':'Starten Sie Ihre kostenlose Demo, in wenigen Minuten eingerichtet, ohne Risiko.','cta.consult':'Beratung anfragen','cta.own':'Demo-Instanz erstellen',
     'foot.tagline':'Die moderne Software für Miet- und WEG-Verwaltung. Ein System für Objekte, Finanzen, Abrechnungen und Eigentümer, DSGVO- und GoBD-orientiert.',
@@ -825,6 +938,44 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'foot.sol1':'Mietverwaltung','foot.sol2':'WEG-Verwaltung','foot.sol3':'Betriebskostenabrechnung','foot.sol4':'Self-Hosting',
     'foot.res1':'FAQ','foot.res2':'Kontakt','foot.res3':'Demo starten','foot.res4':'Nach oben','foot.docs':'Dokumentation & Hilfe',
     'foot.lic':'© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Server in der EU',
+    'alt.weg':'WEG-Verwaltung mit Untergemeinschaften, MEA-Basis und Eigentümern in HaVeWa',
+    'alt.email':'Kommunikation mit Unterhaltungen, Posteingang und Postausgang in HaVeWa',
+    'tab9':'Kalender',
+    'p9.h':'Kalender &amp; Fristen',
+    'p9.p':'Wartungen, Versammlungen und gesetzliche Fristen in einer übersichtlichen Monatsansicht.',
+    'tab10':'Portal',
+    'p10.h':'Mieter- &amp; Eigentümer-Portal',
+    'p10.p':'Self-Service für Bewohner: Eigentum, Beschlüsse und Dokumente, rund um die Uhr, ohne Rückfragen.',
+    'gal.thread':'Unterhaltung als Thread',
+    'alt.thread':'Eine Unterhaltung mit Mieterin: Abrechnung, Rückfrage, Antwort und Rückmeldung chronologisch',
+    'gal.person':'Kontakt mit E-Mail-Verlauf',
+    'alt.person':'Kontaktansicht mit Mietverhältnis und vollständigem E-Mail-Verlauf',
+    'gal.print':'WEG-Abrechnung als PDF',
+    'alt.print':'Druckansicht der WEG-Jahresabrechnung mit Kostenaufstellung je Untergemeinschaft',
+    'gal.audit':'Änderungsprotokoll',
+    'alt.audit':'Lückenloses Änderungsprotokoll mit Benutzer, Aktion und Zeitpunkt',
+    'gal.h':'Weitere Ansichten',
+    'gal.p':'Ein Klick auf ein Bild öffnet es in voller Größe, mit den Pfeiltasten blättern Sie durch alle Ansichten.',
+    'faq.q7':'Kann ich HaVeWa selbst hosten?',
+    'faq.a7':'Ja. HaVeWa läuft per Docker Compose auf jedem Server, mit automatischem HTTPS über Caddy. Für Heimserver gibt es fertige Vorlagen für Unraid, Umbrel, CasaOS und Cosmos sowie ein Skript für Proxmox. Ein Einrichtungsassistent führt durch den ersten Start.',
+    'faq.q8':'Ist HaVeWa Open Source?',
+    'faq.a8':'Ja. Der Quellcode steht unter der GNU AGPLv3 auf GitHub, Sie können ihn frei nutzen, prüfen und anpassen. Wer HaVeWa ohne die Offenlegungspflicht der AGPL einsetzen möchte, etwa in einem geschlossenen Produkt, kann eine kommerzielle Lizenz erhalten.',
+    'faq.q9':'Unterstützt HaVeWa Untergemeinschaften in einer WEG?',
+    'faq.a9':'Ja. Einheiten lassen sich Untergemeinschaften zuordnen, etwa Vorder- und Hinterhaus. Kostenpositionen, Erhaltungsrücklagen, Beschlüsse und ein eigener Wirtschaftsplan können einer Untergemeinschaft gehören. Verteilt und abgestimmt wird dann nur unter deren Einheiten, mit deren MEA-Summe als Nenner.',
+    'faq.q10':'Wie funktioniert die E-Mail-Kommunikation?',
+    'faq.a10':'HaVeWa versendet über Ihren SMTP-Server und ruft eingehende Mails per IMAP ab, auf Wunsch automatisch im Hintergrund. Mails werden Kontakten zugeordnet, Antworten über die Mail-Header als Unterhaltung gebündelt und lassen sich direkt beantworten. Anhänge landen in der Dokumentenablage.',
+    'faq.q11':'Kann ich bestehende Daten übernehmen?',
+    'faq.a11':'Ja. Objekte, Einheiten und Personen lassen sich per CSV importieren, passende Vorlagen stehen zum Download bereit. Spaltennamen werden auf Deutsch und Englisch erkannt, eigene Felder je Objekt, Einheit und Person sind möglich.',
+    'faq.q12':'Welche Sprachen gibt es?',
+    'faq.a12':'Die Oberfläche ist auf Deutsch, Englisch und brasilianischem Portugiesisch verfügbar und lässt sich je Benutzer umschalten. Das Datumsformat ist unabhängig von der Sprache je Mandant einstellbar.',
+    'faq.q13':'Kann ich mehrere Verwaltungen oder Mandanten betreuen?',
+    'faq.a13':'Ja. Eine Instanz verwaltet beliebig viele datengetrennte Mandanten, jeweils mit eigenem Branding, eigener E-Mail-Konfiguration und eigenen Benutzern. Rollen regeln, wer was sehen und ändern darf, und per OIDC ist Single Sign-on etwa mit Authentik oder Keycloak möglich.',
+    'faq.q14':'Gibt es eine Schnittstelle (API)?',
+    'faq.a14':'Ja. Eine dokumentierte REST-API und ein MCP-Server erlauben Integrationen und die Steuerung per KI-Agent. Der Zugriff erfolgt mit persönlichen Tokens, ist auf den eigenen Mandanten beschränkt und jederzeit widerrufbar.',
+    'lb.label':'Screenshot',
+    'lb.prev':'Vorheriges Bild',
+    'lb.next':'Nächstes Bild',
+    'lb.toggle':'Klicken zum Vergrößern',
   };
   D.en={
     'doc.title':'HaVeWa, Property management for rentals and condominiums',
@@ -852,10 +1003,10 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'c3.h':'Finances &amp; receivables','c3.p':'Charges, payments, open items, SEPA mandates and three-stage dunning, the payment status always in view.',
     'c4.h':'Service-charge statement','c4.p':'Compliant with the German Operating Costs Ordinance (BetrKV), a flexible allocation-key engine and <strong>HeizkostenV 30/70 by consumption</strong>, audit-proof and transparent.',
     'c5.h':'Bank import &amp; export','c5.p':'camt.053 bank import with matching plus DATEV and SEPA export, your accounting stays connected.',
-    'c6.h':'Outbox','c6.p':'Email tenants and owners straight from the system, with templates, attachments and a complete history.',
+    'c6.h':'Communication','c6.p':'Inbox and outbox in one: fetch mail via IMAP, group replies into conversations and answer straight from HaVeWa.',
     'g.weg.tag':'Condominium (HOA)','g.weg.title':'Manage condominiums with legal certainty',
-    'c7.h':'Ownership shares &amp; budget','c7.p':'Co-ownership shares (MEA), service fees and the annual budget per property and year, the basis for every statement.',
-    'c8.h':'Annual statement','c8.p':'Actual costs allocated per owner, service-fee reconciliation and balances, transparent down to the individual unit.',
+    'c7.h':'Shares, budget &amp; sub-communities','c7.p':'Co-ownership shares, service fees and budget per property and year, optionally split into sub-communities with their own share basis.',
+    'c8.h':'Annual statement','c8.p':'Every cost item allocated by its own key, service-fee reconciliation and balances, transparent down to the individual unit.',
     'c9.h':'Maintenance reserves','c9.p':'Manage reserves, post contributions and withdrawals, and generate the asset report at the click of a button.',
     'c10.h':'Owners’ meeting','c10.p':'Agenda, invitations and voting, with a legally compliant register of resolutions under §24 WEG.',
     'c11.h':'Owner portal','c11.p':'Self-service for owners: statements, resolutions and documents available anytime, fewer queries.',
@@ -866,17 +1017,17 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'c15.h':'Documents &amp; e-invoicing','c15.p':'GoBD-compliant filing with automatic reading of <strong>e-invoices / ZUGFeRD</strong>, archived in an audit-proof manner.',
     'c16.h':'Global search','c16.p':'Find a property, unit, person or document in seconds, one search across your entire portfolio.',
     'c17.h':'Print &amp; PDF output','c17.p':'Statements, letters and reports as clean, print-ready PDFs, in your firm’s corporate layout.',
-    'c18.h':'Audit log &amp; RBAC','c18.p':'A complete change log, role-based access control (RBAC) and multi-tenancy, bilingual DE/EN.',
+    'c18.h':'Audit log &amp; RBAC','c18.p':'A complete change log, role-based access control (RBAC), multi-tenancy and single sign-on, in German, English and Portuguese.',
     'show.eyebrow':'Inside HaVeWa','show.h2':'An interface you’ll enjoy using','show.sub':'Calm, tidy, fast. Real views from HaVeWa, from the dashboard to the print-ready statement.',
-    'tab1':'Properties','tab2':'Finances','tab3':'Service charges','tab4':'Meeting','tab5':'Maintenance','tab6':'Documents','tab7':'Calendar','tab8':'Portal',
-    'p1.h':'Properties, buildings &amp; units','p1.p':'Your whole portfolio at a glance, buildings, units, people and meters in a clear structure.','alt.properties':'Property, building and unit management in HaVeWa',
+    'tab1':'Properties','tab2':'Finances','tab3':'Service charges','tab4':'Condominium','tab5':'Meeting','tab6':'Communication','tab7':'Maintenance','tab8':'Documents',
+    'p1.h':'Properties, buildings &amp; units','p1.p':'Your whole portfolio at a glance: buildings, units, areas and management fee per property, in a clear structure.','alt.properties':'Property view with buildings and units in HaVeWa',
     'p2.h':'Finances &amp; dunning','p2.p':'Charges, open items, SEPA mandates and three-stage dunning, payment status always up to date.','alt.finances':'Finances with charges, open items, dunning and SEPA in HaVeWa',
-    'p3.h':'Service-charge statement','p3.p':'An allocation-key engine and HeizkostenV 30/70 by consumption, audit-proof for every tenant.','alt.statements':'Service-charge statement with allocation keys and HeizkostenV 30/70 in HaVeWa',
-    'p4.h':'Owners’ meeting','p4.p':'Agenda, voting and register of resolutions under §24 WEG, fully documented.','alt.meetings':'Owners’ meeting with agenda and resolutions in HaVeWa',
-    'p5.h':'Maintenance &amp; tickets','p5.p':'From damage report to assigned contractor, including maintenance deadlines and history.','alt.tickets':'Maintenance with tickets, contractors and service agreements in HaVeWa',
-    'p6.h':'Documents &amp; e-invoicing','p6.p':'GoBD-compliant filing with automatic recognition of e-invoices (ZUGFeRD), audit-proof.','alt.documents':'GoBD-compliant document management with e-invoice recognition in HaVeWa',
-    'p7.h':'Calendar &amp; deadlines','p7.p':'Maintenance, meetings and statutory deadlines in a clear monthly view.','alt.calendar':'Calendar with monthly view for appointments and deadlines in HaVeWa',
-    'p8.h':'Tenant &amp; owner portal','p8.p':'Self-service for residents: documents, statements and requests, around the clock, without queries.','alt.portal':'Self-service portal for tenants and owners in HaVeWa',
+    'p3.h':'Service-charge statement','p3.p':'Allocation key per cost item and HeizkostenV 30/70 by consumption, with a result per tenant and an AI explanation.','alt.statements':'Service-charge statement with allocation keys and HeizkostenV 30/70 in HaVeWa',
+    'p4.h':'Condominium &amp; sub-communities','p4.p':'Co-ownership shares, service fees and the annual statement, optionally split into sub-communities such as main and garden building, each with its own share basis.','alt.meetings':'Owners’ meeting with agenda and resolutions in HaVeWa',
+    'p5.h':'Owners’ meeting','p5.p':'Agenda, voting and register of resolutions under §24 WEG, including resolutions of individual sub-communities.','alt.tickets':'Maintenance with tickets, contractors and service agreements in HaVeWa',
+    'p6.h':'Communication','p6.p':'Inbox and outbox in one place: incoming mail via IMAP, replies grouped into conversations automatically, read and done status at a glance.','alt.documents':'GoBD-compliant document management with e-invoice recognition in HaVeWa',
+    'p7.h':'Maintenance &amp; tickets','p7.p':'From damage report to assigned contractor, including maintenance deadlines and history.','alt.calendar':'Calendar with monthly view for appointments and deadlines in HaVeWa',
+    'p8.h':'Documents &amp; e-invoicing','p8.p':'GoBD-compliant filing with preview and automatic recognition of e-invoices (ZUGFeRD), audit-proof.','alt.portal':'Self-service portal for tenants and owners in HaVeWa',
     'unite.eyebrow':'One system','unite.h2':'Rental <span style="font-style:italic">and</span> condominium management, finally unified','unite.sub':'Most firms manage both. So does HaVeWa. Same properties, same people, same documents, no data silos, no duplicate work.',
     'mcol.h':'Rental management','mcol.p':'For owners and managers of rented properties.',
     'mcol.li1':'Residential &amp; commercial leases, graduated/index rent, deposits','mcol.li2':'Charges, open items &amp; three-stage dunning','mcol.li3':'Service-charge statements per BetrKV &amp; HeizkostenV 30/70','mcol.li4':'Tenant portal for self-service &amp; communication',
@@ -894,8 +1045,8 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'faq.q1':'Does HaVeWa cover both rental and condominium management?','faq.a1':'Yes. HaVeWa is built for both worlds from the ground up. You manage rented properties and condominium associations in one system, with shared master data for properties, units and people, and no duplicate work.',
     'faq.q2':'Is the service-charge statement legally sound?','faq.a2':'Statements follow the German Operating Costs Ordinance (BetrKV), support freely configurable allocation keys and split heating costs under the German Heating Costs Ordinance (HeizkostenV) at a 30/70 ratio (base cost/consumption). Every statement is itemised transparently and ready to print or export as PDF.',
     'faq.q3':'What about data protection, GoBD and hosting?','faq.a3':'HaVeWa is GDPR- and GoBD-oriented: audit-proof document storage, a complete change log and role-based access. The software runs on servers in the EU; self-hosting via Docker with automatic HTTPS is available on request.',
-    'faq.q4':'Can I import bank data and hand it over to DATEV?','faq.a4':'Yes. Account transactions can be imported via camt.053 and matched to open items. DATEV and SEPA exports are available for downstream accounting, including e-invoice recognition (ZUGFeRD) for incoming documents.',
-    'faq.q5':'What exactly does the AI assistant do?','faq.a5':'The Claude-based assistant answers questions about your portfolio in natural language, such as open items, due maintenance or expiring leases. It accesses only your own, tenant-isolated data and is included in the Enterprise plan.',
+    'faq.q4':'Can I import bank data and hand it over to DATEV?','faq.a4':'Yes. Transactions can be imported via camt.053 or fetched automatically via Open Banking and matched to open items. DATEV and SEPA exports are available for downstream accounting, including e-invoice recognition (ZUGFeRD) for incoming documents.',
+    'faq.q5':'What exactly does the AI assistant do?','faq.a5':'The assistant answers questions about your portfolio in natural language, such as open items, due maintenance or expiring leases, and explains statements. You add your own key for Claude (Anthropic) or an OpenAI-compatible provider. It only sees your own, tenant-isolated data.',
     'faq.q6':'How do I get started, and am I locked in?','faq.a6':'HaVeWa is currently in beta and free to use. Pricing tiers will follow later, and we will let you know in good time before anything changes. When you switch, we help import your existing data.',
     'cta.h2':'Ready for calmer property management?','cta.p':'Start your free demo, set up in minutes, no risk.','cta.consult':'Request a consultation','cta.own':'Create demo instance',
     'foot.tagline':'The modern software for rental and condominium management. One system for properties, finances, statements and owners, GDPR- and GoBD-oriented.',
@@ -903,6 +1054,44 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
     'foot.sol1':'Rental management','foot.sol2':'Condominium management','foot.sol3':'Service-charge statement','foot.sol4':'Self-hosting',
     'foot.res1':'FAQ','foot.res2':'Contact','foot.res3':'Start demo','foot.res4':'Back to top','foot.docs':'Documentation & help',
     'foot.lic':'© 2026 HaVeWa · Next.js · PostgreSQL · Docker · Servers in the EU',
+    'alt.weg':'Condominium management with sub-communities, share basis and owners in HaVeWa',
+    'alt.email':'Communication with conversations, inbox and outbox in HaVeWa',
+    'tab9':'Calendar',
+    'p9.h':'Calendar &amp; deadlines',
+    'p9.p':'Maintenance, meetings and statutory deadlines in a clear monthly view.',
+    'tab10':'Portal',
+    'p10.h':'Tenant &amp; owner portal',
+    'p10.p':'Self-service for residents: ownership, resolutions and documents, around the clock, without queries.',
+    'gal.thread':'Conversation thread',
+    'alt.thread':'A conversation with a tenant: statement, question, answer and reply in order',
+    'gal.person':'Contact with email history',
+    'alt.person':'Contact view with lease and full email history',
+    'gal.print':'Condominium statement as PDF',
+    'alt.print':'Print view of the annual condominium statement with costs per sub-community',
+    'gal.audit':'Audit log',
+    'alt.audit':'Complete audit log with user, action and time',
+    'gal.h':'More views',
+    'gal.p':'Click any image to open it full size, use the arrow keys to browse all views.',
+    'faq.q7':'Can I self-host HaVeWa?',
+    'faq.a7':'Yes. HaVeWa runs via Docker Compose on any server, with automatic HTTPS through Caddy. For home servers there are ready-made templates for Unraid, Umbrel, CasaOS and Cosmos, plus a script for Proxmox. A setup wizard guides you through the first start.',
+    'faq.q8':'Is HaVeWa open source?',
+    'faq.a8':'Yes. The source code is available on GitHub under the GNU AGPLv3, so you can use, review and adapt it freely. If you want to use HaVeWa without the AGPL disclosure obligations, for example in a closed product, a commercial licence is available.',
+    'faq.q9':'Does HaVeWa support sub-communities within a condominium?',
+    'faq.a9':'Yes. Units can be assigned to sub-communities, such as front and rear building. Cost items, maintenance reserves, resolutions and a separate budget can belong to a sub-community. Costs and votes are then shared only among its units, with their share total as the denominator.',
+    'faq.q10':'How does email communication work?',
+    'faq.a10':'HaVeWa sends through your SMTP server and fetches incoming mail via IMAP, automatically in the background if you like. Messages are matched to contacts, replies are grouped into conversations via the mail headers and can be answered directly. Attachments go to the document store.',
+    'faq.q11':'Can I bring my existing data?',
+    'faq.a11':'Yes. Properties, units and people can be imported via CSV, with matching templates available for download. Column names are recognised in German and English, and custom fields per property, unit and person are supported.',
+    'faq.q12':'Which languages are available?',
+    'faq.a12':'The interface is available in German, English and Brazilian Portuguese and can be switched per user. The date format can be set per tenant independently of the language.',
+    'faq.q13':'Can I manage several firms or tenants?',
+    'faq.a13':'Yes. One instance manages any number of data-separated tenants, each with its own branding, email configuration and users. Roles control who can see and change what, and single sign-on via OIDC works with Authentik or Keycloak, for example.',
+    'faq.q14':'Is there an API?',
+    'faq.a14':'Yes. A documented REST API and an MCP server allow integrations and control via AI agents. Access uses personal tokens, is limited to your own tenant and can be revoked at any time.',
+    'lb.label':'Screenshot',
+    'lb.prev':'Previous image',
+    'lb.next':'Next image',
+    'lb.toggle':'Click to enlarge',
   };
 
   /* ---- Theme ---- */
@@ -1007,6 +1196,29 @@ gilde-form,gilde-contact,gilde-support{display:block;width:100%;margin:0 auto}
   document.querySelectorAll('.js-contact-dlg').forEach(function(b){b.addEventListener('click',function(){open(contactDlg);});});
   document.querySelectorAll('.js-close').forEach(function(b){b.addEventListener('click',function(){close(b.closest('dialog'));});});
   [demoDlg,contactDlg].forEach(function(dlg){dlg.addEventListener('click',function(e){if(e.target===dlg)close(dlg);});});
+
+  /* ---- Lightbox: Screenshots in voller Größe, blättern mit Pfeilen ---- */
+  var lb=document.getElementById('lightbox'),lbScroll=lb.querySelector('.lb-scroll'),lbImg=lbScroll.querySelector('img');
+  var lbText=lb.querySelector('.lb-text'),lbCount=lb.querySelector('.lb-count'),shots=[],shotIdx=0;
+  function showShot(i){
+    shotIdx=(i+shots.length)%shots.length;var src=shots[shotIdx];
+    lbScroll.classList.remove('full');lbImg.src=src.getAttribute('src');lbImg.alt=src.alt;
+    lbText.textContent=src.alt;lbCount.textContent=(shotIdx+1)+' / '+shots.length;
+  }
+  document.addEventListener('click',function(e){
+    var img=e.target.closest('img[data-zoom]');if(!img||lb.contains(img))return;
+    shots=Array.prototype.slice.call(document.querySelectorAll('img[data-zoom]'));showShot(shots.indexOf(img));open(lb);
+  });
+  lb.querySelector('.lb-prev').addEventListener('click',function(){showShot(shotIdx-1);});
+  lb.querySelector('.lb-next').addEventListener('click',function(){showShot(shotIdx+1);});
+  // Klick aufs Bild: zwischen „passend“ und Originalgröße (scrollbar) wechseln
+  lbImg.addEventListener('click',function(){lbScroll.classList.toggle('full');});
+  lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('lb-stage'))close(lb);});
+  document.addEventListener('keydown',function(e){
+    if(!lb.open)return;
+    if(e.key==='ArrowLeft'){showShot(shotIdx-1);e.preventDefault();}
+    else if(e.key==='ArrowRight'){showShot(shotIdx+1);e.preventDefault();}
+  });
 
   /* ---- Reveal ---- */
   var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;

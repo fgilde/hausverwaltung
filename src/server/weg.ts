@@ -27,7 +27,11 @@ export async function computeWeg(tenantId: string, propertyId: string, year: num
       },
       orderBy: { label: "asc" },
     }),
-    prisma.owner.findMany({ where: { tenantId, unit: { building: { propertyId } } }, include: { person: true, unit: true } }),
+    prisma.owner.findMany({
+      where: { tenantId, unit: { building: { propertyId } } },
+      include: { person: true, unit: true },
+      orderBy: [{ unit: { label: "asc" } }, { person: { lastName: "asc" } }],
+    }),
     prisma.economicPlan.findUnique({ where: { propertyId_year: { propertyId, year } } }),
     prisma.subcommunityPlan.findMany({ where: { tenantId, year, subcommunity: { propertyId } } }),
     prisma.reserve.findMany({ where: { tenantId, propertyId }, include: { transactions: { orderBy: { date: "desc" } } }, orderBy: { createdAt: "asc" } }),

@@ -28,14 +28,15 @@ async function writeStorage(key: string, buf: Buffer) {
 
 async function main() {
   const tenant = await prisma.tenant.create({
-    data: { name: "Muster Hausverwaltung GmbH", isDemo: true },
+    // smtpFrom/imapUser nur für die Anzeige von Absender/Empfänger (ohne Host kein Versand)
+    data: { name: "Muster Hausverwaltung GmbH", isDemo: true, smtpFrom: "verwaltung@muster-hv.de", imapUser: "verwaltung@muster-hv.de" },
   });
 
-  await prisma.user.create({
+  const admin = await prisma.user.create({
     data: {
       tenantId: tenant.id,
       email: "admin@havewa.app",
-      name: "Admin",
+      name: "Lena Hartmann",
       passwordHash: await bcrypt.hash("admin", 10),
       role: "ADMIN",
       superAdmin: true,
@@ -53,6 +54,8 @@ async function main() {
       city: "Berlin",
       type: "WOHNEN",
       management: "MIET",
+      feeType: "PRO_EINHEIT",
+      feeValue: 28,
       buildings: {
         create: {
           tenantId: tenant.id,
@@ -82,26 +85,34 @@ async function main() {
       type: "WOHNEN",
       management: "WEG",
       buildings: {
-        create: {
-          tenantId: tenant.id,
-          name: "Hauptgebäude",
-          units: {
-            create: [
-              { tenantId: tenant.id, label: "Whg 1", type: "WOHNUNG", area: 88.0, rooms: 3, mea: 340 },
-              { tenantId: tenant.id, label: "Whg 2", type: "WOHNUNG", area: 95.0, rooms: 4, mea: 360 },
-              { tenantId: tenant.id, label: "Whg 3", type: "WOHNUNG", area: 78.0, rooms: 3, mea: 300 },
-            ],
+        create: [
+          {
+            tenantId: tenant.id,
+            name: "Hauptgebäude",
+            units: {
+              create: [
+                { tenantId: tenant.id, label: "Whg 1", type: "WOHNUNG", area: 88.0, rooms: 3, mea: 280 },
+                { tenantId: tenant.id, label: "Whg 2", type: "WOHNUNG", area: 95.0, rooms: 4, mea: 240 },
+                { tenantId: tenant.id, label: "Whg 3", type: "WOHNUNG", area: 78.0, rooms: 3, mea: 200 },
+              ],
+            },
           },
-        },
+          {
+            tenantId: tenant.id,
+            name: "Gartenhaus",
+            units: { create: [{ tenantId: tenant.id, label: "Whg 4", type: "WOHNUNG", area: 112.0, rooms: 4, mea: 280 }] },
+          },
+        ],
       },
     },
-    include: { buildings: { include: { units: true } } },
+    include: { buildings: { include: { units: true }, orderBy: { createdAt: "asc" } } },
   });
+  const wegUnits = wegProp.buildings.flatMap((b) => b.units).sort((a, b) => a.label.localeCompare(b.label));
 
   // Ein Mieter + Vertrag auf erster Einheit (Rest = Leerstand)
   const units = mietProp.buildings[0].units;
   const person = await prisma.person.create({
-    data: { tenantId: tenant.id, firstName: "Erika", lastName: "Mustermann", email: "erika@example.de" },
+    data: { tenantId: tenant.id, firstName: "Erika", lastName: "Mustermann", email: "erika@example.de", type: "MIETER" },
   });
   const lease1 = await prisma.lease.create({
     data: {
@@ -135,12 +146,21 @@ async function main() {
 
   // WEG-Eigentümer + Portal-User
   const owner = await prisma.person.create({
-    data: { tenantId: tenant.id, firstName: "Klaus", lastName: "Eigner", email: "klaus@example.de" },
+    data: { tenantId: tenant.id, firstName: "Klaus", lastName: "Eigner", email: "klaus@example.de", type: "EIGENTUEMER" },
   });
-  const wegUnit = wegProp.buildings[0].units[0];
   await prisma.owner.create({
-    data: { tenantId: tenant.id, personId: owner.id, unitId: wegUnit.id, share: 1000 },
+    data: { tenantId: tenant.id, personId: owner.id, unitId: wegUnits[0].id, share: 1000 },
   });
+  // weitere Eigentümer (Whg 2 in Miteigentum zu je 50 %)
+  const wegOwners: [number, string, string, number][] = [
+    [1, "Sabine", "Hofmann", 500], [1, "Peter", "Hofmann", 500], [2, "Jonas", "Keller", 1000], [3, "Miriam", "Vogt", 1000],
+  ];
+  for (const [i, firstName, lastName, share] of wegOwners) {
+    const p = await prisma.person.create({
+      data: { tenantId: tenant.id, firstName, lastName, type: "EIGENTUEMER", email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.de` },
+    });
+    await prisma.owner.create({ data: { tenantId: tenant.id, personId: p.id, unitId: wegUnits[i].id, share } });
+  }
   await prisma.user.create({
     data: {
       tenantId: tenant.id,
@@ -154,7 +174,10 @@ async function main() {
 
   // Zweiter Mieter + Vertrag (Auslastung > 1)
   const person2 = await prisma.person.create({
-    data: { tenantId: tenant.id, firstName: "Max", lastName: "Schneider", email: "max@example.de", phone: "030 1234567" },
+    data: {
+      tenantId: tenant.id, firstName: "Max", lastName: "Schneider", email: "max@example.de", phone: "030 1234567", type: "MIETER",
+      iban: "DE89370400440532013000", accountHolder: "Max Schneider",
+    },
   });
   await prisma.lease.create({
     data: {
@@ -245,19 +268,44 @@ async function main() {
     ],
   });
 
-  // WEG: Wirtschaftsplan, Rücklage, Versammlung + Beschluss
+  // WEG: Untergemeinschaften (#42), Wirtschaftspläne, Kosten, Rücklagen, Versammlung + Beschlüsse
+  // nacheinander anlegen, damit die Reihenfolge (createdAt) stabil ist
+  const ugs = [];
+  for (const b of wegProp.buildings) {
+    ugs.push(
+      await prisma.subcommunity.create({
+        data: { tenantId: tenant.id, propertyId: wegProp.id, name: b.name, units: { connect: b.units.map((u) => ({ id: u.id })) } },
+      }),
+    );
+  }
+  const [ugHaupt, ugGarten] = ugs;
   await prisma.economicPlan.create({
-    data: { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, totalAmount: 36000, note: "Wirtschaftsplan 2026" },
+    data: { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, totalAmount: 24000, note: "Wirtschaftsplan 2026" },
+  });
+  await prisma.subcommunityPlan.createMany({
+    data: [
+      { tenantId: tenant.id, subcommunityId: ugHaupt.id, year: 2026, totalAmount: 7200, note: "Zuführung Rücklage Hauptgebäude" },
+      { tenantId: tenant.id, subcommunityId: ugGarten.id, year: 2026, totalAmount: 2800, note: "Zuführung Rücklage Gartenhaus" },
+    ],
   });
   await prisma.costEntry.createMany({
     data: [
-      { tenantId: tenant.id, propertyId: wegProp.id, year: 2025, type: "HAUSWART", amount: 6000, method: "MEA", umlagefaehig: true },
-      { tenantId: tenant.id, propertyId: wegProp.id, year: 2025, type: "VERSICHERUNG", amount: 4200, method: "MEA", umlagefaehig: true },
-      { tenantId: tenant.id, propertyId: wegProp.id, year: 2025, type: "GARTENPFLEGE", amount: 2400, method: "MEA", umlagefaehig: true },
+      { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, type: "VERSICHERUNG", amount: 4200, method: "AREA" },
+      { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, type: "HAUSWART", amount: 6000, method: "AREA" },
+      { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, type: "GARTENPFLEGE", amount: 2400, method: "MEA" },
+      { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, type: "VERWALTUNG", amount: 1920, method: "UNITS", umlagefaehig: false },
+      { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, type: "INSTANDHALTUNG", amount: 3500, method: "MEA", umlagefaehig: false, subcommunityId: ugHaupt.id, note: "Dachreparatur" },
+      { tenantId: tenant.id, propertyId: wegProp.id, year: 2026, type: "INSTANDHALTUNG", amount: 1400, method: "MEA", umlagefaehig: false, subcommunityId: ugGarten.id, note: "Klingel- und Briefkastenanlage" },
     ],
   });
   const reserve = await prisma.reserve.create({
-    data: { tenantId: tenant.id, propertyId: wegProp.id, name: "Erhaltungsrücklage" },
+    data: { tenantId: tenant.id, propertyId: wegProp.id, name: "Erhaltungsrücklage Hauptgebäude", subcommunityId: ugHaupt.id },
+  });
+  const reserveGarten = await prisma.reserve.create({
+    data: { tenantId: tenant.id, propertyId: wegProp.id, name: "Erhaltungsrücklage Gartenhaus", subcommunityId: ugGarten.id },
+  });
+  await prisma.reserveTransaction.create({
+    data: { tenantId: tenant.id, reserveId: reserveGarten.id, date: new Date("2026-01-31"), amount: 4800, note: "Zuführung Jahresanfang" },
   });
   await prisma.reserveTransaction.createMany({
     data: [
@@ -287,6 +335,14 @@ async function main() {
     data: {
       tenantId: tenant.id, propertyId: wegProp.id, meetingId: meeting.id, number: 1,
       title: "Genehmigung Jahresabrechnung 2025", text: "Die Jahresabrechnung 2025 wird genehmigt.",
+      date: new Date("2026-07-22"), result: "ANGENOMMEN", votesYes: 4, votesNo: 0, votesAbstain: 0,
+    },
+  });
+  await prisma.resolution.create({
+    data: {
+      tenantId: tenant.id, propertyId: wegProp.id, meetingId: meeting.id, number: 2, subcommunityId: ugHaupt.id,
+      title: "Dachreparatur Hauptgebäude",
+      text: "Die Untergemeinschaft Hauptgebäude beschließt die Reparatur des Daches zum Angebotspreis von 3.500 €, finanziert aus der Erhaltungsrücklage Hauptgebäude.",
       date: new Date("2026-07-22"), result: "ANGENOMMEN", votesYes: 3, votesNo: 0, votesAbstain: 0,
     },
   });
@@ -336,11 +392,49 @@ async function main() {
     ],
   });
 
-  // Postausgang
-  await prisma.emailMessage.createMany({
+  // Kommunikation: Postausgang + eingegangene Antworten als Unterhaltung (#43)
+  const statementMail = await prisma.emailMessage.create({
+    data: {
+      tenantId: tenant.id, toAddress: "erika@example.de", subject: "Ihre Betriebskostenabrechnung 2025",
+      body: "Sehr geehrte Frau Mustermann,\n\nanbei erhalten Sie Ihre Betriebskostenabrechnung 2025. Bei Rückfragen stehen wir gerne zur Verfügung.\n\nMit freundlichen Grüßen\nMuster Hausverwaltung",
+      status: "GESENDET", sentAt: new Date("2026-07-14T08:30:00Z"), sentById: admin.id, messageId: "<seed-bk2025@havewa.app>",
+    },
+  });
+  await prisma.emailMessage.create({
+    data: {
+      tenantId: tenant.id, toAddress: "max@example.de", subject: "Zahlungserinnerung NK-Nachzahlung",
+      body: "Sehr geehrter Herr Schneider,\nwir bitten um Ausgleich …", status: "ENTWURF", createdAt: new Date("2026-07-17T10:15:00Z"),
+    },
+  });
+  const erikaReply = await prisma.inboundEmail.create({
+    data: {
+      tenantId: tenant.id, messageId: "<seed-erika-1@example.de>", fromAddress: "erika@example.de", fromName: "Erika Mustermann", personId: person.id,
+      subject: "AW: Ihre Betriebskostenabrechnung 2025", receivedAt: new Date("2026-07-15T17:42:00Z"), readAt: new Date("2026-07-16T08:00:00Z"),
+      body: "Guten Tag,\n\nvielen Dank für die Abrechnung. Die Wasserkosten sind deutlich höher als im Vorjahr. Können Sie mir sagen, woran das liegt?\n\nViele Grüße\nErika Mustermann",
+      references: "<seed-bk2025@havewa.app>", threadId: statementMail.id,
+    },
+  });
+  const answer = await prisma.emailMessage.create({
+    data: {
+      tenantId: tenant.id, toAddress: "erika@example.de", subject: "Re: Ihre Betriebskostenabrechnung 2025",
+      body: "Sehr geehrte Frau Mustermann,\n\nder Wasserpreis der Stadtwerke ist 2025 um 12 % gestiegen, zudem wurde nach Personenzahl verteilt. Die Rechnung des Versorgers finden Sie im Portal.\n\nMit freundlichen Grüßen\nMuster Hausverwaltung",
+      status: "GESENDET", sentAt: new Date("2026-07-16T09:10:00Z"), sentById: admin.id, messageId: "<seed-bk2025-re@havewa.app>",
+      references: "<seed-bk2025@havewa.app> <seed-erika-1@example.de>", threadId: statementMail.id,
+    },
+  });
+  await prisma.inboundEmail.createMany({
     data: [
-      { tenantId: tenant.id, toAddress: "erika@example.de", subject: "Ihre Betriebskostenabrechnung 2025", body: "Sehr geehrte Frau Mustermann,\nanbei Ihre Abrechnung …", status: "GESENDET", sentAt: new Date("2026-07-14T08:30:00Z") },
-      { tenantId: tenant.id, toAddress: "max@example.de", subject: "Zahlungserinnerung NK-Nachzahlung", body: "Sehr geehrter Herr Schneider,\nwir bitten um Ausgleich …", status: "ENTWURF" },
+      {
+        tenantId: tenant.id, messageId: "<seed-erika-2@example.de>", fromAddress: "erika@example.de", fromName: "Erika Mustermann", personId: person.id,
+        subject: "AW: Re: Ihre Betriebskostenabrechnung 2025", receivedAt: new Date("2026-07-16T12:05:00Z"),
+        body: "Danke für die schnelle Erklärung, dann ist alles klar.\n\nViele Grüße\nErika Mustermann",
+        references: `<seed-bk2025@havewa.app> ${erikaReply.messageId} ${answer.messageId}`, threadId: statementMail.id,
+      },
+      {
+        tenantId: tenant.id, messageId: "<seed-max-1@example.de>", fromAddress: "max@example.de", fromName: "Max Schneider", personId: person2.id,
+        subject: "Heizung im Bad wird nicht warm", receivedAt: new Date("2026-07-17T07:20:00Z"),
+        body: "Hallo,\n\nseit gestern wird der Heizkörper im Bad nicht mehr warm. Könnten Sie bitte jemanden vorbeischicken? Ich bin ab 16 Uhr zu Hause.\n\nGruß\nMax Schneider",
+      },
     ],
   });
 
