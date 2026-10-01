@@ -128,6 +128,8 @@ export default async function PersonsPage({
                             phone: p.phone,
                             type: p.type,
                             note: p.note,
+                            iban: p.iban,
+                            accountHolder: p.accountHolder,
                             custom: (p.custom as Record<string, string>) ?? {},
                           }}
                         />

@@ -22,7 +22,9 @@ export async function updatePerson(_p: ActionState, fd: FormData): Promise<Actio
   const entries = Object.fromEntries(fd);
   const r = personSchema.safeParse(entries);
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
-  await prisma.person.updateMany({ where: { id, tenantId: user.tenantId }, data: { ...r.data, custom: pickCustom(entries) } });
+  // Leere Felder im Formular löschen den Wert (undefined würde Prisma ignorieren).
+  const data = Object.fromEntries(Object.entries(r.data).map(([k, v]) => [k, v ?? null]));
+  await prisma.person.updateMany({ where: { id, tenantId: user.tenantId }, data: { ...data, custom: pickCustom(entries) } });
   revalidatePath("/", "layout");
   return { ok: true };
 }

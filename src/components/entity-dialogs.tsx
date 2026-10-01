@@ -242,6 +242,8 @@ type PersonData = {
   phone?: string | null;
   type?: string;
   note?: string | null;
+  iban?: string | null;
+  accountHolder?: string | null;
   custom?: Record<string, string>;
 };
 
@@ -299,6 +301,15 @@ export async function PersonDialog({
         required={false}
         defaultValue={person?.note ?? undefined}
       />
+      <div className="grid grid-cols-2 gap-4">
+        <TextField name="iban" label={t("fields.iban")} required={false} defaultValue={person?.iban ?? undefined} />
+        <TextField
+          name="accountHolder"
+          label={t("fields.accountHolder")}
+          required={false}
+          defaultValue={person?.accountHolder ?? undefined}
+        />
+      </div>
       <CustomFields defs={customDefs} values={person?.custom} />
     </CrudDialog>
   );

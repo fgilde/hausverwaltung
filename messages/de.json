@@ -291,6 +291,7 @@
     "date": "Datum",
     "value": "Stand",
     "iban": "IBAN",
+    "accountHolder": "Kontoinhaber",
     "mandateRef": "Mandatsreferenz",
     "signedDate": "Unterzeichnet am",
     "amount": "Betrag",

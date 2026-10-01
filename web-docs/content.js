@@ -130,6 +130,7 @@ people: {
     <ul>
       <li>Interessenten mit Notiz (Mietgesuch) tauchen in der <a href="#leasing">Vermarktung</a> auf.</li>
       <li>Personen können mit einem Portal-Zugang verknüpft werden (Einstellungen → Benutzer).</li>
+      <li>Optional lässt sich eine <strong>Bankverbindung</strong> hinterlegen: IBAN (mit Prüfsummen-Check) und ein eigener <strong>Kontoinhaber</strong>, falls dieser vom Kontaktnamen abweicht (z.B. bei Firmen oder Handwerkern).</li>
       <li>Beim Öffnen einer Person zeigt der <strong>E-Mail-Verlauf</strong> gesendete und eingegangene Nachrichten chronologisch (Ein-/Ausgang), inklusive Anhängen und Status. Eingehende Mails werden per <strong>IMAP</strong> abgerufen (Einstellungen → E-Mail → Posteingang): manuell über „Postfach synchronisieren" oder mit <strong>„Automatisch synchronisieren"</strong> im eingestellten Intervall (Standard alle 30 Minuten) im Hintergrund. Die Zuordnung erfolgt über die Absenderadresse. Jede Mail zeigt Datum und Uhrzeit; über das Auge-Symbol öffnen sich Text und Anhänge, ein- wie ausgehend gleich.</li>
       <li><strong>Anhänge eingehender Mails</strong> werden gespeichert, wenn „Anhänge speichern“ aktiv ist (Standard), und zwar nur von bekannten Kontakten. Sie landen als Dokument am Kontakt und lassen sich direkt in der Vorschau ansehen. Grenzen: einstellbare Maximalgröße je Datei (Standard 10 MB, 1 bis 50 MB), höchstens 20 Anhänge je Mail; eingebettete Bilder (z. B. Signatur-Logos) werden übersprungen.</li>
       <li>CSV-Import fürs Adressbuch: Spalten <code>firstName, lastName</code> Pflicht, optional <code>email, phone, type, note</code>.</li>
@@ -140,6 +141,7 @@ people: {
     <ul>
       <li>Prospects with a note (housing request) show up in <a href="#leasing">Leasing</a>.</li>
       <li>People can be linked to a portal login (Settings → Users).</li>
+      <li>Optionally store <strong>bank details</strong>: IBAN (checksum validated) and a separate <strong>account holder</strong> if it differs from the contact name (e.g. companies or tradespeople).</li>
       <li>Opening a person shows an <strong>email history</strong>: sent and received messages in chronological order (incoming/outgoing), with attachments and status. Incoming mail is fetched via <strong>IMAP</strong> (Settings → Email → Inbox): manually with "Sync mailbox" or with <strong>"Sync automatically"</strong> in the background at the configured interval (default every 30 minutes). Matching is by sender address. Every email shows date and time; the eye icon opens text and attachments, the same for incoming and outgoing.</li>
       <li><strong>Attachments of incoming mail</strong> are saved when "Save attachments" is enabled (default), and only from known contacts. They are stored as documents on the contact and can be previewed directly. Limits: configurable maximum size per file (default 10 MB, 1 to 50 MB), at most 20 attachments per email; embedded images (e.g. signature logos) are skipped.</li>
       <li>Address-book CSV import: columns <code>firstName, lastName</code> required, optional <code>email, phone, type, note</code>.</li>

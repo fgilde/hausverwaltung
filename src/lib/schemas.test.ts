@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { unitSchema, unitUpdateSchema, buildingSchema, buildingUpdateSchema, ownerSchema, propertySchema, parseDecimal } from "./schemas";
+import { unitSchema, unitUpdateSchema, buildingSchema, buildingUpdateSchema, ownerSchema, propertySchema, parseDecimal, personSchema } from "./schemas";
 
 describe("unit schemas", () => {
   const base = { label: "WE1", type: "WOHNUNG", area: "72.5" };
@@ -52,5 +52,20 @@ describe("Dezimalzahlen / MEA (#40)", () => {
   it("Objekt: MEA-Summe dezimal", () => {
     const r = propertySchema.safeParse({ name: "A", street: "S", zip: "1", city: "C", type: "WOHNEN", management: "WEG", meaTotal: "10000,5", feeType: "PAUSCHAL" });
     expect(r.success && r.data.meaTotal).toBe(10000.5);
+  });
+});
+
+describe("personSchema IBAN (#45)", () => {
+  const base = { firstName: "A", lastName: "B", type: "SONSTIGE" };
+  it("gültige IBAN wird normalisiert", () => {
+    const r = personSchema.parse({ ...base, iban: "de89 3704 0044 0532 0130 00", accountHolder: "Firma GmbH" });
+    expect(r.iban).toBe("DE89370400440532013000");
+    expect(r.accountHolder).toBe("Firma GmbH");
+  });
+  it("falsche Prüfziffer wird abgelehnt", () => {
+    expect(personSchema.safeParse({ ...base, iban: "DE88370400440532013000" }).success).toBe(false);
+  });
+  it("leer = keine Bankverbindung", () => {
+    expect(personSchema.parse({ ...base, iban: "" }).iban).toBeUndefined();
   });
 });

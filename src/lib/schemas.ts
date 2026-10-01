@@ -87,7 +87,24 @@ export const personSchema = z.object({
   phone: optionalStr,
   type: z.enum(["MIETER", "EIGENTUEMER", "INTERESSENT", "HANDWERKER", "MAKLER", "BANK", "SONSTIGE"]),
   note: optionalStr,
+  // Bankverbindung (#45): IBAN ohne Leerzeichen, groß geschrieben gespeichert
+  iban: optionalStr
+    .transform((v) => (v ? v.replace(/\s/g, "").toUpperCase() : undefined))
+    .refine((v) => v === undefined || isValidIban(v), "Ungültige IBAN"),
+  accountHolder: optionalStr,
 });
+
+// IBAN-Prüfsumme (ISO 13616, mod 97).
+export function isValidIban(raw: string): boolean {
+  const s = raw.replace(/\s/g, "").toUpperCase();
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s)) return false;
+  let m = 0;
+  for (const c of s.slice(4) + s.slice(0, 4)) {
+    const n = parseInt(c, 36);
+    m = (n > 9 ? m * 100 + n : m * 10 + n) % 97;
+  }
+  return m === 1;
+}
 
 export const meterSchema = z.object({
   unitId: z.string().min(1),

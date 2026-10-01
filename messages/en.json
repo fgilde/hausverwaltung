@@ -291,6 +291,7 @@
     "date": "Date",
     "value": "Reading",
     "iban": "IBAN",
+    "accountHolder": "Account holder",
     "mandateRef": "Mandate reference",
     "signedDate": "Signed on",
     "amount": "Amount",

@@ -332,6 +332,8 @@ model Person {
   phone     String?
   type      PersonType @default(SONSTIGE) // Kontaktgruppe (Adressbuch)
   note      String? // z.B. Mietgesuch bei Interessenten
+  iban          String? // Bankverbindung (#45)
+  accountHolder String? // Kontoinhaber, kann vom Kontaktnamen abweichen
   owners    Owner[]
   renters   Renter[]
   mandates  SepaMandate[]
