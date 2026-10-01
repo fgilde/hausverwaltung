@@ -350,10 +350,9 @@
     "ownerships": "Eigentum",
     "noOwnerships": "Kein Eigentum hinterlegt.",
     "communication": "E-Mail-Kommunikation",
-    "communicationHint": "Gesendete und (per IMAP) eingegangene E-Mails zu diesem Kontakt, chronologisch.",
+    "communicationHint": "Gesendete und empfangene E-Mails mit diesem Kontakt.",
     "noCommunication": "Noch keine E-Mails mit diesem Kontakt.",
-    "dirIn": "Eingang",
-    "dirOut": "Ausgang",
+    "newMessage": "Neue Nachricht",
     "received": "Empfangen"
   },
   "personType": {

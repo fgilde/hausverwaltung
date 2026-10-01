@@ -12,7 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PersonDialog } from "@/components/entity-dialogs";
 import { LeaseDialog } from "@/components/lease-dialogs";
 import { EmailViewDialog } from "@/components/email-view-dialog";
-import { Paperclip } from "lucide-react";
+import { EmailCompose } from "@/components/email-compose";
+import { sendEmail } from "@/server/actions/email";
+import { smtpFromAddress } from "@/lib/adapters/mailer";
+import { imapAddress } from "@/lib/adapters/imap";
+import { Paperclip, Send } from "lucide-react";
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,7 +34,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   });
   if (!person) notFound();
 
-  const [units, customDefs, leaseDefs] = await Promise.all([
+  const [units, customDefs, leaseDefs, tenant, documents, templates] = await Promise.all([
     prisma.unit.findMany({
       where: { tenantId: user.tenantId },
       include: { building: { include: { property: true } } },
@@ -46,6 +50,21 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       orderBy: { createdAt: "asc" },
       select: { key: true, label: true },
     }),
+    prisma.tenant.findUnique({
+      where: { id: user.tenantId },
+      select: { name: true, smtpFrom: true, smtpUser: true, imapUser: true },
+    }),
+    prisma.document.findMany({
+      where: { tenantId: user.tenantId },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      select: { id: true, name: true },
+    }),
+    prisma.template.findMany({
+      where: { tenantId: user.tenantId },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, subject: true, body: true },
+    }),
   ]);
   // E-Mail-Kommunikationsverlauf (#39): ausgehende Mails (an To/Cc) und eingehende
   // Mails (per IMAP-Import, Absender = Kontakt) chronologisch zusammengeführt.
@@ -59,7 +78,10 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
               { cc: { contains: person.email, mode: "insensitive" } },
             ],
           },
-          include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
+          include: {
+            attachments: { include: { document: { select: { id: true, name: true, mime: true } } } },
+            sentBy: { select: { name: true } },
+          },
           orderBy: { createdAt: "desc" },
         }),
         prisma.inboundEmail.findMany({
@@ -76,17 +98,28 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
     s === "GESENDET" ? "secondary" : s === "FEHLER" ? "destructive" : "outline";
 
   // Ein- und ausgehende Mails in einheitlicher Form (gleiche Zeile, gleicher Dialog).
+  // Von/An immer als „Name <Adresse>“: Verwaltung = Mandantenname + SMTP- bzw.
+  // IMAP-Adresse, Kontakt = Kontaktname (#44).
   type Att = { document: { id: string; name: string; mime: string } };
   const toAtt = (list: Att[]) => list.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime }));
+  const addr = (name: string | null | undefined, address: string) =>
+    !address ? (name ?? "") : address.includes("<") || !name ? address : `${name} <${address}>`;
+  const personName = `${person.firstName} ${person.lastName}`;
+  const ownName = tenant?.name ?? "";
+  const ownFrom = addr(ownName, smtpFromAddress({ from: tenant?.smtpFrom, user: tenant?.smtpUser }));
+  const ownInbox = addr(ownName, imapAddress({ user: tenant?.imapUser }));
+  const toLabel = (to: string) =>
+    to.trim().toLowerCase() === person.email?.toLowerCase() ? addr(personName, person.email!) : to;
   const communication = [
     ...outbound.map((m) => ({
       dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, status: m.status as string | null,
-      from: null, toAddress: m.toAddress, cc: m.cc, body: m.body, attachments: toAtt(m.attachments),
+      sender: m.sentBy?.name ?? null, from: ownFrom, toAddress: toLabel(m.toAddress), cc: m.cc, body: m.body,
+      attachments: toAtt(m.attachments),
     })),
     ...inbound.map((m) => ({
       dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", status: null,
-      from: m.fromName ? `${m.fromName} <${m.fromAddress}>` : m.fromAddress, toAddress: null, cc: null, body: m.body,
-      attachments: toAtt(m.attachments),
+      sender: m.fromName || personName, from: addr(m.fromName || personName, m.fromAddress), toAddress: ownInbox,
+      cc: null, body: m.body, attachments: toAtt(m.attachments),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
@@ -199,9 +232,18 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       {/* E-Mail-Kommunikation (#39) */}
       {person.email && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("persons.communication")}</CardTitle>
-            <p className="text-xs text-muted-foreground">{t("persons.communicationHint")}</p>
+          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+            <div>
+              <CardTitle className="text-base">{t("persons.communication")}</CardTitle>
+              <p className="text-xs text-muted-foreground">{t("persons.communicationHint")}</p>
+            </div>
+            <EmailCompose
+              persons={[]}
+              documents={documents}
+              templates={templates}
+              defaultTo={person.email}
+              triggerLabel={t("persons.newMessage")}
+            />
           </CardHeader>
           <CardContent className="space-y-1.5">
             {communication.length === 0 ? (
@@ -211,7 +253,6 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                 <div key={c.dir + c.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 font-medium">
-                      <Badge variant={c.dir === "in" ? "secondary" : "outline"}>{t(c.dir === "in" ? "persons.dirIn" : "persons.dirOut")}</Badge>
                       <span className="truncate">{c.subject}</span>
                       {c.attachments.length > 0 && (
                         <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
@@ -222,7 +263,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {dateTime(c.date, df)}
-                      {c.dir === "in" ? ` · ${c.from}` : ""}
+                      {c.sender ? ` · ${c.sender}` : ""}
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
@@ -230,6 +271,14 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                       <Badge variant={emailStatusVariant(c.status)}>{t(`emailStatus.${c.status}`)}</Badge>
                     ) : (
                       <Badge variant="secondary">{t("persons.received")}</Badge>
+                    )}
+                    {c.status && c.status !== "GESENDET" && (
+                      <form action={sendEmail}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <Button type="submit" variant="ghost" size="icon" aria-label={t("email.send")} title={t("email.send")}>
+                          <Send className="size-4" />
+                        </Button>
+                      </form>
                     )}
                     <EmailViewDialog
                       message={{

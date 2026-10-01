@@ -41,6 +41,12 @@ function resolve(cfg?: ImapConfig) {
   return { host, port, user, password, secure, mailbox };
 }
 
+/** Postfach-Adresse für die Anzeige (#44): der IMAP-Login, sofern er eine Adresse ist. */
+export function imapAddress(cfg?: ImapConfig): string {
+  const { user } = resolve(cfg);
+  return user.includes("@") ? user : "";
+}
+
 export function isImapConfigured(cfg?: ImapConfig): boolean {
   const c = resolve(cfg);
   return !!(c.host && c.user);

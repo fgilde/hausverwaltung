@@ -350,10 +350,9 @@
     "ownerships": "Ownership",
     "noOwnerships": "No ownership on record.",
     "communication": "Email communication",
-    "communicationHint": "Emails sent to and (via IMAP) received from this contact, chronological.",
+    "communicationHint": "Emails sent to and received from this contact.",
     "noCommunication": "No emails with this contact yet.",
-    "dirIn": "Incoming",
-    "dirOut": "Outgoing",
+    "newMessage": "New message",
     "received": "Received"
   },
   "personType": {

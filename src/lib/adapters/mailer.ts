@@ -23,6 +23,11 @@ function resolve(cfg?: SmtpConfig) {
   return { host, port, user, password, from, secure };
 }
 
+/** Effektive Absenderadresse (Mandant oder ENV), z. B. für die Anzeige (#44). */
+export function smtpFromAddress(cfg?: SmtpConfig): string {
+  return resolve(cfg).from;
+}
+
 export function isMailerConfigured(cfg?: SmtpConfig): boolean {
   return !!resolve(cfg).host;
 }

@@ -84,7 +84,7 @@ export async function sendEmail(fd: FormData): Promise<void> {
     );
     await prisma.emailMessage.update({
       where: { id: msg.id },
-      data: { status: "GESENDET", sentAt: new Date(), error: null },
+      data: { status: "GESENDET", sentAt: new Date(), error: null, sentById: user.id },
     });
     await audit(
       user,

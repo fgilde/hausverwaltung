@@ -177,6 +177,7 @@ model User {
   reportedTickets Ticket[] @relation("TicketReporter")
   apiTokens    ApiToken[]
   notifications Notification[]
+  sentEmails   EmailMessage[]
   createdAt    DateTime @default(now())
 
   @@index([tenantId])
@@ -983,6 +984,8 @@ model EmailMessage {
   status      EmailStatus       @default(ENTWURF)
   error       String?
   sentAt      DateTime?
+  sentById    String? // Benutzer, der die Mail versendet hat (#44)
+  sentBy      User?             @relation(fields: [sentById], references: [id], onDelete: SetNull)
   attachments EmailAttachment[]
   createdAt   DateTime          @default(now())
 

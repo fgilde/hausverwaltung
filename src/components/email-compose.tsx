@@ -25,13 +25,17 @@ export function EmailCompose({
   persons,
   documents,
   templates,
+  defaultTo,
+  triggerLabel,
 }: {
   persons: Person[];
   documents: Doc[];
   templates: Tpl[];
+  defaultTo?: string; // vorbelegter Empfänger, z. B. „Neue Nachricht" am Kontakt (#44)
+  triggerLabel?: string;
 }) {
   const t = useTranslations();
-  const [to, setTo] = useState("");
+  const [to, setTo] = useState(defaultTo ?? "");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
@@ -55,10 +59,10 @@ export function EmailCompose({
       trigger={
         <Button size="sm">
           <Plus className="size-4" />
-          {t("email.compose")}
+          {triggerLabel ?? t("email.compose")}
         </Button>
       }
-      title={t("email.compose")}
+      title={triggerLabel ?? t("email.compose")}
       action={createEmail}
       submitLabel={t("email.saveToOutbox")}
     >
