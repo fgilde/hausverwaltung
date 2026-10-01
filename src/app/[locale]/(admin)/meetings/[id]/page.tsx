@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
-import { date } from "@/lib/format";
+import { date, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,15 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
     include: {
       property: true,
       agendaItems: { orderBy: { position: "asc" } },
-      resolutions: { orderBy: { number: "asc" } },
+      resolutions: { orderBy: { number: "asc" }, include: { subcommunity: { include: { units: { select: { mea: true } } } } } },
     },
   });
   if (!meeting) notFound();
+  const subcommunities = await prisma.subcommunity.findMany({
+    where: { tenantId: user.tenantId, propertyId: meeting.propertyId },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <div className="space-y-6">
@@ -96,7 +101,11 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("meetings.resolutions")}</CardTitle>
-          <ResolutionDialog propertyId={meeting.propertyId} meetingId={meeting.id} />
+          <ResolutionDialog
+            propertyId={meeting.propertyId}
+            meetingId={meeting.id}
+            subcommunities={subcommunities.map((s) => ({ value: s.id, label: s.name }))}
+          />
         </CardHeader>
         <CardContent className="space-y-3">
           {meeting.resolutions.length === 0 ? (
@@ -120,6 +129,16 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground">
                   {t("meetings.votes")}: {t("meetings.yes")} {r.votesYes} · {t("meetings.no")} {r.votesNo} · {t("meetings.abstain")} {r.votesAbstain}
+                  {/* Beschluss einer Untergemeinschaft: nur deren Eigentümer, Nenner = MEA der UG (#42) */}
+                  {r.subcommunity && (
+                    <>
+                      {" · "}
+                      {t("weg.votingBasis", {
+                        name: r.subcommunity.name,
+                        mea: decimal(r.subcommunity.units.reduce((a, u) => a + (u.mea ?? 0), 0), locale),
+                      })}
+                    </>
+                  )}
                 </div>
               </div>
             ))

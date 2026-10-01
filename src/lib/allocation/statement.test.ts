@@ -228,3 +228,18 @@ describe("buildStatement", () => {
     });
   });
 });
+
+describe("buildStatement mit Verteilerkreis (#42)", () => {
+  it("Position mit unitIds wird nur auf diese Einheiten verteilt", () => {
+    const units = [
+      { id: "a", label: "A", area: 50, persons: 1, leases: fy("la") },
+      { id: "b", label: "B", area: 50, persons: 1, leases: fy("lb") },
+      { id: "c", label: "C", area: 100, persons: 1, leases: fy("lc") },
+    ];
+    const { lines } = buildStatement(units, [
+      { id: "trh", amount: 300, method: "AREA", umlagefaehig: true, unitIds: ["a", "b"] },
+    ]);
+    const by = Object.fromEntries(lines.map((l) => [l.unitId, l.allocated]));
+    expect(by).toEqual({ a: 150, b: 150, c: 0 });
+  });
+});

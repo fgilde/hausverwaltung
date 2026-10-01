@@ -367,8 +367,9 @@ weg: {
     <ul>
       <li><strong>Wirtschaftsplan</strong> (§28): Gesamtkosten je Jahr → Hausgeld je Eigentümer nach MEA, monatlich = /12.</li>
       <li><strong>Erhaltungsrücklage</strong> mit Zu-/Entnahmen und Saldo.</li>
-      <li><strong>Jahresabrechnung</strong> + Vermögensbericht.</li>
+      <li><strong>Jahresabrechnung</strong> + Vermögensbericht: Jede Kostenposition wird nach ihrem eigenen Verteilerschlüssel umgelegt (Wohnfläche, Einheiten, MEA, Verbrauch; Heizung/Warmwasser nach HeizkostenV), mit Kostenaufstellung in der Druckansicht.</li>
       <li>MEA-Prüfung: Summe der Anteile wird gegen die Objekt-Sollsumme (Tausendstel) validiert (✓/✗).</li>
+      <li><strong>Untergemeinschaften</strong> (z. B. Vorderhaus/Hinterhaus): Einheiten werden einer UG zugeordnet. Kostenpositionen, Erhaltungsrücklagen, Beschlüsse und ein eigener Wirtschaftsplan lassen sich einer UG zuordnen, ohne Zuordnung gelten sie für die Gesamt-WEG. Verteilt wird dann nur unter den Einheiten der UG, Nenner ist deren MEA-Summe (z. B. 280/720). Bei UG-Beschlüssen zeigt HaVeWa die Stimmbasis an.</li>
     </ul>`,
   en: `
     <h2>HOA management</h2>
@@ -376,8 +377,9 @@ weg: {
     <ul>
       <li><strong>Economic plan</strong> (§28): total yearly costs → fee per owner by MEA, monthly = /12.</li>
       <li><strong>Maintenance reserve</strong> with contributions/withdrawals and balance.</li>
-      <li><strong>Annual statement</strong> + asset report.</li>
+      <li><strong>Annual statement</strong> + asset report: every cost item is allocated by its own key (area, units, MEA, consumption; heating/hot water per HeizkostenV), with a cost breakdown in the print view.</li>
       <li>MEA check: the sum of shares is validated against the property target (per mille) (✓/✗).</li>
+      <li><strong>Sub-communities</strong> (e.g. front/rear building): units are assigned to a sub-community. Cost items, reserves, resolutions and a separate economic plan can belong to one; without assignment they apply to the whole community. They are then shared only among the sub-community's units, with its MEA sum as denominator (e.g. 280/720). Resolutions of a sub-community show the voting basis.</li>
     </ul>`
 },
 

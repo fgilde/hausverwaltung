@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { costEntrySchema, type ActionState } from "@/lib/schemas";
+import { subcommunityValid } from "@/server/weg";
 
 export async function createCost(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
@@ -14,6 +15,9 @@ export async function createCost(_p: ActionState, fd: FormData): Promise<ActionS
     select: { id: true },
   });
   if (!prop) return { error: "Objekt nicht gefunden" };
+  if (!(await subcommunityValid(user.tenantId, r.data.propertyId, r.data.subcommunityId))) {
+    return { error: "Untergemeinschaft nicht gefunden" };
+  }
   await prisma.costEntry.create({ data: { ...r.data, tenantId: user.tenantId } });
   revalidatePath("/", "layout");
   return { ok: true };

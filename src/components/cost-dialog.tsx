@@ -4,15 +4,24 @@ import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField } from "@/components/form-fields";
 import { createCost } from "@/server/actions/costs";
+import { ScopeField } from "@/components/weg-dialogs";
 
 const COST_TYPES = [
   "GRUNDSTEUER", "WASSER", "ENTWAESSERUNG", "HEIZUNG", "WARMWASSER", "AUFZUG",
   "STRASSENREINIGUNG", "MUELL", "GEBAEUDEREINIGUNG", "GARTENPFLEGE", "BELEUCHTUNG",
-  "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "SONSTIGE",
+  "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "INSTANDHALTUNG", "VERWALTUNG", "SONSTIGE",
 ];
 const METHODS = ["AREA", "UNITS", "PERSONS", "CONSUMPTION", "MEA"];
 
-export async function CostDialog({ propertyId, year }: { propertyId: string; year: number }) {
+export async function CostDialog({
+  propertyId,
+  year,
+  subcommunities = [],
+}: {
+  propertyId: string;
+  year: number;
+  subcommunities?: { value: string; label: string }[]; // Untergemeinschaften (#42)
+}) {
   const t = await getTranslations();
   const typeOpts = await getTranslations("costType").then((tt) =>
     COST_TYPES.map((k) => ({ value: k, label: tt(k) })),
@@ -38,6 +47,9 @@ export async function CostDialog({ propertyId, year }: { propertyId: string; yea
       <SelectField name="type" label={t("fields.type")} options={typeOpts} />
       <TextField name="amount" label={t("fields.amount")} type="number" step="0.01" />
       <SelectField name="method" label={t("statements.method")} options={methodOpts} />
+      {subcommunities.length > 0 && (
+        <ScopeField subcommunities={subcommunities} label={t("weg.scope")} wholeLabel={t("weg.wholeCommunity")} />
+      )}
       <TextField
         name="consumptionSharePct"
         label={t("statements.consumptionShare")}

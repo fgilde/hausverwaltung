@@ -818,7 +818,9 @@
     "VERSICHERUNG": "Versicherung",
     "HAUSWART": "Hauswart",
     "KABEL": "Kabel/Antenne",
-    "SONSTIGE": "Sonstige"
+    "SONSTIGE": "Sonstige",
+    "INSTANDHALTUNG": "Instandhaltung",
+    "VERWALTUNG": "Verwaltung"
   },
   "allocationMethod": {
     "AREA": "Wohnfläche",
@@ -988,7 +990,25 @@
     "assetsTotal": "Rücklagen gesamt",
     "annual": "Jahresabrechnung",
     "actualTotal": "Ist-Kosten gesamt",
-    "noActual": "Keine Ist-Kosten (Kostenpositionen) für dieses Jahr."
+    "noActual": "Keine Ist-Kosten (Kostenpositionen) für dieses Jahr.",
+    "scope": "Kreis",
+    "wholeCommunity": "Gesamt-WEG",
+    "subcommunities": "Untergemeinschaften",
+    "subcommunitiesHint": "Z. B. Vorderhaus/Hinterhaus. Kosten, Rücklagen, Beschlüsse und Wirtschaftsplan können einer Untergemeinschaft zugeordnet werden; verteilt und abgestimmt wird dann nur unter deren Einheiten.",
+    "noSubcommunities": "Keine Untergemeinschaften. Alles gilt für die Gesamt-WEG.",
+    "noUnitsAssigned": "Noch keine Einheiten zugeordnet",
+    "meaBasis": "MEA-Basis",
+    "subcommunity": "Untergemeinschaft",
+    "addSubcommunity": "Untergemeinschaft",
+    "editSubcommunity": "Untergemeinschaft bearbeiten",
+    "subcommunityUnits": "Einheiten",
+    "subcommunityHint": "Eine Einheit gehört höchstens zu einer Untergemeinschaft. Die MEA-Summe der zugeordneten Einheiten ist der Nenner für Kosten und Stimmen.",
+    "planHint": "Hausgeld je Kreis nach MEA: Gesamt-WEG über alle Einheiten, Untergemeinschaften nur über ihre Einheiten.",
+    "costItem": "Kostenposition",
+    "noOwnerUnit": "Ohne Eigentümer",
+    "costBreakdown": "Kostenaufstellung",
+    "ownerStatement": "Abrechnung je Eigentümer",
+    "votingBasis": "Stimmberechtigt: {name} (MEA-Basis {mea})"
   },
   "assistant": {
     "title": "KI-Assistent",

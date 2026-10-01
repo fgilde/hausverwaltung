@@ -42,7 +42,14 @@ export default async function StatementsPage({
   const propertyId = sp.propertyId || properties[0]?.id;
   const year = Number(sp.year) || new Date().getFullYear();
 
-  const st = propertyId ? await computeStatement(tenantId, propertyId, year) : null;
+  const [st, subcommunities] = propertyId
+    ? await Promise.all([
+        computeStatement(tenantId, propertyId, year),
+        prisma.subcommunity.findMany({ where: { tenantId, propertyId }, orderBy: { createdAt: "asc" }, select: { id: true, name: true } }),
+      ])
+    : [null, []];
+  const subOpts = subcommunities.map((s) => ({ value: s.id, label: s.name }));
+  const subName = new Map(subcommunities.map((s) => [s.id, s.name]));
   const costRows = st?.costs ?? [];
   const lines = st?.units ?? [];
   const totalUmlage = st?.totalUmlage ?? 0;
@@ -96,7 +103,7 @@ export default async function StatementsPage({
           <CardTitle className="text-base">
             {t("statements.costs")} · {t("statements.total")}: {money(totalUmlage, locale)}
           </CardTitle>
-          {propertyId && <CostDialog propertyId={propertyId} year={year} />}
+          {propertyId && <CostDialog propertyId={propertyId} year={year} subcommunities={subOpts} />}
         </CardHeader>
         <CardContent className="p-0">
           {costRows.length === 0 ? (
@@ -119,7 +126,10 @@ export default async function StatementsPage({
                       {t(`costType.${c.type}`)}
                       {c.note ? ` · ${c.note}` : ""}
                     </TableCell>
-                    <TableCell>{t(`allocationMethod.${c.method}`)}</TableCell>
+                    <TableCell>
+                      {t(`allocationMethod.${c.method}`)}
+                      {c.subcommunityId && <span className="text-muted-foreground"> · {subName.get(c.subcommunityId)}</span>}
+                    </TableCell>
                     <TableCell>{c.umlagefaehig ? t("common.yes") : t("common.no")}</TableCell>
                     <TableCell className="text-right">{money(c.amount, locale)}</TableCell>
                     <TableCell>

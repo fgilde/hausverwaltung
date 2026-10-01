@@ -215,11 +215,12 @@ export const costEntrySchema = z.object({
   type: z.enum([
     "GRUNDSTEUER", "WASSER", "ENTWAESSERUNG", "HEIZUNG", "WARMWASSER", "AUFZUG",
     "STRASSENREINIGUNG", "MUELL", "GEBAEUDEREINIGUNG", "GARTENPFLEGE", "BELEUCHTUNG",
-    "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "SONSTIGE",
+    "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "INSTANDHALTUNG", "VERWALTUNG", "SONSTIGE",
   ]),
   amount: z.coerce.number().nonnegative(),
   method: z.enum(["AREA", "UNITS", "PERSONS", "CONSUMPTION", "MEA"]),
   umlagefaehig: z.enum(["true", "false"]).transform((v) => v === "true"),
+  subcommunityId: optionalStr, // nur Einheiten dieser Untergemeinschaft (#42)
   // HeizkostenV-Verbrauchsanteil % (nur Heizung/Warmwasser). Leer → Mandanten-Standard.
   consumptionSharePct: z
     .string()
@@ -261,6 +262,12 @@ export const economicPlanSchema = z.object({
 });
 
 export const reserveSchema = z.object({
+  propertyId: z.string().min(1),
+  name: z.string().trim().min(1),
+  subcommunityId: optionalStr, // Untergemeinschaft (#42), leer = Gesamt-WEG
+});
+
+export const subcommunitySchema = z.object({
   propertyId: z.string().min(1),
   name: z.string().trim().min(1),
 });
@@ -453,4 +460,5 @@ export const resolutionSchema = z.object({
   votesYes: z.coerce.number().int().min(0),
   votesNo: z.coerce.number().int().min(0),
   votesAbstain: z.coerce.number().int().min(0),
+  subcommunityId: optionalStr, // Beschluss einer Untergemeinschaft (#42)
 });

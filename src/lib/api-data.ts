@@ -314,7 +314,7 @@ export async function listMeetings(tenantId: string) {
 export async function listResolutions(tenantId: string) {
   const rows = await prisma.resolution.findMany({
     where: { tenantId },
-    include: propSel,
+    include: { ...propSel, subcommunity: { select: { name: true } } },
     orderBy: [{ propertyId: "asc" }, { number: "asc" }],
   });
   return rows.map((r) => ({
@@ -326,6 +326,7 @@ export async function listResolutions(tenantId: string) {
     result: r.result,
     votes: { yes: r.votesYes, no: r.votesNo, abstain: r.votesAbstain },
     property: r.property.name,
+    subcommunity: r.subcommunity?.name ?? null,
   }));
 }
 
@@ -348,13 +349,14 @@ export async function listEconomicPlans(tenantId: string) {
 export async function listReserves(tenantId: string) {
   const rows = await prisma.reserve.findMany({
     where: { tenantId },
-    include: { ...propSel, transactions: { select: { amount: true } } },
+    include: { ...propSel, subcommunity: { select: { name: true } }, transactions: { select: { amount: true } } },
     orderBy: { createdAt: "asc" },
   });
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
     property: r.property.name,
+    subcommunity: r.subcommunity?.name ?? null,
     balance: Math.round(r.transactions.reduce((s, t) => s + Number(t.amount), 0) * 100) / 100,
   }));
 }

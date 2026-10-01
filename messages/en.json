@@ -818,7 +818,9 @@
     "VERSICHERUNG": "Insurance",
     "HAUSWART": "Caretaker",
     "KABEL": "Cable/antenna",
-    "SONSTIGE": "Other"
+    "SONSTIGE": "Other",
+    "INSTANDHALTUNG": "Maintenance",
+    "VERWALTUNG": "Administration"
   },
   "allocationMethod": {
     "AREA": "Living area",
@@ -988,7 +990,25 @@
     "assetsTotal": "Total reserves",
     "annual": "Annual statement",
     "actualTotal": "Total actual cost",
-    "noActual": "No actual costs (cost items) for this year."
+    "noActual": "No actual costs (cost items) for this year.",
+    "scope": "Scope",
+    "wholeCommunity": "Whole community",
+    "subcommunities": "Sub-communities",
+    "subcommunitiesHint": "E.g. front/rear building. Costs, reserves, resolutions and the budget can belong to a sub-community; they are then shared and voted only among its units.",
+    "noSubcommunities": "No sub-communities. Everything applies to the whole community.",
+    "noUnitsAssigned": "No units assigned yet",
+    "meaBasis": "Share basis",
+    "subcommunity": "Sub-community",
+    "addSubcommunity": "Sub-community",
+    "editSubcommunity": "Edit sub-community",
+    "subcommunityUnits": "Units",
+    "subcommunityHint": "A unit belongs to at most one sub-community. The co-ownership sum of its units is the denominator for costs and votes.",
+    "planHint": "Contributions per scope by co-ownership share: whole community across all units, sub-communities only across their units.",
+    "costItem": "Cost item",
+    "noOwnerUnit": "No owner",
+    "costBreakdown": "Cost breakdown",
+    "ownerStatement": "Statement per owner",
+    "votingBasis": "Eligible: {name} (share basis {mea})"
   },
   "assistant": {
     "title": "AI assistant",

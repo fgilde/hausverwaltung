@@ -48,7 +48,11 @@ export default async function PortalPage() {
 
   const [resolutions, documents] = await Promise.all([
     propertyIds.length
-      ? prisma.resolution.findMany({ where: { tenantId: user.tenantId, propertyId: { in: propertyIds } }, orderBy: { number: "asc" } })
+      ? prisma.resolution.findMany({
+          where: { tenantId: user.tenantId, propertyId: { in: propertyIds } },
+          orderBy: { number: "asc" },
+          include: { subcommunity: { select: { name: true } } },
+        })
       : Promise.resolve([]),
     // Datenschutz: nur ausdrücklich dieser Person zugeordnete Dokumente. Objekt-/
     // Wohnungs-Dokumente ohne Personenbezug (Steuer, Versicherung, Kauf …) bleiben
@@ -236,6 +240,7 @@ export default async function PortalPage() {
                 <div key={r.id} className="flex items-center justify-between text-sm">
                   <span>
                     #{r.number} · {r.title}
+                    {r.subcommunity && ` (${r.subcommunity.name})`}
                   </span>
                   <Badge variant={r.result === "ANGENOMMEN" ? "secondary" : "outline"}>
                     {t(`resolutionResult.${r.result}`)}

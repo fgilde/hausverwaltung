@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField, TextAreaField } from "@/components/form-fields";
+import { ScopeField } from "@/components/weg-dialogs";
 import {
   createMeeting,
   updateMeeting,
@@ -98,9 +99,11 @@ export async function AgendaDialog({ meetingId }: { meetingId: string }) {
 export async function ResolutionDialog({
   propertyId,
   meetingId,
+  subcommunities = [],
 }: {
   propertyId: string;
   meetingId?: string;
+  subcommunities?: Opt[]; // Beschluss nur einer Untergemeinschaft (#42)
 }) {
   const t = await getTranslations();
   const resultOpts = await opts("resolutionResult", ["ANGENOMMEN", "ABGELEHNT", "VERTAGT"]);
@@ -120,6 +123,9 @@ export async function ResolutionDialog({
       {meetingId && <input type="hidden" name="meetingId" value={meetingId} />}
       <TextField name="title" label={t("fields.name")} />
       <TextAreaField name="text" label={t("meetings.resolutionText")} required rows={4} />
+      {subcommunities.length > 0 && (
+        <ScopeField subcommunities={subcommunities} label={t("weg.scope")} wholeLabel={t("weg.wholeCommunity")} />
+      )}
       <div className="grid grid-cols-2 gap-4">
         <TextField name="date" label={t("fields.date")} type="date" defaultValue={today()} />
         <SelectField name="result" label={t("meetings.result")} defaultValue="ANGENOMMEN" options={resultOpts} />

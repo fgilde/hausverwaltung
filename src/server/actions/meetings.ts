@@ -10,6 +10,7 @@ import {
   resolutionSchema,
   type ActionState,
 } from "@/lib/schemas";
+import { subcommunityValid } from "@/server/weg";
 
 function fail(msg?: string): ActionState {
   return { error: msg ?? "Ungültige Eingabe" };
@@ -70,6 +71,7 @@ export async function createResolution(_p: ActionState, fd: FormData): Promise<A
   if (!r.success) return fail(r.error.issues[0]?.message);
   const prop = await prisma.property.findFirst({ where: { id: r.data.propertyId, tenantId: user.tenantId }, select: { id: true } });
   if (!prop) return fail("Objekt nicht gefunden");
+  if (!(await subcommunityValid(user.tenantId, r.data.propertyId, r.data.subcommunityId))) return fail("Untergemeinschaft nicht gefunden");
   const last = await prisma.resolution.findFirst({
     where: { propertyId: r.data.propertyId, tenantId: user.tenantId },
     orderBy: { number: "desc" },

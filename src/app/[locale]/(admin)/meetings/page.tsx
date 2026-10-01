@@ -54,7 +54,7 @@ export default async function MeetingsPage({
       include: { _count: { select: { agendaItems: true, resolutions: true } } },
       orderBy: { date: "desc" },
     }),
-    prisma.resolution.findMany({ where: { tenantId, propertyId }, orderBy: { number: "asc" } }),
+    prisma.resolution.findMany({ where: { tenantId, propertyId }, orderBy: { number: "asc" }, include: { subcommunity: { select: { name: true } } } }),
   ]);
 
   const propertyOpts = wegProps.map((p) => ({ value: p.id, label: p.name }));
@@ -144,7 +144,10 @@ export default async function MeetingsPage({
                 {resolutions.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="font-mono">{r.number}</TableCell>
-                    <TableCell className="font-medium">{r.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {r.title}
+                      {r.subcommunity && <Badge variant="outline" className="ml-2">{r.subcommunity.name}</Badge>}
+                    </TableCell>
                     <TableCell>{date(r.date, df)}</TableCell>
                     <TableCell>
                       <Badge variant={r.result === "ANGENOMMEN" ? "secondary" : r.result === "ABGELEHNT" ? "destructive" : "outline"}>

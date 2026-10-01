@@ -818,7 +818,9 @@
     "VERSICHERUNG": "Seguro",
     "HAUSWART": "Zeladoria",
     "KABEL": "Cabo/antena",
-    "SONSTIGE": "Outros"
+    "SONSTIGE": "Outros",
+    "INSTANDHALTUNG": "Manutenção",
+    "VERWALTUNG": "Administração"
   },
   "allocationMethod": {
     "AREA": "Área privativa",
@@ -988,7 +990,25 @@
     "assetsTotal": "Total de reservas",
     "annual": "Demonstrativo anual",
     "actualTotal": "Custo total realizado",
-    "noActual": "Nenhum custo realizado (itens de custo) neste ano."
+    "noActual": "Nenhum custo realizado (itens de custo) neste ano.",
+    "scope": "Abrangência",
+    "wholeCommunity": "Condomínio inteiro",
+    "subcommunities": "Subcondomínios",
+    "subcommunitiesHint": "Por exemplo, prédio da frente e dos fundos. Custos, reservas, deliberações e orçamento podem pertencer a um subcondomínio; nesse caso são rateados e votados apenas entre as suas unidades.",
+    "noSubcommunities": "Nenhum subcondomínio. Tudo vale para o condomínio inteiro.",
+    "noUnitsAssigned": "Nenhuma unidade atribuída",
+    "meaBasis": "Base de fração ideal",
+    "subcommunity": "Subcondomínio",
+    "addSubcommunity": "Subcondomínio",
+    "editSubcommunity": "Editar subcondomínio",
+    "subcommunityUnits": "Unidades",
+    "subcommunityHint": "Uma unidade pertence a no máximo um subcondomínio. A soma das frações ideais das suas unidades é o denominador para custos e votos.",
+    "planHint": "Cota condominial por abrangência conforme a fração ideal: condomínio inteiro sobre todas as unidades, subcondomínios apenas sobre as suas unidades.",
+    "costItem": "Item de custo",
+    "noOwnerUnit": "Sem proprietário",
+    "costBreakdown": "Demonstrativo de custos",
+    "ownerStatement": "Prestação de contas por proprietário",
+    "votingBasis": "Com direito a voto: {name} (base de fração ideal {mea})"
   },
   "assistant": {
     "title": "Assistente de IA",

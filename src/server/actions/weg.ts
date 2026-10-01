@@ -8,8 +8,10 @@ import {
   economicPlanSchema,
   reserveSchema,
   reserveTxSchema,
+  subcommunitySchema,
   type ActionState,
 } from "@/lib/schemas";
+import { subcommunityValid } from "@/server/weg";
 import { unitShareSum } from "@/lib/weg-validation";
 
 function fail(msg?: string): ActionState {
@@ -55,6 +57,17 @@ export async function upsertEconomicPlan(_p: ActionState, fd: FormData): Promise
   const prop = await prisma.property.findFirst({ where: { id: r.data.propertyId, tenantId: user.tenantId }, select: { id: true } });
   if (!prop) return fail("Objekt nicht gefunden");
   const { propertyId, year, ...data } = r.data;
+  // Wirtschaftsplan einer Untergemeinschaft (#42) separat, sonst Gesamt-WEG.
+  const subcommunityId = String(fd.get("subcommunityId") ?? "");
+  if (subcommunityId) {
+    if (!(await subcommunityValid(user.tenantId, propertyId, subcommunityId))) return fail("Untergemeinschaft nicht gefunden");
+    await prisma.subcommunityPlan.upsert({
+      where: { subcommunityId_year: { subcommunityId, year } },
+      create: { ...data, subcommunityId, year, tenantId: user.tenantId },
+      update: data,
+    });
+    return done();
+  }
   await prisma.economicPlan.upsert({
     where: { propertyId_year: { propertyId, year } },
     create: { ...r.data, tenantId: user.tenantId },
@@ -75,6 +88,7 @@ export async function createReserve(_p: ActionState, fd: FormData): Promise<Acti
   if (!r.success) return fail(r.error.issues[0]?.message);
   const prop = await prisma.property.findFirst({ where: { id: r.data.propertyId, tenantId: user.tenantId }, select: { id: true } });
   if (!prop) return fail("Objekt nicht gefunden");
+  if (!(await subcommunityValid(user.tenantId, r.data.propertyId, r.data.subcommunityId))) return fail("Untergemeinschaft nicht gefunden");
   await prisma.reserve.create({ data: { ...r.data, tenantId: user.tenantId } });
   return done();
 }
@@ -96,5 +110,44 @@ export async function createReserveTx(_p: ActionState, fd: FormData): Promise<Ac
 export async function deleteReserveTx(fd: FormData): Promise<void> {
   const user = await requireWriter();
   await prisma.reserveTransaction.deleteMany({ where: { id: String(fd.get("id") ?? ""), tenantId: user.tenantId } });
+  revalidatePath("/", "layout");
+}
+
+// --- Untergemeinschaften (#42) ---
+export async function createSubcommunity(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const r = subcommunitySchema.safeParse(Object.fromEntries(fd));
+  if (!r.success) return fail(r.error.issues[0]?.message);
+  const prop = await prisma.property.findFirst({ where: { id: r.data.propertyId, tenantId: user.tenantId, management: "WEG" }, select: { id: true } });
+  if (!prop) return fail("Objekt nicht gefunden");
+  const sub = await prisma.subcommunity.create({ data: { ...r.data, tenantId: user.tenantId } });
+  await assignUnits(user.tenantId, r.data.propertyId, sub.id, fd.getAll("unitIds").map(String));
+  return done();
+}
+
+export async function updateSubcommunity(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const id = String(fd.get("id") ?? "");
+  const name = String(fd.get("name") ?? "").trim();
+  if (!name) return fail("Name fehlt");
+  const sub = await prisma.subcommunity.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true, propertyId: true } });
+  if (!sub) return fail("Untergemeinschaft nicht gefunden");
+  await prisma.subcommunity.update({ where: { id }, data: { name } });
+  await assignUnits(user.tenantId, sub.propertyId, id, fd.getAll("unitIds").map(String));
+  return done();
+}
+
+/** Einheiten der UG setzen: angehakte zuordnen (ggf. aus anderer UG), übrige lösen. */
+async function assignUnits(tenantId: string, propertyId: string, subcommunityId: string, unitIds: string[]) {
+  const scope = { tenantId, building: { propertyId } };
+  await prisma.$transaction([
+    prisma.unit.updateMany({ where: { ...scope, subcommunityId, id: { notIn: unitIds } }, data: { subcommunityId: null } }),
+    prisma.unit.updateMany({ where: { ...scope, id: { in: unitIds } }, data: { subcommunityId } }),
+  ]);
+}
+
+export async function deleteSubcommunity(fd: FormData): Promise<void> {
+  const user = await requireWriter();
+  await prisma.subcommunity.deleteMany({ where: { id: String(fd.get("id") ?? ""), tenantId: user.tenantId } });
   revalidatePath("/", "layout");
 }

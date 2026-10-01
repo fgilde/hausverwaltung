@@ -4,6 +4,18 @@ import { buildStatement, monthsActiveInYear, type UnitInput, type CostInput } fr
 import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
 
+/** Heiz-/Warmwasserverbrauch einer Einheit im Jahr aus den Zählerständen (Ablesedifferenz). */
+export function meterConsumption(meters: { readings: { value: unknown; date: Date }[] }[]): number {
+  return meters.reduce((sum, m) => {
+    if (m.readings.length < 2) return sum;
+    const vals = m.readings.map((r) => Number(r.value));
+    const measured = Math.max(...vals) - Math.min(...vals);
+    // HeizkostenV §9b: unterjährige Ableseperiode auf Jahreswert hochrechnen.
+    const dates = m.readings.map((r) => r.date).sort((a, b) => a.getTime() - b.getTime());
+    return sum + extrapolateConsumption(measured, dates[0], dates[dates.length - 1]);
+  }, 0);
+}
+
 export interface StatementUnit {
   key: string; // eindeutig je Zeile (leaseId bzw. unitId bei Leerstand)
   id: string; // Einheit
@@ -18,7 +30,7 @@ export interface StatementUnit {
 
 export interface StatementResult {
   property: { id: string; name: string; street: string; zip: string; city: string; tenantName: string } | null;
-  costs: { id: string; type: string; amount: number; method: string; umlagefaehig: boolean; note: string | null }[];
+  costs: { id: string; type: string; amount: number; method: string; umlagefaehig: boolean; note: string | null; subcommunityId: string | null }[];
   units: StatementUnit[];
   totalUmlage: number;
 }
@@ -65,14 +77,7 @@ export async function computeStatement(
       .reduce((a, c) => a + Number(c.amount), 0);
 
   const inputs: UnitInput[] = dbUnits.map((u) => {
-    const consumption = u.meters.reduce((sum, m) => {
-      if (m.readings.length < 2) return sum;
-      const vals = m.readings.map((r) => Number(r.value));
-      const measured = Math.max(...vals) - Math.min(...vals);
-      // HeizkostenV §9b: unterjährige Ableseperiode auf Jahreswert hochrechnen.
-      const dates = m.readings.map((r) => r.date).sort((a, b) => a.getTime() - b.getTime());
-      return sum + extrapolateConsumption(measured, dates[0], dates[dates.length - 1]);
-    }, 0);
+    const consumption = meterConsumption(u.meters);
     return {
       id: u.id,
       label: u.label,
@@ -101,6 +106,8 @@ export async function computeStatement(
       umlagefaehig: c.umlagefaehig,
       heating,
       consumptionShare: heating && pct != null ? pct / 100 : undefined,
+      // Untergemeinschaft (#42): nur deren Einheiten tragen die Position.
+      unitIds: c.subcommunityId ? dbUnits.filter((u) => u.subcommunityId === c.subcommunityId).map((u) => u.id) : undefined,
     };
   });
 
@@ -136,7 +143,10 @@ export async function computeStatement(
     property: property
       ? { id: property.id, name: property.name, street: property.street, zip: property.zip, city: property.city, tenantName: property.tenant.name }
       : null,
-    costs: costs.map((c) => ({ id: c.id, type: c.type, amount: Number(c.amount), method: c.method, umlagefaehig: c.umlagefaehig, note: c.note })),
+    costs: costs.map((c) => ({
+      id: c.id, type: c.type, amount: Number(c.amount), method: c.method, umlagefaehig: c.umlagefaehig, note: c.note,
+      subcommunityId: c.subcommunityId,
+    })),
     units,
     totalUmlage,
   };

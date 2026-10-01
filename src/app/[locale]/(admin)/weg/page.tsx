@@ -2,8 +2,8 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money, decimal } from "@/lib/format";
-import { allocate, type AllocationParticipant } from "@/lib/allocation";
 import { checkMeaTotal } from "@/lib/weg-validation";
+import { computeWeg } from "@/server/weg";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,9 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { OwnerDialog, PlanDialog, ReserveDialog, ReserveTxDialog } from "@/components/weg-dialogs";
+import { OwnerDialog, PlanDialog, ReserveDialog, ReserveTxDialog, SubcommunityDialog } from "@/components/weg-dialogs";
+import { CostDialog } from "@/components/cost-dialog";
 import { DeleteButton } from "@/components/delete-button";
-import { deleteOwner, deleteReserve, deleteReserveTx } from "@/server/actions/weg";
+import { deleteOwner, deleteReserve, deleteReserveTx, deleteSubcommunity } from "@/server/actions/weg";
+import { deleteCost } from "@/server/actions/costs";
 import { Link } from "@/i18n/navigation";
 import { Printer } from "lucide-react";
 
@@ -54,43 +56,23 @@ export default async function WegPage({
     );
   }
 
-  const [owners, units, persons, plan, reserves, costs] = await Promise.all([
-    prisma.owner.findMany({
-      where: { tenantId, unit: { building: { propertyId } } },
-      include: { person: true, unit: true },
-    }),
-    prisma.unit.findMany({ where: { tenantId, building: { propertyId } }, select: { id: true, label: true, mea: true } }),
+  const [weg, persons] = await Promise.all([
+    computeWeg(tenantId, propertyId, year),
     prisma.person.findMany({ where: { tenantId }, orderBy: [{ lastName: "asc" }] }),
-    prisma.economicPlan.findUnique({ where: { propertyId_year: { propertyId, year } } }),
-    prisma.reserve.findMany({ where: { tenantId, propertyId }, include: { transactions: { orderBy: { date: "desc" } } } }),
-    prisma.costEntry.findMany({ where: { tenantId, propertyId, year } }),
   ]);
-
-  // MEA-Gewicht je Eigentümer-Zeile = unit.mea * share/1000
-  const weightOf = (o: (typeof owners)[number]) => ((o.unit.mea ?? 0) * o.share) / 1000;
-  const totalMea = owners.reduce((a, o) => a + weightOf(o), 0);
+  const { owners, units, subcommunities, scopes, costs, actualTotal, reserves, unassigned } = weg;
 
   // Validierung: Summe der Einheiten-MEA gegen Soll des Objekts
   const meaTotalSoll = wegProps.find((p) => p.id === propertyId)?.meaTotal ?? 1000;
   const meaCheck = checkMeaTotal(units.map((u) => u.mea), meaTotalSoll);
-  const parts: AllocationParticipant[] = owners.map((o) => ({ id: o.id, mea: weightOf(o) }));
+  const assetsTotal = reserves.reduce((a, x) => a + x.balance, 0);
 
-  const planTotal = plan ? Number(plan.totalAmount) : 0;
-  const hausgeld = planTotal > 0 ? allocate(planTotal, "MEA", parts) : [];
-  const hgById = new Map(hausgeld.map((h) => [h.id, h.amount]));
-
-  const actualTotal = costs.reduce((a, c) => a + Number(c.amount), 0);
-  const actual = actualTotal > 0 ? allocate(actualTotal, "MEA", parts) : [];
-  const acById = new Map(actual.map((a) => [a.id, a.amount]));
-
-  const reserveBalances = reserves.map((r) => ({
-    r,
-    balance: r.transactions.reduce((a, tx) => a + Number(tx.amount), 0),
-  }));
-  const assetsTotal = reserveBalances.reduce((a, x) => a + x.balance, 0);
-
+  const subName = new Map(subcommunities.map((s) => [s.id, s.name]));
+  const scopeLabel = (id: string | null) => (id ? (subName.get(id) ?? "—") : t("weg.wholeCommunity"));
   const unitOpts = units.map((u) => ({ value: u.id, label: u.label }));
+  const subOpts = subcommunities.map((s) => ({ value: s.id, label: s.name }));
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
+  const unitById = new Map(units.map((u) => [u.id, u]));
 
   return (
     <div className="space-y-6">
@@ -146,11 +128,51 @@ export default async function WegPage({
         )}
       </Card>
 
+      {/* Untergemeinschaften (#42) */}
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+          <div>
+            <CardTitle className="text-base">{t("weg.subcommunities")}</CardTitle>
+            <p className="text-xs text-muted-foreground">{t("weg.subcommunitiesHint")}</p>
+          </div>
+          <SubcommunityDialog propertyId={propertyId} units={unitOpts} />
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {subcommunities.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("weg.noSubcommunities")}</p>
+          ) : (
+            scopes
+              .filter((s) => s.id)
+              .map((s) => (
+                <div key={s.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
+                  <div className="min-w-0">
+                    <div className="font-medium">{s.name}</div>
+                    <div className="truncate text-xs text-muted-foreground">
+                      {s.units.length ? s.units.map((u) => u.label).join(", ") : t("weg.noUnitsAssigned")}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Badge variant="outline">
+                      {t("weg.meaBasis")}: {decimal(s.meaSum, locale)}
+                    </Badge>
+                    <SubcommunityDialog
+                      propertyId={propertyId}
+                      units={unitOpts}
+                      subcommunity={{ id: s.id!, name: s.name!, unitIds: s.units.map((u) => u.id) }}
+                    />
+                    <DeleteButton action={deleteSubcommunity} id={s.id!} />
+                  </div>
+                </div>
+              ))
+          )}
+        </CardContent>
+      </Card>
+
       {/* Eigentümer & MEA */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">
-            {t("weg.owners")} · {t("weg.totalMea")}: {totalMea}
+            {t("weg.owners")} · {t("weg.totalMea")}: {decimal(meaCheck.sum, locale)}
           </CardTitle>
           <OwnerDialog units={unitOpts} persons={personOpts} />
         </CardHeader>
@@ -163,7 +185,9 @@ export default async function WegPage({
                 <TableRow>
                   <TableHead>{t("weg.owners")}</TableHead>
                   <TableHead>{t("leases.unit")}</TableHead>
+                  {subcommunities.length > 0 && <TableHead>{t("weg.subcommunity")}</TableHead>}
                   <TableHead className="text-right">MEA</TableHead>
+                  <TableHead className="text-right">{t("weg.share")}</TableHead>
                   <TableHead className="text-right">{t("weg.monthlyHausgeld")}</TableHead>
                   <TableHead className="w-16 text-right">{t("common.actions")}</TableHead>
                 </TableRow>
@@ -175,10 +199,14 @@ export default async function WegPage({
                       {o.person.firstName} {o.person.lastName}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{o.unit.label}</TableCell>
-                    <TableCell className="text-right">{decimal(weightOf(o), locale)}</TableCell>
-                    <TableCell className="text-right">
-                      {money((hgById.get(o.id) ?? 0) / 12, locale)}
-                    </TableCell>
+                    {subcommunities.length > 0 && (
+                      <TableCell className="text-muted-foreground">
+                        {o.unit.subcommunityId ? subName.get(o.unit.subcommunityId) : "—"}
+                      </TableCell>
+                    )}
+                    <TableCell className="text-right">{decimal(o.unit.mea, locale)}</TableCell>
+                    <TableCell className="text-right">{decimal(o.share, locale)}‰</TableCell>
+                    <TableCell className="text-right">{money(o.line.hausgeld / 12, locale)}</TableCell>
                     <TableCell>
                       <div className="flex justify-end">
                         <DeleteButton action={deleteOwner} id={o.id} />
@@ -192,32 +220,78 @@ export default async function WegPage({
         </CardContent>
       </Card>
 
-      {/* Wirtschaftsplan */}
+      {/* Wirtschaftsplan je Kreis */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardHeader>
           <CardTitle className="text-base">
             {t("weg.plan")} {year}
-            {plan ? ` · ${t("weg.planTotal")}: ${money(planTotal, locale)}` : ""}
           </CardTitle>
-          <PlanDialog
-            propertyId={propertyId}
-            year={year}
-            plan={plan ? { totalAmount: String(plan.totalAmount), note: plan.note } : undefined}
-          />
+          {subcommunities.length > 0 && <p className="text-xs text-muted-foreground">{t("weg.planHint")}</p>}
         </CardHeader>
-        <CardContent>
-          {!plan ? <p className="text-sm text-muted-foreground">{t("weg.noPlan")}</p> : null}
+        <CardContent className="space-y-2">
+          {scopes.map((s) => (
+            <div key={s.id ?? "all"} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
+              <div>
+                <span className="font-medium">{scopeLabel(s.id)}</span>
+                <span className="text-muted-foreground">
+                  {" · "}
+                  {s.hasPlan ? `${t("weg.planTotal")}: ${money(s.planTotal, locale)}` : t("weg.noPlan")}
+                  {s.id && ` · ${t("weg.meaBasis")} ${decimal(s.meaSum, locale)}`}
+                </span>
+              </div>
+              <PlanDialog
+                propertyId={propertyId}
+                year={year}
+                subcommunity={s.id ? { id: s.id, name: s.name! } : undefined}
+                plan={s.hasPlan ? { totalAmount: String(s.planTotal), note: s.planNote } : undefined}
+              />
+            </div>
+          ))}
         </CardContent>
       </Card>
 
       {/* Jahresabrechnung */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">
             {t("weg.annual")} {year} · {t("weg.actualTotal")}: {money(actualTotal, locale)}
           </CardTitle>
+          <CostDialog propertyId={propertyId} year={year} subcommunities={subOpts} />
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="space-y-4 p-0">
+          {costs.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("weg.costItem")}</TableHead>
+                  <TableHead>{t("weg.scope")}</TableHead>
+                  <TableHead>{t("statements.method")}</TableHead>
+                  <TableHead className="text-right">{t("fields.amount")}</TableHead>
+                  <TableHead className="w-16" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {costs.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell className="font-medium">
+                      {t(`costType.${c.type}`)}
+                      {c.note && <span className="font-normal text-muted-foreground"> · {c.note}</span>}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={c.subcommunityId ? "outline" : "secondary"}>{scopeLabel(c.subcommunityId)}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{t(`allocationMethod.${c.method}`)}</TableCell>
+                    <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
+                    <TableCell>
+                      <div className="flex justify-end">
+                        <DeleteButton action={deleteCost} id={c.id} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
           {owners.length === 0 || actualTotal === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">{t("weg.noActual")}</p>
           ) : (
@@ -225,31 +299,37 @@ export default async function WegPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("weg.owners")}</TableHead>
+                  <TableHead>{t("leases.unit")}</TableHead>
                   <TableHead className="text-right">{t("statements.allocated")}</TableHead>
                   <TableHead className="text-right">{t("weg.yearlyHausgeld")}</TableHead>
                   <TableHead className="text-right">{t("statements.balance")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {owners.map((o) => {
-                  const alloc = acById.get(o.id) ?? 0;
-                  const prepay = hgById.get(o.id) ?? 0;
-                  const bal = Math.round((prepay - alloc) * 100) / 100;
-                  return (
-                    <TableRow key={o.id}>
-                      <TableCell className="font-medium">
-                        {o.person.firstName} {o.person.lastName}
-                      </TableCell>
-                      <TableCell className="text-right">{money(alloc, locale)}</TableCell>
-                      <TableCell className="text-right">{money(prepay, locale)}</TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant={bal >= 0 ? "secondary" : "destructive"}>
-                          {money(bal, locale)}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {owners.map((o) => (
+                  <TableRow key={o.id}>
+                    <TableCell className="font-medium">
+                      {o.person.firstName} {o.person.lastName}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{o.unit.label}</TableCell>
+                    <TableCell className="text-right">{money(o.line.allocated, locale)}</TableCell>
+                    <TableCell className="text-right">{money(o.line.hausgeld, locale)}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant={o.line.balance >= 0 ? "secondary" : "destructive"}>
+                        {money(o.line.balance, locale)}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {unassigned.map((x) => (
+                  <TableRow key={x.unit.id} className="text-muted-foreground">
+                    <TableCell>{t("weg.noOwnerUnit")}</TableCell>
+                    <TableCell>{unitById.get(x.unit.id)?.label}</TableCell>
+                    <TableCell className="text-right">{money(x.allocated, locale)}</TableCell>
+                    <TableCell className="text-right">{money(x.hausgeld, locale)}</TableCell>
+                    <TableCell />
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
@@ -261,17 +341,22 @@ export default async function WegPage({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">{t("weg.reserves")}</CardTitle>
-            <ReserveDialog propertyId={propertyId} />
+            <ReserveDialog propertyId={propertyId} subcommunities={subOpts} />
           </CardHeader>
           <CardContent className="space-y-4">
-            {reserveBalances.length === 0 ? (
+            {reserves.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("weg.noReserves")}</p>
             ) : (
-              reserveBalances.map(({ r, balance }) => (
+              reserves.map(({ r, balance }) => (
                 <div key={r.id} className="rounded-lg border">
                   <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
                     <div className="text-sm">
                       <span className="font-medium">{r.name}</span>
+                      {subcommunities.length > 0 && (
+                        <Badge variant={r.subcommunityId ? "outline" : "secondary"} className="ml-2">
+                          {scopeLabel(r.subcommunityId)}
+                        </Badge>
+                      )}
                       <span className="text-muted-foreground"> · {t("weg.balance")}: {money(balance, locale)}</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -309,9 +394,12 @@ export default async function WegPage({
             <CardTitle className="text-base">{t("weg.assets")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {reserveBalances.map(({ r, balance }) => (
+            {reserves.map(({ r, balance }) => (
               <div key={r.id} className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{r.name}</span>
+                <span className="text-muted-foreground">
+                  {r.name}
+                  {subcommunities.length > 0 && ` (${scopeLabel(r.subcommunityId)})`}
+                </span>
                 <span>{money(balance, locale)}</span>
               </div>
             ))}

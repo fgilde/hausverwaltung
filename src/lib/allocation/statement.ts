@@ -53,6 +53,8 @@ export interface CostInput {
   /** Verbrauchsanteil 0..1 (nur heating). Fehlt → HEATING_CONSUMPTION_SHARE (0,7).
    *  1 = 100 % nach Verbrauch (bei exaktem Verbrauch). */
   consumptionShare?: number;
+  /** Nur diese Einheiten tragen die Position (Untergemeinschaft, #42). Fehlt → alle. */
+  unitIds?: string[];
 }
 
 export interface StatementLine {
@@ -98,10 +100,13 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
   });
   let totalUmlage = 0;
 
-  const totalConsumption = units.reduce((a, u) => a + (u.consumption ?? 0), 0);
-
   for (const cost of costs) {
     if (!cost.umlagefaehig || cost.amount <= 0) continue;
+    // Verteilerkreis: alle Einheiten oder nur die der Untergemeinschaft.
+    const scope = cost.unitIds ? units.filter((u) => cost.unitIds!.includes(u.id)) : units;
+    if (scope.length === 0) continue;
+    const parts = participants(scope);
+    const totalConsumption = scope.reduce((a, u) => a + (u.consumption ?? 0), 0);
 
     if (cost.heating && totalConsumption > 0) {
       // Grundkosten nach Fläche + Verbrauchskosten nach Zähler.
@@ -109,15 +114,15 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
       const share = Math.min(1, Math.max(0, cost.consumptionShare ?? HEATING_CONSUMPTION_SHARE));
       const consAmount = cost.amount * share;
       const baseAmount = cost.amount - consAmount;
-      allocate(baseAmount, "AREA", participants(units)).forEach((r) => (perUnitTime[r.id] += r.amount));
-      allocate(consAmount, "CONSUMPTION", participants(units)).forEach((r) => (perUnitCons[r.id] += r.amount));
+      allocate(baseAmount, "AREA", parts).forEach((r) => (perUnitTime[r.id] += r.amount));
+      allocate(consAmount, "CONSUMPTION", parts).forEach((r) => (perUnitCons[r.id] += r.amount));
     } else {
       // Nicht-Heizung, oder Heizung ohne Verbrauchsdaten → nach gewählter Methode
       // (CONSUMPTION ohne Zählerdaten fällt auf Fläche zurück).
       const method: AllocationMethod =
         cost.method === "CONSUMPTION" && totalConsumption <= 0 ? "AREA" : cost.method;
       const bucket = method === "CONSUMPTION" ? perUnitCons : perUnitTime;
-      allocate(cost.amount, method, participants(units)).forEach((r) => (bucket[r.id] += r.amount));
+      allocate(cost.amount, method, parts).forEach((r) => (bucket[r.id] += r.amount));
     }
     totalUmlage += cost.amount;
   }
