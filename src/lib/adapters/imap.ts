@@ -1,6 +1,6 @@
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
-import { selectAttachments } from "@/lib/inbound";
+import { selectAttachments, refIds } from "@/lib/inbound";
 
 // Eingehende Mails per IMAP abrufen (Kommunikationsverlauf, #39). Konfiguration
 // je Mandant (Einstellungen), sonst ENV-Fallback.
@@ -16,6 +16,7 @@ export interface ImapConfig {
 
 export interface FetchedMail {
   messageId: string | null;
+  references: string[]; // Message-IDs aus In-Reply-To/References (Threads, #43)
   fromAddress: string;
   fromName: string | null;
   subject: string | null;
@@ -98,6 +99,7 @@ export async function fetchInbox(
         if (!fromAddr?.address) continue;
         out.push({
           messageId: p.messageId ?? null,
+          references: refIds(p.inReplyTo, p.references),
           fromAddress: fromAddr.address,
           fromName: fromAddr.name || null,
           subject: p.subject ?? null,

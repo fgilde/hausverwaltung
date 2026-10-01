@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { dedupKey, matchPersonId, isSyncDue, clampSyncInterval, selectAttachments, clampAttachMaxMb, MAX_ATTACHMENTS_PER_MAIL } from "./inbound";
+import { dedupKey, matchPersonId, isSyncDue, clampSyncInterval, selectAttachments, clampAttachMaxMb, MAX_ATTACHMENTS_PER_MAIL, isReplySubject, normalizeSubject, refIds, messageIdFor, threadKey } from "./inbound";
 
 describe("Auto-Sync-Fälligkeit (#39)", () => {
   const now = new Date("2026-09-28T12:00:00Z");
@@ -64,5 +64,27 @@ describe("Anhänge eingehender Mails (#39)", () => {
     expect(clampAttachMaxMb(0)).toBe(10);
     expect(clampAttachMaxMb(500)).toBe(50);
     expect(clampAttachMaxMb(5)).toBe(5);
+  });
+});
+
+describe("Threads (#43)", () => {
+  it("erkennt Antwort-Betreffs und normalisiert sie", () => {
+    expect(isReplySubject("AW: Heizung")).toBe(true);
+    expect(isReplySubject("Re[2]: Heizung")).toBe(true);
+    expect(isReplySubject("Heizung")).toBe(false);
+    expect(normalizeSubject("Re: AW:  Heizung   defekt")).toBe("heizung defekt");
+    expect(normalizeSubject("WG: Re: Heizung defekt")).toBe(normalizeSubject("Heizung defekt"));
+  });
+  it("sammelt Message-IDs aus In-Reply-To und References", () => {
+    expect(refIds("<a@x>", ["<b@x> <a@x>", "<c@y>"], null)).toEqual(["<a@x>", "<b@x>", "<c@y>"]);
+    expect(refIds(undefined)).toEqual([]);
+  });
+  it("eigene Message-ID nutzt die Absender-Domain", () => {
+    expect(messageIdFor("abc", "Verwaltung <info@hv.de>")).toBe("<abc@hv.de>");
+    expect(messageIdFor("abc", "")).toBe("<abc@havewa.local>");
+  });
+  it("Thread-Schlüssel fällt auf die eigene id zurück", () => {
+    expect(threadKey({ id: "m1", threadId: null })).toBe("m1");
+    expect(threadKey({ id: "m2", threadId: "m1" })).toBe("m1");
   });
 });

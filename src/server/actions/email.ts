@@ -4,10 +4,39 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { sendMail, isMailerConfigured, type MailAttachment } from "@/lib/adapters/mailer";
+import { sendMail, isMailerConfigured, smtpFromAddress, type MailAttachment } from "@/lib/adapters/mailer";
 import { readFile } from "@/lib/storage";
 import { emailSchema, type ActionState } from "@/lib/schemas";
 import { renderTemplate } from "@/lib/template";
+import { messageIdFor, refIds, threadKey } from "@/lib/inbound";
+import { threadWhere } from "@/lib/threads";
+
+/**
+ * Antwort-Kontext (#43): Vorgänger-Mail (ein- oder ausgehend) → Thread und
+ * References. Ohne gültige Angabe: neue Unterhaltung.
+ */
+async function replyContext(tenantId: string, kind: string, id: string) {
+  if (!id) return {};
+  const prev =
+    kind === "out"
+      ? await prisma.emailMessage.findFirst({ where: { id, tenantId }, select: { id: true, threadId: true, messageId: true, references: true } })
+      : await prisma.inboundEmail.findFirst({ where: { id, tenantId }, select: { id: true, threadId: true, messageId: true, references: true } });
+  if (!prev) return {};
+  // Alle bekannten Message-IDs der Unterhaltung, chronologisch (Vorgänger zuletzt),
+  // damit das Mailprogramm des Empfängers den Thread auch ohne lückenlose Header erkennt.
+  const threadId = threadKey(prev);
+  const where = threadWhere(tenantId, threadId);
+  const [outs, ins] = await Promise.all([
+    prisma.emailMessage.findMany({ where: { ...where, messageId: { not: null } }, select: { messageId: true, createdAt: true } }),
+    prisma.inboundEmail.findMany({ where, select: { messageId: true, receivedAt: true } }),
+  ]);
+  const chain = [...outs.map((o) => ({ id: o.messageId, at: o.createdAt })), ...ins.map((i) => ({ id: i.messageId, at: i.receivedAt }))]
+    .sort((x, y) => x.at.getTime() - y.at.getTime())
+    .map((x) => x.id ?? "");
+  // ponytail: References auf die letzten 20 IDs gekürzt, reicht für jedes Mailprogramm
+  const refs = refIds(prev.references, chain.filter((id) => id !== prev.messageId), prev.messageId).slice(-20);
+  return { threadId, references: refs.join(" ") || null };
+}
 
 const addrList = (s: string | undefined | null) =>
   (s ?? "").split(/[,;]/).map((a) => a.trim()).filter(Boolean);
@@ -24,9 +53,11 @@ export async function createEmail(_p: ActionState, fd: FormData): Promise<Action
     if (count !== docIds.length) return { error: "Dokument nicht gefunden" };
   }
 
+  const reply = await replyContext(user.tenantId, String(fd.get("replyKind") ?? ""), String(fd.get("replyId") ?? ""));
   const msg = await prisma.emailMessage.create({
     data: {
       ...r.data,
+      ...reply,
       tenantId: user.tenantId,
       status: "ENTWURF",
       attachments: { create: docIds.map((documentId) => ({ documentId })) },
@@ -61,6 +92,7 @@ export async function sendEmail(fd: FormData): Promise<void> {
   if (!msg) return;
 
   const cfg = await smtpConfig(user.tenantId);
+  const messageId = msg.messageId ?? messageIdFor(msg.id, smtpFromAddress(cfg));
   try {
     // Anhänge aus der Dokumentenablage laden.
     const attachments: MailAttachment[] = [];
@@ -79,12 +111,14 @@ export async function sendEmail(fd: FormData): Promise<void> {
         subject: msg.subject,
         body: msg.body,
         attachments,
+        messageId,
+        references: refIds(msg.references),
       },
       cfg,
     );
     await prisma.emailMessage.update({
       where: { id: msg.id },
-      data: { status: "GESENDET", sentAt: new Date(), error: null, sentById: user.id },
+      data: { status: "GESENDET", sentAt: new Date(), error: null, sentById: user.id, messageId },
     });
     await audit(
       user,

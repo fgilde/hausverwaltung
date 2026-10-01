@@ -57,6 +57,8 @@ export interface OutgoingMail {
   subject: string;
   body: string;
   attachments?: MailAttachment[];
+  messageId?: string; // eigene Message-ID, damit Antworten zugeordnet werden (#43)
+  references?: string[]; // Vorgänger-IDs; die letzte wird In-Reply-To
 }
 
 /** Versendet eine Mail über den konfigurierten SMTP-Server. Wirft bei Fehler. */
@@ -71,6 +73,9 @@ export async function sendMail(mail: OutgoingMail, cfg?: SmtpConfig): Promise<vo
     subject: mail.subject,
     text: mail.body,
     attachments: mail.attachments,
+    messageId: mail.messageId,
+    inReplyTo: mail.references?.at(-1),
+    references: mail.references?.length ? mail.references : undefined,
   });
 }
 

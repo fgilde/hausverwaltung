@@ -69,3 +69,36 @@ export function selectAttachments<T extends MailAttachment>(list: T[], maxBytes:
     .filter((a) => !a.related && a.size > 0 && a.size <= maxBytes)
     .slice(0, MAX_ATTACHMENTS_PER_MAIL);
 }
+
+// ---------- Unterhaltungen (Threads, #43) ----------
+
+const REPLY_PREFIX = /^\s*(re|aw|antw|wg|fw|fwd)\s*(\[\d+\])?\s*:\s*/i;
+
+/** Ist der Betreff eine Antwort/Weiterleitung („Re:“, „AW:“, „WG:“ …)? */
+export function isReplySubject(subject: string | null | undefined): boolean {
+  return REPLY_PREFIX.test(subject ?? "");
+}
+
+/** Betreff ohne Antwort-Präfixe, klein geschrieben, für den Vergleich. */
+export function normalizeSubject(subject: string | null | undefined): string {
+  let s = subject ?? "";
+  while (REPLY_PREFIX.test(s)) s = s.replace(REPLY_PREFIX, "");
+  return s.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/** Alle Message-IDs (`<…>`) aus In-Reply-To/References, ohne Doppelte. */
+export function refIds(...headers: (string | string[] | null | undefined)[]): string[] {
+  const ids = headers.flat().join(" ").match(/<[^<>\s]+>/g) ?? [];
+  return [...new Set(ids)];
+}
+
+/** Eigene Message-ID für eine ausgehende Mail, Domain aus der Absenderadresse. */
+export function messageIdFor(id: string, from: string | null | undefined): string {
+  const domain = /@([^>\s]+)/.exec(from ?? "")?.[1] ?? "havewa.local";
+  return `<${id}@${domain}>`;
+}
+
+/** Schlüssel der Unterhaltung: gesetzte threadId, sonst die eigene id. */
+export function threadKey(m: { id: string; threadId: string | null }): string {
+  return m.threadId ?? m.id;
+}

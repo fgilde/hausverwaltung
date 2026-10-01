@@ -1083,7 +1083,11 @@
     "markRead": "Als gelesen markieren",
     "markUnread": "Als ungelesen markieren",
     "markDone": "Als erledigt markieren",
-    "markOpen": "Wieder öffnen"
+    "markOpen": "Wieder öffnen",
+    "threads": "Unterhaltungen",
+    "noThreads": "Noch keine E-Mails.",
+    "messageCount": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
+    "unreadCount": "{count} neu"
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",

@@ -14,8 +14,8 @@ import { LeaseDialog } from "@/components/lease-dialogs";
 import { EmailViewDialog } from "@/components/email-view-dialog";
 import { EmailCompose } from "@/components/email-compose";
 import { sendEmail } from "@/server/actions/email";
-import { smtpFromAddress } from "@/lib/adapters/mailer";
-import { imapAddress } from "@/lib/adapters/imap";
+import { addr, ownMailIdentity } from "@/lib/threads";
+import { threadKey } from "@/lib/inbound";
 import { Paperclip, Send } from "lucide-react";
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -34,7 +34,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   });
   if (!person) notFound();
 
-  const [units, customDefs, leaseDefs, tenant, documents, templates] = await Promise.all([
+  const [units, customDefs, leaseDefs, own, documents, templates] = await Promise.all([
     prisma.unit.findMany({
       where: { tenantId: user.tenantId },
       include: { building: { include: { property: true } } },
@@ -50,10 +50,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       orderBy: { createdAt: "asc" },
       select: { key: true, label: true },
     }),
-    prisma.tenant.findUnique({
-      where: { id: user.tenantId },
-      select: { name: true, smtpFrom: true, smtpUser: true, imapUser: true },
-    }),
+    ownMailIdentity(user.tenantId),
     prisma.document.findMany({
       where: { tenantId: user.tenantId },
       orderBy: { createdAt: "desc" },
@@ -102,23 +99,18 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   // IMAP-Adresse, Kontakt = Kontaktname (#44).
   type Att = { document: { id: string; name: string; mime: string } };
   const toAtt = (list: Att[]) => list.map((a) => ({ id: a.document.id, name: a.document.name, mime: a.document.mime }));
-  const addr = (name: string | null | undefined, address: string) =>
-    !address ? (name ?? "") : address.includes("<") || !name ? address : `${name} <${address}>`;
   const personName = `${person.firstName} ${person.lastName}`;
-  const ownName = tenant?.name ?? "";
-  const ownFrom = addr(ownName, smtpFromAddress({ from: tenant?.smtpFrom, user: tenant?.smtpUser }));
-  const ownInbox = addr(ownName, imapAddress({ user: tenant?.imapUser }));
   const toLabel = (to: string) =>
     to.trim().toLowerCase() === person.email?.toLowerCase() ? addr(personName, person.email!) : to;
   const communication = [
     ...outbound.map((m) => ({
       dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, status: m.status as string | null,
-      sender: m.sentBy?.name ?? null, from: ownFrom, toAddress: toLabel(m.toAddress), cc: m.cc, body: m.body,
+      thread: threadKey(m), sender: m.sentBy?.name ?? null, from: own.from, toAddress: toLabel(m.toAddress), cc: m.cc, body: m.body,
       attachments: toAtt(m.attachments),
     })),
     ...inbound.map((m) => ({
       dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", status: null,
-      sender: m.fromName || personName, from: addr(m.fromName || personName, m.fromAddress), toAddress: ownInbox,
+      thread: threadKey(m), sender: m.fromName || personName, from: addr(m.fromName || personName, m.fromAddress), toAddress: own.inbox,
       cc: null, body: m.body, attachments: toAtt(m.attachments),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -253,7 +245,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                 <div key={c.dir + c.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 font-medium">
-                      <span className="truncate">{c.subject}</span>
+                      <Link href={`/email/thread/${c.thread}`} className="truncate hover:underline">{c.subject}</Link>
                       {c.attachments.length > 0 && (
                         <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                           <Paperclip className="size-3" />

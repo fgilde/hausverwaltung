@@ -1083,7 +1083,11 @@
     "markRead": "Mark as read",
     "markUnread": "Mark as unread",
     "markDone": "Mark as done",
-    "markOpen": "Reopen"
+    "markOpen": "Reopen",
+    "threads": "Conversations",
+    "noThreads": "No emails yet.",
+    "messageCount": "{count, plural, one {# message} other {# messages}}",
+    "unreadCount": "{count} new"
   },
   "emailStatus": {
     "ENTWURF": "Draft",

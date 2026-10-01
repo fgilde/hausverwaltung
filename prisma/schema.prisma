@@ -363,11 +363,14 @@ model InboundEmail {
   attachments InboundEmailAttachment[]
   readAt      DateTime? // gelesen (Posteingang, #43)
   doneAt      DateTime? // bearbeitet/erledigt
+  references  String? // Message-IDs aus In-Reply-To/References, leerzeichengetrennt
+  threadId    String? // Unterhaltung (#43); null = eigene Unterhaltung (Schlüssel = id)
   createdAt   DateTime @default(now())
 
   @@unique([tenantId, messageId])
   @@index([tenantId])
   @@index([personId])
+  @@index([tenantId, threadId])
 }
 
 // Anhang einer eingehenden Mail, abgelegt als Dokument am Kontakt.
@@ -988,10 +991,15 @@ model EmailMessage {
   sentAt      DateTime?
   sentById    String? // Benutzer, der die Mail versendet hat (#44)
   sentBy      User?             @relation(fields: [sentById], references: [id], onDelete: SetNull)
+  messageId   String? // eigene Message-ID, beim Versand gesetzt (#43)
+  references  String? // Message-IDs der Vorgänger (Antwort), leerzeichengetrennt
+  threadId    String? // Unterhaltung; null = eigene Unterhaltung (Schlüssel = id)
   attachments EmailAttachment[]
   createdAt   DateTime          @default(now())
 
   @@index([tenantId])
+  @@index([tenantId, threadId])
+  @@index([tenantId, messageId])
 }
 
 // Angehängtes Dokument aus der Dokumentenablage.

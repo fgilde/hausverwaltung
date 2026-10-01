@@ -30,6 +30,7 @@ export function EmailCompose({
   defaultBody,
   triggerLabel,
   trigger,
+  replyTo,
 }: {
   persons: Person[];
   documents: Doc[];
@@ -39,6 +40,7 @@ export function EmailCompose({
   defaultBody?: string;
   triggerLabel?: string;
   trigger?: ReactElement; // eigener Auslöser, z. B. Antworten-Icon im Posteingang (#43)
+  replyTo?: { kind: "in" | "out"; id: string }; // Vorgänger → gleiche Unterhaltung
 }) {
   const t = useTranslations();
   const [to, setTo] = useState(defaultTo ?? "");
@@ -74,6 +76,12 @@ export function EmailCompose({
       action={createEmail}
       submitLabel={t("email.saveToOutbox")}
     >
+      {replyTo && (
+        <>
+          <input type="hidden" name="replyKind" value={replyTo.kind} />
+          <input type="hidden" name="replyId" value={replyTo.id} />
+        </>
+      )}
       {templates.length > 0 && (
         <div className="space-y-1.5">
           <label className="text-sm font-medium">{t("email.template")}</label>

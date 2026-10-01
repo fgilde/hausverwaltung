@@ -26,17 +26,21 @@ import { sendEmail, deleteEmail } from "@/server/actions/email";
 import { setInboundFlag } from "@/server/actions/inbound";
 import { InboxSyncButton } from "@/components/inbox-sync-button";
 import { cn } from "@/lib/utils";
+import { listThreads } from "@/lib/threads";
+import { threadKey } from "@/lib/inbound";
 
-// Kommunikation (#43): Posteingang (IMAP-Import) und Postausgang auf einer Seite.
+// Kommunikation (#43): Unterhaltungen (Threads), Posteingang (IMAP-Import) und
+// Postausgang auf einer Seite.
 export default async function EmailPage({ searchParams }: { searchParams: Promise<{ box?: string }> }) {
-  const box = (await searchParams).box === "out" ? "out" : "in";
+  const sp = (await searchParams).box;
+  const box = sp === "out" || sp === "in" ? sp : "threads";
   const user = await requireUser();
   const canWrite = roleAllows(user.role, WRITE_ROLES);
   const t = await getTranslations();
   const locale = await getLocale();
   const df = await getDateLocale(locale);
 
-  const [messages, tenant, persons, documents, properties, templates, inbound, unread] = await Promise.all([
+  const [messages, tenant, persons, documents, properties, templates, inbound, unread, threads] = await Promise.all([
     prisma.emailMessage.findMany({
       where: { tenantId: user.tenantId },
       include: { attachments: { include: { document: { select: { id: true, name: true, mime: true } } } } },
@@ -76,6 +80,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
         })
       : [],
     prisma.inboundEmail.count({ where: { tenantId: user.tenantId, readAt: null } }),
+    box === "threads" ? listThreads(user.tenantId) : [],
   ]);
   const imapConfigured = isImapConfigured({ host: tenant?.imapHost, user: tenant?.imapUser });
   const personOpts = persons.map((p) => ({ id: p.id, label: `${p.firstName} ${p.lastName}`, email: p.email! }));
@@ -106,22 +111,60 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
 
       <div className="flex items-center justify-between gap-4 border-b">
         <div className="flex gap-1">
-          {(["in", "out"] as const).map((b) => (
+          {(["threads", "in", "out"] as const).map((b) => (
             <Link
               key={b}
-              href={b === "in" ? "/email" : "/email?box=out"}
+              href={b === "threads" ? "/email" : `/email?box=${b}`}
               className={cn(
                 "-mb-px border-b-2 px-3 py-2 text-sm font-medium",
                 box === b ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              {t(b === "in" ? "email.inbox" : "email.outbox")}
+              {t(b === "threads" ? "email.threads" : b === "in" ? "email.inbox" : "email.outbox")}
               {b === "in" && unread > 0 && <Badge className="ml-2">{unread}</Badge>}
             </Link>
           ))}
         </div>
-        {box === "in" && imapConfigured && canWrite && <InboxSyncButton />}
+        {box !== "out" && imapConfigured && canWrite && <InboxSyncButton />}
       </div>
+
+      {box === "threads" && (
+        <Card>
+          <CardContent className="p-0">
+            {threads.length === 0 ? (
+              <p className="p-6 text-sm text-muted-foreground">{t("email.noThreads")}</p>
+            ) : (
+              <div className="divide-y">
+                {threads.map((th) => (
+                  <Link
+                    key={th.key}
+                    href={`/email/thread/${th.key}`}
+                    className={cn("flex items-center justify-between gap-4 px-4 py-3 text-sm hover:bg-muted", th.unread > 0 && "bg-muted/40")}
+                  >
+                    <div className="min-w-0">
+                      <div className={cn("flex items-center gap-2", th.unread > 0 && "font-semibold")}>
+                        <span className="truncate">{th.subject}</span>
+                        {th.count > 1 && <span className="text-xs font-normal text-muted-foreground">({th.count})</span>}
+                      </div>
+                      <div className="truncate text-xs text-muted-foreground">{th.counterpart}</div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {th.unread > 0 && <Badge>{t("email.unreadCount", { count: th.unread })}</Badge>}
+                      {th.hasInbound &&
+                        (th.open ? (
+                          <Badge variant="outline">{t("email.open")}</Badge>
+                        ) : (
+                          <Badge variant="secondary">{t("email.done")}</Badge>
+                        ))}
+                      <span className="w-28 text-right text-xs text-muted-foreground">{dateTime(th.lastAt, df)}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {box === "in" ? (
         <Card>
@@ -159,7 +202,9 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                         </TableCell>
                         <TableCell className={cn(!m.readAt && "font-semibold")}>
                           <span className="flex items-center gap-2">
-                            {subject}
+                            <Link href={`/email/thread/${threadKey(m)}`} className="hover:underline">
+                              {subject}
+                            </Link>
                             {m.attachments.length > 0 && (
                               <span className="flex items-center gap-0.5 text-xs font-normal text-muted-foreground">
                                 <Paperclip className="size-3" />
@@ -198,6 +243,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                                   documents={documents}
                                   templates={templates}
                                   defaultTo={m.fromAddress}
+                                  replyTo={{ kind: "in", id: m.id }}
                                   defaultSubject={/^re:/i.test(subject) ? subject : `Re: ${subject}`}
                                   defaultBody={`\n\n${m.body.split("\n").map((l) => `> ${l}`).join("\n")}`}
                                   triggerLabel={t("email.reply")}
@@ -247,7 +293,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
             )}
           </CardContent>
         </Card>
-      ) : (
+      ) : box === "out" ? (
       <>
       {!configured && (
         <div className="rounded-md border-l-2 border-amber-500 bg-amber-500/10 px-3 py-2 text-sm text-muted-foreground">
@@ -282,7 +328,9 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                     </TableCell>
                     <TableCell>
                       <span className="flex items-center gap-2">
-                        {m.subject}
+                        <Link href={`/email/thread/${threadKey(m)}`} className="hover:underline">
+                          {m.subject}
+                        </Link>
                         {m.attachments.length > 0 && (
                           <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                             <Paperclip className="size-3" />
@@ -329,7 +377,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
         </CardContent>
       </Card>
       </>
-      )}
+      ) : null}
     </div>
   );
 }

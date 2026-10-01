@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { syncTenantInbox } from "@/lib/inbound-sync";
+import { threadWhere } from "@/lib/threads";
 import type { ActionState } from "@/lib/schemas";
 
 /** Manueller Abruf des IMAP-Postfachs (Button in den Einstellungen). */
@@ -34,5 +35,15 @@ export async function setInboundFlag(fd: FormData): Promise<void> {
 export async function markInboundRead(id: string): Promise<void> {
   const user = await requireWriter();
   await prisma.inboundEmail.updateMany({ where: { id, tenantId: user.tenantId, readAt: null }, data: { readAt: new Date() } });
+  revalidatePath("/", "layout");
+}
+
+/** Ganze Unterhaltung erledigt/offen: betrifft alle eingegangenen Mails darin. */
+export async function setThreadDone(fd: FormData): Promise<void> {
+  const user = await requireWriter();
+  const key = String(fd.get("key") ?? "");
+  const on = fd.get("value") !== "false";
+  if (!key) return;
+  await prisma.inboundEmail.updateMany({ where: threadWhere(user.tenantId, key), data: { doneAt: on ? new Date() : null } });
   revalidatePath("/", "layout");
 }
