@@ -163,8 +163,10 @@ erster Admin), wechseln und verwalten. Bestehende Installationen befördern beim
 nächsten Start automatisch ihren ältesten Admin. Alternativ eine Instanz pro Firma.
 
 **Vorgebautes Image (schneller):** jeder Push auf `main` baut per GitHub Actions ein
-Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Deploy ohne Bauen auf dem Server
-via `docker-compose.registry.yml`:
+Image nach `ghcr.io/fgilde/hausverwaltung:latest`. Jedes Image trägt zusätzlich seine
+Version als Tag: `0.4.0.92` (Version aus `package.json` + Build-Nummer, wie in der App
+angezeigt), `0.4.0`, `0.4` und `sha-<commit>`, so lässt sich eine Version fest pinnen.
+Deploy ohne Bauen auf dem Server via `docker-compose.registry.yml`:
 
 ```bash
 docker compose -f docker-compose.registry.yml pull

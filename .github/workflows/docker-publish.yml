@@ -75,6 +75,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
+      # Version kommt aus package.json (major.minor.patch), die Build-Nummer aus dem CI-Lauf.
+      # Daraus entstehen die Versions-Tags, z. B. 0.4.0.92, 0.4.0 und 0.4 (siehe src/lib/version.ts).
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: package.json
+          sparse-checkout-cone-mode: false
+
+      - name: Read the version
+        id: ver
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "minor=${v%.*}" >> "$GITHUB_OUTPUT"
+          echo "full=$v.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
       - name: Download the digests
         uses: actions/download-artifact@v4
         with:
@@ -99,6 +114,9 @@ jobs:
           images: ${{ env.IMAGE }}
           tags: |
             type=raw,value=latest
+            type=raw,value=${{ steps.ver.outputs.full }}
+            type=raw,value=${{ steps.ver.outputs.version }}
+            type=raw,value=${{ steps.ver.outputs.minor }}
             type=sha,format=short
 
       - name: Create the manifest list

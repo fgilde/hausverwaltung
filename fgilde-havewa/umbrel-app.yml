@@ -2,7 +2,7 @@ manifestVersion: 1
 id: fgilde-havewa
 category: automation
 name: HaVeWa
-version: "0.3.0"
+version: "0.4.0"
 tagline: Hausverwaltung für Miete & WEG
 description: >-
   Vollständige Immobilienverwaltung für Miet- und WEG-Verwaltung: Objekte,

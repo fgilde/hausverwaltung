@@ -9,7 +9,7 @@ import {
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { APP_VERSION, APP_VERSION_LABEL, APP_BUILD, APP_SHA } from "@/lib/version";
+import { APP_VERSION_FULL_NUMBER, APP_VERSION_LABEL, APP_BUILD, APP_SHA } from "@/lib/version";
 
 const DOCS_URL = "https://fgilde.github.io/hausverwaltung/docs/";
 const SITE_URL = "https://havewa.app";
@@ -69,7 +69,7 @@ export function InfoDrawer({ tenantName }: { tenantName: string }) {
           <dl className="rounded-xl border bg-card">
             <div className="flex items-center justify-between gap-3 border-b px-3 py-2.5">
               <dt className="text-xs text-muted-foreground">{t("version")}</dt>
-              <dd className="font-mono text-xs">v{APP_VERSION}</dd>
+              <dd className="font-mono text-xs">v{APP_VERSION_FULL_NUMBER}</dd>
             </div>
             <div className="flex items-center justify-between gap-3 border-b px-3 py-2.5">
               <dt className="text-xs text-muted-foreground">{t("build")}</dt>

@@ -611,6 +611,7 @@ deploy: {
   de: `
     <h2>Installation &amp; Hosting</h2>
     <p>HaVeWa läuft als Docker-Image (<code>ghcr.io/fgilde/hausverwaltung:latest</code>) mit PostgreSQL. Migrationen und der optionale Bootstrap laufen beim Start automatisch.</p>
+    <p>Neben <code>latest</code> trägt jedes Image seine Version als Tag, z. B. <code>0.4.0.92</code> (Version + Build-Nummer, genau wie unten links in der App angezeigt) sowie <code>0.4.0</code>, <code>0.4</code> und <code>sha-&lt;commit&gt;</code>. Wer Updates selbst steuern will, pinnt eine dieser Versionen statt <code>latest</code>.</p>
     <h3>Umgebungsvariablen</h3>
     <table>
       <tr><th>Variable</th><th>Zweck</th></tr>
@@ -634,6 +635,7 @@ deploy: {
   en: `
     <h2>Install &amp; hosting</h2>
     <p>HaVeWa runs as a Docker image (<code>ghcr.io/fgilde/hausverwaltung:latest</code>) with PostgreSQL. Migrations and the optional bootstrap run automatically on start.</p>
+    <p>Besides <code>latest</code>, every image is tagged with its version, e.g. <code>0.4.0.92</code> (version + build number, exactly as shown at the bottom left of the app), plus <code>0.4.0</code>, <code>0.4</code> and <code>sha-&lt;commit&gt;</code>. To control updates yourself, pin one of these instead of <code>latest</code>.</p>
     <h3>Environment variables</h3>
     <table>
       <tr><th>Variable</th><th>Purpose</th></tr>

@@ -148,7 +148,9 @@ Migrations run automatically on container start. Persistence via the volumes
 Then do the first-run setup at `https://<DOMAIN>/setup`.
 
 **Prebuilt image (faster):** every push to `main` builds and publishes an image to
-`ghcr.io/fgilde/hausverwaltung:latest` (GitHub Actions). Deploy without building on
+`ghcr.io/fgilde/hausverwaltung:latest` (GitHub Actions). Each image is also tagged with
+its version: `0.4.0.92` (version from `package.json` + build number, as shown in the app),
+`0.4.0`, `0.4` and `sha-<commit>`, so you can pin a release. Deploy without building on
 the server via `docker-compose.registry.yml`:
 
 ```bash
