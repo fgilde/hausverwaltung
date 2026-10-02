@@ -98,7 +98,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
         </div>
         {canWrite && (
           <div className="flex shrink-0 items-center gap-2">
-            <DeleteButton action={deleteThread} id={key} />
+            <DeleteButton action={deleteThread} id={key} redirectTo="/email" description={t("email.deleteThreadDesc")} />
             {inbound.length > 0 && (
               <form action={setThreadDone}>
                 <input type="hidden" name="key" value={key} />

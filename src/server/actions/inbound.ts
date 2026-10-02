@@ -6,8 +6,6 @@ import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { syncTenantInbox } from "@/lib/inbound-sync";
 import { threadWhere } from "@/lib/threads";
-import { getLocale } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
 import type { Prisma } from "@prisma/client";
 import { deleteFile, readFile } from "@/lib/storage";
 import { documentEditSchema } from "@/lib/schemas";
@@ -114,5 +112,4 @@ export async function deleteThread(fd: FormData): Promise<void> {
   const outbound = await prisma.emailMessage.deleteMany({ where });
   await audit(user, "DELETE", "EmailThread", key, `${inbound} eingehend, ${outbound.count} ausgehend`);
   revalidatePath("/", "layout");
-  redirect({ href: "/email", locale: await getLocale() });
 }

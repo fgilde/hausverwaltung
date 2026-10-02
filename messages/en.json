@@ -145,7 +145,8 @@
     "saved": "Saved",
     "tenantAddress": "Management address",
     "tenantAddressPlaceholder": "e.g. 1 Sample Street, 12345 Sample City",
-    "tenantAddressHint": "Used e.g. as the landlord address in the landlord confirmation (Wohnungsgeberbestätigung)."
+    "tenantAddressHint": "Used e.g. as the landlord address in the landlord confirmation (Wohnungsgeberbestätigung).",
+    "tabBank": "Bank"
   },
   "account": {
     "changePassword": "Change password",
@@ -609,9 +610,18 @@
     "bank": "Bank",
     "startConsent": "Connect & consent",
     "sync": "Sync",
-    "unlink": "Unlink",
+    "unlink": "Disconnect",
     "lastSync": "last",
-    "neverSynced": "never synced"
+    "neverSynced": "never synced",
+    "syncAll": "Sync accounts",
+    "connectAccount": "Connect account",
+    "linked": "connected",
+    "unlinkDesc": "The bank connection is removed. The account and the transactions already imported are kept.",
+    "notConfiguredHint": "To connect bank accounts, set up bank sync in the settings first.",
+    "autoSync": "Sync automatically (daily)",
+    "autoSyncHint": "Connected accounts are fetched once a day in the background. Shorter intervals are intentionally not offered because the provider limits requests per day.",
+    "lastAutoSync": "Last automatic sync: {date}.",
+    "keyKept": "•••••••• (set, leave empty to keep)"
   },
   "areaModel": {
     "title": "Area model (commercial)",
@@ -750,7 +760,12 @@
     "importCamt": "Import camt.053",
     "datevExport": "DATEV export",
     "sepaExport": "SEPA direct debit (pain.008)",
-    "openItemsCsv": "Open items (CSV)"
+    "openItemsCsv": "Open items (CSV)",
+    "tab_charges": "Charges",
+    "tab_payments": "Transactions",
+    "tab_accounts": "Accounts",
+    "tab_mandates": "SEPA mandates",
+    "tab_io": "Import/Export"
   },
   "accountType": {
     "BANK": "Bank account",
@@ -1112,7 +1127,8 @@
     "import": "Import",
     "importAttachment": "Import attachment as document",
     "imported": "Imported",
-    "attachmentsShort": "Attachments"
+    "attachmentsShort": "Attachments",
+    "deleteThreadDesc": "All incoming and outgoing emails in this conversation are deleted. Documents already imported are kept."
   },
   "emailStatus": {
     "ENTWURF": "Draft",

@@ -578,6 +578,8 @@ model BankConnector {
   privateKeyEnc String
   baseUrl       String? // optional abweichende API-Basis
   psuType       String     @default("business")
+  autoSync      Boolean    @default(false) // täglich automatisch synchronisieren (#54)
+  lastAutoSyncAt DateTime?
   links         BankLink[]
   createdAt     DateTime   @default(now())
 }

@@ -145,7 +145,8 @@
     "saved": "Salvo",
     "tenantAddress": "Endereço da administração",
     "tenantAddressPlaceholder": "ex.: Rua Exemplo, 1, 12345 Cidade Exemplo",
-    "tenantAddressHint": "Usado como endereço da administradora em documentos e comunicações."
+    "tenantAddressHint": "Usado como endereço da administradora em documentos e comunicações.",
+    "tabBank": "Banco"
   },
   "account": {
     "changePassword": "Alterar senha",
@@ -609,9 +610,18 @@
     "bank": "Banco",
     "startConsent": "Conectar e consentir",
     "sync": "Sincronizar",
-    "unlink": "Desvincular",
+    "unlink": "Desconectar",
     "lastSync": "última",
-    "neverSynced": "nunca sincronizado"
+    "neverSynced": "nunca sincronizado",
+    "syncAll": "Sincronizar contas",
+    "connectAccount": "Conectar conta",
+    "linked": "conectada",
+    "unlinkDesc": "A conexão bancária será removida. A conta e as movimentações já importadas são mantidas.",
+    "notConfiguredHint": "Para conectar contas bancárias, configure primeiro a sincronização bancária nas configurações.",
+    "autoSync": "Sincronizar automaticamente (diariamente)",
+    "autoSyncHint": "As contas conectadas são consultadas uma vez por dia em segundo plano. Intervalos menores não são oferecidos de propósito, pois o provedor limita as consultas por dia.",
+    "lastAutoSync": "Última sincronização automática: {date}.",
+    "keyKept": "•••••••• (definida, deixe em branco para manter)"
   },
   "areaModel": {
     "title": "Modelo de área (comercial)",
@@ -750,7 +760,12 @@
     "importCamt": "Importar camt.053",
     "datevExport": "Exportar DATEV",
     "sepaExport": "Débito direto SEPA (pain.008)",
-    "openItemsCsv": "Itens em aberto (CSV)"
+    "openItemsCsv": "Itens em aberto (CSV)",
+    "tab_charges": "Cobranças",
+    "tab_payments": "Movimentações",
+    "tab_accounts": "Contas",
+    "tab_mandates": "Mandatos SEPA",
+    "tab_io": "Importar/Exportar"
   },
   "accountType": {
     "BANK": "Conta bancária",
@@ -1112,7 +1127,8 @@
     "import": "Importar",
     "importAttachment": "Importar anexo como documento",
     "imported": "Importado",
-    "attachmentsShort": "Anexos"
+    "attachmentsShort": "Anexos",
+    "deleteThreadDesc": "Todos os e-mails recebidos e enviados desta conversa serão excluídos. Documentos já importados são mantidos."
   },
   "emailStatus": {
     "ENTWURF": "Rascunho",

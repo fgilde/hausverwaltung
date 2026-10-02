@@ -1,8 +1,9 @@
-import { headers } from "next/headers";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { BankSync } from "@/components/bank-sync";
+import { BankConnectButton, SyncAllButton } from "@/components/bank-sync";
+import { Pager } from "@/components/pager";
+import { cn } from "@/lib/utils";
 import { money, date } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
@@ -31,13 +32,21 @@ import { DunningDialog } from "@/components/dunning-dialog";
 import { PaymentEditDialog } from "@/components/payment-dialog-edit";
 import { summarizeTransactions } from "@/lib/transactions";
 import { deleteCharge, deleteAccount, deleteMandate, deletePayment, seedDefaultAccounts } from "@/server/actions/finances";
+import { deleteBankLink } from "@/server/actions/banking";
+
+// Finanzen in Reitern (#53), lange Listen seitenweise.
+const TABS = ["charges", "payments", "accounts", "mandates", "io"] as const;
+type Tab = (typeof TABS)[number];
+const PAGE_SIZE = 50;
 
 export default async function FinancesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; type?: string; lease?: string; year?: string }>;
+  searchParams: Promise<{ status?: string; type?: string; lease?: string; year?: string; tab?: string; page?: string }>;
 }) {
   const sp = await searchParams;
+  const tab: Tab = (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as Tab) : "charges";
+  const page = Math.max(1, Number(sp.page) || 1);
   const statusFilter = sp.status ?? "";
   const typeFilter = sp.type ?? "";
   const leaseFilter = sp.lease ?? "";
@@ -48,7 +57,7 @@ export default async function FinancesPage({
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
 
-  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks, payments, allDocuments] = await Promise.all([
+  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks, payments, paymentCount, paymentSums, allDocuments] = await Promise.all([
     prisma.charge.findMany({
       where: { tenantId },
       include: {
@@ -73,24 +82,19 @@ export default async function FinancesPage({
         documents: { select: { id: true, name: true } },
       },
       orderBy: { date: "desc" },
-      take: 200,
+      skip: tab === "payments" ? (page - 1) * PAGE_SIZE : 0,
+      take: tab === "payments" ? PAGE_SIZE : 0,
     }),
+    prisma.payment.count({ where: { tenantId } }),
+    prisma.payment.groupBy({ by: ["direction"], where: { tenantId }, _sum: { amount: true } }),
     prisma.document.findMany({ where: { tenantId }, select: { id: true, name: true }, orderBy: { createdAt: "desc" } }),
   ]);
+  // Ein-/Ausgang/Saldo über alle Kontobewegungen, nicht nur die aktuelle Seite.
   const txnSummary = summarizeTransactions(
-    payments.map((p) => ({ direction: p.direction, amount: Number(p.amount) })),
+    paymentSums.map((g) => ({ direction: g.direction, amount: Number(g._sum.amount ?? 0) })),
   );
   const isAdmin = user.role === "ADMIN";
-  const h = await headers();
-  const bankHost = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const bankProto = h.get("x-forwarded-proto") ?? (bankHost.startsWith("localhost") ? "http" : "https");
-  const bankRedirectUrl = `${bankProto}://${bankHost}/api/banking/callback`;
-  const bankLinkItems = bankLinks.map((l) => ({
-    id: l.id,
-    aspspName: l.aspspName,
-    accountName: l.account.name,
-    lastSyncAt: l.lastSyncAt ? l.lastSyncAt.toISOString().slice(0, 10) : null,
-  }));
+  const linkByAccount = new Map(bankLinks.map((l) => [l.accountId, l]));
 
   const now = new Date();
   const rows = charges.map((c) => {
@@ -114,6 +118,19 @@ export default async function FinancesPage({
       (!leaseFilter || r.c.leaseId === leaseFilter) &&
       (!yearFilter || r.c.period.getUTCFullYear() === Number(yearFilter)),
   );
+  // ponytail: Status wird je Sollstellung berechnet, daher Filter + Seiten im Speicher; Spalten in DB, wenn das zu groß wird.
+  const chargePages = Math.max(1, Math.ceil(visibleRows.length / PAGE_SIZE));
+  const pagedRows = visibleRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paymentPages = Math.max(1, Math.ceil(paymentCount / PAGE_SIZE));
+  const filters = { status: statusFilter, type: typeFilter, lease: leaseFilter, year: yearFilter };
+  const href = (to: Tab, p = 1, keepFilters = false) => {
+    const q = new URLSearchParams();
+    if (to !== "charges") q.set("tab", to);
+    if (keepFilters) for (const [k, v] of Object.entries(filters)) if (v) q.set(k, v);
+    if (p > 1) q.set("page", String(p));
+    const qs = q.toString();
+    return qs ? `/finances?${qs}` : "/finances";
+  };
 
   const accountOpts = accounts.map((a) => ({ value: a.id, label: a.name }));
   const leaseOpts = leases.map((l) => ({
@@ -138,45 +155,33 @@ export default async function FinancesPage({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {t("finances.totalOpen")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{money(totalOpen, locale)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {t("finances.importExport")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <CamtDialog accounts={accountOpts} />
-            <Button size="sm" variant="outline" render={<a href="/api/export/datev" />}>
-              <Download className="size-4" />
-              {t("finances.datevExport")}
-            </Button>
-            <Button size="sm" variant="outline" render={<a href="/api/export/sepa" />}>
-              <Download className="size-4" />
-              {t("finances.sepaExport")}
-            </Button>
-            <Button size="sm" variant="outline" render={<a href="/api/export/openitems" />}>
-              <Download className="size-4" />
-              {t("finances.openItemsCsv")}
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b">
+        <div className="flex flex-wrap gap-1">
+          {TABS.map((tb) => (
+            <Link
+              key={tb}
+              href={href(tb)}
+              className={cn(
+                "-mb-px border-b-2 px-3 py-2 text-sm font-medium",
+                tab === tb ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t(`finances.tab_${tb}`)}
+            </Link>
+          ))}
+        </div>
+        <span className="pb-2 text-sm text-muted-foreground">
+          {t("finances.totalOpen")}: <span className="font-semibold text-foreground">{money(totalOpen, locale)}</span>
+        </span>
       </div>
 
+      {tab === "charges" && (
+        <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("finances.openItems")}</CardTitle>
           <form className="flex flex-wrap items-center gap-2">
+            <input type="hidden" name="tab" value="charges" />
             <select
               name="status"
               defaultValue={statusFilter}
@@ -238,7 +243,7 @@ export default async function FinancesPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {visibleRows.map(({ c, open, status, dunLevel }) => (
+                {pagedRows.map(({ c, open, status, dunLevel }) => (
                   <TableRow key={c.id}>
                     <TableCell>{date(c.period, df)}</TableCell>
                     <TableCell>{t(`chargeType.${c.type}`)}</TableCell>
@@ -304,7 +309,11 @@ export default async function FinancesPage({
           )}
         </CardContent>
       </Card>
-
+      <Pager page={page} pages={chargePages} href={(p) => href("charges", p, true)} />
+        </>
+      )}
+      {tab === "payments" && (
+        <>
       {/* Kontobewegungen (#23) */}
       <Card>
         <CardHeader>
@@ -315,7 +324,7 @@ export default async function FinancesPage({
           </p>
         </CardHeader>
         <CardContent className="p-0">
-          {payments.length === 0 ? (
+          {paymentCount === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">{t("finances.noTransactions")}</p>
           ) : (
             <Table>
@@ -380,39 +389,76 @@ export default async function FinancesPage({
           )}
         </CardContent>
       </Card>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base">{t("finances.accounts")}</CardTitle>
+      <Pager page={page} pages={paymentPages} href={(p) => href("payments", p)} />
+        </>
+      )}
+      {tab === "accounts" && (
+        <>
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+          <CardTitle className="text-base">{t("finances.accounts")}</CardTitle>
+          <div className="flex flex-wrap gap-2">
             <AccountDialog />
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {accounts.length === 0 ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">{t("finances.noAccounts")}</p>
-                <form action={seedDefaultAccounts}>
-                  <Button type="submit" variant="outline" size="sm">{t("finances.seedAccounts")}</Button>
-                </form>
-              </div>
-            ) : (
-              accounts.map((a) => (
-                <div key={a.id} className="flex items-center justify-between rounded-md border px-3 py-2">
-                  <div className="text-sm">
+            {bankConnector && <BankConnectButton />}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {!bankConnector && (
+            <p className="text-xs text-muted-foreground">
+              {t("bank.notConfiguredHint")}{" "}
+              {isAdmin && (
+                <Link href="/settings" className="underline">
+                  {t("settings.title")}
+                </Link>
+              )}
+            </p>
+          )}
+          {accounts.length === 0 ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">{t("finances.noAccounts")}</p>
+              <form action={seedDefaultAccounts}>
+                <Button type="submit" variant="outline" size="sm">{t("finances.seedAccounts")}</Button>
+              </form>
+            </div>
+          ) : (
+            accounts.map((a) => {
+              const link = linkByAccount.get(a.id);
+              return (
+                <div key={a.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
+                  <div className="min-w-0 text-sm">
                     <span className="font-medium">{a.name}</span>
                     <span className="text-muted-foreground"> · {t(`accountType.${a.type}`)}</span>
+                    {link && (
+                      <Badge variant="secondary" className="ml-2">
+                        {t("bank.linked")}
+                      </Badge>
+                    )}
                     {a.iban ? <div className="text-xs text-muted-foreground">{a.iban}</div> : null}
+                    {link && (
+                      <div className="text-xs text-muted-foreground">
+                        {link.aspspName} · {link.lastSyncAt ? `${t("bank.lastSync")}: ${date(link.lastSyncAt, df)}` : t("bank.neverSynced")}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex shrink-0 items-center gap-1">
                     <AccountDialog account={{ id: a.id, name: a.name, type: a.type, iban: a.iban }} />
-                    <DeleteButton action={deleteAccount} id={a.id} />
+                    {/* Papierkorb: verbundenes Konto → Verbindung trennen, manuelles Konto → löschen (#53) */}
+                    {link ? (
+                      <DeleteButton action={deleteBankLink} id={link.id} label={t("bank.unlink")} description={t("bank.unlinkDesc")} />
+                    ) : (
+                      <DeleteButton action={deleteAccount} id={a.id} />
+                    )}
                   </div>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
+        </>
+      )}
+      {tab === "mandates" && (
+        <>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">{t("finances.mandates")}</CardTitle>
@@ -438,19 +484,32 @@ export default async function FinancesPage({
             )}
           </CardContent>
         </Card>
-      </div>
-
-      {(bankConnector || isAdmin) && (
-        <BankSync
-          isAdmin={isAdmin}
-          connector={
-            bankConnector
-              ? { applicationId: bankConnector.applicationId, baseUrl: bankConnector.baseUrl, psuType: bankConnector.psuType, hasKey: true }
-              : null
-          }
-          redirectUrl={bankRedirectUrl}
-          links={bankLinkItems}
-        />
+        </>
+      )}
+      {tab === "io" && (
+        <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("finances.importExport")}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-start gap-2">
+          {bankLinks.length > 0 && <SyncAllButton />}
+            <CamtDialog accounts={accountOpts} />
+            <Button size="sm" variant="outline" render={<a href="/api/export/datev" />}>
+              <Download className="size-4" />
+              {t("finances.datevExport")}
+            </Button>
+            <Button size="sm" variant="outline" render={<a href="/api/export/sepa" />}>
+              <Download className="size-4" />
+              {t("finances.sepaExport")}
+            </Button>
+            <Button size="sm" variant="outline" render={<a href="/api/export/openitems" />}>
+              <Download className="size-4" />
+              {t("finances.openItemsCsv")}
+            </Button>
+        </CardContent>
+      </Card>
+        </>
       )}
     </div>
   );

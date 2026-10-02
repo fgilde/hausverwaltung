@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { getDateLocale } from "@/lib/date-locale";
 import { requireUser, assignableRoles, canDeleteUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,8 @@ import { SettingsTabs, type SettingsTab } from "@/components/settings-tabs";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteUser } from "@/server/actions/users";
 import { deleteCustomFieldDef } from "@/server/actions/custom-fields";
+import { BankConnectorConfig } from "@/components/bank-sync";
+import { dateTime } from "@/lib/format";
 
 export default async function SettingsPage() {
   const user = await requireUser();
@@ -207,6 +210,27 @@ export default async function SettingsPage() {
           <SettingsConfig section="smtp" ai={cfgProps.ai} smtp={cfgProps.smtp} />
           <SettingsConfig section="imap" ai={cfgProps.ai} smtp={cfgProps.smtp} imap={cfgProps.imap} />
         </div>
+      ),
+    });
+  }
+  if (isAdmin) {
+    // Bank-Sync-Konfiguration + täglicher Auto-Sync (#53/#54), aus den Finanzen hierher verschoben
+    const bank = await prisma.bankConnector.findUnique({ where: { tenantId: user.tenantId } });
+    tabs.push({
+      value: "bank",
+      label: t("settings.tabBank"),
+      content: (
+        <BankConnectorConfig
+          redirectUrl={`${proto}://${host}/api/banking/callback`}
+          connector={
+            bank
+              ? {
+                  applicationId: bank.applicationId, baseUrl: bank.baseUrl, psuType: bank.psuType, autoSync: bank.autoSync,
+                  lastAutoSyncAt: bank.lastAutoSyncAt ? dateTime(bank.lastAutoSyncAt, await getDateLocale(await getLocale())) : null,
+                }
+              : null
+          }
+        />
       ),
     });
   }

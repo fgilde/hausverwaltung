@@ -233,6 +233,8 @@ finance: {
       <li>Zahlungen manuell einer Sollstellung zuordnen.</li>
       <li><strong>camt.053</strong>-Import: Kontoauszug einlesen, Eingänge werden offenen Posten automatisch zugeordnet (Betragsabgleich).</li>
     </ul>
+    <h3>Aufbau</h3>
+    <p>Die Finanzen sind in Reiter gegliedert: <strong>Sollstellungen</strong>, <strong>Kontobewegungen</strong>, <strong>Konten</strong>, <strong>SEPA-Mandate</strong> und <strong>Import/Export</strong>. Lange Listen werden seitenweise angezeigt (50 je Seite); die offenen Posten gesamt stehen neben den Reitern.</p>
     <h3>Übersicht &amp; Filter</h3>
     <p>Die Postenliste zeigt bei wohnungsbezogenen Buchungen den/die <strong>Mieter</strong>; die Einheit verlinkt auf die Wohnungsübersicht, der Mietername auf den Vertrag. Filter nach <strong>Status, Typ, Mieter/Einheit und Jahr</strong> grenzen große Bestände schnell ein.</p>
     <h3>Konten bearbeiten</h3>
@@ -253,6 +255,8 @@ finance: {
       <li>Assign payments to a charge manually.</li>
       <li><strong>camt.053</strong> import: read a bank statement; incoming payments are auto-matched to open items (by amount).</li>
     </ul>
+    <h3>Layout</h3>
+    <p>Finances are organised in tabs: <strong>Charges</strong>, <strong>Transactions</strong>, <strong>Accounts</strong>, <strong>SEPA mandates</strong> and <strong>Import/Export</strong>. Long lists are paginated (50 per page); the total of open items is shown next to the tabs.</p>
     <h3>Overview &amp; filters</h3>
     <p>For unit-linked bookings the open-items list shows the <strong>tenant(s)</strong>; the unit links to the unit overview and the tenant name to the lease. Filters by <strong>status, type, tenant/unit and year</strong> narrow large portfolios quickly.</p>
     <h3>Editing accounts</h3>
@@ -271,15 +275,16 @@ bank: {
     <ol>
       <li>Bei <a href="https://enablebanking.com" target="_blank" rel="noreferrer">enablebanking.com</a> kostenlos registrieren und eine Anwendung anlegen.</li>
       <li>Als „Allowed Redirect URL" die in HaVeWa angezeigte URL eintragen: <code>https://&lt;DOMAIN&gt;/api/banking/callback</code>.</li>
-      <li>In HaVeWa unter <em>Finanzen → Bank-Sync → Konfigurieren</em> die <strong>Application ID</strong> und den <strong>Private Key</strong> hinterlegen (Nutzertyp business/personal, optional abweichende API-Basis). Der Private Key wird <strong>verschlüsselt</strong> gespeichert.</li>
+      <li>In HaVeWa unter <em>Einstellungen → Bank</em> die <strong>Application ID</strong> und den <strong>Private Key</strong> hinterlegen (Nutzertyp business/personal, optional abweichende API-Basis). Der Private Key wird <strong>verschlüsselt</strong> gespeichert.</li>
     </ol>
     <h3>Bank verbinden &amp; synchronisieren</h3>
     <ol>
-      <li>„Bank verbinden" → Land wählen, Banken laden, Bank auswählen → Weiterleitung zur Bank für die Zustimmung (Consent).</li>
-      <li>Nach der Rückkehr werden die Bankkonten als HaVeWa-Konten angelegt und verknüpft.</li>
-      <li>„Synchronisieren" holt die Umsätze, bucht sie als Zahlungen und ordnet Eingänge automatisch offenen Posten zu (wie beim camt.053-Import). Doppelte werden über die Transaktions-ID vermieden.</li>
+      <li><em>Finanzen → Konten → „Konto verbinden"</em> → Land wählen, Banken laden, Bank auswählen → Weiterleitung zur Bank für die Zustimmung (Consent).</li>
+      <li>Nach der Rückkehr werden die Bankkonten als HaVeWa-Konten angelegt und verknüpft; sie stehen zusammen mit den manuellen Konten im Reiter <em>Konten</em> (Kennzeichen „verbunden"). Der Papierkorb trennt bei verbundenen Konten nur die Verbindung, Konto und Buchungen bleiben.</li>
+      <li><em>Import/Export → „Konten synchronisieren"</em> holt die Umsätze aller verbundenen Konten, bucht sie als Zahlungen und ordnet Eingänge automatisch offenen Posten zu (wie beim camt.053-Import). Doppelte werden über die Transaktions-ID vermieden.</li>
+      <li>Optional unter <em>Einstellungen → Bank</em>: <strong>„Automatisch synchronisieren (täglich)"</strong>. Die Konten werden dann einmal pro Tag im Hintergrund abgerufen; kürzere Intervalle gibt es bewusst nicht, weil der Anbieter die Abrufe pro Tag begrenzt. Manuell synchronisieren geht weiterhin jederzeit.</li>
     </ol>
-    <div class="tip">Ohne Connector bleibt alles wie gehabt: Kontoauszüge als <strong>camt.053</strong> importieren (Finanzen → Bank-Import).</div>
+    <div class="tip">Ohne Connector bleibt alles wie gehabt: Kontoauszüge als <strong>camt.053</strong> importieren (Finanzen → Import/Export).</div>
     <div class="warn">Der Bank-Consent läuft nach ~90 Tagen ab und muss erneuert werden (Bank erneut verbinden).</div>`,
   en: `
     <h2>Bank sync (open banking)</h2>
@@ -288,15 +293,16 @@ bank: {
     <ol>
       <li>Register for free at <a href="https://enablebanking.com" target="_blank" rel="noreferrer">enablebanking.com</a> and create an application.</li>
       <li>Set the "Allowed Redirect URL" to the one HaVeWa shows: <code>https://&lt;DOMAIN&gt;/api/banking/callback</code>.</li>
-      <li>In HaVeWa under <em>Finances → Bank sync → Configure</em> store the <strong>Application ID</strong> and <strong>private key</strong> (user type business/personal, optional custom API base). The private key is stored <strong>encrypted</strong>.</li>
+      <li>In HaVeWa under <em>Settings → Bank</em> store the <strong>Application ID</strong> and <strong>private key</strong> (user type business/personal, optional custom API base). The private key is stored <strong>encrypted</strong>.</li>
     </ol>
     <h3>Connect a bank &amp; sync</h3>
     <ol>
-      <li>"Connect bank" → pick country, load banks, choose a bank → redirect to the bank for consent.</li>
-      <li>On return the bank accounts are created as HaVeWa accounts and linked.</li>
-      <li>"Sync" fetches transactions, books them as payments and auto-matches incoming ones to open items (like the camt.053 import). Duplicates are avoided via the transaction id.</li>
+      <li><em>Finances → Accounts → "Connect account"</em> → pick country, load banks, choose a bank → redirect to the bank for consent.</li>
+      <li>On return the bank accounts are created as HaVeWa accounts and linked; they appear with the manual accounts in the <em>Accounts</em> tab (marked "connected"). For connected accounts the trash icon only disconnects; account and transactions are kept.</li>
+      <li><em>Import/Export → "Sync accounts"</em> fetches the transactions of all connected accounts, books them as payments and auto-matches incoming ones to open items (like the camt.053 import). Duplicates are avoided via the transaction id.</li>
+      <li>Optionally under <em>Settings → Bank</em>: <strong>"Sync automatically (daily)"</strong>. Accounts are then fetched once a day in the background; shorter intervals are intentionally not offered because the provider limits requests per day. Manual sync stays available at any time.</li>
     </ol>
-    <div class="tip">Without a connector everything works as before: import bank statements as <strong>camt.053</strong> (Finances → bank import).</div>
+    <div class="tip">Without a connector everything works as before: import bank statements as <strong>camt.053</strong> (Finances → Import/Export).</div>
     <div class="warn">The bank consent expires after ~90 days and must be renewed (connect the bank again).</div>`
 },
 

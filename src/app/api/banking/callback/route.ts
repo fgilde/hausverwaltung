@@ -11,7 +11,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  const fail = (r: string) => redirect(`/finances?bank=${r}`);
+  const fail = (r: string) => redirect(`/finances?tab=accounts&bank=${r}`);
 
   if (!code || !state) return fail("error");
   const pending = await prisma.bankAuthState.findUnique({ where: { state } });

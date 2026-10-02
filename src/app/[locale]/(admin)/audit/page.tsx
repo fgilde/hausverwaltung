@@ -1,9 +1,8 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import { Pager } from "@/components/pager";
 import { intlLocale } from "@/lib/format";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { requireRole } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -108,19 +107,7 @@ export default async function AuditPage({
         </CardContent>
       </Card>
 
-      {pages > 1 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{t("audit.pageOf", { page, pages })}</span>
-          <div className="flex gap-1">
-            <Button variant="outline" size="icon" disabled={page <= 1} render={page <= 1 ? <span /> : <Link href={qs(page - 1)} />}>
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button variant="outline" size="icon" disabled={page >= pages} render={page >= pages ? <span /> : <Link href={qs(page + 1)} />}>
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pager page={page} pages={pages} href={qs} />
     </div>
   );
 }

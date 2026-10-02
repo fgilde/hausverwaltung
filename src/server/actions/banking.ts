@@ -7,6 +7,7 @@ import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { requireRole, requireWriter } from "@/lib/rbac";
 import { encryptSecret, decryptSecret } from "@/lib/crypto";
+import { bankConnector, syncTenantBank } from "@/lib/bank-sync";
 import * as eb from "@/lib/adapters/enablebanking";
 import type { ActionState } from "@/lib/schemas";
 
@@ -22,11 +23,7 @@ export async function bankRedirectUrl() {
   return `${await originUrl()}/api/banking/callback`;
 }
 
-async function connectorFor(tenantId: string): Promise<eb.Connector | null> {
-  const c = await prisma.bankConnector.findUnique({ where: { tenantId } });
-  if (!c) return null;
-  return { applicationId: c.applicationId, privateKeyPem: decryptSecret(c.privateKeyEnc), baseUrl: c.baseUrl ?? undefined };
-}
+const connectorFor = bankConnector;
 
 export async function saveBankConnector(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireRole(["ADMIN"]);
@@ -34,6 +31,7 @@ export async function saveBankConnector(_p: ActionState, fd: FormData): Promise<
   const privateKey = String(fd.get("privateKey") ?? "").trim();
   const baseUrl = String(fd.get("baseUrl") ?? "").trim() || null;
   const psuType = String(fd.get("psuType") ?? "business").trim() || "business";
+  const autoSync = fd.get("autoSync") === "on"; // täglich automatisch (#54)
   if (!applicationId) return { error: "Application ID fehlt" };
 
   const existing = await prisma.bankConnector.findUnique({ where: { tenantId: user.tenantId } });
@@ -43,8 +41,8 @@ export async function saveBankConnector(_p: ActionState, fd: FormData): Promise<
 
   await prisma.bankConnector.upsert({
     where: { tenantId: user.tenantId },
-    create: { tenantId: user.tenantId, applicationId, privateKeyEnc, baseUrl, psuType },
-    update: { applicationId, privateKeyEnc, baseUrl, psuType },
+    create: { tenantId: user.tenantId, applicationId, privateKeyEnc, baseUrl, psuType, autoSync },
+    update: { applicationId, privateKeyEnc, baseUrl, psuType, autoSync },
   });
   revalidatePath("/", "layout");
   return { ok: true };
@@ -94,69 +92,15 @@ export async function startBankAuth(fd: FormData): Promise<void> {
   redirect(res.url);
 }
 
-/** Transaktionen einer Verknüpfung abrufen, als Zahlungen buchen, zuordnen. */
-export async function syncBankLink(fd: FormData): Promise<ActionState> {
+/** Alle verbundenen Konten auf einmal synchronisieren (#53), unabhängig vom Auto-Sync (#54). */
+export async function syncAllBankLinks(_p: ActionState, _fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
-  const id = String(fd.get("id") ?? "");
-  const link = await prisma.bankLink.findFirst({ where: { id, tenantId: user.tenantId } });
-  if (!link) return { error: "Verknüpfung nicht gefunden" };
-  const conn = await connectorFor(user.tenantId);
-  if (!conn) return { error: "Kein Bank-Connector konfiguriert" };
-
-  const from = link.lastSyncAt ?? new Date(Date.now() - 90 * 86_400_000);
-  const dateFrom = from.toISOString().slice(0, 10);
-
-  let raw;
-  try {
-    raw = await eb.getTransactions(conn, link.accountUid, dateFrom);
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Abruf fehlgeschlagen" };
-  }
-
-  // Offene Sollstellungen für Auto-Zuordnung (wie camt.053-Import).
-  const charges = await prisma.charge.findMany({
-    where: { tenantId: user.tenantId },
-    include: { payments: { select: { amount: true } } },
-  });
-  const openMap = charges.map((c) => ({
-    id: c.id,
-    open: Number(c.amount) - c.payments.reduce((a, p) => a + Number(p.amount), 0),
-  }));
-
-  let imported = 0;
-  let matched = 0;
-  for (const t of raw) {
-    const m = eb.mapTransaction(t);
-    if (!m.externalId || !m.date || m.amount <= 0) continue;
-    // Dedup: bereits importierte externe Transaktion überspringen.
-    const dup = await prisma.payment.findFirst({ where: { tenantId: user.tenantId, externalId: m.externalId }, select: { id: true } });
-    if (dup) continue;
-    let chargeId: string | null = null;
-    if (m.direction === "EINGANG") {
-      const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - m.amount) < 0.005);
-      if (hit) {
-        chargeId = hit.id;
-        hit.open = 0;
-        matched++;
-      }
-    }
-    await prisma.payment.create({
-      data: {
-        tenantId: user.tenantId,
-        accountId: link.accountId,
-        chargeId,
-        date: new Date(m.date),
-        amount: m.amount,
-        direction: m.direction,
-        reference: m.reference,
-        externalId: m.externalId,
-      },
-    });
-    imported++;
-  }
-  await prisma.bankLink.update({ where: { id: link.id }, data: { lastSyncAt: new Date() } });
+  const res = await syncTenantBank(user.tenantId);
+  if ("error" in res) return { error: res.error };
   revalidatePath("/", "layout");
-  return { ok: true, error: `${imported} Buchungen importiert, ${matched} zugeordnet` };
+  const summary = `${res.imported} Buchungen importiert, ${res.matched} zugeordnet`;
+  if (res.failed.length) return { error: `${summary}. Fehler: ${res.failed.join("; ")}` };
+  return { ok: true, error: summary };
 }
 
 export async function deleteBankLink(fd: FormData): Promise<void> {

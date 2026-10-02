@@ -5,4 +5,6 @@ export async function register() {
   if (process.env.HAVEWA_DISABLE_SCHEDULER === "1") return;
   const { startInboundScheduler } = await import("./lib/inbound-scheduler");
   startInboundScheduler();
+  const { startBankScheduler } = await import("./lib/bank-scheduler");
+  startBankScheduler();
 }

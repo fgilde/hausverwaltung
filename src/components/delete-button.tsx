@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation"; // push mit Sprachpräfix
 import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -21,9 +21,15 @@ import {
 export function DeleteButton({
   action,
   id,
+  label,
+  description,
+  redirectTo,
 }: {
   action: (fd: FormData) => Promise<void>;
   id: string;
+  label?: string; // z. B. „Verbindung trennen“ statt „Löschen“ (#53)
+  description?: string;
+  redirectTo?: string; // nach dem Löschen dorthin (z. B. gelöschte Unterhaltung, #50)
 }) {
   const t = useTranslations("common");
   const router = useRouter();
@@ -38,7 +44,8 @@ export function DeleteButton({
         await action(fd);
         setOpen(false);
         toast.success(t("deleted"));
-        router.refresh(); // abhängige Übersichten sofort aktualisieren
+        if (redirectTo) router.push(redirectTo);
+        else router.refresh(); // abhängige Übersichten sofort aktualisieren
       } catch {
         toast.error(t("deleteFailed"));
       }
@@ -49,15 +56,15 @@ export function DeleteButton({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
-          <Button variant="ghost" size="icon" aria-label={t("delete")} title={t("delete")}>
+          <Button variant="ghost" size="icon" aria-label={label ?? t("delete")} title={label ?? t("delete")}>
             <Trash2 className="size-4" />
           </Button>
         }
       />
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
-          <AlertDialogDescription>{t("deleteDesc")}</AlertDialogDescription>
+          <AlertDialogTitle>{label ? `${label}?` : t("deleteTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>{description ?? t("deleteDesc")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
@@ -67,7 +74,7 @@ export function DeleteButton({
             disabled={pending}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
-            {t("delete")}
+            {label ?? t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

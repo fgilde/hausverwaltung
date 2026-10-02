@@ -145,7 +145,8 @@
     "saved": "Gespeichert",
     "tenantAddress": "Anschrift der Verwaltung",
     "tenantAddressPlaceholder": "z. B. Musterstraße 1, 12345 Musterstadt",
-    "tenantAddressHint": "Die Anschrift wird u. a. als Wohnungsgeber-Anschrift in der Wohnungsgeberbestätigung vorbelegt."
+    "tenantAddressHint": "Die Anschrift wird u. a. als Wohnungsgeber-Anschrift in der Wohnungsgeberbestätigung vorbelegt.",
+    "tabBank": "Bank"
   },
   "account": {
     "changePassword": "Passwort ändern",
@@ -609,9 +610,18 @@
     "bank": "Bank",
     "startConsent": "Verbinden & zustimmen",
     "sync": "Synchronisieren",
-    "unlink": "Trennen",
+    "unlink": "Verbindung trennen",
     "lastSync": "zuletzt",
-    "neverSynced": "noch nie synchronisiert"
+    "neverSynced": "noch nie synchronisiert",
+    "syncAll": "Konten synchronisieren",
+    "connectAccount": "Konto verbinden",
+    "linked": "verbunden",
+    "unlinkDesc": "Die Bankverbindung wird getrennt. Das Konto und die bereits importierten Buchungen bleiben erhalten.",
+    "notConfiguredHint": "Zum Verbinden von Bankkonten zuerst Bank-Sync in den Einstellungen einrichten.",
+    "autoSync": "Automatisch synchronisieren (täglich)",
+    "autoSyncHint": "Verbundene Konten werden einmal pro Tag im Hintergrund abgerufen. Kürzere Intervalle gibt es bewusst nicht, weil der Anbieter die Abrufe pro Tag begrenzt.",
+    "lastAutoSync": "Zuletzt automatisch: {date}.",
+    "keyKept": "•••••••• (gesetzt, leer lassen zum Behalten)"
   },
   "areaModel": {
     "title": "Flächenmodell (Gewerbe)",
@@ -750,7 +760,12 @@
     "importCamt": "camt.053 importieren",
     "datevExport": "DATEV-Export",
     "sepaExport": "SEPA-Lastschrift (pain.008)",
-    "openItemsCsv": "Offene Posten (CSV)"
+    "openItemsCsv": "Offene Posten (CSV)",
+    "tab_charges": "Sollstellungen",
+    "tab_payments": "Kontobewegungen",
+    "tab_accounts": "Konten",
+    "tab_mandates": "SEPA-Mandate",
+    "tab_io": "Import/Export"
   },
   "accountType": {
     "BANK": "Bankkonto",
@@ -1112,7 +1127,8 @@
     "import": "Übernehmen",
     "importAttachment": "Anhang als Dokument übernehmen",
     "imported": "Übernommen",
-    "attachmentsShort": "Anhänge"
+    "attachmentsShort": "Anhänge",
+    "deleteThreadDesc": "Alle ein- und ausgehenden Mails dieser Unterhaltung werden gelöscht. Bereits übernommene Dokumente bleiben erhalten."
   },
   "emailStatus": {
     "ENTWURF": "Entwurf",
