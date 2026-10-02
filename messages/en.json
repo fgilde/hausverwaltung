@@ -619,7 +619,7 @@
     "unlinkDesc": "The bank connection is removed. The account and the transactions already imported are kept.",
     "notConfiguredHint": "To connect bank accounts, set up bank sync in the settings first.",
     "autoSync": "Sync automatically (daily)",
-    "autoSyncHint": "Connected accounts are fetched once a day in the background. Shorter intervals are intentionally not offered because the provider limits requests per day.",
+    "autoSyncHint": "Connected accounts are synced once a day in the background.",
     "lastAutoSync": "Last automatic sync: {date}.",
     "keyKept": "•••••••• (set, leave empty to keep)"
   },

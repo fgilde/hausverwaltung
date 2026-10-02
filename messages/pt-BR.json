@@ -619,7 +619,7 @@
     "unlinkDesc": "A conexão bancária será removida. A conta e as movimentações já importadas são mantidas.",
     "notConfiguredHint": "Para conectar contas bancárias, configure primeiro a sincronização bancária nas configurações.",
     "autoSync": "Sincronizar automaticamente (diariamente)",
-    "autoSyncHint": "As contas conectadas são consultadas uma vez por dia em segundo plano. Intervalos menores não são oferecidos de propósito, pois o provedor limita as consultas por dia.",
+    "autoSyncHint": "As contas conectadas são sincronizadas uma vez por dia em segundo plano.",
     "lastAutoSync": "Última sincronização automática: {date}.",
     "keyKept": "•••••••• (definida, deixe em branco para manter)"
   },

@@ -619,7 +619,7 @@
     "unlinkDesc": "Die Bankverbindung wird getrennt. Das Konto und die bereits importierten Buchungen bleiben erhalten.",
     "notConfiguredHint": "Zum Verbinden von Bankkonten zuerst Bank-Sync in den Einstellungen einrichten.",
     "autoSync": "Automatisch synchronisieren (täglich)",
-    "autoSyncHint": "Verbundene Konten werden einmal pro Tag im Hintergrund abgerufen. Kürzere Intervalle gibt es bewusst nicht, weil der Anbieter die Abrufe pro Tag begrenzt.",
+    "autoSyncHint": "Verbundene Konten werden einmal pro Tag im Hintergrund synchronisiert.",
     "lastAutoSync": "Zuletzt automatisch: {date}.",
     "keyKept": "•••••••• (gesetzt, leer lassen zum Behalten)"
   },
