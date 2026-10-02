@@ -11,15 +11,16 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { routing, localeLabels } from "@/i18n/routing";
 
+// Namen kommen aus den Sprachkatalogen (setupColors.*, #49)
 const PRESETS = [
-  { name: "Indigo", color: "#4f46e5" },
-  { name: "Blau", color: "#2563eb" },
-  { name: "Smaragd", color: "#059669" },
-  { name: "Violett", color: "#7c3aed" },
-  { name: "Bernstein", color: "#d97706" },
-  { name: "Rosé", color: "#e11d48" },
-  { name: "Schiefer", color: "#334155" },
-  { name: "Türkis", color: "#0d9488" },
+  { key: "indigo", color: "#4f46e5" },
+  { key: "blue", color: "#2563eb" },
+  { key: "emerald", color: "#059669" },
+  { key: "violet", color: "#7c3aed" },
+  { key: "amber", color: "#d97706" },
+  { key: "rose", color: "#e11d48" },
+  { key: "slate", color: "#334155" },
+  { key: "teal", color: "#0d9488" },
 ];
 
 const selectCls = cn(
@@ -135,7 +136,7 @@ export function SetupWizard() {
                 )}
               >
                 <span className="size-8 rounded-full" style={{ backgroundColor: p.color }} />
-                {p.name}
+                {t(`setupColors.${p.key}`)}
               </button>
             ))}
           </div>

@@ -1136,5 +1136,15 @@
     "prompt": "Enter a search term to search properties, units, people and leases.",
     "resultsFor": "{count, plural, one {# result} other {# results}} for “{q}”",
     "noResults": "No results."
+  },
+  "setupColors": {
+    "indigo": "Indigo",
+    "blue": "Blue",
+    "emerald": "Emerald",
+    "violet": "Violet",
+    "amber": "Amber",
+    "rose": "Rose",
+    "slate": "Slate",
+    "teal": "Teal"
   }
 }

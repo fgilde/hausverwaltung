@@ -1136,5 +1136,15 @@
     "prompt": "Informe um termo para pesquisar imóveis, unidades, pessoas e contratos.",
     "resultsFor": "{count, plural, one {# resultado} other {# resultados}} para “{q}”",
     "noResults": "Nenhum resultado."
+  },
+  "setupColors": {
+    "indigo": "Índigo",
+    "blue": "Azul",
+    "emerald": "Esmeralda",
+    "violet": "Violeta",
+    "amber": "Âmbar",
+    "rose": "Rosa",
+    "slate": "Ardósia",
+    "teal": "Turquesa"
   }
 }

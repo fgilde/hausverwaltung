@@ -1136,5 +1136,15 @@
     "prompt": "Suchbegriff eingeben, um Objekte, Einheiten, Personen und Verträge zu durchsuchen.",
     "resultsFor": "{count, plural, one {# Treffer} other {# Treffer}} für „{q}\"",
     "noResults": "Keine Treffer."
+  },
+  "setupColors": {
+    "indigo": "Indigo",
+    "blue": "Blau",
+    "emerald": "Smaragd",
+    "violet": "Violett",
+    "amber": "Bernstein",
+    "rose": "Rosé",
+    "slate": "Schiefer",
+    "teal": "Türkis"
   }
 }

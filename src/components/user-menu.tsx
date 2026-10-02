@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { LogOut, KeyRound } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ export function UserMenu({
   email?: string | null;
   role: string;
 }) {
+  const locale = useLocale(); // nach dem Abmelden in derselben Sprache bleiben (#48)
   const t = useTranslations();
   const [pwOpen, setPwOpen] = useState(false);
 
@@ -61,7 +62,7 @@ export function UserMenu({
           <KeyRound className="size-4" />
           {t("account.changePassword")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/de/login" })}>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: `/${locale}/login` })}>
           <LogOut className="size-4" />
           {t("common.logout")}
         </DropdownMenuItem>
