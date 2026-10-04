@@ -427,7 +427,17 @@
     "wgAddress": "Anschrift des Wohnungsgebers",
     "wgAddressPlaceholder": "Straße Nr., PLZ Ort",
     "wgNoAddress": "Tipp: Anschrift der Verwaltung unter Einstellungen → Allgemein hinterlegen, dann ist sie hier vorbelegt.",
-    "wgCreate": "PDF erstellen"
+    "wgCreate": "PDF erstellen",
+    "wgPlace": "Ort",
+    "wgDate": "Datum",
+    "wgSignature": "Unterschrift Wohnungsgeber",
+    "wgSignHere": "Hier unterschreiben",
+    "wgSignClear": "Löschen",
+    "wgSend": "Per E-Mail senden",
+    "wgSending": "Sendet…",
+    "wgSent": "Wohnungsgeberbestätigung an die Mieter gesendet",
+    "wgSendTo": "Versand an: {to}",
+    "wgNoEmail": "Kein Mieter mit E-Mail-Adresse hinterlegt, nur PDF möglich."
   },
   "rentComponent": {
     "title": "Miet-Bestandteile",

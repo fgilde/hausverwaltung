@@ -427,7 +427,17 @@
     "wgAddress": "Endereço do locador",
     "wgAddressPlaceholder": "Rua, número, CEP e cidade",
     "wgNoAddress": "Dica: defina o endereço da administração em Configurações → Geral para preenchê-lo aqui.",
-    "wgCreate": "Criar PDF"
+    "wgCreate": "Criar PDF",
+    "wgPlace": "Local",
+    "wgDate": "Data",
+    "wgSignature": "Assinatura do locador",
+    "wgSignHere": "Assine aqui",
+    "wgSignClear": "Limpar",
+    "wgSend": "Enviar por e-mail",
+    "wgSending": "Enviando…",
+    "wgSent": "Declaração do locador enviada aos inquilinos",
+    "wgSendTo": "Envio para: {to}",
+    "wgNoEmail": "Nenhum inquilino com e-mail cadastrado, apenas PDF."
   },
   "rentComponent": {
     "title": "Componentes do aluguel",

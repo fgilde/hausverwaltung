@@ -5,11 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { sendMail, isMailerConfigured, smtpFromAddress, type MailAttachment } from "@/lib/adapters/mailer";
-import { readFile } from "@/lib/storage";
+import { readFile, saveFile } from "@/lib/storage";
 import { emailSchema, type ActionState } from "@/lib/schemas";
 import { renderTemplate } from "@/lib/template";
 import { sanitizeMailHtml, isEmptyHtml } from "@/server/mail-sanitize";
-import { htmlToText, escapeHtml } from "@/lib/mail-html";
+import { htmlToText, escapeHtml, textToHtml } from "@/lib/mail-html";
+import { wohnungsgeberPdf } from "@/server/wohnungsgeber";
 import { messageIdFor, refIds, threadKey } from "@/lib/inbound";
 import { threadWhere } from "@/lib/threads";
 
@@ -238,4 +239,50 @@ export async function deleteEmail(fd: FormData): Promise<void> {
   const res = await prisma.emailMessage.deleteMany({ where: { id, tenantId: user.tenantId } });
   if (res.count > 0) await audit(user, "DELETE", "EmailMessage", id);
   revalidatePath("/", "layout");
+}
+
+/**
+ * Wohnungsgeberbestätigung (#55) erzeugen, als Dokument am Mieter ablegen und per
+ * E-Mail an die Mieter senden (landet wie jede Mail im Postausgang/Verlauf).
+ */
+export async function sendWohnungsgeber(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const opt = Object.fromEntries([...fd.entries()].map(([k, v]) => [k, String(v)]));
+  const res = await wohnungsgeberPdf(user.tenantId, String(fd.get("leaseId") ?? ""), opt);
+  if (!res) return { error: "Mietvertrag nicht gefunden" };
+  const { lease, property, pdf } = res;
+  const renters = lease.renters.filter((r) => r.person.email);
+  if (renters.length === 0) return { error: "Kein Mieter mit E-Mail-Adresse hinterlegt" };
+
+  const storageKey = await saveFile(pdf, "wohnungsgeberbestaetigung.pdf");
+  const doc = await prisma.document.create({
+    data: {
+      tenantId: user.tenantId, propertyId: property.id, unitId: lease.unitId, personId: renters[0].personId,
+      name: `Wohnungsgeberbestätigung ${property.name} ${lease.unit.label}.pdf`, category: "VERTRAG",
+      mime: "application/pdf", size: pdf.length, storageKey,
+    },
+  });
+  const names = renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ");
+  const text =
+    `Guten Tag ${names},\n\nanbei erhalten Sie die Wohnungsgeberbestätigung für Ihre Wohnung ` +
+    `${property.street}, ${property.zip} ${property.city} (${lease.unit.label}). ` +
+    `Bitte legen Sie sie bei der Anmeldung beim Bürgeramt vor.\n\nMit freundlichen Grüßen\n${property.tenant.name}`;
+  const msg = await prisma.emailMessage.create({
+    data: {
+      tenantId: user.tenantId,
+      toAddress: renters.map((r) => r.person.email!).join(", "),
+      subject: "Ihre Wohnungsgeberbestätigung",
+      body: text,
+      html: textToHtml(text),
+      status: "ENTWURF",
+      attachments: { create: [{ documentId: doc.id }] },
+    },
+  });
+  await audit(user, "CREATE", "EmailMessage", msg.id, "Wohnungsgeberbestätigung");
+  const sendFd = new FormData();
+  sendFd.set("id", msg.id);
+  await sendEmail(sendFd);
+  const sent = await prisma.emailMessage.findUnique({ where: { id: msg.id }, select: { status: true, error: true } });
+  if (sent?.status === "FEHLER") return { error: `Versand fehlgeschlagen: ${sent.error ?? ""}` };
+  return { ok: true };
 }

@@ -35,29 +35,89 @@ export function encodeWinAnsi(s: string): string {
   return out;
 }
 
-export function simplePdf(title: string, lines: string[]): Buffer {
+/** JPEG-Bild auf der Seite, z. B. eine Unterschrift (#55). `line` = Textzeile, über der es steht. */
+export interface PdfImage {
+  jpeg: Buffer;
+  width: number; // Pixelmaße des JPEG
+  height: number;
+  line: number; // Index in `lines`; das Bild steht unten bündig über dieser Zeile
+  drawWidth: number; // Breite auf der Seite in pt (Höhe proportional)
+}
+
+const LINE_TOP = 740; // y der ersten Textzeile
+const LEADING = 16;
+
+export function simplePdf(title: string, lines: string[], images: PdfImage[] = []): Buffer {
   // Erst PDF-Sonderzeichen escapen, dann nach WinAnsi kodieren.
   const enc = (s: string) => encodeWinAnsi(s.replace(/([()\\])/g, "\\$1"));
+  const draw = images
+    .map((img, i) => {
+      const h = Math.round((img.drawWidth * img.height) / img.width);
+      const y = LINE_TOP - LEADING * img.line + 12; // knapp über der Grundlinie der Zeile
+      return `q ${img.drawWidth} 0 0 ${h} 60 ${y} cm /Im${i} Do Q`;
+    })
+    .join(" ");
   const content =
     `BT /F1 20 Tf 60 780 Td (${enc(title)}) Tj ET ` +
-    `BT /F1 11 Tf 60 740 Td 16 TL ` +
+    `BT /F1 11 Tf 60 ${LINE_TOP} Td ${LEADING} TL ` +
     lines.map((l) => `(${enc(l)}) Tj T*`).join(" ") +
-    ` ET`;
-  const objs: string[] = [];
-  objs[1] = `<< /Type /Catalog /Pages 2 0 R >>`;
-  objs[2] = `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`;
-  objs[3] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>`;
-  objs[4] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>`;
-  objs[5] = `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`;
-  let pdf = "%PDF-1.4\n";
+    ` ET` +
+    (draw ? ` ${draw}` : "");
+
+  // Objekte: 1 Katalog, 2 Seiten, 3 Seite, 4 Schrift, 5 Inhalt, 6+ Bilder
+  const imgRefs = images.map((_, i) => `/Im${i} ${6 + i} 0 R`).join(" ");
+  const objs: Buffer[] = [];
+  const s = (x: string) => Buffer.from(x, "latin1");
+  objs[1] = s(`<< /Type /Catalog /Pages 2 0 R >>`);
+  objs[2] = s(`<< /Type /Pages /Kids [3 0 R] /Count 1 >>`);
+  objs[3] = s(
+    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >>` +
+      (imgRefs ? ` /XObject << ${imgRefs} >>` : "") +
+      ` >> /Contents 5 0 R >>`,
+  );
+  objs[4] = s(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>`);
+  objs[5] = s(`<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`);
+  images.forEach((img, i) => {
+    objs[6 + i] = Buffer.concat([
+      s(
+        `<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace /DeviceRGB ` +
+          `/BitsPerComponent 8 /Filter /DCTDecode /Length ${img.jpeg.length} >>\nstream\n`,
+      ),
+      img.jpeg,
+      s(`\nendstream`),
+    ]);
+  });
+
+  const count = objs.length - 1;
+  const parts: Buffer[] = [s("%PDF-1.4\n")];
+  let size = parts[0].length;
   const offsets: number[] = [];
-  for (let i = 1; i <= 5; i++) {
-    offsets[i] = Buffer.byteLength(pdf, "latin1");
-    pdf += `${i} 0 obj\n${objs[i]}\nendobj\n`;
+  for (let i = 1; i <= count; i++) {
+    offsets[i] = size;
+    const obj = Buffer.concat([s(`${i} 0 obj\n`), objs[i], s(`\nendobj\n`)]);
+    parts.push(obj);
+    size += obj.length;
   }
-  const xrefStart = Buffer.byteLength(pdf, "latin1");
-  pdf += `xref\n0 6\n0000000000 65535 f \n`;
-  for (let i = 1; i <= 5; i++) pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
-  pdf += `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
-  return Buffer.from(pdf, "latin1");
+  let tail = `xref\n0 ${count + 1}\n0000000000 65535 f \n`;
+  for (let i = 1; i <= count; i++) tail += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
+  tail += `trailer\n<< /Size ${count + 1} /Root 1 0 R >>\nstartxref\n${size}\n%%EOF`;
+  parts.push(s(tail));
+  return Buffer.concat(parts);
+}
+
+/** Pixelmaße aus einem JPEG lesen (SOF-Marker), ohne Bildbibliothek. */
+export function jpegSize(buf: Buffer): { width: number; height: number } | null {
+  if (buf.length < 4 || buf[0] !== 0xff || buf[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xff) return null;
+    const marker = buf[i + 1];
+    const len = buf.readUInt16BE(i + 2);
+    // SOF0..SOF15 außer DHT (C4), JPG (C8), DAC (CC)
+    if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+      return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+    }
+    i += 2 + len;
+  }
+  return null;
 }

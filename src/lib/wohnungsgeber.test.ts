@@ -37,3 +37,14 @@ describe("wohnungsgeberDocument (#27)", () => {
     expect(text).toContain("Meldepflichtige Person(en):");
   });
 });
+
+describe("Wohnungsgeberbestätigung digital (#55)", () => {
+  it("Ort/Datum vorausgefüllt, Unterschriftslinie bekannt", () => {
+    const d = wohnungsgeberDocument({
+      landlordName: "V", landlordAddress: "A", tenantNames: ["M"], dwellingAddress: "W", moveInDate: null,
+      place: "Berlin", signedOn: "4.10.2026",
+    });
+    expect(d.lines).toContain("Berlin, 4.10.2026");
+    expect(d.lines[d.signatureLine]).toBe("____________________________");
+  });
+});

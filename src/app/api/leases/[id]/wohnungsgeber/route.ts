@@ -1,46 +1,29 @@
 import { auth } from "@/auth";
 import { actingTenantId } from "@/lib/acting-tenant";
 import { roleAllows } from "@/lib/rbac";
-import { prisma } from "@/lib/prisma";
-import { simplePdf } from "@/lib/pdf";
-import { wohnungsgeberDocument } from "@/lib/wohnungsgeber";
+import { wohnungsgeberPdf, type WgOptions } from "@/server/wohnungsgeber";
 
 // Wohnungsgeberbestätigung (§ 19 BMG) als PDF zu einem Mietvertrag.
-// Name/Anschrift des Wohnungsgebers kommen aus dem Dialog (?name=&address=),
-// Standard: Name + Anschrift der Verwaltung aus den Einstellungen (#41).
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// Wohnungsgeber, Ort/Datum und Unterschrift kommen aus dem Dialog (#41/#55);
+// GET mit Query (ohne Unterschrift), POST als Formular (mit Unterschrift).
+async function handle(req: Request, id: string, opt: WgOptions) {
   const session = await auth();
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
   if (!roleAllows(session.user.role, ["VERWALTER", "BUCHHALTUNG"])) return new Response("Forbidden", { status: 403 });
-
-  const { id } = await params;
-  const tenantId = await actingTenantId(session.user);
-  const lease = await prisma.lease.findFirst({
-    where: { id, tenantId },
-    include: {
-      unit: { include: { building: { include: { property: { include: { tenant: { select: { name: true, address: true } } } } } } } },
-      renters: { include: { person: true } },
-    },
+  const res = await wohnungsgeberPdf(await actingTenantId(session.user), id, opt);
+  if (!res) return new Response("Not found", { status: 404 });
+  return new Response(new Uint8Array(res.pdf), {
+    headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="Wohnungsgeberbestaetigung.pdf"` },
   });
-  if (!lease) return new Response("Not found", { status: 404 });
+}
 
-  const property = lease.unit.building.property;
-  const address = `${property.street}, ${property.zip} ${property.city}`;
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const q = new URL(req.url).searchParams;
-  const param = (k: string) => (q.get(k) ?? "").trim().slice(0, 300);
-  const doc = wohnungsgeberDocument({
-    landlordName: param("name") || property.tenant.name,
-    landlordAddress: param("address") || property.tenant.address || "—",
-    tenantNames: lease.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`),
-    dwellingAddress: `${address} · ${property.name} · ${lease.unit.label}`,
-    moveInDate: lease.startDate,
-  });
+  return handle(req, (await params).id, Object.fromEntries(q) as WgOptions);
+}
 
-  const pdf = simplePdf(doc.title, doc.lines);
-  return new Response(new Uint8Array(pdf), {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="Wohnungsgeberbestaetigung.pdf"`,
-    },
-  });
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const fd = await req.formData();
+  const opt = Object.fromEntries([...fd.entries()].map(([k, v]) => [k, String(v)])) as WgOptions;
+  return handle(req, (await params).id, opt);
 }

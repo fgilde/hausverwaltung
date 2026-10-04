@@ -102,7 +102,15 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
           </p>
         </div>
         <div className="flex gap-1">
-          <WohnungsgeberDialog leaseId={lease.id} name={wgTenant?.name ?? ""} address={wgTenant?.address ?? ""} />
+          <WohnungsgeberDialog
+            leaseId={lease.id}
+            name={wgTenant?.name ?? ""}
+            address={wgTenant?.address ?? ""}
+            // Ort der Unterschrift: Ort der Verwaltungsanschrift („…, 12345 Berlin“), sonst Ort des Objekts (#55)
+            place={/\b\d{4,5}\s+([^,]+)$/.exec(wgTenant?.address ?? "")?.[1]?.trim() ?? lease.unit.building.property.city}
+            today={date(new Date(), df)}
+            renterEmails={lease.renters.map((r) => r.person.email).filter((e): e is string => !!e)}
+          />
           <LeaseDialog
             units={unitOpts}
             customDefs={customDefs}

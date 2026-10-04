@@ -172,7 +172,8 @@ leases: {
     <p>Kaution je Vertrag (Bar, Bürgschaft, verpfändet, Kautionskonto) inkl. optionaler Verzinsung und Verknüpfung zu einem Konto.</p>
     <h3>Wohnungsgeberbestätigung</h3>
     <p>Über „Wohnungsgeberbestätigung" wird eine PDF nach <strong>§ 19 BMG</strong> erzeugt — Mieter, Wohnung, Einzugsdatum und Wohnungsgeber werden automatisch übernommen. Der Mieter braucht sie für die An-/Ummeldung beim Amt.</p>
-    <p>Vor dem Erzeugen öffnet ein Dialog mit <strong>Name und Anschrift des Wohnungsgebers</strong>. Vorbelegt sind Name und Anschrift der Verwaltung (Einstellungen → Allgemein → „Anschrift der Verwaltung“). Ist der Eigentümer oder eine andere Stelle Wohnungsgeber, lassen sich die Angaben dort für diese Bestätigung ändern.</p>`,
+    <p>Vor dem Erzeugen öffnet ein Dialog mit <strong>Name und Anschrift des Wohnungsgebers</strong>. Vorbelegt sind Name und Anschrift der Verwaltung (Einstellungen → Allgemein → „Anschrift der Verwaltung“). Ist der Eigentümer oder eine andere Stelle Wohnungsgeber, lassen sich die Angaben dort für diese Bestätigung ändern.</p>
+    <p><strong>Ort und Datum</strong> sind vorausgefüllt, unterschrieben wird direkt im Dialog mit Maus, Finger oder Stift. Danach entweder <strong>„PDF erstellen“</strong> (zum Drucken/Speichern) oder <strong>„Per E-Mail senden“</strong>: Die Bestätigung geht als PDF-Anhang an alle Mieter mit E-Mail-Adresse und wird als Dokument beim Vertrag abgelegt.</p>`,
   en: `
     <h2>Leases</h2>
     <p>A lease links a <strong>unit</strong> to one or more <strong>tenants</strong>. It carries base rent, service-charge/heating prepayment (as rent components), term, occupant count and notice period.</p>
@@ -188,7 +189,8 @@ leases: {
     <p>Deposit per lease (cash, guarantee, pledged, deposit account) incl. optional interest and a link to an account.</p>
     <h3>Landlord confirmation</h3>
     <p>"Landlord confirmation" generates a PDF per <strong>§ 19 BMG</strong> (German residence registration) — tenant, dwelling, move-in date and landlord are filled in automatically. Tenants need it to register their address with the authorities.</p>
-    <p>Before generating, a dialog shows the <strong>landlord name and address</strong>. They are prefilled with the management name and address (Settings → General → "Management address"). If the owner or another party is the landlord, adjust the details there for this confirmation.</p>`
+    <p>Before generating, a dialog shows the <strong>landlord name and address</strong>. They are prefilled with the management name and address (Settings → General → "Management address"). If the owner or another party is the landlord, adjust the details there for this confirmation.</p>
+    <p><strong>Place and date</strong> are prefilled, and you sign right in the dialog with mouse, finger or pen. Then either <strong>"Create PDF"</strong> (to print/save) or <strong>"Send by email"</strong>: the confirmation goes as a PDF attachment to all tenants with an email address and is filed as a document on the lease.</p>`
 },
 
 area: {

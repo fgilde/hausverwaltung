@@ -427,7 +427,17 @@
     "wgAddress": "Landlord address",
     "wgAddressPlaceholder": "Street no., ZIP city",
     "wgNoAddress": "Tip: set the management address under Settings → General so it is prefilled here.",
-    "wgCreate": "Create PDF"
+    "wgCreate": "Create PDF",
+    "wgPlace": "Place",
+    "wgDate": "Date",
+    "wgSignature": "Landlord signature",
+    "wgSignHere": "Sign here",
+    "wgSignClear": "Clear",
+    "wgSend": "Send by email",
+    "wgSending": "Sending…",
+    "wgSent": "Landlord confirmation sent to the tenants",
+    "wgSendTo": "Sent to: {to}",
+    "wgNoEmail": "No tenant email address on record, PDF only."
   },
   "rentComponent": {
     "title": "Rent components",
