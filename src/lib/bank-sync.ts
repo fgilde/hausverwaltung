@@ -49,6 +49,18 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
     imported++;
   }
   await prisma.bankLink.update({ where: { id: link.id }, data: { lastSyncAt: new Date() } });
+  // Kontostand laut Bank (#57); manche Banken liefern keine Salden, dann bleibt der alte Wert.
+  try {
+    const bal = eb.pickBalance(await eb.getBalances(conn, link.accountUid));
+    if (bal) {
+      await prisma.account.update({
+        where: { id: link.accountId },
+        data: { balance: bal.amount, balanceAt: bal.date ? new Date(bal.date) : new Date() },
+      });
+    }
+  } catch (e) {
+    console.warn(`[bank] Kontostand ${link.id}: ${e instanceof Error ? e.message : e}`);
+  }
   return { imported, matched };
 }
 

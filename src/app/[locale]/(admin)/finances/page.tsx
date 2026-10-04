@@ -440,6 +440,13 @@ export default async function FinancesPage({
                       </div>
                     )}
                   </div>
+                  {/* Kontostand laut Bank (#57) */}
+                  {a.balance != null && (
+                    <div className="ml-auto text-right">
+                      <div className={cn("font-semibold", Number(a.balance) < 0 && "text-destructive")}>{money(Number(a.balance), locale)}</div>
+                      {a.balanceAt && <div className="text-xs text-muted-foreground">{t("bank.balanceAt", { date: date(a.balanceAt, df) })}</div>}
+                    </div>
+                  )}
                   <div className="flex shrink-0 items-center gap-1">
                     <AccountDialog account={{ id: a.id, name: a.name, type: a.type, iban: a.iban }} />
                     {/* Papierkorb: verbundenes Konto → Verbindung trennen, manuelles Konto → löschen (#53) */}

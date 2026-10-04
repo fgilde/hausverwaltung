@@ -281,7 +281,7 @@ bank: {
     <ol>
       <li><em>Finanzen → Konten → „Konto verbinden"</em> → Land wählen, Banken laden, Bank auswählen → Weiterleitung zur Bank für die Zustimmung (Consent).</li>
       <li>Nach der Rückkehr werden die Bankkonten als HaVeWa-Konten angelegt und verknüpft; sie stehen zusammen mit den manuellen Konten im Reiter <em>Konten</em> (Kennzeichen „verbunden"). Der Papierkorb trennt bei verbundenen Konten nur die Verbindung, Konto und Buchungen bleiben.</li>
-      <li><em>Import/Export → „Konten synchronisieren"</em> holt die Umsätze aller verbundenen Konten, bucht sie als Zahlungen und ordnet Eingänge automatisch offenen Posten zu (wie beim camt.053-Import). Doppelte werden über die Transaktions-ID vermieden.</li>
+      <li><em>Import/Export → „Konten synchronisieren"</em> holt die Umsätze aller verbundenen Konten, bucht sie als Zahlungen und ordnet Eingänge automatisch offenen Posten zu (wie beim camt.053-Import). Doppelte werden über die Transaktions-ID vermieden. Dabei wird auch der <strong>aktuelle Kontostand</strong> laut Bank abgerufen und im Reiter <em>Konten</em> mit Datum angezeigt.</li>
       <li>Optional unter <em>Einstellungen → Bank</em>: <strong>„Automatisch synchronisieren (täglich)"</strong>. Die Konten werden dann einmal pro Tag im Hintergrund abgerufen; kürzere Intervalle gibt es bewusst nicht, weil der Anbieter die Abrufe pro Tag begrenzt. Manuell synchronisieren geht weiterhin jederzeit.</li>
     </ol>
     <div class="tip">Ohne Connector bleibt alles wie gehabt: Kontoauszüge als <strong>camt.053</strong> importieren (Finanzen → Import/Export).</div>
@@ -299,7 +299,7 @@ bank: {
     <ol>
       <li><em>Finances → Accounts → "Connect account"</em> → pick country, load banks, choose a bank → redirect to the bank for consent.</li>
       <li>On return the bank accounts are created as HaVeWa accounts and linked; they appear with the manual accounts in the <em>Accounts</em> tab (marked "connected"). For connected accounts the trash icon only disconnects; account and transactions are kept.</li>
-      <li><em>Import/Export → "Sync accounts"</em> fetches the transactions of all connected accounts, books them as payments and auto-matches incoming ones to open items (like the camt.053 import). Duplicates are avoided via the transaction id.</li>
+      <li><em>Import/Export → "Sync accounts"</em> fetches the transactions of all connected accounts, books them as payments and auto-matches incoming ones to open items (like the camt.053 import). Duplicates are avoided via the transaction id. The <strong>current account balance</strong> reported by the bank is fetched as well and shown in the <em>Accounts</em> tab with its date.</li>
       <li>Optionally under <em>Settings → Bank</em>: <strong>"Sync automatically (daily)"</strong>. Accounts are then fetched once a day in the background; shorter intervals are intentionally not offered because the provider limits requests per day. Manual sync stays available at any time.</li>
     </ol>
     <div class="tip">Without a connector everything works as before: import bank statements as <strong>camt.053</strong> (Finances → Import/Export).</div>

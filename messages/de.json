@@ -621,7 +621,8 @@
     "autoSync": "Automatisch synchronisieren (täglich)",
     "autoSyncHint": "Verbundene Konten werden einmal pro Tag im Hintergrund synchronisiert.",
     "lastAutoSync": "Zuletzt automatisch: {date}.",
-    "keyKept": "•••••••• (gesetzt, leer lassen zum Behalten)"
+    "keyKept": "•••••••• (gesetzt, leer lassen zum Behalten)",
+    "balanceAt": "Stand {date}"
   },
   "areaModel": {
     "title": "Flächenmodell (Gewerbe)",

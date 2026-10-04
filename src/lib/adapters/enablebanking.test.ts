@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateKeyPairSync, createVerify } from "node:crypto";
-import { buildJwt, mapTransaction } from "./enablebanking";
+import { buildJwt, mapTransaction, pickBalance } from "./enablebanking";
 
 const { privateKey, publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const pem = privateKey.export({ type: "pkcs8", format: "pem" }).toString();
@@ -56,5 +56,23 @@ describe("mapTransaction", () => {
     expect(m.date).toBe("2026-03-01");
     expect(m.externalId).toBe("T2");
     expect(m.reference).toBeNull();
+  });
+});
+
+describe("pickBalance (#57)", () => {
+  it("bevorzugt den gebuchten Tagesendsaldo", () => {
+    const b = pickBalance([
+      { balance_type: "ITAV", balance_amount: { amount: "900.00", currency: "EUR" } },
+      { balance_type: "CLBD", balance_amount: { amount: "1234.56", currency: "EUR" }, reference_date: "2026-10-03" },
+    ]);
+    expect(b).toEqual({ amount: 1234.56, currency: "EUR", date: "2026-10-03" });
+  });
+  it("unbekannte Art: erster Eintrag, Datum aus last_change_date_time", () => {
+    expect(pickBalance([{ balance_type: "XYZ", balance_amount: { amount: -5 }, last_change_date_time: "2026-10-04T08:00:00Z" }]))
+      .toEqual({ amount: -5, currency: "EUR", date: "2026-10-04" });
+  });
+  it("leer oder ohne Betrag: null", () => {
+    expect(pickBalance([])).toBeNull();
+    expect(pickBalance([{ balance_type: "CLBD" }])).toBeNull();
   });
 });

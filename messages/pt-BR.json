@@ -621,7 +621,8 @@
     "autoSync": "Sincronizar automaticamente (diariamente)",
     "autoSyncHint": "As contas conectadas são sincronizadas uma vez por dia em segundo plano.",
     "lastAutoSync": "Última sincronização automática: {date}.",
-    "keyKept": "•••••••• (definida, deixe em branco para manter)"
+    "keyKept": "•••••••• (definida, deixe em branco para manter)",
+    "balanceAt": "em {date}"
   },
   "areaModel": {
     "title": "Modelo de área (comercial)",

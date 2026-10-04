@@ -621,7 +621,8 @@
     "autoSync": "Sync automatically (daily)",
     "autoSyncHint": "Connected accounts are synced once a day in the background.",
     "lastAutoSync": "Last automatic sync: {date}.",
-    "keyKept": "•••••••• (set, leave empty to keep)"
+    "keyKept": "•••••••• (set, leave empty to keep)",
+    "balanceAt": "as of {date}"
   },
   "areaModel": {
     "title": "Area model (commercial)",

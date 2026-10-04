@@ -39,6 +39,25 @@ export function mapTransaction(t: Record<string, unknown>): MappedTx {
   return { externalId, amount, direction, date, reference: reference || null };
 }
 
+export type BankBalance = { amount: number; currency: string; date: string | null };
+
+// Bevorzugte Saldo-Arten (ISO 20022): gebuchter Tagesend-, gebuchter Zwischen-,
+// erwarteter, dann verfügbarer Saldo. Liefert die Bank keine davon: erster Eintrag.
+const BALANCE_ORDER = ["CLBD", "ITBD", "XPCD", "ITAV", "CLAV", "OPBD"];
+
+/** Aus der Saldenliste einer Bank den aktuellen Kontostand wählen (#57). */
+export function pickBalance(list: Record<string, unknown>[]): BankBalance | null {
+  const rank = (b: Record<string, unknown>) => {
+    const i = BALANCE_ORDER.indexOf(String(b.balance_type ?? ""));
+    return i < 0 ? BALANCE_ORDER.length : i;
+  };
+  const best = [...list].sort((a, b) => rank(a) - rank(b))[0];
+  const amt = best?.balance_amount as { amount?: string | number; currency?: string } | undefined;
+  if (!best || amt?.amount == null || Number.isNaN(Number(amt.amount))) return null;
+  const date = (best.reference_date as string) || ((best.last_change_date_time as string) ?? "").slice(0, 10) || null;
+  return { amount: Number(amt.amount), currency: amt.currency ?? "EUR", date };
+}
+
 // ---------- HTTP (gegen Sandbox zu verifizieren) ----------
 
 export type Connector = { applicationId: string; privateKeyPem: string; baseUrl?: string };
@@ -102,4 +121,10 @@ export async function getTransactions(conn: Connector, accountUid: string, dateF
     path = `/accounts/${encodeURIComponent(accountUid)}/transactions${q ? q + "&" : "?"}continuation_key=${encodeURIComponent(page.continuation_key)}`;
   }
   return out;
+}
+
+/** Aktuelle Salden eines Kontos (#57). */
+export async function getBalances(conn: Connector, accountUid: string) {
+  const res = await api<{ balances?: Record<string, unknown>[] }>(conn, "GET", `/accounts/${encodeURIComponent(accountUid)}/balances`);
+  return res.balances ?? [];
 }

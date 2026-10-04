@@ -559,6 +559,8 @@ model Account {
   name      String
   type      AccountType @default(BANK)
   iban      String?
+  balance   Decimal?    @db.Decimal(14, 2) // Kontostand laut Bank (Bank-Sync, #57)
+  balanceAt DateTime? // Stand des Kontostands
   payments  Payment[]
   deposits  Deposit[]
   bankLinks BankLink[]
