@@ -8,6 +8,8 @@ import { sendMail, isMailerConfigured, smtpFromAddress, type MailAttachment } fr
 import { readFile } from "@/lib/storage";
 import { emailSchema, type ActionState } from "@/lib/schemas";
 import { renderTemplate } from "@/lib/template";
+import { sanitizeMailHtml, isEmptyHtml } from "@/server/mail-sanitize";
+import { htmlToText, escapeHtml } from "@/lib/mail-html";
 import { messageIdFor, refIds, threadKey } from "@/lib/inbound";
 import { threadWhere } from "@/lib/threads";
 
@@ -43,7 +45,10 @@ const addrList = (s: string | undefined | null) =>
 
 export async function createEmail(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
-  const r = emailSchema.safeParse(Object.fromEntries(fd));
+  // Formatierte Nachricht (#56): HTML bereinigen, Text-Variante serverseitig ableiten.
+  const html = sanitizeMailHtml(String(fd.get("html") ?? ""));
+  if (isEmptyHtml(html)) return { error: "Nachricht fehlt" };
+  const r = emailSchema.safeParse({ ...Object.fromEntries(fd), body: htmlToText(html) });
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
 
   // Angehängte Dokumente (documentId je Checkbox) — auf Mandant prüfen.
@@ -58,6 +63,7 @@ export async function createEmail(_p: ActionState, fd: FormData): Promise<Action
     data: {
       ...r.data,
       ...reply,
+      html,
       tenantId: user.tenantId,
       status: "ENTWURF",
       attachments: { create: docIds.map((documentId) => ({ documentId })) },
@@ -110,6 +116,7 @@ export async function sendEmail(fd: FormData): Promise<void> {
         bcc: addrList(msg.bcc),
         subject: msg.subject,
         body: msg.body,
+        html: msg.html,
         attachments,
         messageId,
         references: refIds(msg.references),
@@ -142,8 +149,8 @@ export async function bulkEmail(_p: ActionState, fd: FormData): Promise<ActionSt
   const propertyId = String(fd.get("propertyId") ?? "");
   const audience = String(fd.get("audience") ?? "");
   const subject = String(fd.get("subject") ?? "").trim();
-  const body = String(fd.get("body") ?? "").trim();
-  if (!propertyId || !subject || !body) return { error: "Objekt, Betreff und Nachricht erforderlich." };
+  const html = sanitizeMailHtml(String(fd.get("html") ?? ""));
+  if (!propertyId || !subject || isEmptyHtml(html)) return { error: "Objekt, Betreff und Nachricht erforderlich." };
 
   const prop = await prisma.property.findFirst({
     where: { id: propertyId, tenantId: user.tenantId },
@@ -201,7 +208,12 @@ export async function bulkEmail(_p: ActionState, fd: FormData): Promise<ActionSt
       tenantId: user.tenantId,
       toAddress: to,
       subject: renderTemplate(subject, context),
-      body: renderTemplate(body, context),
+      // Platzhalter im HTML mit maskierten Werten füllen (Namen dürfen kein Markup einschleusen)
+      ...(() => {
+        const htmlCtx = Object.fromEntries(Object.entries(context).map(([k, v]) => [k, escapeHtml(v)]));
+        const rendered = renderTemplate(html, htmlCtx);
+        return { html: rendered, body: htmlToText(rendered) };
+      })(),
       status: "ENTWURF" as const,
     };
   });

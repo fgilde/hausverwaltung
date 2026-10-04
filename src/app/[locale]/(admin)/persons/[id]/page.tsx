@@ -106,13 +106,13 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   const communication = [
     ...outbound.map((m) => ({
       dir: "out" as const, id: m.id, date: m.sentAt ?? m.createdAt, subject: m.subject, status: m.status as string | null,
-      thread: threadKey(m), sender: m.sentBy?.name ?? null, from: own.from, toAddress: toLabel(m.toAddress), cc: m.cc, body: m.body,
+      thread: threadKey(m), sender: m.sentBy?.name ?? null, from: own.from, toAddress: toLabel(m.toAddress), cc: m.cc, body: m.body, html: m.html,
       attachments: m.attachments.map(fromOutbound),
     })),
     ...inbound.map((m) => ({
       dir: "in" as const, id: m.id, date: m.receivedAt, subject: m.subject ?? "(ohne Betreff)", status: null,
       thread: threadKey(m), sender: m.fromName || personName, from: addr(m.fromName || personName, m.fromAddress), toAddress: own.inbox,
-      cc: null, body: m.body, attachments: m.attachments.map(fromInbound),
+      cc: null, body: m.body, html: null, attachments: m.attachments.map(fromInbound),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
@@ -285,7 +285,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                     <EmailViewDialog
                       message={{
                         from: c.from, toAddress: c.toAddress, cc: c.cc, date: dateTime(c.date, df),
-                        subject: c.subject, body: c.body, attachments: c.attachments,
+                        subject: c.subject, body: c.body, html: c.html, attachments: c.attachments,
                       }}
                       inbound={c.dir === "in"}
                       importDefaults={importDefaults}

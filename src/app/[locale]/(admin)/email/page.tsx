@@ -256,7 +256,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                                   defaultTo={m.fromAddress}
                                   replyTo={{ kind: "in", id: m.id }}
                                   defaultSubject={/^re:/i.test(subject) ? subject : `Re: ${subject}`}
-                                  defaultBody={`\n\n${m.body.split("\n").map((l) => `> ${l}`).join("\n")}`}
+                                  quote={m.body}
                                   triggerLabel={t("email.reply")}
                                   trigger={
                                     <Button variant="ghost" size="icon" aria-label={t("email.reply")} title={t("email.reply")}>
@@ -366,6 +366,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                             cc: m.cc,
                             subject: m.subject,
                             body: m.body,
+                            html: m.html,
                             attachments: m.attachments.map(fromOutbound),
                           }}
                         />

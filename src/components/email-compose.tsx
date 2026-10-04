@@ -7,6 +7,8 @@ import { createEmail } from "@/server/actions/email";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { cn } from "@/lib/utils";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { textToHtml, quoteHtml } from "@/lib/mail-html";
 
 type Person = { id: string; label: string; email: string };
 type Doc = { id: string; name: string };
@@ -16,10 +18,6 @@ const inputCls = cn(
   "flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm shadow-xs",
   "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none dark:bg-input/30",
 );
-const areaCls = cn(
-  "flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none dark:bg-input/30",
-);
 
 export function EmailCompose({
   persons,
@@ -27,7 +25,7 @@ export function EmailCompose({
   templates,
   defaultTo,
   defaultSubject,
-  defaultBody,
+  quote,
   triggerLabel,
   trigger,
   replyTo,
@@ -37,7 +35,7 @@ export function EmailCompose({
   templates: Tpl[];
   defaultTo?: string; // vorbelegter Empfänger, z. B. „Neue Nachricht" am Kontakt (#44)
   defaultSubject?: string;
-  defaultBody?: string;
+  quote?: string; // Antwort: diese Nachricht wird als Zitat vorbelegt
   triggerLabel?: string;
   trigger?: ReactElement; // eigener Auslöser, z. B. Antworten-Icon im Posteingang (#43)
   replyTo?: { kind: "in" | "out"; id: string }; // Vorgänger → gleiche Unterhaltung
@@ -45,7 +43,9 @@ export function EmailCompose({
   const t = useTranslations();
   const [to, setTo] = useState(defaultTo ?? "");
   const [subject, setSubject] = useState(defaultSubject ?? "");
-  const [body, setBody] = useState(defaultBody ?? "");
+  // Editor-Inhalt; Vorlage wählen setzt ihn neu (key erzwingt Neuaufbau des Editors).
+  const [initialHtml, setInitialHtml] = useState(quote ? quoteHtml(quote) : "");
+  const [editorKey, setEditorKey] = useState(0);
 
   function addPerson(email: string) {
     if (!email) return;
@@ -59,7 +59,8 @@ export function EmailCompose({
     const tpl = templates.find((x) => x.id === id);
     if (!tpl) return;
     setSubject(tpl.subject ?? "");
-    setBody(tpl.body);
+    setInitialHtml(textToHtml(tpl.body));
+    setEditorKey((k) => k + 1);
   }
 
   return (
@@ -122,7 +123,7 @@ export function EmailCompose({
       </div>
       <div className="space-y-1.5">
         <label htmlFor="body" className="text-sm font-medium">{t("email.body")}</label>
-        <textarea id="body" name="body" value={body} onChange={(e) => setBody(e.target.value)} required rows={6} className={areaCls} />
+        <RichTextEditor key={editorKey} id="body" name="html" initialHtml={initialHtml} />
       </div>
 
       {documents.length > 0 && (

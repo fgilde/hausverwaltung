@@ -1163,5 +1163,16 @@
     "rose": "Rose",
     "slate": "Slate",
     "teal": "Teal"
+  },
+  "editor": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "bulletList": "Bulleted list",
+    "orderedList": "Numbered list",
+    "quote": "Quote",
+    "link": "Insert link",
+    "unlink": "Remove link",
+    "applyLink": "Apply"
   }
 }

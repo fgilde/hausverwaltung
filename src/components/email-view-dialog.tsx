@@ -13,6 +13,7 @@ import {
 import { MailAttachmentList, type ImportDefaults } from "@/components/mail-attachments";
 import type { MailAttachment } from "@/lib/mail-attachments";
 import { markInboundRead } from "@/server/actions/inbound";
+import { MailBody } from "@/components/mail-body";
 
 // E-Mail-Text und Anhänge einsehen: Postausgang (#34) und Kommunikationsverlauf
 // eines Kontakts, ein- wie ausgehend (#39).
@@ -29,6 +30,7 @@ export function EmailViewDialog({
     date?: string | null;
     subject: string;
     body: string;
+    html?: string | null; // formatierte ausgehende Mail (#56)
     attachments: MailAttachment[];
   };
   inbound?: boolean; // eingehende Mail: Anhänge lassen sich übernehmen (#52)
@@ -66,9 +68,7 @@ export function EmailViewDialog({
             ) : null}
             {message.date ? <div>{message.date}</div> : null}
           </div>
-          <div className="max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-md border bg-muted/30 p-3">
-            {message.body || "—"}
-          </div>
+          <MailBody html={message.html} text={message.body} className="max-h-[50vh] overflow-auto rounded-md border bg-muted/30 p-3" />
           <MailAttachmentList attachments={message.attachments} inbound={inbound} defaults={importDefaults} />
         </div>
       </DialogContent>

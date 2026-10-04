@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AttachmentImportProvider, MailAttachmentList } from "@/components/mail-attachments";
 import { DeleteButton } from "@/components/delete-button";
+import { MailBody } from "@/components/mail-body";
 import { attachmentDefaults, attachmentImportOptions } from "@/server/attachments";
 import { EmailCompose } from "@/components/email-compose";
 import { sendEmail } from "@/server/actions/email";
@@ -77,7 +78,6 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
   const lastIn = inbound.at(-1);
   const replyTarget = lastIn ?? last;
   const replyTo = lastIn ? lastIn.fromAddress : last.dir === "out" ? last.toAddress : "";
-  const quote = `\n\n${(replyTarget.body ?? "").split("\n").map((l) => `> ${l}`).join("\n")}`;
   const counterpart = lastIn
     ? lastIn.person ? `${lastIn.person.firstName} ${lastIn.person.lastName}` : lastIn.fromName || lastIn.fromAddress
     : first.dir === "out" ? first.toAddress : "";
@@ -115,7 +115,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
               templates={templates}
               defaultTo={replyTo}
               defaultSubject={/^re:/i.test(subject) ? subject : `Re: ${subject}`}
-              defaultBody={quote}
+              quote={replyTarget.body ?? ""}
               triggerLabel={t("email.reply")}
               replyTo={{ kind: replyTarget.dir, id: replyTarget.id }}
               trigger={
@@ -173,7 +173,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ key: st
                   </div>
                 </div>
                 {m.subject && m.subject !== subject && <div className="text-sm font-medium">{m.subject}</div>}
-                <div className="whitespace-pre-wrap text-sm">{m.body || "—"}</div>
+                <MailBody html={m.dir === "out" ? m.html : null} text={m.body} />
                 {m.attachments.length > 0 && (
                   <div className="border-t pt-2">
                     <MailAttachmentList

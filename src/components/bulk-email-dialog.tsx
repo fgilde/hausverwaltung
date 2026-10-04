@@ -8,15 +8,13 @@ import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { SelectField } from "@/components/form-fields";
 import { cn } from "@/lib/utils";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { textToHtml } from "@/lib/mail-html";
 
 type Tpl = { id: string; name: string; subject: string | null; body: string };
 
 const inputCls = cn(
   "flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm shadow-xs",
-  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none dark:bg-input/30",
-);
-const areaCls = cn(
-  "flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs",
   "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none dark:bg-input/30",
 );
 
@@ -31,13 +29,15 @@ export function BulkEmailDialog({
 }) {
   const t = useTranslations();
   const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [initialHtml, setInitialHtml] = useState("");
+  const [editorKey, setEditorKey] = useState(0);
 
   function applyTemplate(id: string) {
     const tpl = templates.find((x) => x.id === id);
     if (!tpl) return;
     setSubject(tpl.subject ?? "");
-    setBody(tpl.body);
+    setInitialHtml(textToHtml(tpl.body));
+    setEditorKey((k) => k + 1);
   }
 
   return (
@@ -82,7 +82,7 @@ export function BulkEmailDialog({
       </div>
       <div className="space-y-1.5">
         <label htmlFor="bulkBody" className="text-sm font-medium">{t("email.body")}</label>
-        <textarea id="bulkBody" name="body" value={body} onChange={(e) => setBody(e.target.value)} required rows={6} className={areaCls} />
+        <RichTextEditor key={editorKey} id="bulkBody" name="html" initialHtml={initialHtml} />
       </div>
       <p className="text-xs text-muted-foreground">{t("email.placeholderHint")}</p>
       {documents.length > 0 && (

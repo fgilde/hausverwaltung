@@ -56,6 +56,7 @@ export interface OutgoingMail {
   bcc?: string | string[];
   subject: string;
   body: string;
+  html?: string | null; // formatierte Fassung (#56), body bleibt die Text-Variante
   attachments?: MailAttachment[];
   messageId?: string; // eigene Message-ID, damit Antworten zugeordnet werden (#43)
   references?: string[]; // Vorgänger-IDs; die letzte wird In-Reply-To
@@ -72,6 +73,7 @@ export async function sendMail(mail: OutgoingMail, cfg?: SmtpConfig): Promise<vo
     bcc: mail.bcc,
     subject: mail.subject,
     text: mail.body,
+    html: mail.html ?? undefined,
     attachments: mail.attachments,
     messageId: mail.messageId,
     inReplyTo: mail.references?.at(-1),

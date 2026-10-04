@@ -1040,7 +1040,8 @@ model EmailMessage {
   cc          String?
   bcc         String?
   subject     String
-  body        String
+  body        String // Text-Variante (bei formatierten Mails aus html abgeleitet)
+  html        String? // formatierte Fassung, serverseitig bereinigt (#56)
   status      EmailStatus       @default(ENTWURF)
   error       String?
   sentAt      DateTime?

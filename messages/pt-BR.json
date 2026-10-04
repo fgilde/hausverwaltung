@@ -1163,5 +1163,16 @@
     "rose": "Rosa",
     "slate": "Ardósia",
     "teal": "Turquesa"
+  },
+  "editor": {
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "underline": "Sublinhado",
+    "bulletList": "Lista com marcadores",
+    "orderedList": "Lista numerada",
+    "quote": "Citação",
+    "link": "Inserir link",
+    "unlink": "Remover link",
+    "applyLink": "Aplicar"
   }
 }

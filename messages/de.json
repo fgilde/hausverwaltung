@@ -1163,5 +1163,16 @@
     "rose": "Rosé",
     "slate": "Schiefer",
     "teal": "Türkis"
+  },
+  "editor": {
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "underline": "Unterstrichen",
+    "bulletList": "Aufzählung",
+    "orderedList": "Nummerierte Liste",
+    "quote": "Zitat",
+    "link": "Link einfügen",
+    "unlink": "Link entfernen",
+    "applyLink": "Übernehmen"
   }
 }
