@@ -246,7 +246,7 @@ out of a public file.
 ### Proxmox VE
 
 Run on the **PVE host** as root — creates an unprivileged Debian LXC with PostgreSQL
-and Node, builds HaVeWa from its newest tag and leaves a systemd service behind:
+and Node, builds HaVeWa from the same release as the current Docker image (same version, e.g. 0.4.0.93) and leaves a systemd service behind:
 
 ```bash
 bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/havewa.sh)"

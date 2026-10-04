@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # HaVeWa on a Debian machine: PostgreSQL from the distribution, Node from NodeSource, the app built
-# from its newest tag, a systemd unit and a database password nobody has to invent.
+# from the current release (same commit and version as the Docker image), a systemd unit and a database password nobody has to invent.
 #
 # Runs on its own as well as from havewa.sh, which is what makes it testable by hand -- on a plain
 # Debian VM, in an LXC container, on a Raspberry Pi:
@@ -64,17 +64,31 @@ su postgres -c "psql -qc \"ALTER ROLE ${DB_USER} PASSWORD '${DB_PASSWORD}'\"" >/
 su postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'\"" | grep -q 1 ||
   su postgres -c "createdb -O ${DB_USER} ${DB_NAME}" >/dev/null
 
-note "fetching the newest tag"
-TAG="$(curl -fsSL "https://api.github.com/repos/${REPO}/tags" |
-  grep -o '"name": *"v[0-9][^"]*"' | head -1 | sed 's/.*"\(v[^"]*\)"$/\1/')"
-[ -n "$TAG" ] || die "the repository has no version tag"
+note "finding the current release"
+# Same code and build number as the current Docker image (ghcr.io/fgilde/hausverwaltung:latest):
+# the commit of the newest successful image build on main. Version shown = package.json + build,
+# e.g. 0.4.0.93. Git tags are not used (they are not created per release).
+RUN="$(curl -fsSL "https://api.github.com/repos/${REPO}/actions/workflows/docker-publish.yml/runs?branch=main&status=success&per_page=1" || true)"
+APP_SHA="$(printf '%s' "$RUN" | grep -o '"head_sha": *"[0-9a-f]*"' | head -1 | sed 's/.*"\([0-9a-f]*\)"$/\1/')"
+APP_BUILD="$(printf '%s' "$RUN" | grep -o '"run_number": *[0-9]*' | head -1 | sed 's/[^0-9]//g')"
+if [ -z "$APP_SHA" ] || [ -z "$APP_BUILD" ]; then
+  # GitHub API not reachable or rate limited: newest commit on main, without a build number.
+  APP_SHA="main"
+  APP_BUILD="dev"
+fi
+export APP_SHA APP_BUILD
 
-note "building ${TAG} (this takes a few minutes)"
+note "building ${APP_SHA:0:7} (this takes a few minutes)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-curl -fsSL "https://github.com/${REPO}/archive/refs/tags/${TAG}.tar.gz" -o "$TMP/src.tar.gz"
+curl -fsSL "https://github.com/${REPO}/archive/${APP_SHA}.tar.gz" -o "$TMP/src.tar.gz"
 mkdir -p "$TMP/src"
 tar xzf "$TMP/src.tar.gz" -C "$TMP/src" --strip-components=1
+VERSION="$(sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' "$TMP/src/package.json" | head -1)"
+case "$APP_BUILD" in
+  *[!0-9]*) VERSION="${VERSION}-${APP_BUILD}" ;;
+  *) VERSION="${VERSION}.${APP_BUILD}" ;;
+esac
 
 # Built beside the running copy and swapped in at the end: a half-built application in the directory
 # the service runs from is a service that restarts into a broken state.
@@ -169,7 +183,7 @@ for _ in $(seq 1 60); do
   if curl -fsS -o /dev/null "http://127.0.0.1:${PORT}/"; then
     IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
     echo ""
-    note "done (${TAG})"
+    note "done (${VERSION})"
     echo "    URL:      http://${IP:-127.0.0.1}:${PORT}"
     echo "    Account:  the first visit opens the setup wizard"
     echo "    Config:   ${ENV_FILE}"

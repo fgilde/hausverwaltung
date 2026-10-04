@@ -8,7 +8,7 @@
 # runc writes net.ipv4.ip_unprivileged_port_start, and /proc/sys is read-only in there. A privileged
 # container would fix that by handing the container root on the host, which is a poor trade for two
 # processes Debian ships anyway. The container gets PostgreSQL and Node instead, and the app is built
-# from its newest tag inside it -- which is why it wants a little more RAM and disk than a container
+# from the current release (same as the Docker image) inside it -- which is why it wants a little more RAM and disk than a container
 # that only unpacks a binary.
 #
 # Self-contained on purpose. The community helper scripts source a shared build.func from another

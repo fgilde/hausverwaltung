@@ -216,7 +216,7 @@ beides kommt also nicht aus einer öffentlichen Datei.
 ### Proxmox VE
 
 Auf dem **PVE-Host** als root ausführen — legt einen unprivilegierten Debian-LXC mit
-PostgreSQL und Node an, baut HaVeWa aus dem neuesten Tag und hinterlässt einen
+PostgreSQL und Node an, baut HaVeWa aus demselben Stand wie das aktuelle Docker-Image (gleiche Version, z. B. 0.4.0.93) und hinterlässt einen
 systemd-Dienst:
 
 ```bash
