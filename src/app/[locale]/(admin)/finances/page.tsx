@@ -30,7 +30,7 @@ import {
 import { DeleteButton } from "@/components/delete-button";
 import { DunningDialog } from "@/components/dunning-dialog";
 import { PaymentEditDialog } from "@/components/payment-dialog-edit";
-import { summarizeTransactions } from "@/lib/transactions";
+import { summarizeTransactions, txnWhere, type TxnFilter } from "@/lib/transactions";
 import { deleteCharge, deleteAccount, deleteMandate, deletePayment, seedDefaultAccounts } from "@/server/actions/finances";
 import { deleteBankLink } from "@/server/actions/banking";
 
@@ -42,9 +42,12 @@ const PAGE_SIZE = 50;
 export default async function FinancesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; type?: string; lease?: string; year?: string; tab?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; type?: string; lease?: string; year?: string; tab?: string; page?: string } & TxnFilter>;
 }) {
   const sp = await searchParams;
+  // Such-/Filterkriterien der Transaktionen (#62)
+  const txnFilter: TxnFilter = { acc: sp.acc, from: sp.from, to: sp.to, min: sp.min, max: sp.max, dir: sp.dir, q: sp.q };
+  const txnFiltered = Object.values(txnFilter).some(Boolean);
   const tab: Tab = (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as Tab) : "charges";
   const page = Math.max(1, Number(sp.page) || 1);
   const statusFilter = sp.status ?? "";
@@ -56,6 +59,7 @@ export default async function FinancesPage({
   const locale = await getLocale();
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
+  const payWhere = { tenantId, ...txnWhere(txnFilter) };
 
   const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks, payments, paymentCount, paymentSums, allDocuments] = await Promise.all([
     prisma.charge.findMany({
@@ -75,18 +79,19 @@ export default async function FinancesPage({
     prisma.bankLink.findMany({ where: { tenantId }, include: { account: { select: { name: true } } }, orderBy: { createdAt: "asc" } }),
     // Kontobewegungen (Zahlungen) inkl. Konto, zugeordneter Sollstellung und Belegen (#23).
     prisma.payment.findMany({
-      where: { tenantId },
+      where: payWhere,
       include: {
         account: { select: { name: true } },
-        charge: { select: { type: true } },
+        // Mieter der Sollstellung als Gegenseite für manuell erfasste Zahlungen (#60)
+        charge: { select: { type: true, lease: { select: { renters: { select: { person: { select: { firstName: true, lastName: true } } } } } } } },
         documents: { select: { id: true, name: true } },
       },
       orderBy: { date: "desc" },
       skip: tab === "payments" ? (page - 1) * PAGE_SIZE : 0,
       take: tab === "payments" ? PAGE_SIZE : 0,
     }),
-    prisma.payment.count({ where: { tenantId } }),
-    prisma.payment.groupBy({ by: ["direction"], where: { tenantId }, _sum: { amount: true } }),
+    prisma.payment.count({ where: payWhere }),
+    prisma.payment.groupBy({ by: ["direction"], where: payWhere, _sum: { amount: true } }),
     prisma.document.findMany({ where: { tenantId }, select: { id: true, name: true }, orderBy: { createdAt: "desc" } }),
   ]);
   // Ein-/Ausgang/Saldo über alle Kontobewegungen, nicht nur die aktuelle Seite.
@@ -126,7 +131,7 @@ export default async function FinancesPage({
   const href = (to: Tab, p = 1, keepFilters = false) => {
     const q = new URLSearchParams();
     if (to !== "charges") q.set("tab", to);
-    if (keepFilters) for (const [k, v] of Object.entries(filters)) if (v) q.set(k, v);
+    if (keepFilters) for (const [k, v] of Object.entries(to === "payments" ? txnFilter : filters)) if (v) q.set(k, v);
     if (p > 1) q.set("page", String(p));
     const qs = q.toString();
     return qs ? `/finances?${qs}` : "/finances";
@@ -139,6 +144,7 @@ export default async function FinancesPage({
   }));
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
 
+  const filterCls = "flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30";
   const statusVariant = (s: string) =>
     s === "PAID" ? "secondary" : s === "OVERDUE" ? "destructive" : "outline";
 
@@ -321,17 +327,58 @@ export default async function FinancesPage({
           <p className="text-xs text-muted-foreground">
             {t("finances.transIn")}: {money(txnSummary.inTotal, locale)} · {t("finances.transOut")}:{" "}
             {money(txnSummary.outTotal, locale)} · {t("finances.transNet")}: {money(txnSummary.net, locale)}
+            {txnFiltered && ` · ${t("finances.txnFound", { count: paymentCount })}`}
           </p>
+          {/* Suche & Filter (#62); GET-Formular, Filter stehen in der URL */}
+          <form className="flex flex-wrap items-center gap-2 pt-2">
+            <input type="hidden" name="tab" value="payments" />
+            <input
+              name="q"
+              defaultValue={txnFilter.q}
+              placeholder={t("finances.txnSearch")}
+              className={cn(filterCls, "w-56")}
+            />
+            <select name="acc" defaultValue={txnFilter.acc ?? ""} className={cn(filterCls, "max-w-44")}>
+              <option value="">{t("finances.allAccounts")}</option>
+              {accountOpts.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <select name="dir" defaultValue={txnFilter.dir ?? ""} className={filterCls}>
+              <option value="">{t("finances.allDirections")}</option>
+              <option value="EINGANG">{t("finances.transIn")}</option>
+              <option value="AUSGANG">{t("finances.transOut")}</option>
+            </select>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <input type="date" name="from" defaultValue={txnFilter.from} aria-label={t("finances.dateFrom")} title={t("finances.dateFrom")} className={filterCls} />
+              –
+              <input type="date" name="to" defaultValue={txnFilter.to} aria-label={t("finances.dateTo")} title={t("finances.dateTo")} className={filterCls} />
+            </span>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <input name="min" inputMode="decimal" defaultValue={txnFilter.min} placeholder={t("finances.amountMin")} className={cn(filterCls, "w-24")} />
+              –
+              <input name="max" inputMode="decimal" defaultValue={txnFilter.max} placeholder={t("finances.amountMax")} className={cn(filterCls, "w-24")} />
+            </span>
+            <Button type="submit" size="sm" variant="outline">{t("common.search")}</Button>
+            {txnFiltered && (
+              <Button size="sm" variant="ghost" render={<Link href={href("payments")} />}>
+                {t("finances.resetFilters")}
+              </Button>
+            )}
+          </form>
         </CardHeader>
         <CardContent className="p-0">
           {paymentCount === 0 ? (
-            <p className="p-6 text-sm text-muted-foreground">{t("finances.noTransactions")}</p>
+            <p className="p-6 text-sm text-muted-foreground">
+              {txnFiltered ? t("finances.noTxnMatch") : t("finances.noTransactions")}
+            </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("fields.date")}</TableHead>
                   <TableHead>{t("finances.account")}</TableHead>
+                  <TableHead>{t("finances.counterparty")}</TableHead>
                   <TableHead>{t("finances.reference")}</TableHead>
                   <TableHead className="text-right">{t("fields.amount")}</TableHead>
                   <TableHead>{t("documents.title")}</TableHead>
@@ -343,6 +390,14 @@ export default async function FinancesPage({
                   <TableRow key={p.id}>
                     <TableCell>{date(p.date, df)}</TableCell>
                     <TableCell className="text-muted-foreground">{p.account?.name ?? t("common.none")}</TableCell>
+                    <TableCell className="max-w-56 whitespace-normal break-words">
+                      {p.counterparty ||
+                        p.charge?.lease?.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ") ||
+                        "—"}
+                      {p.counterpartyIban && (
+                        <span className="block font-mono text-xs text-muted-foreground">{p.counterpartyIban}</span>
+                      )}
+                    </TableCell>
                     <TableCell
                       className="max-w-[28rem] whitespace-normal break-words text-muted-foreground"
                       title={p.reference || undefined}
@@ -389,7 +444,7 @@ export default async function FinancesPage({
           )}
         </CardContent>
       </Card>
-      <Pager page={page} pages={paymentPages} href={(p) => href("payments", p)} />
+      <Pager page={page} pages={paymentPages} href={(p) => href("payments", p, true)} />
         </>
       )}
       {tab === "accounts" && (

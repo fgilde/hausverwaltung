@@ -12,7 +12,7 @@ export async function updateBranding(_p: ActionState, fd: FormData): Promise<Act
   if (!r.success) return { error: r.error.issues[0]?.message ?? "Ungültige Eingabe" };
   await prisma.tenant.update({
     where: { id: user.tenantId },
-    data: { brandColor: r.data.brandColor || null },
+    data: { brandColor: fd.get("resetColor") ? null : r.data.brandColor || null }, // #61 Zurücksetzen
   });
   revalidatePath("/", "layout");
   return { ok: true };

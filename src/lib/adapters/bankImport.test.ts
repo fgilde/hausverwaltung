@@ -35,6 +35,19 @@ describe("parseCamt053", () => {
     expect(e[1].reference).toBeUndefined();
   });
 
+  it("liest die Gegenseite (#60), auch im Format .001.08", () => {
+    const xml = `<Document><BkToCstmrStmt><Stmt>
+      <Ntry><Amt>10</Amt><CdtDbtInd>CRDT</CdtDbtInd><BookgDt><Dt>2026-07-01</Dt></BookgDt>
+        <NtryDtls><TxDtls><RltdPties><Dbtr><Nm>Max Mieter</Nm></Dbtr><DbtrAcct><Id><IBAN>DE02120300000000202051</IBAN></Id></DbtrAcct>
+          <Cdtr><Nm>Wir</Nm></Cdtr></RltdPties></TxDtls></NtryDtls></Ntry>
+      <Ntry><Amt>5</Amt><CdtDbtInd>DBIT</CdtDbtInd><BookgDt><Dt>2026-07-02</Dt></BookgDt>
+        <NtryDtls><TxDtls><RltdPties><Cdtr><Pty><Nm>Stadtwerke</Nm></Pty></Cdtr></RltdPties></TxDtls></NtryDtls></Ntry>
+    </Stmt></BkToCstmrStmt></Document>`;
+    const [a, b] = parseCamt053(xml);
+    expect([a.counterparty, a.counterpartyIban]).toEqual(["Max Mieter", "DE02120300000000202051"]);
+    expect([b.counterparty, b.counterpartyIban]).toEqual(["Stadtwerke", undefined]);
+  });
+
   it("verkraftet leeres Dokument", () => {
     expect(parseCamt053("<Document></Document>")).toEqual([]);
   });

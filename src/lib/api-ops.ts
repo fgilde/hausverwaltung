@@ -218,7 +218,7 @@ export const OPERATIONS: Record<string, Op> = {
           const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - e.amount) < 0.005);
           if (hit) { chargeId = hit.id; hit.open = 0; matched++; }
         }
-        await prisma.payment.create({ data: { tenantId: p.tenantId, accountId, chargeId, date: new Date(e.date), amount: e.amount, direction: e.direction, reference: e.reference } });
+        await prisma.payment.create({ data: { tenantId: p.tenantId, accountId, chargeId, date: new Date(e.date), amount: e.amount, direction: e.direction, reference: e.reference, counterparty: e.counterparty, counterpartyIban: e.counterpartyIban } });
       }
       return { imported: entries.length, matched };
     },

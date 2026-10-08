@@ -214,6 +214,8 @@ export async function importCamt(_p: ActionState, fd: FormData): Promise<ActionS
         amount: e.amount,
         direction: e.direction,
         reference: e.reference,
+        counterparty: e.counterparty,
+        counterpartyIban: e.counterpartyIban,
       },
     });
   }

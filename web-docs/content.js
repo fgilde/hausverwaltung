@@ -244,7 +244,7 @@ finance: {
     <h3>Konten bearbeiten</h3>
     <p>Konten lassen sich über das Stift-Symbol nachträglich bearbeiten (Name, Typ, IBAN). Beim Bank-Sync wird die IBAN — sofern die Schnittstelle sie liefert — automatisch übernommen.</p>
     <h3>Kontobewegungen</h3>
-    <p>Die Liste <strong>Kontobewegungen</strong> zeigt alle Zahlungen (Ein- und Ausgänge, auch aus dem Bank-Sync) mit Konto, Betrag, Verwendungszweck und Saldo. Je Buchung lassen sich eine <strong>Notiz</strong> hinterlegen und <strong>Belege/Dokumente</strong> aus der Dokumentenverwaltung verknüpfen (z. B. Rechnungen).</p>
+    <p>Die Liste <strong>Kontobewegungen</strong> zeigt alle Zahlungen (Ein- und Ausgänge, auch aus dem Bank-Sync) mit Konto, Betrag, Verwendungszweck und Saldo. Je Buchung lassen sich eine <strong>Notiz</strong> hinterlegen und <strong>Belege/Dokumente</strong> aus der Dokumentenverwaltung verknüpfen (z. B. Rechnungen). <strong>Zahler/Empfänger</strong> (Name, IBAN) kommen aus Bank-Sync bzw. camt.053; darüber lässt sich nach Text, Konto, Datum, Betrag und Ein-/Ausgang filtern.</p>
     <h3>Kaution in Raten</h3>
     <p>Für Kautionszahlungen in Raten legt man je Rate eine Sollstellung vom Typ <strong>Kaution</strong> an (mit Betrag und Fälligkeit). Die Raten erscheinen als offene Posten und Zahlungseingänge werden ihnen zugeordnet — wie bei Miete.</p>`,
   en: `
@@ -672,7 +672,7 @@ faq: {
     <h3>Sind meine Daten getrennt?</h3>
     <p>Ja, alles ist mandanten-getrennt; API/MCP-Zugriff ist auf den Mandanten des Tokens beschränkt.</p>
     <h3>Wo ändere ich Sprache/Design?</h3>
-    <p>Sprache oben rechts (DE/EN). Theme-Farbe und Logo unter <em>Einstellungen → Allgemein</em>.</p>
+    <p>Sprache oben rechts (DE/EN). Theme-Farbe und Logo unter <em>Einstellungen → Allgemein</em>; „Zurücksetzen“ entfernt die eigene Farbe wieder.</p>
     <h3>Etwas fehlt oder klemmt?</h3>
     <p>Bitte ein <a href="https://github.com/fgilde/hausverwaltung/issues" target="_blank" rel="noreferrer">GitHub-Issue</a> öffnen.</p>`,
   en: `

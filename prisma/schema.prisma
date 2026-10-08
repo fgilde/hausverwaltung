@@ -661,6 +661,8 @@ model Payment {
   amount    Decimal          @db.Decimal(10, 2)
   direction PaymentDirection @default(EINGANG)
   reference String?
+  counterparty     String? // Zahler (Eingang) bzw. Empfänger (Ausgang) laut Bank, #60
+  counterpartyIban String?
   externalId String? // Bank-Sync-Transaktions-ID (Dedup)
   note      String? // manuelle Notiz zur Kontobewegung
   documents Document[] // verknüpfte Belege/Dokumente (Rechnungen etc.)

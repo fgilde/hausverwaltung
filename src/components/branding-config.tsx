@@ -51,6 +51,18 @@ export function BrandingConfig({ brandColor, hasLogo }: { brandColor: string | n
             <Button type="submit" size="sm" variant="outline" disabled={colorPending}>
               {t("common.save")}
             </Button>
+            {/* #61: eigene Farbe entfernen, zurück zum Standard-Theme. Feldname nicht „reset“, das überschattet form.reset() */}
+            <Button
+              type="submit"
+              name="resetColor"
+              value="1"
+              size="sm"
+              variant="ghost"
+              disabled={colorPending || !brandColor}
+              onClick={() => setColor("#4f46e5")}
+            >
+              {t("branding.resetColor")}
+            </Button>
           </div>
           {colorState.error && <p className="text-sm text-destructive">{colorState.error}</p>}
         </form>

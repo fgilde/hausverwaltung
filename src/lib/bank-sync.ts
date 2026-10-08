@@ -29,8 +29,14 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
   for (const t of raw) {
     const m = eb.mapTransaction(t);
     if (!m.externalId || !m.date || m.amount <= 0) continue;
-    // Dedup: bereits importierte externe Transaktion überspringen.
-    if (await prisma.payment.findFirst({ where: { tenantId, externalId: m.externalId }, select: { id: true } })) continue;
+    // Dedup: bereits importierte externe Transaktion überspringen (Gegenseite ggf. nachtragen, #60).
+    const known = await prisma.payment.findFirst({ where: { tenantId, externalId: m.externalId }, select: { id: true, counterparty: true } });
+    if (known) {
+      if (!known.counterparty && m.counterparty) {
+        await prisma.payment.update({ where: { id: known.id }, data: { counterparty: m.counterparty, counterpartyIban: m.counterpartyIban } });
+      }
+      continue;
+    }
     let chargeId: string | null = null;
     if (m.direction === "EINGANG") {
       const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - m.amount) < 0.005);
@@ -44,6 +50,7 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
       data: {
         tenantId, accountId: link.accountId, chargeId, date: new Date(m.date), amount: m.amount,
         direction: m.direction, reference: m.reference, externalId: m.externalId,
+        counterparty: m.counterparty, counterpartyIban: m.counterpartyIban,
       },
     });
     imported++;

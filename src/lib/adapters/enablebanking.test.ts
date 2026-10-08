@@ -41,7 +41,21 @@ describe("mapTransaction", () => {
         remittance_information: ["Miete", "Februar"],
         entry_reference: "TX-1",
       }),
-    ).toEqual({ externalId: "TX-1", amount: 850, direction: "EINGANG", date: "2026-02-15", reference: "Miete Februar" });
+    ).toEqual({
+      externalId: "TX-1", amount: 850, direction: "EINGANG", date: "2026-02-15", reference: "Miete Februar",
+      counterparty: null, counterpartyIban: null,
+    });
+  });
+
+  it("Gegenseite: Zahler bei Eingang, Empfänger bei Ausgang (#60)", () => {
+    const parties = {
+      debtor: { name: "Max Mieter" }, debtor_account: { iban: "DE02 1203 0000 0000 2020 51" },
+      creditor: { name: "Stadtwerke" }, creditor_account: { iban: "DE89370400440532013000" },
+    };
+    const inc = mapTransaction({ ...parties, credit_debit_indicator: "CRDT" });
+    expect([inc.counterparty, inc.counterpartyIban]).toEqual(["Max Mieter", "DE02120300000000202051"]);
+    const out = mapTransaction({ ...parties, credit_debit_indicator: "DBIT" });
+    expect([out.counterparty, out.counterpartyIban]).toEqual(["Stadtwerke", "DE89370400440532013000"]);
   });
 
   it("Ausgang (DBIT), Fallback value_date + transaction_id", () => {

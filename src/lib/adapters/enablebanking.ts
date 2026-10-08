@@ -25,6 +25,8 @@ export type MappedTx = {
   direction: "EINGANG" | "AUSGANG";
   date: string | null; // YYYY-MM-DD
   reference: string | null;
+  counterparty: string | null; // Zahler (Eingang) bzw. Empfänger (Ausgang), #60
+  counterpartyIban: string | null;
 };
 
 /** Enable-Banking-Transaktion → HaVeWa-Zahlungsfelder. */
@@ -36,7 +38,15 @@ export function mapTransaction(t: Record<string, unknown>): MappedTx {
   const rem = t.remittance_information;
   const reference = Array.isArray(rem) ? rem.join(" ").trim() : typeof rem === "string" ? rem : null;
   const externalId = (t.entry_reference as string) || (t.transaction_id as string) || null;
-  return { externalId, amount, direction, date, reference: reference || null };
+  // Gegenseite: bei Eingang der Zahler (debtor), bei Ausgang der Empfänger (creditor)
+  const side = direction === "EINGANG" ? "debtor" : "creditor";
+  const party = t[side] as { name?: string } | undefined;
+  const acct = t[`${side}_account`] as { iban?: string } | undefined;
+  return {
+    externalId, amount, direction, date, reference: reference || null,
+    counterparty: party?.name?.trim() || null,
+    counterpartyIban: acct?.iban?.replace(/\s/g, "") || null,
+  };
 }
 
 export type BankBalance = { amount: number; currency: string; date: string | null };
