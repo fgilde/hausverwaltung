@@ -1,4 +1,4 @@
-import { ArrowLeft, Landmark, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Landmark, Mail, MapPin, Phone } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
@@ -154,6 +154,11 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                 <Phone className="size-3.5" /> {person.phone}
               </span>
             )}
+            {person.address && (
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3.5" /> {person.address.split(/\r?\n/).filter(Boolean).join(", ")}
+              </span>
+            )}
             {person.iban && (
               <span className="flex items-center gap-1">
                 <Landmark className="size-3.5" /> {person.iban.replace(/(.{4})/g, "$1 ").trim()}
@@ -175,6 +180,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             note: person.note,
             iban: person.iban,
             accountHolder: person.accountHolder,
+            address: person.address,
             custom: customValues,
           }}
         />

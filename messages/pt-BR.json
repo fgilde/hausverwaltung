@@ -146,7 +146,8 @@
     "tenantAddress": "Endereço da administração",
     "tenantAddressPlaceholder": "ex.: Rua Exemplo, 1, 12345 Cidade Exemplo",
     "tenantAddressHint": "Usado como endereço da administradora em documentos e comunicações.",
-    "tabBank": "Banco"
+    "tabBank": "Banco",
+    "tabLetters": "Cartas"
   },
   "account": {
     "changePassword": "Alterar senha",
@@ -339,6 +340,7 @@
     "noReadings": "Nenhuma leitura registrada."
   },
   "persons": {
+    "address": "Endereço (rua, CEP cidade)",
     "title": "Pessoas",
     "subtitle": "Inquilinos, proprietários e contatos",
     "new": "Nova pessoa",
@@ -966,7 +968,8 @@
     "PROTOKOLL": "Ata",
     "ABRECHNUNG": "Demonstrativo",
     "SONSTIGES": "Outros",
-    "EMAIL_ANHANG": "Anexo de e-mail"
+    "EMAIL_ANHANG": "Anexo de e-mail",
+    "BRIEF": "Carta"
   },
   "meetings": {
     "title": "Assembleias de proprietários",
@@ -1094,7 +1097,7 @@
   },
   "email": {
     "title": "Comunicação",
-    "subtitle": "E-mails recebidos e enviados em um só lugar",
+    "subtitle": "E-mails e cartas em um só lugar",
     "compose": "Novo e-mail",
     "to": "Para",
     "toPlaceholder": "endereco@exemplo.com; separe vários por vírgula",
@@ -1196,5 +1199,64 @@
     "link": "Inserir link",
     "unlink": "Remover link",
     "applyLink": "Aplicar"
+  },
+  "letters": {
+    "title": "Cartas",
+    "new": "Nova carta",
+    "empty": "Nenhuma carta ainda.",
+    "recipientPick": "Destinatário dos contatos",
+    "template": "Modelo",
+    "recipient": "Endereço",
+    "recipientPlaceholder": "Maria Silva\nRua Exemplo 1\n12345 Cidade",
+    "recipientHint": "Máx. 4 linhas: nome, rua, CEP cidade (e país, se no exterior). Aparece na janela do envelope.",
+    "place": "Local",
+    "date": "Data",
+    "subject": "Assunto",
+    "body": "Texto",
+    "bodyPlaceholder": "Prezados,\n\n…\n\nAtenciosamente",
+    "provider": "Envio",
+    "providerNone": "Apenas criar PDF (imprimir você mesmo)",
+    "provider_PINGEN": "Pingen",
+    "provider_EPOST": "Deutsche Post (E-POST)",
+    "mode": "Modalidade",
+    "modeStandard": "Padrão",
+    "modeFast": "Expresso",
+    "modeRegistered": "Registrada",
+    "color": "Impressão colorida",
+    "duplex": "Frente e verso",
+    "testMode": "Modo de teste",
+    "testHint": "Modo de teste: a carta é aceita e verificada, mas não é impressa nem enviada.",
+    "noProvider": "Para enviar pelo correio, configure Pingen ou Deutsche Post em Configurações → Cartas. Até lá é gerado um PDF para imprimir.",
+    "preview": "Pré-visualizar",
+    "create": "Criar PDF",
+    "createSend": "Criar e enviar",
+    "send": "Enviar pelo correio",
+    "working": "Processando …",
+    "created": "Carta criada",
+    "sent": "Carta entregue para envio",
+    "refresh": "Atualizar status",
+    "shipping": "Envio",
+    "pdf": "Abrir PDF",
+    "configOk": "Conexão bem-sucedida",
+    "secretKeep": "•••••• (inalterado)",
+    "pingenHint": "Credenciais em Pingen → Configurações → API (Client ID e Secret). A Pingen cobra por carta.",
+    "clientId": "Client ID",
+    "clientSecret": "Client Secret",
+    "orgId": "ID da organização",
+    "orgIdPlaceholder": "vazio = primeira organização",
+    "pingenStaging": "Ambiente de teste (staging, conta Pingen separada)",
+    "epostHint": "API E-POSTBUSINESS da Deutsche Post: Vendor ID, EKP (número de cliente), senha e secret da ativação. Requer contrato com a Deutsche Post.",
+    "vendorId": "Vendor ID",
+    "ekp": "EKP (número de cliente)",
+    "password": "Senha",
+    "secret": "Secret",
+    "epostTest": "Modo de teste (testFlag: nada é impresso, PDF de controle por e-mail)"
+  },
+  "letterStatus": {
+    "ENTWURF": "Criada",
+    "EINGEREICHT": "Enviada ao serviço",
+    "VERSENDET": "Postada",
+    "ZUGESTELLT": "Entregue",
+    "FEHLER": "Erro"
   }
 }

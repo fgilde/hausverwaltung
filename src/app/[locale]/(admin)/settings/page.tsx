@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { UserDialog, EditUserDialog, ResetPasswordDialog } from "@/components/user-dialogs";
 import { SettingsConfig } from "@/components/settings-config";
+import { LetterConfig } from "@/components/letter-config";
 import { BrandingConfig } from "@/components/branding-config";
 import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
@@ -230,6 +231,22 @@ export default async function SettingsPage() {
                 }
               : null
           }
+        />
+      ),
+    });
+  }
+  if (isAdmin && tenant) {
+    // Briefversand (#58): Pingen und/oder Deutsche Post
+    tabs.push({
+      value: "letters",
+      label: t("settings.tabLetters"),
+      content: (
+        <LetterConfig
+          pingen={{ clientId: tenant.pingenClientId, orgId: tenant.pingenOrgId, staging: tenant.pingenStaging, hasSecret: !!tenant.pingenClientSecretEnc }}
+          epost={{
+            vendorId: tenant.epostVendorId, ekp: tenant.epostEkp, test: tenant.epostTest,
+            hasPassword: !!tenant.epostPasswordEnc, hasSecret: !!tenant.epostSecretEnc,
+          }}
         />
       ),
     });

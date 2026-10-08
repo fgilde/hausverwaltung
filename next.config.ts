@@ -27,6 +27,9 @@ const nextConfig: NextConfig = {
   // Server-Actions-Body-Limit über das App-Upload-Limit (20 MB) heben; Default
   // ist 1 MB, daher schlug der Dokument-Upload >1 MB fehl (Issue #7).
   // Etwas Reserve für Multipart-Overhead.
+  // pdfkit liest Schrift-/ICC-Daten zur Laufzeit aus node_modules (Briefe als PDF/A, #58);
+  // gebündelt zeigen die Pfade ins Leere.
+  serverExternalPackages: ["pdfkit"],
   experimental: {
     serverActions: { bodySizeLimit: "25mb" },
   },

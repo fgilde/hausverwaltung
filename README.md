@@ -20,7 +20,7 @@ collection) · documents (GoBD, e-invoice) · maintenance (tickets with
 workflow/time-tracking, contractors, service intervals) · management fees ·
 deposit accounts · templates/mail merge · custom fields · report manager ·
 insurance · property tax · census · tenant/owner portals · camt.053 import +
-DATEV/SEPA export · calendar · outbox · dashboard · **REST API + MCP server for AI
+DATEV/SEPA export · calendar · email (in/out) · letters (DIN 5008, sent via Pingen or Deutsche Post) · dashboard · **REST API + MCP server for AI
 agents** (per-user tokens).
 
 ## Tech stack

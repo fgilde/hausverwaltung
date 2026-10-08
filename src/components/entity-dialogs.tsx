@@ -2,7 +2,7 @@ import { Plus, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
-import { TextField, SelectField, CustomFields } from "@/components/form-fields";
+import { TextField, TextAreaField, SelectField, CustomFields } from "@/components/form-fields";
 import {
   createProperty,
   updateProperty,
@@ -244,6 +244,7 @@ type PersonData = {
   note?: string | null;
   iban?: string | null;
   accountHolder?: string | null;
+  address?: string | null;
   custom?: Record<string, string>;
 };
 
@@ -280,6 +281,12 @@ export async function PersonDialog({
         label={t("fields.phone")}
         required={false}
         defaultValue={person?.phone ?? undefined}
+      />
+      <TextAreaField
+        name="address"
+        label={t("persons.address")}
+        rows={2}
+        defaultValue={person?.address ?? undefined}
       />
       <SelectField
         name="type"

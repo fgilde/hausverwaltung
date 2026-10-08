@@ -1,5 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
-import { Send, Mail, Paperclip, Reply, Check, CircleDot } from "lucide-react";
+import { Send, Mail, Paperclip, Reply, Check, CircleDot, FileText } from "lucide-react";
 import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
@@ -31,12 +31,15 @@ import { InboxSyncButton } from "@/components/inbox-sync-button";
 import { cn } from "@/lib/utils";
 import { listThreads } from "@/lib/threads";
 import { threadKey } from "@/lib/inbound";
+import { LetterDialog, LetterSendDialog, LetterRefreshButton } from "@/components/letter-dialogs";
+import { deleteLetter } from "@/server/actions/letters";
+import { configuredProviders, letterRecipients, senderLines } from "@/server/letters";
 
-// Kommunikation (#43): Unterhaltungen (Threads), Posteingang (IMAP-Import) und
-// Postausgang auf einer Seite.
+// Kommunikation (#43): Unterhaltungen (Threads), Posteingang (IMAP-Import),
+// Postausgang und Briefe (#58) auf einer Seite.
 export default async function EmailPage({ searchParams }: { searchParams: Promise<{ box?: string }> }) {
   const sp = (await searchParams).box;
-  const box = sp === "out" || sp === "in" ? sp : "threads";
+  const box = sp === "out" || sp === "in" || sp === "letters" ? sp : "threads";
   const user = await requireUser();
   const canWrite = roleAllows(user.role, WRITE_ROLES);
   const t = await getTranslations();
@@ -51,7 +54,7 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
     }),
     prisma.tenant.findUnique({
       where: { id: user.tenantId },
-      select: { smtpHost: true, smtpPort: true, smtpUser: true, smtpFrom: true, smtpSecure: true, imapHost: true, imapUser: true },
+      select: { smtpHost: true, smtpPort: true, smtpUser: true, smtpFrom: true, smtpSecure: true, imapHost: true, imapUser: true, address: true },
     }),
     prisma.person.findMany({
       where: { tenantId: user.tenantId, email: { not: null } },
@@ -85,6 +88,21 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
     prisma.inboundEmail.count({ where: { tenantId: user.tenantId, readAt: null } }),
     box === "threads" ? listThreads(user.tenantId) : [],
   ]);
+  // Briefe (#58)
+  const [letters, letterProviders, recipients] = canWrite || box === "letters"
+    ? await Promise.all([
+        box === "letters"
+          ? prisma.letter.findMany({
+              where: { tenantId: user.tenantId },
+              include: { person: { select: { id: true, firstName: true, lastName: true } } },
+              orderBy: { createdAt: "desc" },
+              take: 200,
+            })
+          : [],
+        configuredProviders(user.tenantId),
+        canWrite ? letterRecipients(user.tenantId) : [],
+      ])
+    : [[], [], []];
   const imapConfigured = isImapConfigured({ host: tenant?.imapHost, user: tenant?.imapUser });
   // Anhänge übernehmen (#52): Auswahllisten + Vorbelegung je Absender (#51)
   const [importOptions, importDefaults] =
@@ -114,13 +132,22 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
         </div>
         <div className="flex gap-2">
           {propertyOpts.length > 0 && <BulkEmailDialog properties={propertyOpts} templates={templates} documents={documents} />}
+          {canWrite && (
+            <LetterDialog
+              recipients={recipients}
+              templates={templates}
+              providers={letterProviders}
+              place={senderLines(tenant?.address).city}
+              today={date(new Date(), df)}
+            />
+          )}
           <EmailCompose persons={personOpts} documents={documents} templates={templates} />
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 border-b">
         <div className="flex gap-1">
-          {(["threads", "in", "out"] as const).map((b) => (
+          {(["threads", "in", "out", "letters"] as const).map((b) => (
             <Link
               key={b}
               href={b === "threads" ? "/email" : `/email?box=${b}`}
@@ -129,12 +156,14 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
                 box === b ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              {t(b === "threads" ? "email.threads" : b === "in" ? "email.inbox" : "email.outbox")}
+              {t(b === "threads" ? "email.threads" : b === "in" ? "email.inbox" : b === "out" ? "email.outbox" : "letters.title")}
               {b === "in" && unread > 0 && <Badge className="ml-2">{unread}</Badge>}
             </Link>
           ))}
         </div>
-        {box !== "out" && imapConfigured && canWrite && <InboxSyncButton />}
+        {box === "letters"
+          ? canWrite && letters.some((l) => l.status === "EINGEREICHT" || l.status === "VERSENDET") && <LetterRefreshButton />
+          : box !== "out" && imapConfigured && canWrite && <InboxSyncButton />}
       </div>
 
       {box === "threads" && (
@@ -390,6 +419,78 @@ export default async function EmailPage({ searchParams }: { searchParams: Promis
         </CardContent>
       </Card>
       </>
+      ) : box === "letters" ? (
+        <Card>
+          <CardContent className="p-0">
+            {letters.length === 0 ? (
+              <p className="p-6 text-sm text-muted-foreground">{t("letters.empty")}</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("letters.recipient")}</TableHead>
+                    <TableHead>{t("letters.subject")}</TableHead>
+                    <TableHead>{t("letters.shipping")}</TableHead>
+                    <TableHead>{t("fields.date")}</TableHead>
+                    <TableHead className="w-32 text-right">{t("common.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {letters.map((l) => {
+                    const lines = l.recipient.split("\n");
+                    const test = (l.options as { test?: boolean } | null)?.test;
+                    return (
+                      <TableRow key={l.id}>
+                        <TableCell className="font-medium">
+                          {l.person ? (
+                            <Link href={`/persons/${l.person.id}`} className="hover:underline">{lines[0]}</Link>
+                          ) : (
+                            lines[0]
+                          )}
+                          <div className="text-xs text-muted-foreground">{lines.slice(1).join(", ")}</div>
+                        </TableCell>
+                        <TableCell className="max-w-72 whitespace-normal">{l.subject}</TableCell>
+                        <TableCell className="whitespace-normal">
+                          <span className="flex flex-wrap items-center gap-1.5">
+                            <Badge variant={l.status === "FEHLER" ? "destructive" : l.status === "ENTWURF" ? "outline" : "secondary"}>
+                              {t(`letterStatus.${l.status}`)}
+                            </Badge>
+                            {l.provider && <span className="text-xs text-muted-foreground">{t(`letters.provider_${l.provider}`)}</span>}
+                            {test && <Badge variant="outline">{t("letters.testMode")}</Badge>}
+                          </span>
+                          {l.statusText && l.status !== "VERSENDET" && l.status !== "ZUGESTELLT" && (
+                            <div className={cn("mt-0.5 text-xs", l.status === "FEHLER" ? "text-destructive" : "text-muted-foreground")}>
+                              {l.statusText}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{date(l.sentAt ?? l.createdAt, df)}</TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            {l.documentId && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title={t("letters.pdf")}
+                                render={<a href={`/api/documents/${l.documentId}`} target="_blank" rel="noopener noreferrer" />}
+                              >
+                                <FileText className="size-4" />
+                              </Button>
+                            )}
+                            {canWrite && letterProviders.length > 0 && (l.status === "ENTWURF" || l.status === "FEHLER") && (
+                              <LetterSendDialog id={l.id} providers={letterProviders} />
+                            )}
+                            {canWrite && <DeleteButton action={deleteLetter} id={l.id} />}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       ) : null}
     </div>
     </AttachmentImportProvider>

@@ -146,7 +146,8 @@
     "tenantAddress": "Anschrift der Verwaltung",
     "tenantAddressPlaceholder": "z. B. Musterstraße 1, 12345 Musterstadt",
     "tenantAddressHint": "Die Anschrift wird u. a. als Wohnungsgeber-Anschrift in der Wohnungsgeberbestätigung vorbelegt.",
-    "tabBank": "Bank"
+    "tabBank": "Bank",
+    "tabLetters": "Briefversand"
   },
   "account": {
     "changePassword": "Passwort ändern",
@@ -339,6 +340,7 @@
     "noReadings": "Keine Stände erfasst."
   },
   "persons": {
+    "address": "Anschrift (Straße, PLZ Ort)",
     "title": "Personen",
     "subtitle": "Mieter, Eigentümer und Kontakte",
     "new": "Neue Person",
@@ -966,7 +968,8 @@
     "PROTOKOLL": "Protokoll",
     "ABRECHNUNG": "Abrechnung",
     "SONSTIGES": "Sonstiges",
-    "EMAIL_ANHANG": "E-Mail-Anhang"
+    "EMAIL_ANHANG": "E-Mail-Anhang",
+    "BRIEF": "Brief"
   },
   "meetings": {
     "title": "Eigentümerversammlungen",
@@ -1094,7 +1097,7 @@
   },
   "email": {
     "title": "Kommunikation",
-    "subtitle": "Eingehende und ausgehende E-Mails an einem Ort",
+    "subtitle": "E-Mails und Briefe an einem Ort",
     "compose": "Neue E-Mail",
     "to": "An",
     "toPlaceholder": "adresse@example.de, mehrere mit Komma",
@@ -1196,5 +1199,64 @@
     "link": "Link einfügen",
     "unlink": "Link entfernen",
     "applyLink": "Übernehmen"
+  },
+  "letters": {
+    "title": "Briefe",
+    "new": "Neuer Brief",
+    "empty": "Noch keine Briefe.",
+    "recipientPick": "Empfänger aus Kontakten",
+    "template": "Vorlage",
+    "recipient": "Anschrift",
+    "recipientPlaceholder": "Max Mustermann\nMusterstraße 1\n12345 Musterstadt",
+    "recipientHint": "Max. 4 Zeilen: Name, Straße, PLZ Ort (bei Ausland zusätzlich das Land). Steht im Fenster des Umschlags.",
+    "place": "Ort",
+    "date": "Datum",
+    "subject": "Betreff",
+    "body": "Text",
+    "bodyPlaceholder": "Sehr geehrte Damen und Herren,\n\n…\n\nMit freundlichen Grüßen",
+    "provider": "Versand",
+    "providerNone": "Nur PDF erstellen (selbst drucken)",
+    "provider_PINGEN": "Pingen",
+    "provider_EPOST": "Deutsche Post (E-POST)",
+    "mode": "Versandart",
+    "modeStandard": "Standard",
+    "modeFast": "Express",
+    "modeRegistered": "Einschreiben (Einwurf)",
+    "color": "Farbdruck",
+    "duplex": "Beidseitig",
+    "testMode": "Testmodus",
+    "testHint": "Testmodus: Der Brief wird angenommen und geprüft, aber nicht gedruckt oder verschickt.",
+    "noProvider": "Für den Postversand Pingen oder die Deutsche Post unter Einstellungen → Briefversand einrichten. Bis dahin entsteht ein PDF zum Selbstdrucken.",
+    "preview": "Vorschau",
+    "create": "PDF erstellen",
+    "createSend": "Erstellen & senden",
+    "send": "Per Post senden",
+    "working": "Wird erstellt …",
+    "created": "Brief erstellt",
+    "sent": "Brief an den Versand übergeben",
+    "refresh": "Status aktualisieren",
+    "shipping": "Versand",
+    "pdf": "PDF öffnen",
+    "configOk": "Verbindung erfolgreich",
+    "secretKeep": "•••••• (unverändert)",
+    "pingenHint": "Zugangsdaten unter Pingen → Einstellungen → API (Client-ID und Secret). Kosten fallen je Brief bei Pingen an.",
+    "clientId": "Client-ID",
+    "clientSecret": "Client-Secret",
+    "orgId": "Organisations-ID",
+    "orgIdPlaceholder": "leer = erste Organisation",
+    "pingenStaging": "Testumgebung (staging, eigenes Pingen-Konto)",
+    "epostHint": "E-POSTBUSINESS-API der Deutschen Post: Vendor-ID, EKP (Kundennummer), Passwort und Secret aus der Freischaltung. Erfordert einen Vertrag mit der Deutschen Post.",
+    "vendorId": "Vendor-ID",
+    "ekp": "EKP (Kundennummer)",
+    "password": "Passwort",
+    "secret": "Secret",
+    "epostTest": "Testmodus (testFlag: nichts wird gedruckt, Kontroll-PDF per E-Mail)"
+  },
+  "letterStatus": {
+    "ENTWURF": "Erstellt",
+    "EINGEREICHT": "Eingereicht",
+    "VERSENDET": "Versendet",
+    "ZUGESTELLT": "Zugestellt",
+    "FEHLER": "Fehler"
   }
 }

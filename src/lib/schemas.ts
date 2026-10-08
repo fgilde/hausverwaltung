@@ -93,6 +93,7 @@ export const personSchema = z.object({
     .transform((v) => (v ? v.replace(/\s/g, "").toUpperCase() : undefined))
     .refine((v) => v === undefined || isValidIban(v), "Ungültige IBAN"),
   accountHolder: optionalStr,
+  address: optionalStr, // Postanschrift ohne Namen (#58)
 });
 
 // IBAN-Prüfsumme (ISO 13616, mod 97).
@@ -402,7 +403,7 @@ export const userEditSchema = z.object({
   personId: optionalStr,
 });
 
-export const DOCUMENT_CATEGORIES = ["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "EMAIL_ANHANG", "SONSTIGES"] as const;
+export const DOCUMENT_CATEGORIES = ["VERTRAG", "RECHNUNG", "ERECHNUNG", "PROTOKOLL", "ABRECHNUNG", "EMAIL_ANHANG", "BRIEF", "SONSTIGES"] as const;
 
 export const documentEditSchema = z.object({
   name: z.string().trim().min(1),

@@ -130,6 +130,7 @@ export default async function PersonsPage({
                             note: p.note,
                             iban: p.iban,
                             accountHolder: p.accountHolder,
+                            address: p.address,
                             custom: (p.custom as Record<string, string>) ?? {},
                           }}
                         />

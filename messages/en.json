@@ -146,7 +146,8 @@
     "tenantAddress": "Management address",
     "tenantAddressPlaceholder": "e.g. 1 Sample Street, 12345 Sample City",
     "tenantAddressHint": "Used e.g. as the landlord address in the landlord confirmation (Wohnungsgeberbestätigung).",
-    "tabBank": "Bank"
+    "tabBank": "Bank",
+    "tabLetters": "Letters"
   },
   "account": {
     "changePassword": "Change password",
@@ -339,6 +340,7 @@
     "noReadings": "No readings recorded."
   },
   "persons": {
+    "address": "Address (street, postcode city)",
     "title": "People",
     "subtitle": "Tenants, owners and contacts",
     "new": "New person",
@@ -966,7 +968,8 @@
     "PROTOKOLL": "Minutes",
     "ABRECHNUNG": "Statement",
     "SONSTIGES": "Other",
-    "EMAIL_ANHANG": "Email attachment"
+    "EMAIL_ANHANG": "Email attachment",
+    "BRIEF": "Letter"
   },
   "meetings": {
     "title": "Owners' meetings",
@@ -1094,7 +1097,7 @@
   },
   "email": {
     "title": "Communication",
-    "subtitle": "Incoming and outgoing emails in one place",
+    "subtitle": "Emails and letters in one place",
     "compose": "New email",
     "to": "To",
     "toPlaceholder": "address@example.com, separate multiple with commas",
@@ -1196,5 +1199,64 @@
     "link": "Insert link",
     "unlink": "Remove link",
     "applyLink": "Apply"
+  },
+  "letters": {
+    "title": "Letters",
+    "new": "New letter",
+    "empty": "No letters yet.",
+    "recipientPick": "Recipient from contacts",
+    "template": "Template",
+    "recipient": "Address",
+    "recipientPlaceholder": "Jane Doe\nSample Street 1\n12345 Sample City",
+    "recipientHint": "Max. 4 lines: name, street, postcode city (plus country if abroad). Shown in the envelope window.",
+    "place": "Place",
+    "date": "Date",
+    "subject": "Subject",
+    "body": "Text",
+    "bodyPlaceholder": "Dear Sir or Madam,\n\n…\n\nKind regards",
+    "provider": "Delivery",
+    "providerNone": "Create PDF only (print yourself)",
+    "provider_PINGEN": "Pingen",
+    "provider_EPOST": "Deutsche Post (E-POST)",
+    "mode": "Shipping",
+    "modeStandard": "Standard",
+    "modeFast": "Express",
+    "modeRegistered": "Registered",
+    "color": "Colour print",
+    "duplex": "Double-sided",
+    "testMode": "Test mode",
+    "testHint": "Test mode: the letter is accepted and checked but not printed or mailed.",
+    "noProvider": "To send by post, set up Pingen or Deutsche Post under Settings → Letters. Until then you get a PDF to print yourself.",
+    "preview": "Preview",
+    "create": "Create PDF",
+    "createSend": "Create & send",
+    "send": "Send by post",
+    "working": "Working …",
+    "created": "Letter created",
+    "sent": "Letter handed over for delivery",
+    "refresh": "Refresh status",
+    "shipping": "Delivery",
+    "pdf": "Open PDF",
+    "configOk": "Connection successful",
+    "secretKeep": "•••••• (unchanged)",
+    "pingenHint": "Credentials in Pingen → Settings → API (client ID and secret). Pingen charges per letter.",
+    "clientId": "Client ID",
+    "clientSecret": "Client secret",
+    "orgId": "Organisation ID",
+    "orgIdPlaceholder": "empty = first organisation",
+    "pingenStaging": "Test environment (staging, separate Pingen account)",
+    "epostHint": "Deutsche Post E-POSTBUSINESS API: vendor ID, EKP (customer number), password and secret from the activation. Requires a contract with Deutsche Post.",
+    "vendorId": "Vendor ID",
+    "ekp": "EKP (customer number)",
+    "password": "Password",
+    "secret": "Secret",
+    "epostTest": "Test mode (testFlag: nothing is printed, check PDF by email)"
+  },
+  "letterStatus": {
+    "ENTWURF": "Created",
+    "EINGEREICHT": "Submitted",
+    "VERSENDET": "Mailed",
+    "ZUGESTELLT": "Delivered",
+    "FEHLER": "Error"
   }
 }

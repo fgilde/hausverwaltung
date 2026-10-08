@@ -10,6 +10,6 @@ export async function GET() {
     where: { tenantId: (await actingTenantId(session.user)) },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
-  const rows = persons.map((p) => [p.firstName, p.lastName, p.email ?? "", p.phone ?? "", p.type, p.note ?? "", p.iban ?? "", p.accountHolder ?? ""]);
-  return csvResponse("personen.csv", toCsv(["firstName", "lastName", "email", "phone", "type", "note", "iban", "accountHolder"], rows));
+  const rows = persons.map((p) => [p.firstName, p.lastName, p.email ?? "", p.phone ?? "", p.type, p.note ?? "", p.iban ?? "", p.accountHolder ?? "", p.address ?? ""]);
+  return csvResponse("personen.csv", toCsv(["firstName", "lastName", "email", "phone", "type", "note", "iban", "accountHolder", "address"], rows));
 }

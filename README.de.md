@@ -18,7 +18,7 @@ Abstimmung, Beschlusssammlung §24) · Dokumente (GoBD, E-Rechnung) · Instandha
 (Tickets mit Workflow/Zeiterfassung, Handwerker, Wartung) · Verwalterhonorar ·
 Kautionskonten · Vorlagen/Serienbriefe · benutzerdefinierte Felder · Report-Manager ·
 Versicherungen · Grundsteuer · Zensus · Mieter-/Eigentümer-Portale ·
-camt.053-Import + DATEV-/SEPA-Export · Kalender · E-Mail-Postausgang · Dashboard ·
+camt.053-Import + DATEV-/SEPA-Export · Kalender · E-Mail (Ein-/Ausgang) · Briefe (DIN 5008, Versand per Pingen oder Deutsche Post) · Dashboard ·
 **REST-API + MCP-Server für KI-Agenten** (Token je Benutzer).
 
 ## Tech-Stack

@@ -144,6 +144,17 @@ model Tenant {
   imapAttachments   Boolean @default(true) // Anhänge eingehender Mails speichern (nur bekannte Kontakte)
   imapAttachMaxMb   Int     @default(10)   // max. Größe je Anhang in MB
 
+  // Briefversand (#58): Pingen und/oder Deutsche Post E-POSTBUSINESS; Secrets verschlüsselt
+  pingenClientId        String?
+  pingenClientSecretEnc String?
+  pingenOrgId           String? // leer = erste Organisation des Kontos
+  pingenStaging         Boolean @default(false) // Testumgebung (nichts wird gedruckt)
+  epostVendorId         String?
+  epostEkp              String? // 10-stellige Kundennummer
+  epostPasswordEnc      String?
+  epostSecretEnc        String?
+  epostTest             Boolean @default(true) // testFlag: Briefe werden nicht gedruckt
+
   // Branding (Theme-Farbe als HEX, Logo im Storage)
   brandColor String?
   logoKey    String?
@@ -373,6 +384,7 @@ model Person {
   note      String? // z.B. Mietgesuch bei Interessenten
   iban          String? // Bankverbindung (#45)
   accountHolder String? // Kontoinhaber, kann vom Kontaktnamen abweichen
+  address       String? // Postanschrift ohne Namen, zeilenweise (Briefe, #58)
   owners    Owner[]
   renters   Renter[]
   mandates  SepaMandate[]
@@ -380,6 +392,7 @@ model Person {
   documents Document[]
   areaAllocations AreaAllocation[]
   inboundEmails InboundEmail[]
+  letters   Letter[]
   custom    Json          @default("{}")
   createdAt DateTime @default(now())
 
@@ -834,6 +847,7 @@ enum DocumentCategory {
   PROTOKOLL
   ABRECHNUNG
   EMAIL_ANHANG // aus einer E-Mail übernommen (#51)
+  BRIEF // erstellter Brief (#58)
   SONSTIGES
 }
 
@@ -857,6 +871,7 @@ model Document {
   emailAttachments EmailAttachment[]
   inboundAttachments InboundEmailAttachment[]
   payments   Payment[] // als Beleg verknüpfte Kontobewegungen (#23)
+  letters    Letter[] // Briefe, deren PDF dieses Dokument ist (#58)
   createdAt  DateTime         @default(now())
 
   @@index([tenantId])
@@ -1028,6 +1043,38 @@ model AuditLog {
 }
 
 // ---------- E-Mail-Postausgang ----------
+
+enum LetterStatus {
+  ENTWURF // nur PDF erstellt
+  EINGEREICHT // an den Anbieter übergeben, in Bearbeitung
+  VERSENDET // gedruckt und an die Post übergeben
+  ZUGESTELLT
+  FEHLER
+}
+
+// Brief (#58): als PDF (DIN 5008) erstellt, optional per Pingen oder Deutsche Post versendet.
+model Letter {
+  id         String       @id @default(cuid())
+  tenantId   String
+  personId   String?
+  person     Person?      @relation(fields: [personId], references: [id], onDelete: SetNull)
+  recipient  String // Anschrift, Zeilen durch \n getrennt
+  subject    String
+  body       String
+  documentId String?
+  document   Document?    @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  provider   String? // PINGEN | EPOST, null = nur PDF
+  providerId String? // Brief-ID beim Anbieter
+  options    Json? // Druck-/Versandoptionen (Farbe, Duplex, Produkt, Einschreiben)
+  status     LetterStatus @default(ENTWURF)
+  statusText String? // Status/Fehler im Wortlaut des Anbieters
+  sentAt     DateTime?
+  sentById   String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([tenantId])
+}
 
 enum EmailStatus {
   ENTWURF
