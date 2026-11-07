@@ -6,6 +6,7 @@ import { saveFile } from "@/lib/storage";
 import { deliverEmail } from "@/server/outbox";
 import { parseCamt053 } from "@/lib/adapters/bankImport";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
 
 // Dedizierte Operationen (kein reines CRUD) für REST-API + MCP.
 // Fachlogik gespiegelt aus den Server Actions, aber Bearer-Auth statt Session.
@@ -250,7 +251,7 @@ export const OPERATIONS: Record<string, Op> = {
       const name = String(need(a, "name"));
       const buffer = Buffer.from(String(need(a, "contentBase64")), "base64");
       if (buffer.length === 0) throw new ApiWriteError("Leerer Inhalt", 400);
-      if (buffer.length > 20 * 1024 * 1024) throw new ApiWriteError("Datei zu groß (max. 20 MB)", 400);
+      if (buffer.length > MAX_UPLOAD_BYTES) throw new ApiWriteError(`Datei zu groß (max. ${MAX_UPLOAD_MB} MB)`, 400);
       const mime = s(a.mime) ?? "application/octet-stream";
       const category = (s(a.category) ?? "SONSTIGES") as string;
       const rels: Array<["propertyId" | "unitId" | "personId", "property" | "unit" | "person"]> = [

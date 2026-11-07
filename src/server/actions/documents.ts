@@ -6,14 +6,13 @@ import { requireWriter } from "@/lib/rbac";
 import { saveFile, deleteFile } from "@/lib/storage";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import { documentEditSchema, type ActionState } from "@/lib/schemas";
-
-const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
 
 export async function uploadDocument(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const file = fd.get("file");
   if (!(file instanceof File) || file.size === 0) return { error: "Keine Datei" };
-  if (file.size > MAX_SIZE) return { error: "Datei zu groß (max. 20 MB)" };
+  if (file.size > MAX_UPLOAD_BYTES) return { error: `Datei zu groß (max. ${MAX_UPLOAD_MB} MB)` };
 
   const category = String(fd.get("category") ?? "SONSTIGES");
   const name = String(fd.get("name") ?? "").trim() || file.name;

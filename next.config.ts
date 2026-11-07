@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
 import createNextIntlPlugin from "next-intl/plugin";
 import pkg from "./package.json";
+import { MAX_UPLOAD_MB } from "./src/lib/upload-limit";
 
 const withNextIntl = createNextIntlPlugin();
 
@@ -24,9 +25,6 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_BUILD: build,
     NEXT_PUBLIC_APP_SHA: sha,
   },
-  // Server-Actions-Body-Limit über das App-Upload-Limit (20 MB) heben; Default
-  // ist 1 MB, daher schlug der Dokument-Upload >1 MB fehl (Issue #7).
-  // Etwas Reserve für Multipart-Overhead.
   // pdfkit liest Schrift-/ICC-Daten zur Laufzeit aus node_modules (Briefe als PDF/A, #58);
   // gebündelt zeigen die Pfade ins Leere.
   serverExternalPackages: ["pdfkit"],
@@ -37,8 +35,11 @@ const nextConfig: NextConfig = {
       { source: "/email/:path*", destination: "/communication/:path*", permanent: true },
     ];
   },
+  // Body-Limits über das App-Upload-Limit heben (Reserve für Multipart-Overhead). Server Actions
+  // haben 1 MB Default (#7), der Proxy (src/middleware.ts) kappt bei 10 MB (#85).
   experimental: {
-    serverActions: { bodySizeLimit: "25mb" },
+    serverActions: { bodySizeLimit: `${MAX_UPLOAD_MB + 10}mb` },
+    proxyClientMaxBodySize: `${MAX_UPLOAD_MB + 10}mb`,
   },
 };
 
