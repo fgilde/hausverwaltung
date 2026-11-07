@@ -177,8 +177,35 @@ ReadWritePaths=${DATA_DIR}
 WantedBy=multi-user.target
 EOF
 
+# Daily backup with a test restore (#82), kept in the data directory, 14 archives.
+# Only from the release on that ships the script.
+if [ -f "${INSTALL_DIR}/deploy/backup.sh" ]; then
+  cat > /etc/systemd/system/havewa-backup.service <<EOF
+[Unit]
+Description=HaVeWa backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash ${INSTALL_DIR}/deploy/backup.sh
+EOF
+  cat > /etc/systemd/system/havewa-backup.timer <<EOF
+[Unit]
+Description=Daily HaVeWa backup
+
+[Timer]
+OnCalendar=*-*-* 03:15
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+fi
+
 systemctl daemon-reload
 systemctl enable havewa >/dev/null 2>&1 || true
+[ -f /etc/systemd/system/havewa-backup.timer ] && systemctl enable --now havewa-backup.timer >/dev/null 2>&1 || true
 systemctl restart havewa
 
 note "waiting for the app to answer"
@@ -192,6 +219,7 @@ for _ in $(seq 1 60); do
     echo "    Config:   ${ENV_FILE}"
     echo "    Service:  systemctl status havewa"
     echo "    Update:   run this script again"
+    [ -f /etc/systemd/system/havewa-backup.timer ] && echo "    Backup:   daily to ${DATA_DIR}/backups (${INSTALL_DIR}/deploy/backup.sh)"
     exit 0
   fi
   sleep 2

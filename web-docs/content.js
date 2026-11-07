@@ -641,6 +641,8 @@ deploy: {
       <li><strong>Proxmox VE</strong>: Einzeiler auf dem Host legt einen Debian-LXC an:</li>
     </ul>
     <pre><code>bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"</code></pre>
+    <h3>Backup &amp; Wiederherstellung</h3>
+    <p><code>deploy/backup.sh</code> sichert Datenbank, alle Tabellen als CSV, Dokumente und Konfiguration (inkl. <code>AUTH_SECRET</code>) in ein Archiv mit Manifest und Prüfsummen und spielt jedes Backup probeweise in eine Wegwerf-Datenbank ein. <code>backup.sh restore DATEI</code> stellt wieder her (mit Sicherheits-Backup vorher). Die Proxmox-Installation sichert täglich automatisch nach <code>/var/lib/havewa/backups</code>; bei Docker per Cron einplanen. Archive vom Rechner wegkopieren.</p>
     <p>Details in der <a href="https://github.com/fgilde/hausverwaltung#readme" target="_blank" rel="noreferrer">README</a>.</p>`,
   en: `
     <h2>Install &amp; hosting</h2>
@@ -665,6 +667,8 @@ deploy: {
       <li><strong>Proxmox VE</strong>: one-liner on the host creates a Debian LXC:</li>
     </ul>
     <pre><code>bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"</code></pre>
+    <h3>Backup &amp; restore</h3>
+    <p><code>deploy/backup.sh</code> saves the database, every table as CSV, the documents and the configuration (incl. <code>AUTH_SECRET</code>) into one archive with a manifest and checksums, and test-restores every backup into a scratch database. <code>backup.sh restore FILE</code> puts it back (after a safety backup). The Proxmox install backs up daily to <code>/var/lib/havewa/backups</code>; with Docker, schedule it via cron. Copy the archives off the machine.</p>
     <p>Details in the <a href="https://github.com/fgilde/hausverwaltung#readme" target="_blank" rel="noreferrer">README</a>.</p>`
 },
 

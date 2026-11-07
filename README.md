@@ -263,6 +263,30 @@ the container root on the host. [`install.sh`](deploy/proxmox/install.sh) is the
 that runs inside and works on any Debian machine; it keeps the database, the password
 and the uploaded documents across updates.
 
+## Backup & restore
+
+[`deploy/backup.sh`](deploy/backup.sh) backs up everything a reinstall needs in one archive:
+the database (`pg_dump`), every table as CSV (readable without HaVeWa), the uploaded documents
+and the configuration including `AUTH_SECRET` — without it the stored SMTP, IMAP, banking and AI
+credentials cannot be decrypted. A manifest records time, app version and last migration,
+`SHA256SUMS` covers every file. Each run restores the dump into a scratch database and compares
+row counts and document files, so a backup that cannot be restored fails right away.
+
+```bash
+deploy/backup.sh                       # create + test restore (Docker: run where the compose files are)
+deploy/backup.sh verify FILE           # check an archive again
+deploy/backup.sh restore FILE          # put it back; takes a safety backup first
+deploy/backup.sh restore FILE --with-config   # Proxmox/Debian: also restore /etc/havewa.env
+```
+
+Works for the Docker setups (containers `havewa-app`/`havewa-db`, other names via
+`HAVEWA_APP_CONTAINER`/`HAVEWA_DB_CONTAINER`) and the Proxmox/Debian install, which gets a daily
+systemd timer (`havewa-backup.timer`, 03:15, archives in `/var/lib/havewa/backups`). Docker:
+schedule it with cron, e.g. `15 3 * * * cd /opt/havewa && bash deploy/backup.sh`.
+`HAVEWA_BACKUP_PASSWORD` encrypts the archive (AES-256), `HAVEWA_BACKUP_KEEP` (14) sets how many
+are kept, `HAVEWA_BACKUP_DIR` where. Copy the archives off the machine (NAS, Proxmox Backup
+Server, restic …): a backup on the same disk is not a backup.
+
 ## Known simplifications
 
 Marked with `ponytail:` comments in the code: HeizkostenV consumption allocation
