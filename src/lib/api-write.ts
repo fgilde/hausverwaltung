@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { roleAllows, WRITE_ROLES, assignableRoles, canDeleteUser, type SessionUser } from "@/lib/rbac";
 import type { ApiPrincipal } from "@/lib/api-auth";
 import * as S from "@/lib/schemas";
+import { deleteFile } from "@/lib/storage";
+import { audit } from "@/lib/audit";
 
 // Generische, mandanten-gescopte Schreibschicht für REST-API + MCP.
 // Nutzt dieselben zod-Schemas wie die Server Actions (Feld-Whitelist, Enums,
@@ -25,9 +27,37 @@ type Def = {
   update?: z.ZodTypeAny; // fehlt → nicht aktualisierbar
   relations?: Record<string, string>; // Feld → Delegate für Tenant-Prüfung
   custom?: boolean; // Json-Feld `custom` erlaubt
-  special?: "lease" | "resolution" | "agenda" | "user";
+  special?: "lease" | "resolution" | "agenda" | "user" | "document";
   upsertBy?: string[]; // Felder für Upsert-Where (statt create)
 };
+
+const DOCUMENT_RELATIONS = { propertyId: "property", unitId: "unit", personId: "person" };
+
+/**
+ * Teil-Update eines Dokuments (#86): nur gesendete Felder ändern sich, `null` oder `""`
+ * löst eine Zuordnung. Die generische Normalisierung verwirft null, daher eigener Weg.
+ */
+export function documentPatch(body: Record<string, unknown>) {
+  const data: Record<string, string | null> = {};
+  if ("name" in body) {
+    const name = String(body.name ?? "").trim();
+    if (!name) throw new ApiWriteError("name: darf nicht leer sein", 400);
+    data.name = name;
+  }
+  if ("category" in body) {
+    const category = String(body.category ?? "");
+    if (!(S.DOCUMENT_CATEGORIES as readonly string[]).includes(category))
+      throw new ApiWriteError(`category: eines von ${S.DOCUMENT_CATEGORIES.join(", ")}`, 400);
+    data.category = category;
+  }
+  for (const k of Object.keys(DOCUMENT_RELATIONS)) {
+    if (k in body) data[k] = body[k] === null || body[k] === "" ? null : String(body[k]);
+  }
+  if (!Object.keys(data).length) throw new ApiWriteError("Keine änderbaren Felder (name, category, propertyId, unitId, personId)", 400);
+  return data;
+}
+
+const actorOf = (p: ApiPrincipal): SessionUser => ({ id: p.userId, tenantId: p.tenantId, homeTenantId: p.tenantId, superAdmin: false, role: p.role, name: p.name });
 
 // prisma[model] dynamisch. Prisma-Delegates sind camelCase des Modellnamens.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +103,8 @@ export const REGISTRY: Record<string, Def> = {
   template: { model: "template", create: S.templateSchema, update: S.templateSchema },
   "custom-field": { model: "customFieldDef", create: S.customFieldDefSchema },
   user: { model: "user", create: S.userCreateSchema, special: "user" },
+  // Anlegen nur über die Operation upload_document (ohne Datei kein Datensatz), hier umhängen + löschen (#86)
+  document: { model: "document", create: S.documentEditSchema, update: S.documentEditSchema, relations: DOCUMENT_RELATIONS, special: "document" },
 };
 
 export const ENTITIES = Object.keys(REGISTRY);
@@ -127,6 +159,7 @@ export async function apiCreate(p: ApiPrincipal, entity: string, body: Record<st
   const def = REGISTRY[entity];
   if (!def) throw new ApiWriteError(`Unbekannte Entität: ${entity}`, 404);
   requireWrite(p);
+  if (def.special === "document") throw new ApiWriteError("Dokumente über die Operation upload_document anlegen", 405);
   const { out, customData } = normalize(body, !!def.custom);
   const data = parse(def.create, out);
   await checkRelations(p.tenantId, def.relations, data);
@@ -188,6 +221,14 @@ export async function apiUpdate(p: ApiPrincipal, entity: string, id: string, bod
   if (!def) throw new ApiWriteError(`Unbekannte Entität: ${entity}`, 404);
   if (!def.update) throw new ApiWriteError(`${entity} ist nicht aktualisierbar`, 405);
   requireWrite(p);
+  if (def.special === "document") {
+    const data = documentPatch(body ?? {});
+    await checkRelations(p.tenantId, def.relations, data);
+    const res = await db.document.updateMany({ where: { id, tenantId: p.tenantId }, data });
+    if (res.count === 0) throw new ApiWriteError("Nicht gefunden", 404);
+    await audit(actorOf(p), "UPDATE", "Document", id, `API: ${Object.keys(data).join(", ")}`);
+    return { id, updated: res.count };
+  }
   const { out, customData } = normalize(body, !!def.custom);
   const data = parse(def.update, out);
   await checkRelations(p.tenantId, def.relations, data);
@@ -210,6 +251,16 @@ export async function apiDelete(p: ApiPrincipal, entity: string, id: string) {
     const actor: SessionUser = { id: p.userId, tenantId: p.tenantId, homeTenantId: p.tenantId, superAdmin: false, role: p.role };
     if (!canDeleteUser(actor, target.role, target.id)) throw new ApiWriteError("Löschen nicht erlaubt", 403);
     await db.user.delete({ where: { id: target.id } });
+    return { id, deleted: 1 };
+  }
+
+  if (def.special === "document") {
+    // wie in der Oberfläche hart: Datei im Storage und Datensatz
+    const doc = await db.document.findFirst({ where: { id, tenantId: p.tenantId }, select: { id: true, name: true, storageKey: true } });
+    if (!doc) throw new ApiWriteError("Nicht gefunden", 404);
+    await deleteFile(doc.storageKey);
+    await db.document.delete({ where: { id: doc.id } });
+    await audit(actorOf(p), "DELETE", "Document", id, `API: ${doc.name}`);
     return { id, deleted: 1 };
   }
 

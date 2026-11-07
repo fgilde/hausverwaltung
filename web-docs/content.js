@@ -528,6 +528,7 @@ api: {
     <ul>
       <li>Basis <code>/api/v1</code> — Lesen und Schreiben über alle Module (Objekte, Einheiten, Verträge, Finanzen, Versammlungen, Beschlüsse, Dokumente, WEG, Versicherung, Grundsteuer …).</li>
       <li>Operationen (Sollstellungslauf, Mahnlauf, Mietanpassung anwenden, Bank-Import, E-Mail senden, Dokument-Upload).</li>
+      <li>Dokumente: anlegen über die Operation Dokument-Upload, umhängen und umbenennen per <code>PATCH /api/v1/records/document/{id}</code> (<code>null</code> löst eine Zuordnung), löschen per <code>DELETE</code> (Datei wird mit gelöscht).</li>
       <li>Interaktive Referenz (Scalar) unter <code>/api-reference</code>, OpenAPI unter <code>/api/v1/openapi.json</code>.</li>
     </ul>
     <h3>MCP-Server</h3>
@@ -543,6 +544,7 @@ api: {
     <ul>
       <li>Base <code>/api/v1</code> — read and write across all modules (properties, units, leases, finances, meetings, resolutions, documents, HOA, insurance, property tax …).</li>
       <li>Operations (charge run, dunning run, apply rent adjustment, bank import, send email, upload document).</li>
+      <li>Documents: create via the upload operation, reassign and rename via <code>PATCH /api/v1/records/document/{id}</code> (<code>null</code> removes a link), delete via <code>DELETE</code> (the file is deleted too).</li>
       <li>Interactive reference (Scalar) at <code>/api-reference</code>, OpenAPI at <code>/api/v1/openapi.json</code>.</li>
     </ul>
     <h3>MCP server</h3>

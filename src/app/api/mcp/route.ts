@@ -193,13 +193,13 @@ const TOOLS: Tool[] = [
   },
   {
     name: "update_record",
-    description: "Datensatz ändern. entity + id + data (nur zu ändernde Felder). Nur bei aktualisierbaren Entitäten (siehe list_entities.writable).",
+    description: "Datensatz ändern. entity + id + data (nur zu ändernde Felder). Nur bei aktualisierbaren Entitäten (siehe list_entities.writable). Dokumente (entity document): name, category, propertyId, unitId, personId; null oder \"\" löst eine Zuordnung.",
     inputSchema: obj({ entity: entityEnum, id: str, data: rec }, ["entity", "id", "data"]),
     run: (p, a) => apiUpdate(p, String(a.entity), String(a.id), (a.data as Record<string, unknown>) ?? {}),
   },
   {
     name: "delete_record",
-    description: "Datensatz löschen. entity + id. Mandanten-gescopt.",
+    description: "Datensatz löschen. entity + id. Mandanten-gescopt. Bei entity document wird auch die Datei gelöscht (endgültig).",
     inputSchema: obj({ entity: entityEnum, id: str }, ["entity", "id"]),
     run: (p, a) => apiDelete(p, String(a.entity), String(a.id)),
   },

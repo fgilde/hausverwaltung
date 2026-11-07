@@ -105,6 +105,8 @@ const spec = {
       patch: {
         tags: ["Schreiben"],
         summary: "Datensatz ändern (generisch)",
+        description:
+          "Nur gesendete Felder ändern sich. Dokumente (entity document): name, category, propertyId, unitId, personId; null oder \"\" löst eine Zuordnung. Dokumente werden über die Operation upload_document angelegt.",
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: "entity", in: "path", required: true, schema: { type: "string" } },
@@ -116,6 +118,7 @@ const spec = {
       delete: {
         tags: ["Schreiben"],
         summary: "Datensatz löschen (generisch)",
+        description: "Bei entity document werden Datensatz und Datei endgültig gelöscht.",
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: "entity", in: "path", required: true, schema: { type: "string" } },
