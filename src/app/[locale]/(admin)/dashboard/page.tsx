@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 import {
   Building2,
   DoorOpen,
@@ -67,7 +68,7 @@ export default async function DashboardPage() {
     }),
     prisma.lease.findMany({
       where: { tenantId, startDate: { lte: now }, OR: [{ endDate: null }, { endDate: { gte: now } }] },
-      include: { components: { select: { amount: true } } },
+      include: { components: { select: { type: true, amount: true, effectiveDate: true } } },
     }),
     prisma.charge.findMany({ where: { tenantId }, include: { payments: { select: { amount: true } } } }),
     prisma.ticket.count({ where: { tenantId, status: { not: "ERLEDIGT" } } }),
@@ -86,7 +87,7 @@ export default async function DashboardPage() {
   const rate = totalUnits ? Math.round((occupied / totalUnits) * 100) : 0;
 
   const monthlyRent = leases.reduce(
-    (a, l) => a + Number(l.rentCold) + l.components.reduce((s, c) => s + Number(c.amount), 0),
+    (a, l) => a + Number(l.rentCold) + recurringComponentAmountAt(l.components, now),
     0,
   );
   let totalOpen = 0;

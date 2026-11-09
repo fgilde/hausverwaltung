@@ -152,6 +152,7 @@ export const rentComponentSchema = z.object({
   leaseId: z.string().min(1),
   type: z.enum(["NEBENKOSTEN", "HEIZKOSTEN", "STELLPLATZ", "MODERNISIERUNG", "SONSTIGES"]),
   amount: z.coerce.number().nonnegative(),
+  effectiveDate: optionalDate,
   note: optionalStr,
 });
 

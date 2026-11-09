@@ -516,8 +516,9 @@ model RentComponent {
   leaseId  String
   lease    Lease             @relation(fields: [leaseId], references: [id], onDelete: Cascade)
   type     RentComponentType
-  amount   Decimal           @db.Decimal(10, 2)
-  note     String?
+  amount       Decimal           @db.Decimal(10, 2)
+  effectiveDate DateTime?        // Ab welchem Kalendermonat dieser Wert gilt; null = seit Vertragsbeginn
+  note         String?
 
   @@index([tenantId])
   @@index([leaseId])

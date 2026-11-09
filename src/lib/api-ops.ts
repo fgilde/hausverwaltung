@@ -7,6 +7,7 @@ import { deliverEmail } from "@/server/outbox";
 import { parseCamt053 } from "@/lib/adapters/bankImport";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 
 // Dedizierte Operationen (kein reines CRUD) für REST-API + MCP.
 // Fachlogik gespiegelt aus den Server Actions, aber Bearer-Auth statt Session.
@@ -85,12 +86,12 @@ export const OPERATIONS: Record<string, Op> = {
       const due = new Date(Date.UTC(y, m - 1, 3));
       const leases = await prisma.lease.findMany({
         where: { tenantId: p.tenantId, startDate: { lte: last }, OR: [{ endDate: null }, { endDate: { gte: first } }] },
-        include: { components: { select: { amount: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
+        include: { components: { select: { type: true, amount: true, effectiveDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
       });
       let created = 0;
       for (const l of leases) {
         if (l.charges.length > 0) continue;
-        const warm = Number(l.rentCold) + l.components.reduce((x, c) => x + Number(c.amount), 0);
+        const warm = Number(l.rentCold) + recurringComponentAmountAt(l.components, first);
         await prisma.charge.create({ data: { tenantId: p.tenantId, leaseId: l.id, type: "MIETE", period: first, dueDate: due, amount: warm } });
         created++;
       }
