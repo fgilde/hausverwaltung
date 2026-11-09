@@ -127,8 +127,14 @@ export async function createComponent(_p: ActionState, fd: FormData): Promise<Ac
   const user = await requireWriter();
   const r = rentComponentSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
-  if (!(await assertLease(user.tenantId, r.data.leaseId))) return fail("Vertrag nicht gefunden");
-  await prisma.rentComponent.create({ data: { ...r.data, tenantId: user.tenantId } });
+  const lease = await prisma.lease.findFirst({
+    where: { id: r.data.leaseId, tenantId: user.tenantId },
+    select: { id: true, startDate: true },
+  });
+  if (!lease) return fail("Vertrag nicht gefunden");
+  await prisma.rentComponent.create({
+    data: { ...r.data, effectiveDate: r.data.effectiveDate ?? lease.startDate, tenantId: user.tenantId },
+  });
   return done();
 }
 

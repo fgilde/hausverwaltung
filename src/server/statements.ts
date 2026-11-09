@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { buildStatement, monthsActiveInYear, personSlices, type UnitInput, type CostInput, type StatementItem } from "@/lib/allocation/statement";
 import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
+import { prepaymentForLeaseYear } from "@/lib/rent-components";
 
 /** Heiz-/Warmwasserverbrauch einer Einheit im Jahr aus den Zählerständen (Ablesedifferenz). */
 export function meterConsumption(meters: { readings: { value: unknown; date: Date }[] }[]): number {
@@ -82,11 +83,6 @@ export async function computeStatement(
     }),
   ]);
 
-  const prepaymentMonthlyOf = (lease: (typeof dbUnits)[number]["leases"][number]) =>
-    lease.components
-      .filter((c) => c.type === "NEBENKOSTEN" || c.type === "HEIZKOSTEN")
-      .reduce((a, c) => a + Number(c.amount), 0);
-
   const inputs: UnitInput[] = dbUnits.map((u) => {
     const consumption = meterConsumption(u.meters);
     return {
@@ -100,7 +96,11 @@ export async function computeStatement(
       consumption,
       leases: u.leases.map((l) => {
         const months = monthsActiveInYear(l.startDate, l.endDate, year);
-        return { id: l.id, monthsActive: months, prepayment: prepaymentMonthlyOf(l) * months };
+        return {
+          id: l.id,
+          monthsActive: months,
+          prepayment: prepaymentForLeaseYear(l.components, l.startDate, l.endDate, year),
+        };
       }),
     };
   });

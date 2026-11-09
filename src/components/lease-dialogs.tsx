@@ -156,6 +156,7 @@ export async function ComponentDialog({ leaseId }: { leaseId: string }) {
         ])}
       />
       <TextField name="amount" label={t("fields.value")} type="number" step="0.01" />
+      <TextField name="effectiveDate" label={t("rentComponent.effectiveDate")} type="date" />
       <TextField name="note" label={t("rentComponent.note")} required={false} />
     </CrudDialog>
   );

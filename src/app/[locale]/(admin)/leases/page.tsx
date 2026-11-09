@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { Download } from "lucide-react";
@@ -32,7 +33,7 @@ export default async function LeasesPage() {
       include: {
         unit: { include: { building: { include: { property: true } } } },
         renters: { include: { person: true } },
-        components: { select: { amount: true } },
+        components: { select: { type: true, amount: true, effectiveDate: true } },
       },
       orderBy: { startDate: "desc" },
     }),
@@ -65,7 +66,7 @@ export default async function LeasesPage() {
     return { key: "active", variant: "secondary" as const };
   };
   const warm = (l: (typeof leases)[number]) =>
-    Number(l.rentCold) + l.components.reduce((a, c) => a + Number(c.amount), 0);
+    Number(l.rentCold) + recurringComponentAmountAt(l.components, now);
 
   return (
     <div className="space-y-6">

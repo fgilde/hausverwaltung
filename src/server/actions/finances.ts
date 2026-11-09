@@ -1,5 +1,7 @@
 "use server";
 
+import { recurringComponentAmountAt } from "@/lib/rent-components";
+
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
@@ -89,13 +91,13 @@ export async function generateCharges(_p: ActionState, fd: FormData): Promise<Ac
       startDate: { lte: last },
       OR: [{ endDate: null }, { endDate: { gte: first } }],
     },
-    include: { components: { select: { amount: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
+    include: { components: { select: { type: true, amount: true, effectiveDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
   });
 
   let created = 0;
   for (const l of leases) {
     if (l.charges.length > 0) continue; // schon vorhanden
-    const warm = Number(l.rentCold) + l.components.reduce((a, c) => a + Number(c.amount), 0);
+    const warm = Number(l.rentCold) + recurringComponentAmountAt(l.components, first);
     await prisma.charge.create({
       data: {
         tenantId: user.tenantId,

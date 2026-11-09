@@ -460,7 +460,8 @@
     "title": "Componentes do aluguel",
     "new": "Adicionar componente",
     "empty": "Apenas aluguel base, sem componentes adicionais.",
-    "note": "Observação"
+    "note": "Observação",
+    "effectiveDate": "Vigente a partir de"
   },
   "adjustment": {
     "title": "Reajustes de aluguel",

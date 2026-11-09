@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
 import { toCsv, csvResponse } from "@/lib/csv";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 
 export async function GET() {
   const session = await auth();
@@ -11,12 +12,12 @@ export async function GET() {
     where: { tenantId: (await actingTenantId(session.user)) },
     include: {
       person: true,
-      lease: { include: { unit: { include: { building: { include: { property: true } } } }, components: { select: { amount: true } } } },
+      lease: { include: { unit: { include: { building: { include: { property: true } } } }, components: { select: { type: true, amount: true, effectiveDate: true } } } },
     },
   });
 
   const rows = renters.map((r) => {
-    const warm = Number(r.lease.rentCold) + r.lease.components.reduce((a, c) => a + Number(c.amount), 0);
+    const warm = Number(r.lease.rentCold) + recurringComponentAmountAt(r.lease.components, new Date());
     return [
       `${r.person.firstName} ${r.person.lastName}`,
       r.person.email ?? "",
