@@ -1,5 +1,6 @@
 import { ArrowLeft, Percent } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -69,7 +70,7 @@ export default async function PropertyDetailPage({
       startDate: { lte: now },
       OR: [{ endDate: null }, { endDate: { gte: now } }],
     },
-    include: { components: { select: { amount: true } } },
+    include: { components: { select: { type: true, amount: true, effectiveDate: true } } },
   });
   const [customDefs, unitDefs] = await Promise.all([
     prisma.customFieldDef.findMany({
@@ -87,7 +88,7 @@ export default async function PropertyDetailPage({
 
   const unitCount = property.buildings.reduce((a, b) => a + b.units.length, 0);
   const monthlyRentSum = activeLeases.reduce(
-    (a, l) => a + Number(l.rentCold) + l.components.reduce((s, c) => s + Number(c.amount), 0),
+    (a, l) => a + Number(l.rentCold) + recurringComponentAmountAt(l.components, now),
     0,
   );
   const mgmtFee = computeMgmtFee(

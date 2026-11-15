@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { money, date } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { depositInterest } from "@/lib/deposit";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +51,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
     include: {
       unit: { include: { building: { include: { property: true } } } },
       renters: { include: { person: true } },
-      components: { orderBy: { type: "asc" } },
+      components: { orderBy: [{ type: "asc" }, { effectiveDate: "asc" }] },
       adjustments: { orderBy: { effectiveDate: "asc" } },
       deposit: { include: { account: true } },
     },
@@ -85,7 +86,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
   }));
   const accountOpts = kautionAccounts.map((a) => ({ value: a.id, label: a.name }));
 
-  const warm = Number(lease.rentCold) + lease.components.reduce((a, c) => a + Number(c.amount), 0);
+  const warm = Number(lease.rentCold) + recurringComponentAmountAt(lease.components, new Date());
 
   return (
     <div className="space-y-6">
@@ -245,6 +246,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                   <TableCell>
                     {t(`rentComponentType.${c.type}`)}
                     {c.note ? ` · ${c.note}` : ""}
+                    {c.effectiveDate ? ` · ${date(c.effectiveDate, df)}` : ""}
                   </TableCell>
                   <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
                   <TableCell>

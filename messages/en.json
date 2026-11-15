@@ -452,7 +452,8 @@
     "title": "Rent components",
     "new": "Add component",
     "empty": "Base rent only, no extra components.",
-    "note": "Note"
+    "note": "Note",
+    "effectiveDate": "Effective from"
   },
   "adjustment": {
     "title": "Rent adjustments",

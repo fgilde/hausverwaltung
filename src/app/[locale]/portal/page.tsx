@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, TextAreaField } from "@/components/form-fields";
 import { reportIssue } from "@/server/actions/portal";
+import { recurringComponentAmountAt } from "@/lib/rent-components";
 
 export default async function PortalPage() {
   const user = await requireUser();
@@ -88,7 +89,7 @@ export default async function PortalPage() {
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
   const warm = (l: (typeof renters)[number]["lease"]) =>
-    Number(l.rentCold) + l.components.reduce((a, c) => a + Number(c.amount), 0);
+    Number(l.rentCold) + recurringComponentAmountAt(l.components, now);
 
   return (
     <div className="space-y-6">

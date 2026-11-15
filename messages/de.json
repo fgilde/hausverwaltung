@@ -452,7 +452,8 @@
     "title": "Miet-Bestandteile",
     "new": "Bestandteil hinzufügen",
     "empty": "Nur Kaltmiete, keine weiteren Bestandteile.",
-    "note": "Notiz"
+    "note": "Notiz",
+    "effectiveDate": "Gültig ab"
   },
   "adjustment": {
     "title": "Mietanpassungen",
