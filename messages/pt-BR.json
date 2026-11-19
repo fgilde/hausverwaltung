@@ -795,6 +795,8 @@
     "statusOVERDUE": "Vencido",
     "importExport": "Importar / Exportar",
     "importCamt": "Importar camt.053",
+    "camtReviewHint": "Selecione a conta do extrato. Confira os recebimentos importados em Movimentações e vincule-os quando necessário.",
+    "unallocatedReceipt": "Não atribuído",
     "datevExport": "Exportar DATEV",
     "sepaExport": "Débito direto SEPA (pain.008)",
     "openItemsCsv": "Itens em aberto (CSV)",

@@ -13,7 +13,7 @@ export async function bankConnector(tenantId: string): Promise<eb.Connector | nu
   return { applicationId: c.applicationId, privateKeyPem: decryptSecret(c.privateKeyEnc), baseUrl: c.baseUrl ?? undefined };
 }
 
-/** Transaktionen einer Verknüpfung abrufen, als Zahlungen buchen, offene Posten zuordnen. */
+/** Transaktionen einer Verknüpfung abrufen, zur manuellen Prüfung buchen. */
 export async function syncLink(tenantId: string, linkId: string, conn: eb.Connector) {
   const link = await prisma.bankLink.findFirst({ where: { id: linkId, tenantId } });
   if (!link) throw new Error("Verknüpfung nicht gefunden");
@@ -21,15 +21,11 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
   const from = link.lastSyncAt ? new Date(link.lastSyncAt.getTime() - 14 * 86_400_000) : new Date(Date.now() - 90 * 86_400_000);
   const raw = await eb.getTransactions(conn, link.accountUid, from.toISOString().slice(0, 10));
 
-  // Offene Sollstellungen für Auto-Zuordnung (wie camt.053-Import).
-  const charges = await prisma.charge.findMany({ where: { tenantId }, include: { payments: { select: { amount: true } } } });
-  const openMap = charges.map((c) => ({ id: c.id, open: Number(c.amount) - c.payments.reduce((a, p) => a + Number(p.amount), 0) }));
-
   let imported = 0;
-  let matched = 0;
   for (const t of raw) {
     const m = eb.mapTransaction(t);
     if (!m.externalId || !m.date || m.amount <= 0) continue;
+    const externalId = `${m.externalId}:${link.accountId}`;
     // Dedup: bereits importierte externe Transaktion überspringen (Gegenseite ggf. nachtragen, #60).
     // Vor #73 importierte Zahlungen tragen nur die Bank-Referenz → zusätzlich über Datum+Betrag abgleichen.
     const known = await prisma.payment.findFirst({
@@ -37,6 +33,7 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
         tenantId,
         accountId: link.accountId,
         OR: [
+          { externalId },
           { externalId: m.externalId },
           ...(m.legacyId ? [{ externalId: m.legacyId, date: new Date(m.date), amount: m.amount }] : []),
         ],
@@ -49,23 +46,15 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
       }
       continue;
     }
-    let chargeId: string | null = null;
-    if (m.direction === "EINGANG") {
-      const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - m.amount) < 0.005);
-      if (hit) {
-        chargeId = hit.id;
-        hit.open = 0;
-        matched++;
-      }
-    }
-    await prisma.payment.create({
+    const { count } = await prisma.payment.createMany({
       data: {
-        tenantId, accountId: link.accountId, chargeId, date: new Date(m.date), amount: m.amount,
-        direction: m.direction, reference: m.reference, externalId: m.externalId,
+        tenantId, accountId: link.accountId, date: new Date(m.date), amount: m.amount,
+        direction: m.direction, reference: m.reference, externalId,
         counterparty: m.counterparty, counterpartyIban: m.counterpartyIban,
       },
+      skipDuplicates: true,
     });
-    imported++;
+    imported += count;
   }
   await prisma.bankLink.update({ where: { id: link.id }, data: { lastSyncAt: new Date() } });
   // Kontostand laut Bank (#57); manche Banken liefern keine Salden, dann bleibt der alte Wert.
@@ -80,7 +69,7 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
   } catch (e) {
     console.warn(`[bank] Kontostand ${link.id}: ${e instanceof Error ? e.message : e}`);
   }
-  return { imported, matched };
+  return { imported, matched: 0 };
 }
 
 /** Alle verbundenen Konten eines Mandanten synchronisieren; Fehler je Konto sammeln. */

@@ -795,6 +795,8 @@
     "statusOVERDUE": "Überfällig",
     "importExport": "Import / Export",
     "importCamt": "camt.053 importieren",
+    "camtReviewHint": "Wählen Sie das Konto des Auszugs. Prüfen Sie importierte Eingänge unter Kontobewegungen und ordnen Sie sie bei Bedarf zu.",
+    "unallocatedReceipt": "Nicht zugeordnet",
     "datevExport": "DATEV-Export",
     "sepaExport": "SEPA-Lastschrift (pain.008)",
     "openItemsCsv": "Offene Posten (CSV)",

@@ -11,7 +11,7 @@ import {
   generateSchema,
   type ActionState,
 } from "@/lib/schemas";
-import { parseCamt053 } from "@/lib/adapters/bankImport";
+import { CamtImportError, importCamtStatement } from "@/lib/camt-import";
 import { ensureDefaultAccounts } from "@/lib/accounts";
 import { generateAreaCharges } from "@/lib/api-ops";
 import { audit } from "@/lib/audit";
@@ -139,16 +139,26 @@ export async function updatePaymentDetails(_p: ActionState, fd: FormData): Promi
   const note = String(fd.get("note") ?? "").trim() || null;
   const documentIds = [...new Set(fd.getAll("documentIds").map(String).filter(Boolean))];
 
-  const payment = await prisma.payment.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true } });
+  const payment = await prisma.payment.findFirst({
+    where: { id, tenantId: user.tenantId },
+    select: { id: true, direction: true },
+  });
   if (!payment) return fail("Buchung nicht gefunden");
   if (documentIds.length) {
     const cnt = await prisma.document.count({ where: { tenantId: user.tenantId, id: { in: documentIds } } });
     if (cnt !== documentIds.length) return fail("Dokument nicht gefunden");
   }
 
+  const chargeId = fd.has("chargeId") ? String(fd.get("chargeId") ?? "").trim() || null : undefined;
+  if (chargeId) {
+    if (payment.direction !== "EINGANG") return fail("Nur Eingänge können Sollstellungen zugeordnet werden.");
+    const charge = await prisma.charge.findFirst({ where: { id: chargeId, tenantId: user.tenantId }, select: { id: true } });
+    if (!charge) return fail("Sollstellung nicht gefunden");
+  }
+
   await prisma.payment.update({
     where: { id: payment.id },
-    data: { note, documents: { set: documentIds.map((docId) => ({ id: docId })) } },
+    data: { note, chargeId, documents: { set: documentIds.map((docId) => ({ id: docId })) } },
   });
   return done();
 }
@@ -169,58 +179,19 @@ export async function deleteMandate(fd: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
-// --- camt.053 Bankimport mit naivem Auto-Matching ---
+// --- camt.053 Bankimport ---
 export async function importCamt(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const file = fd.get("file");
   if (!(file instanceof File) || file.size === 0) return fail("Keine Datei");
-  const accountId = String(fd.get("accountId") ?? "") || null;
-
-  let entries;
   try {
-    entries = parseCamt053(await file.text());
-  } catch {
-    return fail("camt.053 konnte nicht gelesen werden");
+    const accountId = String(fd.get("accountId") ?? "").trim();
+    await importCamtStatement(user.tenantId, accountId, await file.text());
+  } catch (e) {
+    if (e instanceof CamtImportError) return fail(e.message);
+    throw e;
   }
-  if (entries.length === 0) return fail("Keine Buchungen in der Datei");
-
-  // offene Beträge je Sollstellung für Auto-Matching
-  const charges = await prisma.charge.findMany({
-    where: { tenantId: user.tenantId },
-    include: { payments: { select: { amount: true } } },
-  });
-  const openMap = charges.map((c) => ({
-    id: c.id,
-    open: Number(c.amount) - c.payments.reduce((a, p) => a + Number(p.amount), 0),
-  }));
-
-  let matched = 0;
-  for (const e of entries) {
-    let chargeId: string | null = null;
-    if (e.direction === "EINGANG") {
-      const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - e.amount) < 0.005);
-      if (hit) {
-        chargeId = hit.id;
-        hit.open = 0; // verbraucht
-        matched++;
-      }
-    }
-    await prisma.payment.create({
-      data: {
-        tenantId: user.tenantId,
-        accountId,
-        chargeId,
-        date: new Date(e.date),
-        amount: e.amount,
-        direction: e.direction,
-        reference: e.reference,
-        counterparty: e.counterparty,
-        counterpartyIban: e.counterpartyIban,
-      },
-    });
-  }
-  revalidatePath("/", "layout");
-  return { ok: true, error: `${entries.length} Buchungen, ${matched} zugeordnet` };
+  return done();
 }
 
 // --- Mahnung: nächste Stufe für überfällige Sollstellung ---

@@ -51,4 +51,10 @@ describe("parseCamt053", () => {
   it("verkraftet leeres Dokument", () => {
     expect(parseCamt053("<Document></Document>")).toEqual([]);
   });
+
+  it("lehnt beschädigtes XML und Buchungen ohne Datum ab", () => {
+    expect(() => parseCamt053("<Document><Stmt></Document>")).toThrow();
+    const noDates = SAMPLE.replace(/<(?:BookgDt|ValDt)>.*?<\/(?:BookgDt|ValDt)>/g, "");
+    expect(() => parseCamt053(noDates)).toThrow("Ungültiges Buchungsdatum");
+  });
 });

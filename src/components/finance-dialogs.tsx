@@ -168,6 +168,7 @@ export async function CamtDialog({ accounts }: { accounts: Opt[] }) {
       action={importCamt}
       submitLabel={t("finances.importCamt")}
     >
+      <p className="text-sm text-muted-foreground">{t("finances.camtReviewHint")}</p>
       <TextField name="file" label="camt.053 (.xml)" type="file" />
       <SelectField
         name="accountId"
