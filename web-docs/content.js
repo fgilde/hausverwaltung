@@ -239,7 +239,7 @@ finance: {
     <h3>Zahlungen &amp; Bank-Import</h3>
     <ul>
       <li>Zahlungen manuell einer Sollstellung zuordnen.</li>
-      <li><strong>camt.053</strong>-Import: Kontoauszug einlesen, Eingänge werden offenen Posten automatisch zugeordnet (Betragsabgleich).</li>
+      <li><strong>camt.053</strong>-Import: Konto für den Auszug wählen. Bereits importierte Einträge werden übersprungen. Eingänge bleiben zur manuellen Zuordnung unter <em>Kontobewegungen</em> sichtbar.</li>
     </ul>
     <h3>Aufbau</h3>
     <p>Die Finanzen sind in Reiter gegliedert: <strong>Sollstellungen</strong>, <strong>Kontobewegungen</strong>, <strong>Konten</strong>, <strong>SEPA-Mandate</strong> und <strong>Import/Export</strong>. Lange Listen werden seitenweise angezeigt (50 je Seite); die offenen Posten gesamt stehen neben den Reitern.</p>
@@ -261,7 +261,7 @@ finance: {
     <h3>Payments &amp; bank import</h3>
     <ul>
       <li>Assign payments to a charge manually.</li>
-      <li><strong>camt.053</strong> import: read a bank statement; incoming payments are auto-matched to open items (by amount).</li>
+      <li><strong>camt.053</strong> import: select the statement account. Previously imported entries are skipped. Incoming payments are available under <em>Transactions</em> for manual review.</li>
     </ul>
     <h3>Layout</h3>
     <p>Finances are organised in tabs: <strong>Charges</strong>, <strong>Transactions</strong>, <strong>Accounts</strong>, <strong>SEPA mandates</strong> and <strong>Import/Export</strong>. Long lists are paginated (50 per page); the total of open items is shown next to the tabs.</p>
@@ -289,7 +289,7 @@ bank: {
     <ol>
       <li><em>Finanzen → Konten → „Konto verbinden"</em> → Land wählen, Banken laden, Bank auswählen → Weiterleitung zur Bank für die Zustimmung (Consent).</li>
       <li>Nach der Rückkehr werden die Bankkonten als HaVeWa-Konten angelegt und verknüpft; sie stehen zusammen mit den manuellen Konten im Reiter <em>Konten</em> (Kennzeichen „verbunden"). Der Papierkorb trennt bei verbundenen Konten nur die Verbindung, Konto und Buchungen bleiben.</li>
-      <li><em>Import/Export → „Konten synchronisieren"</em> holt die Umsätze aller verbundenen Konten, bucht sie als Zahlungen und ordnet Eingänge automatisch offenen Posten zu (wie beim camt.053-Import). Doppelte werden über die Transaktions-ID vermieden. Dabei wird auch der <strong>aktuelle Kontostand</strong> laut Bank abgerufen und im Reiter <em>Konten</em> mit Datum angezeigt.</li>
+      <li><em>Import/Export → „Konten synchronisieren"</em> holt die Umsätze aller verbundenen Konten, bucht sie als Zahlungen und lässt Eingänge zur manuellen Zuordnung offen. Wiederholte Abrufe werden über die Transaktions-ID erkannt. Dabei wird auch der <strong>aktuelle Kontostand</strong> laut Bank abgerufen und im Reiter <em>Konten</em> mit Datum angezeigt.</li>
       <li>Optional unter <em>Einstellungen → Bank</em>: <strong>„Automatisch synchronisieren (täglich)"</strong>. Die Konten werden dann einmal pro Tag im Hintergrund abgerufen; kürzere Intervalle gibt es bewusst nicht, weil der Anbieter die Abrufe pro Tag begrenzt. Manuell synchronisieren geht weiterhin jederzeit.</li>
     </ol>
     <div class="tip">Ohne Connector bleibt alles wie gehabt: Kontoauszüge als <strong>camt.053</strong> importieren (Finanzen → Import/Export).</div>
@@ -307,7 +307,7 @@ bank: {
     <ol>
       <li><em>Finances → Accounts → "Connect account"</em> → pick country, load banks, choose a bank → redirect to the bank for consent.</li>
       <li>On return the bank accounts are created as HaVeWa accounts and linked; they appear with the manual accounts in the <em>Accounts</em> tab (marked "connected"). For connected accounts the trash icon only disconnects; account and transactions are kept.</li>
-      <li><em>Import/Export → "Sync accounts"</em> fetches the transactions of all connected accounts, books them as payments and auto-matches incoming ones to open items (like the camt.053 import). Duplicates are avoided via the transaction id. The <strong>current account balance</strong> reported by the bank is fetched as well and shown in the <em>Accounts</em> tab with its date.</li>
+      <li><em>Import/Export → "Sync accounts"</em> fetches the transactions of all connected accounts, books them as payments and leaves incoming ones for manual review. Repeated fetches are deduplicated using the transaction ID. The <strong>current account balance</strong> reported by the bank is fetched as well and shown in the <em>Accounts</em> tab with its date.</li>
       <li>Optionally under <em>Settings → Bank</em>: <strong>"Sync automatically (daily)"</strong>. Accounts are then fetched once a day in the background; shorter intervals are intentionally not offered because the provider limits requests per day. Manual sync stays available at any time.</li>
     </ol>
     <div class="tip">Without a connector everything works as before: import bank statements as <strong>camt.053</strong> (Finances → Import/Export).</div>
@@ -569,7 +569,7 @@ io: {
     <ul>
       <li><strong>DATEV</strong>: Buchungsstapel im EXTF-Format (Format 700).</li>
       <li><strong>SEPA</strong>: Lastschriften als pain.008.</li>
-      <li><strong>camt.053</strong>: Kontoauszug importieren mit Auto-Zuordnung.</li>
+      <li><strong>camt.053</strong>: Kontoauszug importieren und Eingänge anschließend prüfen.</li>
     </ul>`,
   en: `
     <h2>Import &amp; export</h2>
@@ -584,7 +584,7 @@ io: {
     <ul>
       <li><strong>DATEV</strong>: posting batch in EXTF format (format 700).</li>
       <li><strong>SEPA</strong>: direct debits as pain.008.</li>
-      <li><strong>camt.053</strong>: import a bank statement with auto-matching.</li>
+      <li><strong>camt.053</strong>: import a bank statement and review incoming payments.</li>
     </ul>`
 },
 

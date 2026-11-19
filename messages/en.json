@@ -795,6 +795,8 @@
     "statusOVERDUE": "Overdue",
     "importExport": "Import / Export",
     "importCamt": "Import camt.053",
+    "camtReviewHint": "Select the statement account. Review imported receipts under Transactions and assign them where appropriate.",
+    "unallocatedReceipt": "Unassigned",
     "datevExport": "DATEV export",
     "sepaExport": "SEPA direct debit (pain.008)",
     "openItemsCsv": "Open items (CSV)",

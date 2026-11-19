@@ -193,9 +193,11 @@ user, there is no auto-provisioning. Redirect URI at the IdP:
 Under **Finances → Bank sync** an admin can store their own **Enable Banking**
 credentials (Application ID + private key, stored encrypted) — each self-hosted
 instance brings its own app. Connect a bank via consent, then sync: transactions
-are booked as payments and auto-matched to open items. Redirect URL to register at
-Enable Banking: `https://<DOMAIN>/api/banking/callback`. Without it, `camt.053`
-import still works offline. See the [docs](https://fgilde.github.io/hausverwaltung/docs/).
+are booked as payments. Review incoming payments in **Finances → Transactions**
+and link them to charges where appropriate. Redirect URL to register at Enable Banking:
+`https://<DOMAIN>/api/banking/callback`. Offline `camt.053` import requires a target
+account and skips entries already imported from the statement. See the
+[docs](https://fgilde.github.io/hausverwaltung/docs/).
 
 #### Multiple tenants (optional)
 

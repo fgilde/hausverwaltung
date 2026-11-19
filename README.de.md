@@ -150,9 +150,10 @@ beim IdP: `https://<DOMAIN>/api/auth/callback/oidc`.
 Unter **Finanzen → Bank-Sync** hinterlegt ein Admin eigene **Enable-Banking**-Zugangsdaten
 (Application ID + Private Key, verschlüsselt gespeichert) — jede Self-Hosting-Instanz
 bringt ihre eigene App mit. Bank per Consent verbinden, dann synchronisieren: Umsätze
-werden als Zahlungen gebucht und Eingänge automatisch offenen Posten zugeordnet.
-Redirect-URL für Enable Banking: `https://<DOMAIN>/api/banking/callback`. Ohne Connector
-funktioniert weiterhin der `camt.053`-Import offline. Siehe
+werden als Zahlungen gebucht. Unter **Finanzen → Kontobewegungen** können Sie
+Eingänge prüfen und bei Bedarf einer Sollstellung zuordnen. Redirect-URL für Enable
+Banking: `https://<DOMAIN>/api/banking/callback`. Der Offline-Import per `camt.053`
+erfordert ein Zielkonto und überspringt bereits aus dem Auszug importierte Buchungen. Siehe
 [Doku](https://fgilde.github.io/hausverwaltung/docs/).
 
 #### Mehrere Mandanten (optional)

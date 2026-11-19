@@ -4,7 +4,7 @@ import type { ApiPrincipal } from "@/lib/api-auth";
 import { ApiWriteError } from "@/lib/api-write";
 import { saveFile } from "@/lib/storage";
 import { deliverEmail } from "@/server/outbox";
-import { parseCamt053 } from "@/lib/adapters/bankImport";
+import { CamtImportError, importCamtStatement } from "@/lib/camt-import";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
 
@@ -185,35 +185,18 @@ export const OPERATIONS: Record<string, Op> = {
   },
 
   import_camt: {
-    description: "Bank-Import camt.053: XML-Kontoauszug einlesen, Buchungen anlegen und Eingänge automatisch offenen Sollstellungen zuordnen. xml = Dateiinhalt, accountId optional.",
-    params: { xml: "camt.053 XML-Inhalt", accountId: "optional: Zielkonto-ID" },
-    required: ["xml"],
+    description: "Bank-Import camt.053: Bereits importierte Buchungen überspringen und Eingänge zur Prüfung unzugeordnet lassen.",
+    params: { xml: "camt.053 XML-Inhalt", accountId: "Zielkonto-ID" },
+    required: ["xml", "accountId"],
     run: async (p, a) => {
       const xml = String(need(a, "xml"));
-      const accountId = s(a.accountId) ?? null;
-      if (accountId) {
-        const acc = await prisma.account.findFirst({ where: { id: accountId, tenantId: p.tenantId }, select: { id: true } });
-        if (!acc) throw new ApiWriteError("Konto nicht gefunden", 400);
-      }
-      let entries;
+      const accountId = String(need(a, "accountId")).trim();
       try {
-        entries = parseCamt053(xml);
-      } catch {
-        throw new ApiWriteError("camt.053 konnte nicht gelesen werden", 400);
+        return await importCamtStatement(p.tenantId, accountId, xml);
+      } catch (e) {
+        if (e instanceof CamtImportError) throw new ApiWriteError(e.message, 400);
+        throw e;
       }
-      if (entries.length === 0) throw new ApiWriteError("Keine Buchungen in der Datei", 400);
-      const charges = await prisma.charge.findMany({ where: { tenantId: p.tenantId }, include: { payments: { select: { amount: true } } } });
-      const openMap = charges.map((c) => ({ id: c.id, open: Number(c.amount) - c.payments.reduce((x, pay) => x + Number(pay.amount), 0) }));
-      let matched = 0;
-      for (const e of entries) {
-        let chargeId: string | null = null;
-        if (e.direction === "EINGANG") {
-          const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - e.amount) < 0.005);
-          if (hit) { chargeId = hit.id; hit.open = 0; matched++; }
-        }
-        await prisma.payment.create({ data: { tenantId: p.tenantId, accountId, chargeId, date: new Date(e.date), amount: e.amount, direction: e.direction, reference: e.reference, counterparty: e.counterparty, counterpartyIban: e.counterpartyIban } });
-      }
-      return { imported: entries.length, matched };
     },
   },
 

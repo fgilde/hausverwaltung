@@ -85,7 +85,13 @@ export default async function FinancesPage({
       include: {
         account: { select: { name: true } },
         // Mieter der Sollstellung als Gegenseite für manuell erfasste Zahlungen (#60)
-        charge: { select: { type: true, lease: { select: { renters: { select: { person: { select: { firstName: true, lastName: true } } } } } } } },
+        charge: {
+          select: {
+            type: true,
+            period: true,
+            lease: { select: { renters: { select: { person: { select: { firstName: true, lastName: true } } } } } },
+          },
+        },
         documents: { select: { id: true, name: true } },
       },
       orderBy: { date: "desc" },
@@ -145,6 +151,16 @@ export default async function FinancesPage({
     label: `${l.unit.building.property.name} · ${l.unit.label}`,
   }));
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
+  const chargeOpts = charges.map((c) => ({
+    value: c.id,
+    label: [
+      c.period.toISOString().slice(0, 7),
+      c.lease && `${c.lease.unit.building.property.name} · ${c.lease.unit.label}`,
+      t(`chargeType.${c.type}`),
+      money(Number(c.amount), locale),
+      c.description,
+    ].filter(Boolean).join(" · "),
+  }));
 
   const filterCls = "flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30";
   const statusVariant = (s: string) =>
@@ -406,6 +422,16 @@ export default async function FinancesPage({
                       title={p.reference || undefined}
                     >
                       {p.reference || (p.charge ? t(`chargeType.${p.charge.type}`) : "")}
+                      {p.direction === "EINGANG" && !p.chargeId && (
+                        <Badge variant="outline" className="mt-0.5 flex w-fit">
+                          {t("finances.unallocatedReceipt")}
+                        </Badge>
+                      )}
+                      {p.charge && p.reference && (
+                        <Badge variant="secondary" className="mt-0.5 flex w-fit">
+                          {t(`chargeType.${p.charge.type}`)} · {p.charge.period.toISOString().slice(0, 7)}
+                        </Badge>
+                      )}
                       {p.note ? <span className="mt-0.5 block text-xs italic">{p.note}</span> : null}
                     </TableCell>
                     <TableCell className={`text-right font-medium ${p.direction === "EINGANG" ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
@@ -434,8 +460,9 @@ export default async function FinancesPage({
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <PaymentEditDialog
-                          payment={{ id: p.id, note: p.note, documentIds: p.documents.map((d) => d.id) }}
+                          payment={{ id: p.id, note: p.note, documentIds: p.documents.map((d) => d.id), chargeId: p.chargeId }}
                           documents={allDocuments}
+                          charges={p.direction === "EINGANG" ? chargeOpts : undefined}
                         />
                         <DeleteButton action={deletePayment} id={p.id} />
                       </div>
