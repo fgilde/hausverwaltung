@@ -27,7 +27,7 @@ export default async function PrintWegPage({
 
   const subName = new Map(subcommunities.map((s) => [s.id, s.name]));
   const scopeLabel = (id: string | null) => (id ? (subName.get(id) ?? "—") : t("weg.wholeCommunity"));
-  const assetsTotal = reserves.reduce((a, x) => a + x.balance, 0);
+  const assetsTotal = reserves.reduce((a, x) => a + x.yearEndBalance, 0);
   const th = "py-1 text-left";
   const thr = "py-1 text-right";
 
@@ -119,13 +119,13 @@ export default async function PrintWegPage({
       <h2 className="mt-8 mb-2 font-bold">{t("weg.assets")}</h2>
       <table className="w-full border-collapse">
         <tbody>
-          {reserves.map(({ r, balance }) => (
+          {reserves.map(({ r, yearEndBalance }) => (
             <tr key={r.id} className="border-b border-neutral-300">
               <td className="py-1">
                 {r.name}
                 {subcommunities.length > 0 && ` (${scopeLabel(r.subcommunityId)})`}
               </td>
-              <td className="py-1 text-right">{money(balance, locale)}</td>
+              <td className="py-1 text-right">{money(yearEndBalance, locale)}</td>
             </tr>
           ))}
           <tr className="border-t-2 border-black font-semibold">

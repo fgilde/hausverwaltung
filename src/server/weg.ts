@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { AllocationMethod } from "@/lib/allocation";
-import { buildWegStatement, scopeUnits } from "@/lib/allocation/weg";
+import { buildWegStatement, reserveBalanceAtYearEnd, scopeUnits } from "@/lib/allocation/weg";
 import { meterConsumption } from "@/server/statements";
 
 /**
@@ -103,7 +103,14 @@ export async function computeWeg(tenantId: string, propertyId: string, year: num
     costs,
     actualTotal: sum(costs.map((c) => Number(c.amount))),
     scopes,
-    reserves: reserves.map((r) => ({ r, balance: sum(r.transactions.map((tx) => Number(tx.amount))) })),
+    reserves: reserves.map((r) => {
+      const transactions = r.transactions.map((tx) => ({ date: tx.date, amount: Number(tx.amount) }));
+      return {
+        r,
+        balance: sum(transactions.map((tx) => tx.amount)),
+        yearEndBalance: reserveBalanceAtYearEnd(transactions, year),
+      };
+    }),
   };
 }
 

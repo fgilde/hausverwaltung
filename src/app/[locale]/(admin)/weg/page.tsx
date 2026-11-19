@@ -65,7 +65,7 @@ export default async function WegPage({
   // Validierung: Summe der Einheiten-MEA gegen Soll des Objekts
   const meaTotalSoll = wegProps.find((p) => p.id === propertyId)?.meaTotal ?? 1000;
   const meaCheck = checkMeaTotal(units.map((u) => u.mea), meaTotalSoll);
-  const assetsTotal = reserves.reduce((a, x) => a + x.balance, 0);
+  const assetsTotal = reserves.reduce((a, x) => a + x.yearEndBalance, 0);
 
   const subName = new Map(subcommunities.map((s) => [s.id, s.name]));
   const scopeLabel = (id: string | null) => (id ? (subName.get(id) ?? "—") : t("weg.wholeCommunity"));
@@ -394,13 +394,13 @@ export default async function WegPage({
             <CardTitle className="text-base">{t("weg.assets")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {reserves.map(({ r, balance }) => (
+            {reserves.map(({ r, yearEndBalance }) => (
               <div key={r.id} className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
                   {r.name}
                   {subcommunities.length > 0 && ` (${scopeLabel(r.subcommunityId)})`}
                 </span>
-                <span>{money(balance, locale)}</span>
+                <span>{money(yearEndBalance, locale)}</span>
               </div>
             ))}
             <div className="flex justify-between border-t pt-2 font-semibold">

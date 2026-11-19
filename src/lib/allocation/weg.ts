@@ -47,6 +47,13 @@ export interface WegOwnerLine {
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
+export function reserveBalanceAtYearEnd(transactions: readonly { date: Date; amount: number }[], year: number): number {
+  const nextYear = Date.UTC(year + 1, 0, 1);
+  return round(transactions.reduce((balance, tx) => {
+    return tx.date.getTime() < nextYear ? balance + tx.amount : balance;
+  }, 0));
+}
+
 /** Einheiten eines Kreises: Gesamt-WEG (null) = alle, sonst nur die der UG. */
 export function scopeUnits<T extends { subcommunityId: string | null }>(units: T[], subcommunityId: string | null): T[] {
   return subcommunityId ? units.filter((u) => u.subcommunityId === subcommunityId) : units;
