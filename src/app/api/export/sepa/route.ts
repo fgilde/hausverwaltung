@@ -1,3 +1,4 @@
+import { supportsEuroExports } from "@/lib/currency";
 import { auth } from "@/auth";
 import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +13,10 @@ export async function GET() {
 
   const tenantId = (await actingTenantId(session.user));
   const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+
+  if (!tenant || !supportsEuroExports(tenant.currency)) {
+    return new Response("SEPA export is available only for EUR", { status: 403 });
+  }
 
   const mandates = await prisma.sepaMandate.findMany({
     where: { tenantId, active: true },

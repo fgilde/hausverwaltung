@@ -59,11 +59,12 @@ export async function askAssistantAction(_prev: AssistantState, fd: FormData): P
   const question = String(fd.get("question") ?? "").trim();
   if (!question) return { error: "Bitte eine Frage eingeben." };
 
-  const ctx = await buildContext(user.tenantId);
+  const portfolio = await buildContext(user.tenantId);
   const tenant = await prisma.tenant.findUnique({
     where: { id: user.tenantId },
-    select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true },
+    select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true, currency: true },
   });
+  const ctx = { ...portfolio, waehrung: tenant?.currency ?? "EUR" };
   const aiCfg = { provider: tenant?.aiProvider, baseUrl: tenant?.aiBaseUrl, apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
   const configured = isAiConfigured(aiCfg);
 
@@ -72,8 +73,8 @@ export async function askAssistantAction(_prev: AssistantState, fd: FormData): P
     const answer =
       `KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt). Kennzahlen zum Bestand:\n` +
       `• ${ctx.objekte} Objekte, ${ctx.einheiten} Einheiten (${ctx.vermietet} vermietet, ${ctx.leerstand} leer)\n` +
-      `• Sollmiete/Monat: ${ctx.sollmieteMonatlich} €\n` +
-      `• Offene Posten: ${ctx.offenePostenSumme} € (${ctx.ueberfaelligeForderungen} überfällig)\n` +
+      `• Sollmiete/Monat: ${money(ctx.sollmieteMonatlich, "de", ctx.waehrung)}\n` +
+      `• Offene Posten: ${money(ctx.offenePostenSumme, "de", ctx.waehrung)} (${ctx.ueberfaelligeForderungen} überfällig)\n` +
       `• ${ctx.offeneTickets} offene Tickets, ${ctx.faelligeWartungen} fällige Wartungen`;
     return { answer, configured: false };
   }
@@ -94,11 +95,12 @@ export async function explainStatement(_p: AssistantState, fd: FormData): Promis
   if (!propertyId) return { error: "Kein Objekt" };
 
   const st = await computeStatement(user.tenantId, propertyId, year);
-  const tenant = await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true } });
+  const tenant = await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { aiProvider: true, aiBaseUrl: true, aiApiKey: true, aiModel: true, currency: true } });
   const aiCfg = { provider: tenant?.aiProvider, baseUrl: tenant?.aiBaseUrl, apiKey: tenant?.aiApiKey, model: tenant?.aiModel };
 
   const ctx = {
     objekt: st.property?.name,
+    waehrung: tenant?.currency ?? "EUR",
     jahr: year,
     summeUmlagefaehig: st.totalUmlage,
     kosten: st.costs.map((c) => ({ typ: c.type, betrag: c.amount, schluessel: c.method, umlagefaehig: c.umlagefaehig })),
@@ -109,8 +111,8 @@ export async function explainStatement(_p: AssistantState, fd: FormData): Promis
     const answer =
       `KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt). Kurzfassung der Abrechnung ${year}:\n` +
       `• Objekt: ${ctx.objekt}\n` +
-      `• Umlagefähige Kosten gesamt: ${money(st.totalUmlage)}\n` +
-      st.units.map((u) => `• ${u.label}: umgelegt ${money(u.allocated)}, VZ ${money(u.prepayment)}, Saldo ${money(u.balance)} ${u.balance >= 0 ? "(Guthaben)" : "(Nachzahlung)"}`).join("\n");
+      `• Umlagefähige Kosten gesamt: ${money(st.totalUmlage, "de", ctx.waehrung)}\n` +
+      st.units.map((u) => `• ${u.label}: umgelegt ${money(u.allocated, "de", ctx.waehrung)}, VZ ${money(u.prepayment, "de", ctx.waehrung)}, Saldo ${money(u.balance, "de", ctx.waehrung)} ${u.balance >= 0 ? "(Guthaben)" : "(Nachzahlung)"}`).join("\n");
     return { answer, configured: false };
   }
   try {

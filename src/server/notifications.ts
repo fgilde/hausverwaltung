@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { date, dateTime, money } from "@/lib/format";
@@ -15,6 +16,7 @@ const LETTER_LABEL: Record<string, string> = { VERSENDET: "versendet", ZUGESTELL
 const OVERDUE_LOOKBACK_MS = 30 * DAY_MS;
 
 export async function runNotifications(tenantId: string, kinds: NotifyKind[], prev: Date, now: Date) {
+  const currency = await getTenantCurrency(tenantId);
   const on = (k: NotifyKind) => kinds.includes(k);
   const range = { gt: prev, lte: now };
 
@@ -36,7 +38,7 @@ export async function runNotifications(tenantId: string, kinds: NotifyKind[], pr
       const items = open.map(({ c, open }) => {
         const who = c.lease?.renters[0]?.person;
         const name = who ? `${who.firstName} ${who.lastName}` : (c.areaAllocation?.label ?? "");
-        return `${[name, c.lease?.unit.label].filter(Boolean).join(" · ")}: ${money(open)} offen (fällig ${date(c.dueDate)})`;
+        return `${[name, c.lease?.unit.label].filter(Boolean).join(" · ")}: ${money(open, "de", currency)} offen (fällig ${date(c.dueDate)})`;
       });
       await notifyManagers(tenantId, {
         title: open.length === 1 ? "Mietzahlung überfällig" : `${open.length} Mietzahlungen überfällig`,
@@ -53,11 +55,11 @@ export async function runNotifications(tenantId: string, kinds: NotifyKind[], pr
     if (!payments.length) continue;
     const sum = payments.reduce((a, p) => a + Number(p.amount), 0);
     const items = payments.map(
-      (p) => `${date(p.date)} ${money(Number(p.amount))}${p.counterparty ? ` · ${p.counterparty}` : ""}${p.reference ? ` · ${p.reference}` : ""}`,
+      (p) => `${date(p.date)} ${money(Number(p.amount), "de", currency)}${p.counterparty ? ` · ${p.counterparty}` : ""}${p.reference ? ` · ${p.reference}` : ""}`,
     );
     await notifyManagers(tenantId, {
       title: payments.length === 1 ? `Neuer ${one}` : `${payments.length} neue ${many}`,
-      body: digest(`Summe ${money(sum)}`, items),
+      body: digest(`Summe ${money(sum, "de", currency)}`, items),
       link: "/finances",
     }, kind);
   }

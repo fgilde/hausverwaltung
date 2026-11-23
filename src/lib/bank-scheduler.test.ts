@@ -1,5 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { isBankSyncDue } from "./bank-scheduler";
+
+vi.mock("./bank-sync", () => ({ syncTenantBank: vi.fn() }));
 
 describe("Bank-Auto-Sync höchstens täglich (#54)", () => {
   const now = new Date("2026-10-02T12:00:00Z");

@@ -27,6 +27,7 @@ describe("parseCamt053", () => {
     expect(e[0]).toEqual({
       date: "2026-07-03",
       amount: 780,
+      currency: "EUR",
       direction: "EINGANG",
       reference: "Miete Juli EG links",
     });

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
@@ -59,6 +60,7 @@ export async function emailStatementToTenants(_p: ActionState, fd: FormData): Pr
   if (!propertyId) return { error: "Kein Objekt" };
 
   const st = await computeStatement(user.tenantId, propertyId, year);
+  const currency = await getTenantCurrency(user.tenantId);
   const propName = st.property?.name ?? "";
   const ids: string[] = [];
 
@@ -68,20 +70,20 @@ export async function emailStatementToTenants(_p: ActionState, fd: FormData): Pr
     const body =
       `Sehr geehrte Mieterin, sehr geehrter Mieter,\n\n` +
       `anbei die Betriebskostenabrechnung ${year} für ${propName}, ${u.label}.\n\n` +
-      `Umgelegte Kosten: ${money(u.allocated)}\n` +
-      `Vorauszahlungen: ${money(u.prepayment)}\n` +
-      `Ergebnis: ${money(Math.abs(u.balance))} ${kind}\n\n` +
+      `Umgelegte Kosten: ${money(u.allocated, "de", currency)}\n` +
+      `Vorauszahlungen: ${money(u.prepayment, "de", currency)}\n` +
+      `Ergebnis: ${money(Math.abs(u.balance), "de", currency)} ${kind}\n\n` +
       `Mit freundlichen Grüßen\n${st.property?.tenantName ?? ""}`;
 
     // PDF erzeugen, im Storage ablegen und als Dokument (Kategorie ABRECHNUNG) archivieren.
     const pdf = simplePdf(`Betriebskostenabrechnung ${year}`, [
       `${propName} - ${u.label}`,
       "",
-      `Umgelegte Kosten: ${money(u.allocated)}`,
-      `Vorauszahlungen:  ${money(u.prepayment)}`,
-      `Ergebnis: ${money(Math.abs(u.balance))} ${kind}`,
+      `Umgelegte Kosten: ${money(u.allocated, "de", currency, true)}`,
+      `Vorauszahlungen:  ${money(u.prepayment, "de", currency, true)}`,
+      `Ergebnis: ${money(Math.abs(u.balance), "de", currency, true)} ${kind}`,
       "",
-      "Heiz-/Warmwasserkosten nach HeizkostenV (30% Flaeche / 70% Verbrauch).",
+      ...(currency === "EUR" ? ["Heiz-/Warmwasserkosten nach HeizkostenV (30% Flaeche / 70% Verbrauch)."] : []),
     ]);
     const name = `Abrechnung ${year} - ${u.label}.pdf`;
     const storageKey = await saveFile(pdf, name);

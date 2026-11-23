@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import {
   Building2,
@@ -47,6 +48,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
   const now = new Date();
@@ -108,8 +110,8 @@ export default async function DashboardPage() {
     { key: "units", value: String(totalUnits), icon: DoorOpen },
     { key: "occupied", value: String(occupied), icon: KeyRound, sub: `${t("dashboard.occupancyRate")}: ${rate}%` },
     { key: "vacant", value: String(vacant), icon: DoorClosed },
-    { key: "monthlyRent", value: money(monthlyRent, locale), icon: Banknote },
-    { key: "openItemsValue", value: money(totalOpen, locale), icon: Coins },
+    { key: "monthlyRent", value: money(monthlyRent, locale, currency), icon: Banknote },
+    { key: "openItemsValue", value: money(totalOpen, locale, currency), icon: Coins },
     { key: "openTickets", value: String(openTickets), icon: Wrench },
     { key: "dueMaintenance", value: String(dueMaintenance), icon: CalendarClock },
   ];
@@ -171,6 +173,7 @@ export default async function DashboardPage() {
             <MonthlyBars
               data={monthly}
               locale={locale}
+              currency={currency}
               labels={{ soll: t("dashboard.chartSoll"), zahlung: t("dashboard.chartZahlung") }}
             />
           </CardContent>

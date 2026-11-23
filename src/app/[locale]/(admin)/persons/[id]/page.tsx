@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { ArrowLeft, Landmark, Mail, MapPin, Phone } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -26,6 +27,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const person = await prisma.person.findFirst({
@@ -212,7 +214,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
                   {r.lease.unit.building.property.name} · {r.lease.unit.label}
                 </span>
                 <span className="text-muted-foreground">
-                  {money(Number(r.lease.rentCold), locale)} · {date(r.lease.startDate, df)}
+                  {money(Number(r.lease.rentCold), locale, currency)} · {date(r.lease.startDate, df)}
                 </span>
               </Link>
             ))

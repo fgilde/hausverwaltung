@@ -1,3 +1,5 @@
+import { matchesLedgerCurrency } from "@/lib/currency";
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { prisma } from "@/lib/prisma";
 import { roleAllows, WRITE_ROLES } from "@/lib/rbac";
 import type { ApiPrincipal } from "@/lib/api-auth";
@@ -202,6 +204,10 @@ export const OPERATIONS: Record<string, Op> = {
         throw new ApiWriteError("camt.053 konnte nicht gelesen werden", 400);
       }
       if (entries.length === 0) throw new ApiWriteError("Keine Buchungen in der Datei", 400);
+      const currency = await getTenantCurrency(p.tenantId);
+      if (entries.some((entry) => !matchesLedgerCurrency(entry.currency, currency))) {
+        throw new ApiWriteError(`Der Kontoauszug enthält Buchungen ohne passende Währung (${currency}).`, 400);
+      }
       const charges = await prisma.charge.findMany({ where: { tenantId: p.tenantId }, include: { payments: { select: { amount: true } } } });
       const openMap = charges.map((c) => ({ id: c.id, open: Number(c.amount) - c.payments.reduce((x, pay) => x + Number(pay.amount), 0) }));
       let matched = 0;
@@ -274,6 +280,7 @@ export const OPERATIONS: Record<string, Op> = {
           tenantId: p.tenantId, name, category: category as never, mime, size: buffer.length, storageKey, eInvoice,
           propertyId: link.propertyId, unitId: link.unitId, personId: link.personId,
           invoiceNo: parsed?.invoiceNumber ?? null, invoiceTotal: parsed?.total ?? null,
+          invoiceCurrency: /^[A-Z]{3}$/.test(parsed?.currency ?? "") ? parsed?.currency : null,
         },
       });
       return { id: doc.id, eInvoice, invoiceNo: doc.invoiceNo };

@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Plus } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
@@ -15,6 +16,7 @@ export default async function PortalPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { personId: true } });
@@ -126,7 +128,7 @@ export default async function PortalPage() {
                   {r.lease.unit.building.property.name} · {r.lease.unit.label}
                 </div>
                 <div className="text-muted-foreground">
-                  {t("leases.warmRent")}: {money(warm(r.lease), locale)} · {t("leases.start")}: {date(r.lease.startDate, df)}
+                  {t("leases.warmRent")}: {money(warm(r.lease), locale, currency)} · {t("leases.start")}: {date(r.lease.startDate, df)}
                 </div>
               </div>
             ))}
@@ -171,7 +173,7 @@ export default async function PortalPage() {
                   <span className="text-muted-foreground">
                     {t(`chargeType.${c.type}`)} · {date(c.period, df)}
                   </span>
-                  <span className="font-medium">{money(open, locale)}</span>
+                  <span className="font-medium">{money(open, locale, currency)}</span>
                 </div>
               ))
             )}
@@ -195,7 +197,7 @@ export default async function PortalPage() {
                     {t(`chargeType.${p.type}`)} · {date(p.date, df)}
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="font-medium">{money(p.amount, locale)}</span>
+                    <span className="font-medium">{money(p.amount, locale, currency)}</span>
                     <Badge variant="secondary">{t("portal.chargeStatus.paid")}</Badge>
                   </span>
                 </div>

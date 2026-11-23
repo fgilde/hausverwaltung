@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -32,6 +33,7 @@ export default async function WegPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const tenantId = user.tenantId;
 
   const wegProps = await prisma.property.findMany({
@@ -206,7 +208,7 @@ export default async function WegPage({
                     )}
                     <TableCell className="text-right">{decimal(o.unit.mea, locale)}</TableCell>
                     <TableCell className="text-right">{decimal(o.share, locale)}‰</TableCell>
-                    <TableCell className="text-right">{money(o.line.hausgeld / 12, locale)}</TableCell>
+                    <TableCell className="text-right">{money(o.line.hausgeld / 12, locale, currency)}</TableCell>
                     <TableCell>
                       <div className="flex justify-end">
                         <DeleteButton action={deleteOwner} id={o.id} />
@@ -235,7 +237,7 @@ export default async function WegPage({
                 <span className="font-medium">{scopeLabel(s.id)}</span>
                 <span className="text-muted-foreground">
                   {" · "}
-                  {s.hasPlan ? `${t("weg.planTotal")}: ${money(s.planTotal, locale)}` : t("weg.noPlan")}
+                  {s.hasPlan ? `${t("weg.planTotal")}: ${money(s.planTotal, locale, currency)}` : t("weg.noPlan")}
                   {s.id && ` · ${t("weg.meaBasis")} ${decimal(s.meaSum, locale)}`}
                 </span>
               </div>
@@ -254,7 +256,7 @@ export default async function WegPage({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">
-            {t("weg.annual")} {year} · {t("weg.actualTotal")}: {money(actualTotal, locale)}
+            {t("weg.annual")} {year} · {t("weg.actualTotal")}: {money(actualTotal, locale, currency)}
           </CardTitle>
           <CostDialog propertyId={propertyId} year={year} subcommunities={subOpts} />
         </CardHeader>
@@ -281,7 +283,7 @@ export default async function WegPage({
                       <Badge variant={c.subcommunityId ? "outline" : "secondary"}>{scopeLabel(c.subcommunityId)}</Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{t(`allocationMethod.${c.method}`)}</TableCell>
-                    <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
+                    <TableCell className="text-right">{money(Number(c.amount), locale, currency)}</TableCell>
                     <TableCell>
                       <div className="flex justify-end">
                         <DeleteButton action={deleteCost} id={c.id} />
@@ -312,11 +314,11 @@ export default async function WegPage({
                       {o.person.firstName} {o.person.lastName}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{o.unit.label}</TableCell>
-                    <TableCell className="text-right">{money(o.line.allocated, locale)}</TableCell>
-                    <TableCell className="text-right">{money(o.line.hausgeld, locale)}</TableCell>
+                    <TableCell className="text-right">{money(o.line.allocated, locale, currency)}</TableCell>
+                    <TableCell className="text-right">{money(o.line.hausgeld, locale, currency)}</TableCell>
                     <TableCell className="text-right">
                       <Badge variant={o.line.balance >= 0 ? "secondary" : "destructive"}>
-                        {money(o.line.balance, locale)}
+                        {money(o.line.balance, locale, currency)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -325,8 +327,8 @@ export default async function WegPage({
                   <TableRow key={x.unit.id} className="text-muted-foreground">
                     <TableCell>{t("weg.noOwnerUnit")}</TableCell>
                     <TableCell>{unitById.get(x.unit.id)?.label}</TableCell>
-                    <TableCell className="text-right">{money(x.allocated, locale)}</TableCell>
-                    <TableCell className="text-right">{money(x.hausgeld, locale)}</TableCell>
+                    <TableCell className="text-right">{money(x.allocated, locale, currency)}</TableCell>
+                    <TableCell className="text-right">{money(x.hausgeld, locale, currency)}</TableCell>
                     <TableCell />
                   </TableRow>
                 ))}
@@ -357,7 +359,7 @@ export default async function WegPage({
                           {scopeLabel(r.subcommunityId)}
                         </Badge>
                       )}
-                      <span className="text-muted-foreground"> · {t("weg.balance")}: {money(balance, locale)}</span>
+                      <span className="text-muted-foreground"> · {t("weg.balance")}: {money(balance, locale, currency)}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <ReserveTxDialog reserveId={r.id} />
@@ -374,7 +376,7 @@ export default async function WegPage({
                           </span>
                           <div className="flex items-center gap-2">
                             <span className={Number(tx.amount) < 0 ? "text-destructive" : ""}>
-                              {money(Number(tx.amount), locale)}
+                              {money(Number(tx.amount), locale, currency)}
                             </span>
                             <DeleteButton action={deleteReserveTx} id={tx.id} />
                           </div>
@@ -400,12 +402,12 @@ export default async function WegPage({
                   {r.name}
                   {subcommunities.length > 0 && ` (${scopeLabel(r.subcommunityId)})`}
                 </span>
-                <span>{money(balance, locale)}</span>
+                <span>{money(balance, locale, currency)}</span>
               </div>
             ))}
             <div className="flex justify-between border-t pt-2 font-semibold">
               <span>{t("weg.assetsTotal")}</span>
-              <span>{money(assetsTotal, locale)}</span>
+              <span>{money(assetsTotal, locale, currency)}</span>
             </div>
           </CardContent>
         </Card>

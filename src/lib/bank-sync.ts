@@ -1,3 +1,5 @@
+import { matchesLedgerCurrency } from "@/lib/currency";
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { prisma } from "@/lib/prisma";
 import { decryptSecret } from "@/lib/crypto";
 import * as eb from "@/lib/adapters/enablebanking";
@@ -19,7 +21,18 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
   if (!link) throw new Error("Verknüpfung nicht gefunden");
   // 14 Tage Überlappung: Banken buchen teils rückdatiert (Buchungsdatum vor dem letzten Sync, #73).
   const from = link.lastSyncAt ? new Date(link.lastSyncAt.getTime() - 14 * 86_400_000) : new Date(Date.now() - 90 * 86_400_000);
+  const currency = await getTenantCurrency(tenantId);
   const raw = await eb.getTransactions(conn, link.accountUid, from.toISOString().slice(0, 10));
+
+  const transactions = raw.flatMap((transaction) => {
+    const mapped = eb.mapTransaction(transaction);
+    if (!mapped.externalId || !mapped.date || mapped.amount <= 0) return [];
+    const source = transaction.transaction_amount as { currency?: string } | undefined;
+    return [{ ...mapped, date: mapped.date, currency: source?.currency }];
+  });
+  if (transactions.some((entry) => !matchesLedgerCurrency(entry.currency, currency))) {
+    throw new Error(`Bankbuchungen ohne passende Währung (${currency})`);
+  }
 
   // Offene Sollstellungen für Auto-Zuordnung (wie camt.053-Import).
   const charges = await prisma.charge.findMany({ where: { tenantId }, include: { payments: { select: { amount: true } } } });
@@ -27,9 +40,7 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
 
   let imported = 0;
   let matched = 0;
-  for (const t of raw) {
-    const m = eb.mapTransaction(t);
-    if (!m.externalId || !m.date || m.amount <= 0) continue;
+  for (const m of transactions) {
     // Dedup: bereits importierte externe Transaktion überspringen (Gegenseite ggf. nachtragen, #60).
     // Vor #73 importierte Zahlungen tragen nur die Bank-Referenz → zusätzlich über Datum+Betrag abgleichen.
     const known = await prisma.payment.findFirst({
@@ -71,7 +82,7 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
   // Kontostand laut Bank (#57); manche Banken liefern keine Salden, dann bleibt der alte Wert.
   try {
     const bal = eb.pickBalance(await eb.getBalances(conn, link.accountUid));
-    if (bal) {
+    if (bal && matchesLedgerCurrency(bal.currency, currency)) {
       await prisma.account.update({
         where: { id: link.accountId },
         data: { balance: bal.amount, balanceAt: bal.date ? new Date(bal.date) : new Date() },

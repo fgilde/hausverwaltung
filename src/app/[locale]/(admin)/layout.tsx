@@ -29,7 +29,7 @@ export default async function AdminLayout({
   const locale = await getLocale();
   const t = await getTranslations();
   const [tenant, notifs, unread] = await Promise.all([
-    prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true, brandColor: true, logoKey: true } }),
+    prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true, brandColor: true, logoKey: true, currency: true } }),
     prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
     prisma.notification.count({ where: { userId: user.id, read: false } }),
   ]);
@@ -67,6 +67,7 @@ export default async function AdminLayout({
             </a>
           )}
           <div className="ml-auto flex items-center gap-1">
+            {tenant && <span className="rounded border px-1.5 py-0.5 text-xs" title={t("settings.currency")}>{tenant.currency}</span>}
             <InfoDrawer tenantName={tenant?.name ?? "HaVeWa"} />
             <NotificationBell items={notifItems} unread={unread} />
             <LanguageSwitcher />

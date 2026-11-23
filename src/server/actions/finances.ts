@@ -1,5 +1,7 @@
 "use server";
 
+import { matchesLedgerCurrency } from "@/lib/currency";
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
@@ -183,6 +185,10 @@ export async function importCamt(_p: ActionState, fd: FormData): Promise<ActionS
     return fail("camt.053 konnte nicht gelesen werden");
   }
   if (entries.length === 0) return fail("Keine Buchungen in der Datei");
+  const currency = await getTenantCurrency(user.tenantId);
+  if (entries.some((entry) => !matchesLedgerCurrency(entry.currency, currency))) {
+    return fail(`Der Kontoauszug enthält Buchungen ohne passende Währung (${currency}).`);
+  }
 
   // offene Beträge je Sollstellung für Auto-Matching
   const charges = await prisma.charge.findMany({
@@ -283,7 +289,7 @@ export async function emailDunning(_p: ActionState, fd: FormData): Promise<Actio
       tenantId: user.tenantId,
       toAddress: renter.email,
       subject: `${title} · ${property.name}`,
-      body: `Sehr geehrte/r ${renter.firstName} ${renter.lastName},\n\nanbei ${title.toLowerCase()} über ${money(total)}.\n\nMit freundlichen Grüßen\n${property.tenant.name}`,
+      body: `Sehr geehrte/r ${renter.firstName} ${renter.lastName},\n\nanbei ${title.toLowerCase()} über ${money(total, "de", res.input.currency)}.\n\nMit freundlichen Grüßen\n${property.tenant.name}`,
       status: "ENTWURF",
       attachments: { create: [{ documentId: doc.id }] },
     },

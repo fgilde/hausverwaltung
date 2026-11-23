@@ -288,6 +288,7 @@ export async function listDocuments(tenantId: string) {
     eInvoice: d.eInvoice,
     invoiceNo: d.invoiceNo,
     invoiceTotal: num(d.invoiceTotal),
+    invoiceCurrency: d.invoiceCurrency,
     property: d.property?.name ?? null,
     createdAt: day(d.createdAt),
   }));

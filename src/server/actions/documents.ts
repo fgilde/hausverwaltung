@@ -54,6 +54,7 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
       eInvoice,
       invoiceNo: parsed?.invoiceNumber ?? null,
       invoiceTotal: parsed?.total ?? null,
+      invoiceCurrency: /^[A-Z]{3}$/.test(parsed?.currency ?? "") ? parsed?.currency : null,
     },
   });
   revalidatePath("/", "layout");

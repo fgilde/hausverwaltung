@@ -113,6 +113,16 @@
     "remindersCreated": "Fristen als Aufgaben erfasst."
   },
   "settings": {
+    "currency": "Buchungswährung",
+    "currencyHint": "Gilt für alle Objekte dieses Mandanten. Bestehende Beträge bleiben unverändert.",
+    "currencyConfirmation": "Ich bestätige, dass bestehende Buchungsbeträge bereits in der gewählten Währung vorliegen.",
+    "currencyConfirmationRequired": "Bitte bestehende Beträge vor dem Währungswechsel bestätigen.",
+    "currencyInvalid": "Bitte EUR oder CZK wählen.",
+    "currencyStale": "Die gespeicherte Währung hat sich geändert. Bitte Seite neu laden.",
+    "currencyOptions": {
+      "CZK": "Tschechische Krone (CZK)",
+      "EUR": "Euro (EUR)"
+    },
     "title": "Einstellungen",
     "subtitle": "Mandant und Benutzer",
     "tenant": "Mandant",
@@ -731,6 +741,7 @@
     "total": "Gesamtsumme"
   },
   "finances": {
+    "eurExportsUnavailable": "DATEV- und SEPA-Exporte sind nur in EUR verfügbar.",
     "title": "Finanzen",
     "subtitle": "Sollstellung, Zahlungen, offene Posten und Mahnwesen",
     "generate": "Sollstellung erzeugen",

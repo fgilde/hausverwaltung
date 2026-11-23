@@ -1,3 +1,4 @@
+import type { Currency } from "@/lib/currency";
 import { money, date } from "@/lib/format";
 
 export interface DunningInput {
@@ -11,6 +12,7 @@ export interface DunningInput {
   period: Date;
   dueDate: Date;
   open: number; // offener Betrag
+  currency?: Currency;
   fee: number; // Mahngebühr
 }
 
@@ -30,9 +32,9 @@ export function dunningDocument(input: DunningInput): { title: string; lines: st
       `${input.propertyName} · ${input.unitLabel}`,
       "",
       `Offener Posten (fällig ${date(input.dueDate)}):`,
-      `${input.chargeTypeLabel} · ${date(input.period)}: ${money(input.open)}`,
-      ...(input.fee > 0 ? [`Mahngebühr: ${money(input.fee)}`] : []),
-      `Offener Gesamtbetrag: ${money(total)}`,
+      `${input.chargeTypeLabel} · ${date(input.period)}: ${money(input.open, "de", input.currency, true)}`,
+      ...(input.fee > 0 ? [`Mahngebühr: ${money(input.fee, "de", input.currency, true)}`] : []),
+      `Offener Gesamtbetrag: ${money(total, "de", input.currency, true)}`,
       "",
       "Wir bitten um Ausgleich innerhalb von 14 Tagen.",
       "",
@@ -50,9 +52,9 @@ export function dunningDocument(input: DunningInput): { title: string; lines: st
 export function dunningLetterBody(input: DunningInput): string {
   const total = input.open + input.fee;
   const items = [
-    `${input.chargeTypeLabel} · ${date(input.period)} (fällig ${date(input.dueDate)}): ${money(input.open)}`,
-    ...(input.fee > 0 ? [`Mahngebühr: ${money(input.fee)}`] : []),
-    `Offener Gesamtbetrag: ${money(total)}`,
+    `${input.chargeTypeLabel} · ${date(input.period)} (fällig ${date(input.dueDate)}): ${money(input.open, "de", input.currency, true)}`,
+    ...(input.fee > 0 ? [`Mahngebühr: ${money(input.fee, "de", input.currency, true)}`] : []),
+    `Offener Gesamtbetrag: ${money(total, "de", input.currency, true)}`,
   ];
   return [
     `Guten Tag ${input.renterName},`,

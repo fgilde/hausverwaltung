@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isNotifyKind } from "@/lib/notify-kinds";
 import { requireRole } from "@/lib/rbac";
+import { getTranslations } from "next-intl/server";
+import { isCurrency } from "@/lib/currency";
 import { audit } from "@/lib/audit";
 import { pingAi } from "@/lib/ai";
 import { verifyMailer } from "@/lib/adapters/mailer";
@@ -67,6 +69,29 @@ export async function updateStatementDefaults(_p: ActionState, fd: FormData): Pr
   const pct = raw ? Math.min(100, Math.max(0, parseInt(raw, 10))) : null;
   await prisma.tenant.update({ where: { id: user.tenantId }, data: { heatingConsumptionPct: pct } });
   await audit(user, "UPDATE", "Tenant", user.tenantId, "Abrechnungs-Standards");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function updateTenantCurrency(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireRole(["ADMIN"]);
+  const t = await getTranslations("settings");
+  const currency = fd.get("currency");
+  if (!isCurrency(currency)) return { error: t("currencyInvalid") };
+  const previous = fd.get("previousCurrency");
+  if (!isCurrency(previous)) return { error: t("currencyStale") };
+  if (currency !== previous && fd.get("confirmCurrency") !== "on") {
+    return { error: t("currencyConfirmationRequired") };
+  }
+
+  const result = await prisma.tenant.updateMany({
+    where: { id: user.tenantId, currency: previous },
+    data: { currency },
+  });
+  if (!result.count) return { error: t("currencyStale") };
+  if (currency !== previous) {
+    await audit(user, "UPDATE", "Tenant", user.tenantId, `Währung: ${previous} → ${currency}`);
+  }
   revalidatePath("/", "layout");
   return { ok: true };
 }
