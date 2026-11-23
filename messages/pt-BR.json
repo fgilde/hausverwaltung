@@ -113,6 +113,16 @@
     "remindersCreated": "Prazos adicionados como tarefas."
   },
   "settings": {
+    "currency": "Moeda contábil",
+    "currencyHint": "Aplica-se a todos os imóveis deste espaço. Os valores existentes permanecem inalterados.",
+    "currencyConfirmation": "Confirmo que os valores contábeis existentes já estão na moeda selecionada.",
+    "currencyConfirmationRequired": "Confirme os valores existentes antes de alterar a moeda.",
+    "currencyInvalid": "Selecione EUR ou CZK.",
+    "currencyStale": "A moeda salva foi alterada. Recarregue a página.",
+    "currencyOptions": {
+      "CZK": "Coroa tcheca (CZK)",
+      "EUR": "Euro (EUR)"
+    },
     "title": "Configurações",
     "subtitle": "Organização e usuários",
     "tenant": "Organização",
@@ -731,6 +741,7 @@
     "total": "Total geral"
   },
   "finances": {
+    "eurExportsUnavailable": "As exportações DATEV e SEPA só estão disponíveis em EUR.",
     "title": "Finanças",
     "subtitle": "Cobranças, pagamentos e itens em aberto",
     "generate": "Gerar cobranças",

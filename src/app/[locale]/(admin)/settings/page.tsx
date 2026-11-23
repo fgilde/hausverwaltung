@@ -24,6 +24,7 @@ import { CustomFieldDialog } from "@/components/custom-field-dialog";
 import { ApiTokensManager } from "@/components/api-tokens-manager";
 import { IntegrationInfo } from "@/components/integration-info";
 import { TenantNameForm } from "@/components/tenant-name-form";
+import { CurrencyConfig } from "@/components/currency-config";
 import { DateFormatConfig } from "@/components/date-format-config";
 import { StatementDefaults } from "@/components/statement-defaults";
 import { SettingsTabs, type SettingsTab } from "@/components/settings-tabs";
@@ -73,6 +74,7 @@ export default async function SettingsPage() {
   const generalContent = (
     <>
       <TenantNameForm name={tenant?.name ?? ""} address={tenant?.address ?? ""} phone={tenant?.phone ?? ""} editable={isAdmin} />
+      {isAdmin && tenant && <CurrencyConfig key={tenant.currency} currency={tenant.currency} />}
       {isAdmin && <DateFormatConfig dateFormat={tenant?.dateFormat ?? null} />}
       {isAdmin && tenant && <BrandingConfig brandColor={tenant.brandColor} hasLogo={!!tenant.logoKey} />}
     </>

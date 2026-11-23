@@ -4,11 +4,13 @@ export function intlLocale(locale: string): string {
   return locale === "de" ? "de-DE" : locale === "en" ? "en-US" : locale;
 }
 
-export function money(value: number | string, locale = "de") {
+export function money(value: number | string, locale = "de", currency = "EUR", pdf = false) {
   const n = typeof value === "string" ? Number(value) : value;
-  return new Intl.NumberFormat(intlLocale(locale), {
+  return new Intl.NumberFormat(currency === "CZK" ? "cs-CZ" : intlLocale(locale), {
     style: "currency",
-    currency: "EUR",
+    currency,
+    // The WinAnsi PDF generator cannot encode the č in Kč.
+    ...(pdf && currency === "CZK" ? { currencyDisplay: "code" as const } : {}),
   }).format(n);
 }
 

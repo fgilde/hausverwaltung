@@ -1,3 +1,5 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
+import { supportsEuroExports } from "@/lib/currency";
 import { auth } from "@/auth";
 import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
@@ -10,8 +12,13 @@ export async function GET() {
   if (!roleAllows(session.user.role, ["VERWALTER", "BUCHHALTUNG"]))
     return new Response("Forbidden", { status: 403 });
 
+  const tenantId = await actingTenantId(session.user);
+  if (!supportsEuroExports(await getTenantCurrency(tenantId))) {
+    return new Response("DATEV export is available only for EUR", { status: 403 });
+  }
+
   const payments = await prisma.payment.findMany({
-    where: { tenantId: (await actingTenantId(session.user)) },
+    where: { tenantId },
     include: { charge: true },
     orderBy: { date: "asc" },
   });

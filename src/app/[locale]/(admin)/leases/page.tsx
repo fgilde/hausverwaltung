@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -24,6 +25,7 @@ export default async function LeasesPage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const [leases, units, persons, customDefs] = await Promise.all([
@@ -114,8 +116,8 @@ export default async function LeasesPage() {
                         {l.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`).join(", ") ||
                           t("common.none")}
                       </TableCell>
-                      <TableCell className="text-right">{money(Number(l.rentCold), locale)}</TableCell>
-                      <TableCell className="text-right">{money(warm(l), locale)}</TableCell>
+                      <TableCell className="text-right">{money(Number(l.rentCold), locale, currency)}</TableCell>
+                      <TableCell className="text-right">{money(warm(l), locale, currency)}</TableCell>
                       <TableCell>{date(l.startDate, df)}</TableCell>
                       <TableCell>
                         <Badge variant={st.variant}>{t(`leases.${st.key}`)}</Badge>

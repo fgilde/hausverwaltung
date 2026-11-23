@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
@@ -16,6 +17,7 @@ export default async function PrintWegPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
 
   const propertyId = sp.propertyId;
   const year = Number(sp.year) || new Date().getFullYear();
@@ -58,7 +60,7 @@ export default async function PrintWegPage({
               <td className="py-1">{t(`costType.${c.type}`)}{c.note ? ` · ${c.note}` : ""}</td>
               <td className="py-1">{scopeLabel(c.subcommunityId)}</td>
               <td className="py-1">{t(`allocationMethod.${c.method}`)}</td>
-              <td className="py-1 text-right">{money(Number(c.amount), locale)}</td>
+              <td className="py-1 text-right">{money(Number(c.amount), locale, currency)}</td>
             </tr>
           ))}
         </tbody>
@@ -70,12 +72,12 @@ export default async function PrintWegPage({
                   {scopeLabel(s.id)}
                   {s.id && ` (${t("weg.meaBasis")} ${decimal(s.meaSum, locale)})`}
                 </td>
-                <td className="py-0.5 text-right">{money(s.costTotal, locale)}</td>
+                <td className="py-0.5 text-right">{money(s.costTotal, locale, currency)}</td>
               </tr>
             ))}
           <tr className="border-t-2 border-black font-semibold">
             <td className="py-1" colSpan={3}>{t("weg.actualTotal")}</td>
-            <td className="py-1 text-right">{money(actualTotal, locale)}</td>
+            <td className="py-1 text-right">{money(actualTotal, locale, currency)}</td>
           </tr>
         </tfoot>
       </table>
@@ -99,17 +101,17 @@ export default async function PrintWegPage({
                 {o.unit.label}
                 {o.unit.subcommunityId && ` · ${subName.get(o.unit.subcommunityId)}`}
               </td>
-              <td className="py-1 text-right">{money(o.line.allocated, locale)}</td>
-              <td className="py-1 text-right">{money(o.line.hausgeld, locale)}</td>
-              <td className="py-1 text-right font-medium">{money(o.line.balance, locale)}</td>
+              <td className="py-1 text-right">{money(o.line.allocated, locale, currency)}</td>
+              <td className="py-1 text-right">{money(o.line.hausgeld, locale, currency)}</td>
+              <td className="py-1 text-right font-medium">{money(o.line.balance, locale, currency)}</td>
             </tr>
           ))}
           {unassigned.map((x) => (
             <tr key={x.unit.id} className="border-b border-neutral-300 text-neutral-500">
               <td className="py-1">{t("weg.noOwnerUnit")}</td>
               <td className="py-1">{x.unit.label}</td>
-              <td className="py-1 text-right">{money(x.allocated, locale)}</td>
-              <td className="py-1 text-right">{money(x.hausgeld, locale)}</td>
+              <td className="py-1 text-right">{money(x.allocated, locale, currency)}</td>
+              <td className="py-1 text-right">{money(x.hausgeld, locale, currency)}</td>
               <td />
             </tr>
           ))}
@@ -125,12 +127,12 @@ export default async function PrintWegPage({
                 {r.name}
                 {subcommunities.length > 0 && ` (${scopeLabel(r.subcommunityId)})`}
               </td>
-              <td className="py-1 text-right">{money(balance, locale)}</td>
+              <td className="py-1 text-right">{money(balance, locale, currency)}</td>
             </tr>
           ))}
           <tr className="border-t-2 border-black font-semibold">
             <td className="py-1">{t("weg.assetsTotal")}</td>
-            <td className="py-1 text-right">{money(assetsTotal, locale)}</td>
+            <td className="py-1 text-right">{money(assetsTotal, locale, currency)}</td>
           </tr>
         </tbody>
       </table>

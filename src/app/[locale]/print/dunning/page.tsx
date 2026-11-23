@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
@@ -16,6 +17,7 @@ export default async function PrintDunningPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const chargeId = sp.chargeId;
@@ -79,17 +81,17 @@ export default async function PrintDunningPage({
         <tbody>
           <tr className="border-b border-neutral-300">
             <td className="py-1">{t(`chargeType.${charge.type}`)} · {date(charge.period, df)}</td>
-            <td className="py-1 text-right">{money(open, locale)}</td>
+            <td className="py-1 text-right">{money(open, locale, currency)}</td>
           </tr>
           {fee > 0 && (
             <tr className="border-b border-neutral-300">
               <td className="py-1">{t("print.dunningFee")}</td>
-              <td className="py-1 text-right">{money(fee, locale)}</td>
+              <td className="py-1 text-right">{money(fee, locale, currency)}</td>
             </tr>
           )}
           <tr className="border-t-2 border-black font-semibold">
             <td className="py-1">{t("print.dunningTotal")}</td>
-            <td className="py-1 text-right">{money(total, locale)}</td>
+            <td className="py-1 text-right">{money(total, locale, currency)}</td>
           </tr>
         </tbody>
       </table>

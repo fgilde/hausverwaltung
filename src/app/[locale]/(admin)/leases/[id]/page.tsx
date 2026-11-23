@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { ArrowLeft, X, Check } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -42,6 +43,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const wgTenant = await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true, address: true } });
@@ -197,7 +199,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                 return (
                   <div className="flex items-start justify-between">
                     <div className="space-y-0.5 text-sm">
-                      <div className="font-medium">{money(Number(dep.amount), locale)}</div>
+                      <div className="font-medium">{money(Number(dep.amount), locale, currency)}</div>
                       <div className="text-muted-foreground">
                         {t(`depositType.${dep.type}`)}
                         {dep.account ? ` · ${dep.account.name}` : ""}
@@ -205,8 +207,8 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                       </div>
                       {interest > 0 && (
                         <div className="text-muted-foreground">
-                          {t("deposit.interest")}: {money(interest, locale)} ·{" "}
-                          {t("deposit.total")}: {money(Number(dep.amount) + interest, locale)}
+                          {t("deposit.interest")}: {money(interest, locale, currency)} ·{" "}
+                          {t("deposit.total")}: {money(Number(dep.amount) + interest, locale, currency)}
                         </div>
                       )}
                       {dep.returnedDate && (
@@ -228,7 +230,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">
-            {t("rentComponent.title")} · {t("leases.warmRent")}: {money(warm, locale)}
+            {t("rentComponent.title")} · {t("leases.warmRent")}: {money(warm, locale, currency)}
           </CardTitle>
           <ComponentDialog leaseId={lease.id} />
         </CardHeader>
@@ -237,7 +239,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
             <TableBody>
               <TableRow>
                 <TableCell className="font-medium">{t("leases.coldRent")}</TableCell>
-                <TableCell className="text-right">{money(Number(lease.rentCold), locale)}</TableCell>
+                <TableCell className="text-right">{money(Number(lease.rentCold), locale, currency)}</TableCell>
                 <TableCell className="w-12" />
               </TableRow>
               {lease.components.map((c) => (
@@ -246,7 +248,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                     {t(`rentComponentType.${c.type}`)}
                     {c.note ? ` · ${c.note}` : ""}
                   </TableCell>
-                  <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
+                  <TableCell className="text-right">{money(Number(c.amount), locale, currency)}</TableCell>
                   <TableCell>
                     <div className="flex justify-end">
                       <DeleteButton action={deleteComponent} id={c.id} />
@@ -284,7 +286,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                   <TableRow key={a.id}>
                     <TableCell>{t(`adjustmentType.${a.type}`)}</TableCell>
                     <TableCell>{date(a.effectiveDate, df)}</TableCell>
-                    <TableCell className="text-right">{money(Number(a.newRentCold), locale)}</TableCell>
+                    <TableCell className="text-right">{money(Number(a.newRentCold), locale, currency)}</TableCell>
                     <TableCell>
                       <Badge variant={a.applied ? "secondary" : "outline"}>
                         {a.applied ? t("adjustment.applied") : t("adjustment.planned")}

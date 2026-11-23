@@ -1,10 +1,12 @@
+import { matchesLedgerCurrency } from "@/lib/currency";
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { Download, FileText } from "lucide-react";
 import { DOCUMENT_CATEGORIES } from "@/lib/schemas";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
 import { CostDialog } from "@/components/cost-dialog";
 import { prisma } from "@/lib/prisma";
-import { date, money } from "@/lib/format";
+import { date, decimal, money } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,6 +44,7 @@ export default async function DocumentsPage({
   const locale = await getLocale();
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
+  const currency = await getTenantCurrency(tenantId);
   const q = (sp.q ?? "").trim();
   const propId = (sp.prop ?? "").trim();
   const unitId = (sp.unit ?? "").trim();
@@ -168,11 +171,11 @@ export default async function DocumentsPage({
                           {d.name}
                           {d.eInvoice && <Badge variant="secondary">{t("documents.eInvoice")}</Badge>}
                         </span>
-                        {(d.invoiceNo || d.invoiceTotal) && (
+                        {(d.invoiceNo || d.invoiceTotal != null) && (
                           <span className="mt-0.5 block text-xs text-muted-foreground">
                             {d.invoiceNo ? `Nr. ${d.invoiceNo}` : ""}
-                            {d.invoiceNo && d.invoiceTotal ? " · " : ""}
-                            {d.invoiceTotal ? money(Number(d.invoiceTotal), locale) : ""}
+                            {d.invoiceNo && d.invoiceTotal != null ? " · " : ""}
+                            {d.invoiceTotal != null ? (d.invoiceCurrency ? money(Number(d.invoiceTotal), locale, d.invoiceCurrency) : decimal(Number(d.invoiceTotal), locale)) : ""}
                           </span>
                         )}
                       </TableCell>
@@ -189,7 +192,9 @@ export default async function DocumentsPage({
                               propertyId={d.propertyId}
                               year={d.createdAt.getFullYear()}
                               defaults={{
-                                amount: d.invoiceTotal ? String(d.invoiceTotal) : undefined,
+                                amount: d.invoiceTotal != null && matchesLedgerCurrency(d.invoiceCurrency ?? undefined, currency)
+                                  ? String(d.invoiceTotal)
+                                  : undefined,
                                 note: [d.name, d.invoiceNo && `Nr. ${d.invoiceNo}`].filter(Boolean).join(" · "),
                               }}
                             />

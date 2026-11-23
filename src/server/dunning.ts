@@ -38,6 +38,7 @@ export async function dunningFor(tenantId: string, chargeId: string) {
     unitLabel: lease.unit.label,
     renterName: renter ? `${renter.firstName} ${renter.lastName}` : "",
     tenantName: property.tenant.name,
+    currency: property.tenant.currency,
     tenantContact: tenantContact(property.tenant),
     // Mahnungen sind deutschsprachig, daher das deutsche Label der Kostenart
     chargeTypeLabel: (await getTranslations({ locale: "de", namespace: "chargeType" }))(charge.type),

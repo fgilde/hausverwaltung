@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -22,6 +23,7 @@ export default async function InsurancePage() {
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
   const now = new Date();
@@ -70,7 +72,7 @@ export default async function InsurancePage() {
                     <TableCell>{t(`insuranceType.${i.type}`)}</TableCell>
                     <TableCell>{i.insurer}</TableCell>
                     <TableCell className="text-muted-foreground">{i.policyNo ?? t("common.none")}</TableCell>
-                    <TableCell className="text-right">{money(Number(i.premium), locale)}</TableCell>
+                    <TableCell className="text-right">{money(Number(i.premium), locale, currency)}</TableCell>
                     <TableCell>
                       {i.endDate ? (
                         <span className={i.endDate < now ? "text-destructive" : ""}>{date(i.endDate, df)}</span>

@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { ArrowLeft, Gauge, FileSignature } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -31,6 +32,7 @@ export default async function UnitDetailPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const unit = await prisma.unit.findFirst({
@@ -131,7 +133,7 @@ export default async function UnitDetailPage({
                     t("common.none")}
                 </span>
                 <span className="text-muted-foreground">
-                  {money(Number(l.rentCold), locale)} · {date(l.startDate, df)}
+                  {money(Number(l.rentCold), locale, currency)} · {date(l.startDate, df)}
                   {l.endDate ? ` – ${date(l.endDate, df)}` : ""}
                 </span>
               </Link>

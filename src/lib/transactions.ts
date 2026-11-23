@@ -26,7 +26,7 @@ export type TxnFilter = { acc?: string; from?: string; to?: string; min?: string
 
 /** "1.234,56" / "12,5" / "12.5" → Zahl; leer oder ungültig → undefined. */
 export function parseAmount(v: string | undefined): number | undefined {
-  const s = (v ?? "").trim().replace(/\s|€/g, "");
+  const s = (v ?? "").trim().replace(/\s|€|Kč|CZK|EUR/gi, "");
   if (!s) return undefined;
   const n = Number(s.includes(",") ? s.replace(/\./g, "").replace(",", ".") : s);
   return Number.isFinite(n) ? n : undefined;

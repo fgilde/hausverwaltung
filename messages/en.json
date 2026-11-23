@@ -113,6 +113,16 @@
     "remindersCreated": "Deadlines added as tasks."
   },
   "settings": {
+    "currency": "Ledger currency",
+    "currencyHint": "Applies to all properties in this workspace. Existing amounts are kept at face value.",
+    "currencyConfirmation": "I confirm that any existing ledger amounts are already in the selected currency.",
+    "currencyConfirmationRequired": "Confirm the existing amounts before changing currency.",
+    "currencyInvalid": "Choose EUR or CZK.",
+    "currencyStale": "The saved currency changed. Reload the page and try again.",
+    "currencyOptions": {
+      "CZK": "Czech koruna (CZK)",
+      "EUR": "Euro (EUR)"
+    },
     "title": "Settings",
     "subtitle": "Tenant and users",
     "tenant": "Tenant",
@@ -731,6 +741,7 @@
     "total": "Grand total"
   },
   "finances": {
+    "eurExportsUnavailable": "The DATEV and SEPA exports are available only in EUR.",
     "title": "Finances",
     "subtitle": "Charges, payments, open items and dunning",
     "generate": "Generate charges",

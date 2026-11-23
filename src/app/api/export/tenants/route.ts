@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { auth } from "@/auth";
 import { actingTenantId } from "@/lib/acting-tenant";
 import { prisma } from "@/lib/prisma";
@@ -6,9 +7,11 @@ import { toCsv, csvResponse } from "@/lib/csv";
 export async function GET() {
   const session = await auth();
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
+  const tenantId = await actingTenantId(session.user);
+  const currency = await getTenantCurrency(tenantId);
 
   const renters = await prisma.renter.findMany({
-    where: { tenantId: (await actingTenantId(session.user)) },
+    where: { tenantId },
     include: {
       person: true,
       lease: { include: { unit: { include: { building: { include: { property: true } } } }, components: { select: { amount: true } } } },
@@ -25,7 +28,8 @@ export async function GET() {
       r.lease.unit.label,
       warm.toFixed(2).replace(".", ","),
       r.lease.startDate.toISOString().slice(0, 10),
+      ...(currency === "CZK" ? [currency] : []),
     ];
   });
-  return csvResponse("mieter.csv", toCsv(["Name", "E-Mail", "Telefon", "Objekt", "Einheit", "Warmmiete", "Beginn"], rows));
+  return csvResponse("mieter.csv", toCsv(["Name", "E-Mail", "Telefon", "Objekt", "Einheit", "Warmmiete", "Beginn", ...(currency === "CZK" ? ["Währung"] : [])], rows));
 }

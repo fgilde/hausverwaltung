@@ -1,3 +1,4 @@
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { ArrowLeft, Percent } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -46,6 +47,7 @@ export default async function PropertyDetailPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
 
   const property = await prisma.property.findFirst({
@@ -206,7 +208,7 @@ export default async function PropertyDetailPage({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {money(mgmtFee, locale)} <span className="text-sm font-normal text-muted-foreground">/ {t("fee.perMonth")}</span>
+            {money(mgmtFee, locale, currency)} <span className="text-sm font-normal text-muted-foreground">/ {t("fee.perMonth")}</span>
           </div>
         </CardContent>
       </Card>
@@ -245,7 +247,7 @@ export default async function PropertyDetailPage({
                     </TableCell>
                     <TableCell className="text-right">{Number(a.area).toFixed(2)} m²</TableCell>
                     <TableCell className="text-right">
-                      {a.pricePerSqm != null ? money(Number(a.pricePerSqm), locale) : t("common.none")}
+                      {a.pricePerSqm != null ? money(Number(a.pricePerSqm), locale, currency) : t("common.none")}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {date(a.from, df)} – {a.to ? date(a.to, df) : "…"}
@@ -305,13 +307,13 @@ export default async function PropertyDetailPage({
                     <TableRow key={l.id}>
                       <TableCell>{l.id === VACANCY_ID ? t("areaModel.vacancy") : areaData.nameById.get(l.id) ?? l.id}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{l.weight.toFixed(2)} m²</TableCell>
-                      <TableCell className="text-right">{money(l.allocated, locale)}</TableCell>
+                      <TableCell className="text-right">{money(l.allocated, locale, currency)}</TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
                     <TableCell className="font-medium">{t("statements.total")}</TableCell>
                     <TableCell />
-                    <TableCell className="text-right font-medium">{money(areaData.stmt.totalUmlage, locale)}</TableCell>
+                    <TableCell className="text-right font-medium">{money(areaData.stmt.totalUmlage, locale, currency)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

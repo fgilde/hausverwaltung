@@ -8,6 +8,7 @@ export interface BankEntry {
   date: string; // YYYY-MM-DD
   amount: number; // immer positiv
   direction: "EINGANG" | "AUSGANG";
+  currency?: string;
   reference?: string;
   counterparty?: string; // Zahler (Eingang) bzw. Empfänger (Ausgang), #60
   counterpartyIban?: string;
@@ -32,6 +33,7 @@ export function parseCamt053(xml: string): BankEntry[] {
   for (const stmt of stmts) {
     for (const ntry of toArray(stmt?.Ntry)) {
       const amount = Math.abs(num(ntry?.Amt));
+      const currency = ntry?.Amt?.["@_Ccy"] ?? stmt?.Acct?.Ccy;
       const direction = ntry?.CdtDbtInd === "DBIT" ? "AUSGANG" : "EINGANG";
       const date =
         ntry?.BookgDt?.Dt ?? ntry?.ValDt?.Dt ?? new Date(0).toISOString().slice(0, 10);
@@ -44,6 +46,7 @@ export function parseCamt053(xml: string): BankEntry[] {
       const iban = tx?.RltdPties?.[`${side}Acct`]?.Id?.IBAN;
       out.push({
         date: String(date).slice(0, 10), amount, direction, reference,
+        ...(currency ? { currency: String(currency) } : {}),
         ...(name ? { counterparty: String(name).trim() } : {}),
         ...(iban ? { counterpartyIban: String(iban).replace(/\s/g, "") } : {}),
       });

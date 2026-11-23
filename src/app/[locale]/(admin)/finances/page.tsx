@@ -1,3 +1,5 @@
+import { supportsEuroExports } from "@/lib/currency";
+import { getTenantCurrency } from "@/lib/tenant-currency";
 import { getTranslations, getLocale } from "next-intl/server";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -58,6 +60,7 @@ export default async function FinancesPage({
   const user = await requireUser();
   const t = await getTranslations();
   const locale = await getLocale();
+  const currency = await getTenantCurrency(user.tenantId);
   const df = await getDateLocale(locale);
   const tenantId = user.tenantId;
   const payWhere = { tenantId, ...txnWhere(txnFilter) };
@@ -179,7 +182,7 @@ export default async function FinancesPage({
           ))}
         </div>
         <span className="pb-2 text-sm text-muted-foreground">
-          {t("finances.totalOpen")}: <span className="font-semibold text-foreground">{money(totalOpen, locale)}</span>
+          {t("finances.totalOpen")}: <span className="font-semibold text-foreground">{money(totalOpen, locale, currency)}</span>
         </span>
       </div>
 
@@ -274,8 +277,8 @@ export default async function FinancesPage({
                         t("common.none")
                       )}
                     </TableCell>
-                    <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
-                    <TableCell className="text-right">{money(Math.max(0, open), locale)}</TableCell>
+                    <TableCell className="text-right">{money(Number(c.amount), locale, currency)}</TableCell>
+                    <TableCell className="text-right">{money(Math.max(0, open), locale, currency)}</TableCell>
                     <TableCell>{date(c.dueDate, df)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
@@ -328,8 +331,8 @@ export default async function FinancesPage({
         <CardHeader>
           <CardTitle className="text-base">{t("finances.transactions")}</CardTitle>
           <p className="text-xs text-muted-foreground">
-            {t("finances.transIn")}: {money(txnSummary.inTotal, locale)} · {t("finances.transOut")}:{" "}
-            {money(txnSummary.outTotal, locale)} · {t("finances.transNet")}: {money(txnSummary.net, locale)}
+            {t("finances.transIn")}: {money(txnSummary.inTotal, locale, currency)} · {t("finances.transOut")}:{" "}
+            {money(txnSummary.outTotal, locale, currency)} · {t("finances.transNet")}: {money(txnSummary.net, locale, currency)}
             {txnFiltered && ` · ${t("finances.txnFound", { count: paymentCount })}`}
           </p>
           {/* Suche & Filter (#62); GET-Formular, Filter stehen in der URL */}
@@ -410,7 +413,7 @@ export default async function FinancesPage({
                     </TableCell>
                     <TableCell className={`text-right font-medium ${p.direction === "EINGANG" ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
                       {p.direction === "EINGANG" ? "+" : "−"}
-                      {money(Number(p.amount), locale)}
+                      {money(Number(p.amount), locale, currency)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {p.documents.length > 0 ? (
@@ -501,7 +504,7 @@ export default async function FinancesPage({
                   {/* Kontostand laut Bank (#57) */}
                   {a.balance != null && (
                     <div className="ml-auto text-right">
-                      <div className={cn("font-semibold", Number(a.balance) < 0 && "text-destructive")}>{money(Number(a.balance), locale)}</div>
+                      <div className={cn("font-semibold", Number(a.balance) < 0 && "text-destructive")}>{money(Number(a.balance), locale, currency)}</div>
                       {a.balanceAt && <div className="text-xs text-muted-foreground">{t("bank.balanceAt", { date: date(a.balanceAt, df) })}</div>}
                     </div>
                   )}
@@ -560,14 +563,20 @@ export default async function FinancesPage({
         <CardContent className="flex flex-wrap items-start gap-2">
           {bankLinks.length > 0 && <SyncAllButton />}
             <CamtDialog accounts={accountOpts} />
-            <Button size="sm" variant="outline" render={<a href="/api/export/datev" />}>
-              <Download className="size-4" />
-              {t("finances.datevExport")}
-            </Button>
-            <Button size="sm" variant="outline" render={<a href="/api/export/sepa" />}>
-              <Download className="size-4" />
-              {t("finances.sepaExport")}
-            </Button>
+            {supportsEuroExports(currency) ? (
+              <>
+                <Button size="sm" variant="outline" render={<a href="/api/export/datev" />}>
+                  <Download className="size-4" />
+                  {t("finances.datevExport")}
+                </Button>
+                <Button size="sm" variant="outline" render={<a href="/api/export/sepa" />}>
+                  <Download className="size-4" />
+                  {t("finances.sepaExport")}
+                </Button>
+              </>
+            ) : (
+              <p className="basis-full text-sm text-muted-foreground">{t("finances.eurExportsUnavailable")}</p>
+            )}
             <Button size="sm" variant="outline" render={<a href="/api/export/openitems" />}>
               <Download className="size-4" />
               {t("finances.openItemsCsv")}
