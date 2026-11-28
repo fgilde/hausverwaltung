@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildWegStatement, type WegUnit } from "./weg";
+import { buildWegStatement, reserveBalanceAtYearEnd, type WegUnit } from "./weg";
 
 // Beispiel aus #42: UG A (WE1–3, MEA 720), UG B (WE4, MEA 280).
 const units: WegUnit[] = [
@@ -10,6 +10,17 @@ const units: WegUnit[] = [
 ];
 const owners = units.map((u) => ({ id: `o-${u.id}`, unitId: u.id, share: 1000 }));
 const byOwner = (r: ReturnType<typeof buildWegStatement>) => Object.fromEntries(r.owners.map((o) => [o.unitId, o]));
+
+it("berechnet den Rücklagenstand einschließlich Vorjahren bis zum Jahresende", () => {
+  const transactions = [
+    { date: new Date("2024-06-01"), amount: 125 },
+    { date: new Date("2025-12-31T23:59:59.999Z"), amount: 75.01 },
+    { date: new Date("2026-01-01T00:00:00.000Z"), amount: -25 },
+  ];
+
+  expect(reserveBalanceAtYearEnd(transactions, 2025)).toBe(200.01);
+  expect(reserveBalanceAtYearEnd(transactions, 2026)).toBe(175.01);
+});
 
 describe("WEG-Abrechnung mit Untergemeinschaften (#42)", () => {
   it("UG-Kosten nur auf die UG, Nenner = MEA-Summe der UG (720)", () => {
