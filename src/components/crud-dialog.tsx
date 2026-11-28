@@ -59,7 +59,7 @@ export function CrudDialog({
     if (state.ok && handledState.current !== state) {
       handledState.current = state;
       setOpen(false);
-      outboxToast(tRoot, state.notice, t("saved"));
+      outboxToast(tRoot, state.notice, state.error ?? t("saved")); // ok + error = Zusammenfassung (Import)
       router.refresh(); // abhängige Übersichten sofort aktualisieren
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -13,7 +13,7 @@ import {
   generateSchema,
   type ActionState,
 } from "@/lib/schemas";
-import { parseCamt053 } from "@/lib/adapters/bankImport";
+import { importCamtStatement } from "@/lib/bank-booking";
 import { ensureDefaultAccounts } from "@/lib/accounts";
 import { generateAreaCharges } from "@/lib/api-ops";
 import { audit } from "@/lib/audit";
@@ -211,58 +211,15 @@ export async function deleteMandate(fd: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
-// --- camt.053 Bankimport mit naivem Auto-Matching ---
+// --- camt.053 Bankimport: Duplikate überspringen, Eingänge nur bei passendem Zahler zuordnen (#92) ---
 export async function importCamt(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
   const file = fd.get("file");
   if (!(file instanceof File) || file.size === 0) return fail("Keine Datei");
-  const accountId = String(fd.get("accountId") ?? "") || null;
-
-  let entries;
-  try {
-    entries = parseCamt053(await file.text());
-  } catch {
-    return fail("camt.053 konnte nicht gelesen werden");
-  }
-  if (entries.length === 0) return fail("Keine Buchungen in der Datei");
-
-  // offene Beträge je Sollstellung für Auto-Matching
-  const charges = await prisma.charge.findMany({
-    where: { tenantId: user.tenantId },
-    include: { payments: { select: { amount: true } } },
-  });
-  const openMap = charges.map((c) => ({
-    id: c.id,
-    open: Number(c.amount) - c.payments.reduce((a, p) => a + Number(p.amount), 0),
-  }));
-
-  let matched = 0;
-  for (const e of entries) {
-    let chargeId: string | null = null;
-    if (e.direction === "EINGANG") {
-      const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - e.amount) < 0.005);
-      if (hit) {
-        chargeId = hit.id;
-        hit.open = 0; // verbraucht
-        matched++;
-      }
-    }
-    await prisma.payment.create({
-      data: {
-        tenantId: user.tenantId,
-        accountId,
-        chargeId,
-        date: new Date(e.date),
-        amount: e.amount,
-        direction: e.direction,
-        reference: e.reference,
-        counterparty: e.counterparty,
-        counterpartyIban: e.counterpartyIban,
-      },
-    });
-  }
+  const r = await importCamtStatement(user.tenantId, String(fd.get("accountId") ?? "") || null, await file.text());
+  if ("error" in r) return fail(r.error);
   revalidatePath("/", "layout");
-  return { ok: true, error: `${entries.length} Buchungen, ${matched} zugeordnet` };
+  return { ok: true, error: `${r.imported} Buchungen übernommen, ${r.skipped} schon vorhanden, ${r.matched} zugeordnet` };
 }
 
 // --- Mahnung: nächste Stufe für überfällige Sollstellung ---

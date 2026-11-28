@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { openCharges, takeCharge } from "@/lib/bank-booking";
 import { decryptSecret } from "@/lib/crypto";
 import * as eb from "@/lib/adapters/enablebanking";
 
@@ -21,9 +22,8 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
   const from = link.lastSyncAt ? new Date(link.lastSyncAt.getTime() - 14 * 86_400_000) : new Date(Date.now() - 90 * 86_400_000);
   const raw = await eb.getTransactions(conn, link.accountUid, from.toISOString().slice(0, 10));
 
-  // Offene Sollstellungen für Auto-Zuordnung (wie camt.053-Import).
-  const charges = await prisma.charge.findMany({ where: { tenantId }, include: { payments: { select: { amount: true } } } });
-  const openMap = charges.map((c) => ({ id: c.id, open: Number(c.amount) - c.payments.reduce((a, p) => a + Number(p.amount), 0) }));
+  // Offene Sollstellungen für Auto-Zuordnung (wie camt.053-Import: Betrag und Zahler müssen passen).
+  const open = await openCharges(tenantId);
 
   let imported = 0;
   let matched = 0;
@@ -49,15 +49,8 @@ export async function syncLink(tenantId: string, linkId: string, conn: eb.Connec
       }
       continue;
     }
-    let chargeId: string | null = null;
-    if (m.direction === "EINGANG") {
-      const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - m.amount) < 0.005);
-      if (hit) {
-        chargeId = hit.id;
-        hit.open = 0;
-        matched++;
-      }
-    }
+    const chargeId = takeCharge(open, m);
+    if (chargeId) matched++;
     await prisma.payment.create({
       data: {
         tenantId, accountId: link.accountId, chargeId, date: new Date(m.date), amount: m.amount,

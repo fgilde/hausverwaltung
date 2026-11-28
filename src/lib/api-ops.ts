@@ -4,7 +4,7 @@ import type { ApiPrincipal } from "@/lib/api-auth";
 import { ApiWriteError } from "@/lib/api-write";
 import { saveFile } from "@/lib/storage";
 import { deliverEmail } from "@/server/outbox";
-import { parseCamt053 } from "@/lib/adapters/bankImport";
+import { importCamtStatement } from "@/lib/bank-booking";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
 import { recurringComponentAmountAt } from "@/lib/rent-components";
@@ -186,35 +186,13 @@ export const OPERATIONS: Record<string, Op> = {
   },
 
   import_camt: {
-    description: "Bank-Import camt.053: XML-Kontoauszug einlesen, Buchungen anlegen und Eingänge automatisch offenen Sollstellungen zuordnen. xml = Dateiinhalt, accountId optional.",
+    description: "Bank-Import camt.053: XML-Kontoauszug einlesen und Buchungen anlegen. Schon vorhandene Buchungen (gleicher Tag, Betrag, Verwendungszweck auf demselben Konto) werden übersprungen; Eingänge werden einer offenen Sollstellung nur zugeordnet, wenn Betrag und Zahler (IBAN oder Name des Mieters) passen. xml = Dateiinhalt, accountId optional.",
     params: { xml: "camt.053 XML-Inhalt", accountId: "optional: Zielkonto-ID" },
     required: ["xml"],
     run: async (p, a) => {
-      const xml = String(need(a, "xml"));
-      const accountId = s(a.accountId) ?? null;
-      if (accountId) {
-        const acc = await prisma.account.findFirst({ where: { id: accountId, tenantId: p.tenantId }, select: { id: true } });
-        if (!acc) throw new ApiWriteError("Konto nicht gefunden", 400);
-      }
-      let entries;
-      try {
-        entries = parseCamt053(xml);
-      } catch {
-        throw new ApiWriteError("camt.053 konnte nicht gelesen werden", 400);
-      }
-      if (entries.length === 0) throw new ApiWriteError("Keine Buchungen in der Datei", 400);
-      const charges = await prisma.charge.findMany({ where: { tenantId: p.tenantId }, include: { payments: { select: { amount: true } } } });
-      const openMap = charges.map((c) => ({ id: c.id, open: Number(c.amount) - c.payments.reduce((x, pay) => x + Number(pay.amount), 0) }));
-      let matched = 0;
-      for (const e of entries) {
-        let chargeId: string | null = null;
-        if (e.direction === "EINGANG") {
-          const hit = openMap.find((o) => o.open > 0 && Math.abs(o.open - e.amount) < 0.005);
-          if (hit) { chargeId = hit.id; hit.open = 0; matched++; }
-        }
-        await prisma.payment.create({ data: { tenantId: p.tenantId, accountId, chargeId, date: new Date(e.date), amount: e.amount, direction: e.direction, reference: e.reference, counterparty: e.counterparty, counterpartyIban: e.counterpartyIban } });
-      }
-      return { imported: entries.length, matched };
+      const r = await importCamtStatement(p.tenantId, s(a.accountId) ?? null, String(need(a, "xml")));
+      if ("error" in r) throw new ApiWriteError(r.error, 400);
+      return r;
     },
   },
 
