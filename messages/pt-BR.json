@@ -461,7 +461,14 @@
     "new": "Adicionar componente",
     "empty": "Apenas aluguel base, sem componentes adicionais.",
     "note": "Observação",
-    "effectiveDate": "Vigente a partir de"
+    "effectiveDate": "Vigente a partir de",
+    "endDate": "Válido até",
+    "from": "a partir de",
+    "until": "até",
+    "adjust": "Alterar valor a partir de uma data",
+    "newAmount": "Novo valor",
+    "adjustHint": "O valor atual vale até o dia anterior. O cálculo é mensal: uma data no dia 1 vale a partir desse mês, senão a partir do próximo. 0 encerra o componente.",
+    "dateHint": "Vazio = desde o início do contrato ou sem prazo."
   },
   "adjustment": {
     "title": "Reajustes de aluguel",

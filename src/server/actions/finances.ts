@@ -91,7 +91,7 @@ export async function generateCharges(_p: ActionState, fd: FormData): Promise<Ac
       startDate: { lte: last },
       OR: [{ endDate: null }, { endDate: { gte: first } }],
     },
-    include: { components: { select: { type: true, amount: true, effectiveDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
+    include: { components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
   });
 
   let created = 0;

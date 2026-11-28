@@ -7,7 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { money, date } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { depositInterest } from "@/lib/deposit";
-import { recurringComponentAmountAt } from "@/lib/rent-components";
+import { componentActive, recurringComponentAmountAt } from "@/lib/rent-components";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import {
 import {
   LeaseDialog,
   ComponentDialog,
+  ComponentAdjustDialog,
   AdjustmentDialog,
   DepositDialog,
   RenterDialog,
@@ -54,7 +55,7 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
     include: {
       unit: { include: { building: { include: { property: true } } } },
       renters: { include: { person: true } },
-      components: { orderBy: [{ type: "asc" }, { effectiveDate: "asc" }] },
+      components: { orderBy: [{ type: "asc" }, { effectiveDate: { sort: "asc", nulls: "first" } }] },
       occupancies: { orderBy: { validFrom: "asc" } },
       documents: { select: { id: true, name: true, category: true, createdAt: true }, orderBy: { createdAt: "desc" } },
       adjustments: { orderBy: { effectiveDate: "asc" } },
@@ -274,15 +275,17 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                 <TableCell className="w-12" />
               </TableRow>
               {lease.components.map((c) => (
-                <TableRow key={c.id}>
+                <TableRow key={c.id} className={componentActive(c, new Date()) ? undefined : "text-muted-foreground"}>
                   <TableCell>
                     {t(`rentComponentType.${c.type}`)}
                     {c.note ? ` · ${c.note}` : ""}
-                    {c.effectiveDate ? ` · ${date(c.effectiveDate, df)}` : ""}
+                    {c.effectiveDate ? ` · ${t("rentComponent.from")} ${date(c.effectiveDate, df)}` : ""}
+                    {c.endDate ? ` · ${t("rentComponent.until")} ${date(c.endDate, df)}` : ""}
                   </TableCell>
                   <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
                   <TableCell>
                     <div className="flex justify-end">
+                      {!c.endDate && <ComponentAdjustDialog id={c.id} amount={Number(c.amount)} />}
                       <DeleteButton action={deleteComponent} id={c.id} />
                     </div>
                   </TableCell>

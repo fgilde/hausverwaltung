@@ -68,7 +68,7 @@ export default async function DashboardPage() {
     }),
     prisma.lease.findMany({
       where: { tenantId, startDate: { lte: now }, OR: [{ endDate: null }, { endDate: { gte: now } }] },
-      include: { components: { select: { type: true, amount: true, effectiveDate: true } } },
+      include: { components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } } },
     }),
     prisma.charge.findMany({ where: { tenantId }, include: { payments: { select: { amount: true } } } }),
     prisma.ticket.count({ where: { tenantId, status: { not: "ERLEDIGT" } } }),

@@ -1,17 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { componentAmountAt, monthlyPrepaymentAt, prepaymentForLeaseYear, recurringComponentAmountAt } from "./rent-components";
+import { componentActive, monthlyPrepaymentAt, prepaymentForLeaseYear, recurringComponentAmountAt } from "./rent-components";
 
 const d = (value: string) => new Date(`${value}T00:00:00.000Z`);
+const c = (type: string, amount: number, effectiveDate: string | null = null, endDate: string | null = null) => ({
+  type, amount, effectiveDate: effectiveDate ? d(effectiveDate) : null, endDate: endDate ? d(endDate) : null,
+});
 
-describe("rent component timelines", () => {
+describe("rent component timelines (#87)", () => {
+  // 220 € bis Juni, ab 1. Juli 270 € (Anpassung beendet den alten Wert zum Vortag)
   const components = [
-    { type: "NEBENKOSTEN", amount: 220, effectiveDate: null },
-    { type: "NEBENKOSTEN", amount: 270, effectiveDate: d("2026-07-01") },
-    { type: "HEIZKOSTEN", amount: 0, effectiveDate: null },
-    { type: "STELLPLATZ", amount: 60, effectiveDate: null },
+    c("NEBENKOSTEN", 220, null, "2026-06-30"),
+    c("NEBENKOSTEN", 270, "2026-07-01"),
+    c("HEIZKOSTEN", 0),
+    c("STELLPLATZ", 60),
   ];
 
-  it("uses the latest service-charge value for each calendar month", () => {
+  it("uses the value valid in each calendar month", () => {
     expect(monthlyPrepaymentAt(components, d("2026-06-01"))).toBe(220);
     expect(monthlyPrepaymentAt(components, d("2026-07-01"))).toBe(270);
   });
@@ -20,30 +24,29 @@ describe("rent component timelines", () => {
     expect(prepaymentForLeaseYear(components, d("2026-01-01"), null, 2026)).toBe(2940);
   });
 
-  it("keeps a single legacy component valid for the whole year", () => {
-    expect(
-      prepaymentForLeaseYear(
-        [{ type: "NEBENKOSTEN", amount: 270, effectiveDate: null }],
-        d("2026-01-01"),
-        null,
-        2026,
-      ),
-    ).toBe(3240);
+  it("keeps undated components additive, also of the same type (150 + 20 cable)", () => {
+    const legacy = [c("NEBENKOSTEN", 150), c("NEBENKOSTEN", 20)];
+    expect(monthlyPrepaymentAt(legacy, d("2026-03-01"))).toBe(170);
+    expect(prepaymentForLeaseYear(legacy, d("2026-01-01"), null, 2026)).toBe(2040);
   });
 
   it("does not treat parking rent as a service-charge prepayment", () => {
-    expect(
-      prepaymentForLeaseYear(
-        [{ type: "NEBENKOSTEN", amount: 220, effectiveDate: null }, { type: "STELLPLATZ", amount: 60, effectiveDate: null }],
-        d("2026-01-01"),
-        null,
-        2026,
-      ),
-    ).toBe(2640);
+    expect(prepaymentForLeaseYear([c("NEBENKOSTEN", 220), c("STELLPLATZ", 60)], d("2026-01-01"), null, 2026)).toBe(2640);
   });
 
-  it("uses the latest current value for the warm-rent display", () => {
-    expect(componentAmountAt(components, "NEBENKOSTEN", d("2026-11-01"))).toBe(270);
-    expect(recurringComponentAmountAt(components, d("2026-11-01"))).toBe(330);
+  it("a change in the middle of a month starts with the next month", () => {
+    const mid = [c("NEBENKOSTEN", 100, null, "2026-05-14"), c("NEBENKOSTEN", 130, "2026-05-15")];
+    expect(monthlyPrepaymentAt(mid, d("2026-05-20"))).toBe(100);
+    expect(monthlyPrepaymentAt(mid, d("2026-06-01"))).toBe(130);
+  });
+
+  it("an ended component (parking space given up) only counts until its end", () => {
+    const parking = c("STELLPLATZ", 60, null, "2026-03-31");
+    expect(componentActive(parking, d("2026-03-01"))).toBe(true);
+    expect(componentActive(parking, d("2026-04-01"))).toBe(false);
+  });
+
+  it("warm-rent components for the current month", () => {
+    expect(recurringComponentAmountAt(components, d("2026-11-28"))).toBe(330);
   });
 });

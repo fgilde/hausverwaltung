@@ -33,7 +33,7 @@ export default async function LeasesPage() {
       include: {
         unit: { include: { building: { include: { property: true } } } },
         renters: { include: { person: true } },
-        components: { select: { type: true, amount: true, effectiveDate: true } },
+        components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } },
       },
       orderBy: { startDate: "desc" },
     }),

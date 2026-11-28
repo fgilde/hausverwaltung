@@ -461,7 +461,14 @@
     "new": "Add component",
     "empty": "Base rent only, no extra components.",
     "note": "Note",
-    "effectiveDate": "Effective from"
+    "effectiveDate": "Effective from",
+    "endDate": "Valid until",
+    "from": "from",
+    "until": "until",
+    "adjust": "Change amount from date",
+    "newAmount": "New amount",
+    "adjustHint": "The current amount applies until the day before. Amounts are counted per month: a date on the 1st applies from that month, otherwise from the next. 0 ends the component.",
+    "dateHint": "Empty = since lease start or open-ended."
   },
   "adjustment": {
     "title": "Rent adjustments",

@@ -8,6 +8,7 @@ import {
   leaseCreateSchema,
   leaseUpdateSchema,
   rentComponentSchema,
+  componentAdjustSchema,
   rentAdjustmentSchema,
   depositSchema,
   renterSchema,
@@ -127,14 +128,30 @@ export async function createComponent(_p: ActionState, fd: FormData): Promise<Ac
   const user = await requireWriter();
   const r = rentComponentSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
-  const lease = await prisma.lease.findFirst({
-    where: { id: r.data.leaseId, tenantId: user.tenantId },
-    select: { id: true, startDate: true },
-  });
-  if (!lease) return fail("Vertrag nicht gefunden");
-  await prisma.rentComponent.create({
-    data: { ...r.data, effectiveDate: r.data.effectiveDate ?? lease.startDate, tenantId: user.tenantId },
-  });
+  if (!(await assertLease(user.tenantId, r.data.leaseId))) return fail("Vertrag nicht gefunden");
+  if (r.data.effectiveDate && r.data.endDate && r.data.endDate < r.data.effectiveDate) return fail("„Gültig bis“ liegt vor „Gültig ab“");
+  await prisma.rentComponent.create({ data: { ...r.data, tenantId: user.tenantId } });
+  return done();
+}
+
+/** Betrag ab Datum ändern (#87): alter Bestandteil endet am Vortag, neuer gilt ab dem Datum (0 = nur beenden). */
+export async function adjustComponent(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const r = componentAdjustSchema.safeParse(Object.fromEntries(fd));
+  if (!r.success) return fail(r.error.issues[0]?.message);
+  const { id, amount, effectiveDate } = r.data;
+  if (Number.isNaN(effectiveDate.getTime())) return fail("Ungültiges Datum");
+  const c = await prisma.rentComponent.findFirst({ where: { id, tenantId: user.tenantId } });
+  if (!c) return fail("Bestandteil nicht gefunden");
+  if (c.endDate) return fail("Bestandteil ist bereits beendet");
+  if (c.effectiveDate && effectiveDate <= c.effectiveDate) return fail("Datum muss nach „Gültig ab“ des bisherigen Betrags liegen");
+  const dayBefore = new Date(effectiveDate.getTime() - 86_400_000);
+  await prisma.$transaction([
+    prisma.rentComponent.update({ where: { id: c.id }, data: { endDate: dayBefore } }),
+    ...(amount > 0
+      ? [prisma.rentComponent.create({ data: { tenantId: c.tenantId, leaseId: c.leaseId, type: c.type, amount, note: c.note, effectiveDate } })]
+      : []),
+  ]);
   return done();
 }
 

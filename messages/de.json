@@ -461,7 +461,14 @@
     "new": "Bestandteil hinzufügen",
     "empty": "Nur Kaltmiete, keine weiteren Bestandteile.",
     "note": "Notiz",
-    "effectiveDate": "Gültig ab"
+    "effectiveDate": "Gültig ab",
+    "endDate": "Gültig bis",
+    "from": "ab",
+    "until": "bis",
+    "adjust": "Betrag ab Datum ändern",
+    "newAmount": "Neuer Betrag",
+    "adjustHint": "Der bisherige Betrag gilt bis zum Vortag. Gerechnet wird monatsweise: ein Datum am Monatsersten gilt ab diesem Monat, sonst ab dem nächsten. 0 beendet den Bestandteil.",
+    "dateHint": "Leer = seit Vertragsbeginn bzw. unbefristet."
   },
   "adjustment": {
     "title": "Mietanpassungen",

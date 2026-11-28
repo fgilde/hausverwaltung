@@ -153,7 +153,14 @@ export const rentComponentSchema = z.object({
   type: z.enum(["NEBENKOSTEN", "HEIZKOSTEN", "STELLPLATZ", "MODERNISIERUNG", "SONSTIGES"]),
   amount: z.coerce.number().nonnegative(),
   effectiveDate: optionalDate,
+  endDate: optionalDate,
   note: optionalStr,
+});
+
+export const componentAdjustSchema = z.object({
+  id: z.string().min(1),
+  amount: z.coerce.number().nonnegative(),
+  effectiveDate: z.string().trim().min(1, "Datum fehlt").transform((v) => new Date(v)),
 });
 
 export const rentAdjustmentSchema = z.object({

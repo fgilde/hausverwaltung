@@ -77,7 +77,7 @@ export default async function PropertyDetailPage({
       startDate: { lte: now },
       OR: [{ endDate: null }, { endDate: { gte: now } }],
     },
-    include: { components: { select: { type: true, amount: true, effectiveDate: true } } },
+    include: { components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } } },
   });
   const [customDefs, unitDefs] = await Promise.all([
     prisma.customFieldDef.findMany({

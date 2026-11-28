@@ -1,4 +1,4 @@
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, CalendarClock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
@@ -7,6 +7,7 @@ import {
   createLease,
   updateLease,
   createComponent,
+  adjustComponent,
   createAdjustment,
   upsertDeposit,
   addRenter,
@@ -156,8 +157,32 @@ export async function ComponentDialog({ leaseId }: { leaseId: string }) {
         ])}
       />
       <TextField name="amount" label={t("fields.value")} type="number" step="0.01" />
-      <TextField name="effectiveDate" label={t("rentComponent.effectiveDate")} type="date" />
+      <TextField name="effectiveDate" label={t("rentComponent.effectiveDate")} type="date" required={false} />
+      <TextField name="endDate" label={t("rentComponent.endDate")} type="date" required={false} />
+      <p className="text-xs text-muted-foreground">{t("rentComponent.dateHint")}</p>
       <TextField name="note" label={t("rentComponent.note")} required={false} />
+    </CrudDialog>
+  );
+}
+
+/** Betrag eines Bestandteils ab Datum ändern (#87), z. B. NK-Vorauszahlung ab Mai 200 statt 150 €. */
+export async function ComponentAdjustDialog({ id, amount }: { id: string; amount: number }) {
+  const t = await getTranslations();
+  return (
+    <CrudDialog
+      trigger={
+        <Button variant="ghost" size="icon" aria-label={t("rentComponent.adjust")} title={t("rentComponent.adjust")}>
+          <CalendarClock className="size-4" />
+        </Button>
+      }
+      title={t("rentComponent.adjust")}
+      action={adjustComponent}
+      submitLabel={t("common.save")}
+    >
+      <input type="hidden" name="id" value={id} />
+      <TextField name="amount" label={t("rentComponent.newAmount")} type="number" step="0.01" defaultValue={String(amount)} />
+      <TextField name="effectiveDate" label={t("rentComponent.effectiveDate")} type="date" />
+      <p className="text-xs text-muted-foreground">{t("rentComponent.adjustHint")}</p>
     </CrudDialog>
   );
 }

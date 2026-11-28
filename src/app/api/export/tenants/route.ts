@@ -12,7 +12,7 @@ export async function GET() {
     where: { tenantId: (await actingTenantId(session.user)) },
     include: {
       person: true,
-      lease: { include: { unit: { include: { building: { include: { property: true } } } }, components: { select: { type: true, amount: true, effectiveDate: true } } } },
+      lease: { include: { unit: { include: { building: { include: { property: true } } } }, components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } } } },
     },
   });
 

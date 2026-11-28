@@ -86,7 +86,7 @@ export const OPERATIONS: Record<string, Op> = {
       const due = new Date(Date.UTC(y, m - 1, 3));
       const leases = await prisma.lease.findMany({
         where: { tenantId: p.tenantId, startDate: { lte: last }, OR: [{ endDate: null }, { endDate: { gte: first } }] },
-        include: { components: { select: { type: true, amount: true, effectiveDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
+        include: { components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
       });
       let created = 0;
       for (const l of leases) {
