@@ -151,6 +151,7 @@ export async function ComponentDialog({ leaseId }: { leaseId: string }) {
         options={await opts("rentComponentType", [
           "NEBENKOSTEN",
           "HEIZKOSTEN",
+          "PAUSCHALE",
           "STELLPLATZ",
           "MODERNISIERUNG",
           "SONSTIGES",

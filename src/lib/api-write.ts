@@ -141,6 +141,17 @@ async function checkRelations(tenantId: string, relations: Record<string, string
   }
 }
 
+/** Schema mit lauter optionalen Feldern; Schemas mit Verfeinerungen bleiben vollständig. */
+function partialOf(schema: z.ZodTypeAny): z.ZodTypeAny {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const s = schema as any;
+    return typeof s.partial === "function" ? s.partial() : schema;
+  } catch {
+    return schema;
+  }
+}
+
 function parse(schema: z.ZodTypeAny, input: Record<string, unknown>) {
   const r = schema.safeParse(input);
   if (!r.success) throw new ApiWriteError(r.error.issues[0]?.message ?? "Ungültige Eingabe", 400);
@@ -219,6 +230,12 @@ export async function apiCreate(p: ApiPrincipal, entity: string, body: Record<st
     return { id: row.id };
   }
 
+  // Wiederholbarer Import (#111): gleiche externalId → vorhandene Zahlung zurückgeben statt doppelt anlegen
+  if (def.model === "payment" && data.externalId) {
+    const hit = await db.payment.findFirst({ where: { tenantId, externalId: data.externalId }, select: { id: true } });
+    if (hit) return { id: hit.id, existing: true };
+  }
+
   const row = await db[def.model].create({ data: { ...data, tenantId, ...(customData ? { custom: customData } : {}) } });
   return { id: row.id };
 }
@@ -237,7 +254,9 @@ export async function apiUpdate(p: ApiPrincipal, entity: string, id: string, bod
     return { id, updated: res.count };
   }
   const { out, customData } = normalize(body, !!def.custom);
-  const data = parse(def.update, out);
+  // Teil-Update (#111): nur gesendete Felder prüfen und ändern
+  const data = Object.fromEntries(Object.entries(parse(partialOf(def.update), out)).filter(([k]) => k in out));
+  if (!Object.keys(data).length && !customData) throw new ApiWriteError("Keine Felder zum Ändern", 400);
   await checkRelations(p.tenantId, def.relations, data);
   const res = await db[def.model].updateMany({
     where: { id, tenantId: p.tenantId },

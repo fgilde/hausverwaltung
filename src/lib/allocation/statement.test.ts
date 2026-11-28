@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildStatement, monthsActiveInYear, personSlices } from "./statement";
+import { buildStatement, monthsActiveInYear, personSlices, leaseYearShare } from "./statement";
 
 const d = (s: string) => new Date(s + "T00:00:00Z");
 
@@ -360,5 +360,36 @@ describe("personSlices (#90)", () => {
       { leaseId: "l", persons: 3, fraction: 90 / 365 },
       { leaseId: null, persons: 1, fraction: 275 / 365 },
     ]);
+  });
+});
+
+describe("Mieterwechsel im Monat und Pauschale (#108, #110)", () => {
+  const d = (s: string) => new Date(`${s}T00:00:00.000Z`);
+
+  it("leaseYearShare: ganze Monate wie bisher, Wechsel am 15. nach Tagen", () => {
+    expect(leaseYearShare(d("2026-01-01"), d("2026-07-31"), 2026)).toEqual({ fraction: 7 / 12, label: "7/12" });
+    expect(leaseYearShare(d("2026-01-01"), d("2026-08-14"), 2026)).toEqual({ fraction: 226 / 365, label: "226/365 Tage" });
+    expect(leaseYearShare(d("2026-08-15"), null, 2026)).toEqual({ fraction: 139 / 365, label: "139/365 Tage" });
+  });
+
+  it("Wechsel 14./15.08.: die Einheit trägt genau 12/12, nicht 13/12", () => {
+    const a = leaseYearShare(d("2026-01-01"), d("2026-08-14"), 2026);
+    const b = leaseYearShare(d("2026-08-15"), null, 2026);
+    const r = buildStatement(
+      [{ id: "z1", label: "Zimmer 1", area: 20, persons: 1, leases: [
+        { id: "alt", monthsActive: 8, fraction: a.fraction, prepayment: 0 },
+        { id: "neu", monthsActive: 5, fraction: b.fraction, prepayment: 0 },
+      ] }],
+      [{ id: "k", amount: 365, method: "AREA", umlagefaehig: true }],
+    );
+    expect(r.lines.map((l) => l.allocated)).toEqual([226, 139]);
+  });
+
+  it("Pauschale: Anteil sichtbar, aber kein Saldo", () => {
+    const r = buildStatement(
+      [{ id: "z1", label: "Zimmer 1", area: 20, persons: 1, leases: [{ id: "p", monthsActive: 12, prepayment: 500, flatRate: true }] }],
+      [{ id: "k", amount: 300, method: "AREA", umlagefaehig: true }],
+    );
+    expect(r.lines[0]).toMatchObject({ allocated: 300, prepayment: 0, balance: 0, flatRate: true });
   });
 });

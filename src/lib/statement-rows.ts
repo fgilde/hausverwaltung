@@ -45,9 +45,9 @@ function basisText(i: StatementItem): string {
   }
 }
 
-function shareText(i: StatementItem, monthsActive: number): string {
+function shareText(i: StatementItem, timeShare: string): string {
   if (i.apportion === "persons") return "tagesgenau";
-  if (i.apportion === "months") return `${monthsActive}/12`;
+  if (i.apportion === "months") return timeShare;
   return `${num(i.leaseFactor * 100, 0)} %`;
 }
 
@@ -55,7 +55,8 @@ export function statementRows(
   items: StatementItem[],
   costs: { id: string; type: string; note: string | null }[],
   costLabel: (type: string) => string,
-  monthsActive: number,
+  /** Zeitanteil als Text, z. B. "7/12" oder "139/365 Tage" (#108) */
+  timeShare: string,
 ): StatementRow[] {
   const byId = new Map(costs.map((c) => [c.id, c]));
   return items.map((i) => {
@@ -67,7 +68,7 @@ export function statementRows(
       total: i.total,
       key: KEY[i.method] ?? i.method,
       basis: basisText(i),
-      share: shareText(i, monthsActive),
+      share: shareText(i, timeShare),
       amount: i.amount,
     };
   });

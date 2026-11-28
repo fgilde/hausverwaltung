@@ -81,6 +81,7 @@ export function missingRequired(entity: string, cols: Record<string, number>): s
 
 export const UNIT_TYPE_MAP: Record<string, string> = {
   wohnung: "WOHNUNG", flat: "WOHNUNG", apartment: "WOHNUNG",
+  zimmer: "ZIMMER", room: "ZIMMER", "wg-zimmer": "ZIMMER",
   gewerbe: "GEWERBE", commercial: "GEWERBE",
   stellplatz: "STELLPLATZ", parking: "STELLPLATZ", garage: "STELLPLATZ",
   keller: "KELLER", cellar: "KELLER",

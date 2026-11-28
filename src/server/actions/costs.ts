@@ -7,7 +7,7 @@ import { costEntrySchema, type ActionState } from "@/lib/schemas";
 import { subcommunityValid } from "@/server/weg";
 import type { UnitType } from "@prisma/client";
 
-const UNIT_TYPES: UnitType[] = ["WOHNUNG", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"];
+const UNIT_TYPES: UnitType[] = ["WOHNUNG", "ZIMMER", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"];
 
 // Checkboxen kommen mehrfach unter einem Namen, Object.fromEntries behält nur einen (#105).
 const unitTypesOf = (fd: FormData) =>

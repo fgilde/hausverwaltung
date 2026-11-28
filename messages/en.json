@@ -395,6 +395,7 @@
   },
   "unitType": {
     "WOHNUNG": "Apartment",
+    "ZIMMER": "Room",
     "GEWERBE": "Commercial",
     "STELLPLATZ": "Parking space",
     "KELLER": "Basement",
@@ -502,6 +503,7 @@
   "rentComponentType": {
     "NEBENKOSTEN": "Service charge prepayment",
     "HEIZKOSTEN": "Heating prepayment",
+    "PAUSCHALE": "Flat-rate service charges",
     "STELLPLATZ": "Parking rent",
     "MODERNISIERUNG": "Modernisation surcharge",
     "SONSTIGES": "Other"
@@ -879,7 +881,10 @@
     "editCost": "Edit cost item",
     "unitTypes": "Only units of type",
     "unitTypesHint": "Nothing ticked = all units. E.g. garage door only on parking spaces, stairwell cleaning only on apartments.",
-    "singlePdf": "Individual statement (PDF)"
+    "singlePdf": "Individual statement (PDF)",
+    "flatRate": "Flat rate, no statement",
+    "splitCharges": "Charges: cold rent and service charges separately",
+    "splitChargesHint": "The charge run creates two items per lease (rent and service charge prepayment or flat rate), e.g. if both go to different accounts."
   },
   "costType": {
     "GRUNDSTEUER": "Property tax",

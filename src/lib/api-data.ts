@@ -60,8 +60,10 @@ export async function listUnits(tenantId: string) {
     area: num(u.area),
     rooms: num(u.rooms),
     mea: u.mea,
+    buildingId: u.buildingId,
     property: u.building.property.name,
     building: u.building.name,
+    custom: u.custom,
   }));
 }
 
@@ -86,17 +88,23 @@ export async function listLeases(tenantId: string) {
     include: {
       unit: { include: { building: { include: { property: { select: { name: true } } } } } },
       renters: { include: { person: { select: { firstName: true, lastName: true } } } },
+      components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } },
     },
     orderBy: { startDate: "desc" },
   });
   return rows.map((l) => ({
     id: l.id,
+    unitId: l.unitId,
     property: l.unit.building.property.name,
     unit: l.unit.label,
+    personIds: l.renters.map((r) => r.personId),
     tenants: l.renters.map((r) => `${r.person.firstName} ${r.person.lastName}`),
     rentCold: num(l.rentCold),
+    personCount: l.personCount,
+    components: l.components.map((c) => ({ type: c.type, amount: num(c.amount), effectiveDate: c.effectiveDate ? day(c.effectiveDate) : null, endDate: c.endDate ? day(c.endDate) : null })),
     startDate: l.startDate.toISOString().slice(0, 10),
     endDate: l.endDate ? l.endDate.toISOString().slice(0, 10) : null,
+    custom: l.custom,
   }));
 }
 
@@ -248,7 +256,10 @@ export async function listCharges(tenantId: string) {
     const paid = c.payments.reduce((s, p) => s + Number(p.amount), 0);
     return {
       id: c.id,
+      leaseId: c.leaseId,
+      areaAllocationId: c.areaAllocationId,
       type: c.type,
+      description: c.description,
       period: day(c.period),
       dueDate: day(c.dueDate),
       amount: num(c.amount),
@@ -270,7 +281,13 @@ export async function listPayments(tenantId: string) {
     amount: num(p.amount),
     direction: p.direction,
     reference: p.reference,
+    chargeId: p.chargeId,
+    accountId: p.accountId,
     account: p.account?.name ?? null,
+    counterparty: p.counterparty,
+    counterpartyIban: p.counterpartyIban,
+    externalId: p.externalId,
+    note: p.note,
   }));
 }
 

@@ -395,6 +395,7 @@
   },
   "unitType": {
     "WOHNUNG": "Wohnung",
+    "ZIMMER": "Zimmer",
     "GEWERBE": "Gewerbe",
     "STELLPLATZ": "Stellplatz",
     "KELLER": "Keller",
@@ -502,6 +503,7 @@
   "rentComponentType": {
     "NEBENKOSTEN": "Nebenkosten-Vorauszahlung",
     "HEIZKOSTEN": "Heizkosten-Vorauszahlung",
+    "PAUSCHALE": "Betriebskostenpauschale",
     "STELLPLATZ": "Stellplatzmiete",
     "MODERNISIERUNG": "Modernisierungsumlage",
     "SONSTIGES": "Sonstiges"
@@ -879,7 +881,10 @@
     "editCost": "Kostenposition bearbeiten",
     "unitTypes": "Nur Einheiten vom Typ",
     "unitTypesHint": "Nichts angehakt = alle Einheiten. Z. B. Garagentor nur auf Stellplätze, Treppenhausreinigung nur auf Wohnungen.",
-    "singlePdf": "Einzelabrechnung (PDF)"
+    "singlePdf": "Einzelabrechnung (PDF)",
+    "flatRate": "Pauschale, keine Abrechnung",
+    "splitCharges": "Sollstellung: Kaltmiete und Nebenkosten getrennt",
+    "splitChargesHint": "Der Sollstellungslauf legt je Vertrag zwei Posten an (Miete und Nebenkosten-Vorauszahlung bzw. Pauschale), z. B. wenn beide auf verschiedene Konten gehen."
   },
   "costType": {
     "GRUNDSTEUER": "Grundsteuer",

@@ -214,7 +214,7 @@ export async function UnitDialog({
         name="type"
         label={t("fields.type")}
         defaultValue={unit?.type ?? "WOHNUNG"}
-        options={await opts("unitType", ["WOHNUNG", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"])}
+        options={await opts("unitType", ["WOHNUNG", "ZIMMER", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"])}
       />
       <div className="grid grid-cols-2 gap-4">
         <TextField name="area" label={t("fields.area")} type="number" step="0.01" defaultValue={unit?.area} />

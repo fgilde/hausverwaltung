@@ -12,7 +12,7 @@ const COST_TYPES = [
   "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "INSTANDHALTUNG", "VERWALTUNG", "SONSTIGE",
 ];
 const METHODS = ["AREA", "UNITS", "PERSONS", "CONSUMPTION", "MEA"];
-const UNIT_TYPES = ["WOHNUNG", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"];
+const UNIT_TYPES = ["WOHNUNG", "ZIMMER", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"];
 
 /** Vorhandene Position zum Bearbeiten (#97). */
 export type CostEdit = {

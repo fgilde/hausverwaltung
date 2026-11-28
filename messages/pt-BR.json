@@ -395,6 +395,7 @@
   },
   "unitType": {
     "WOHNUNG": "Apartamento",
+    "ZIMMER": "Quarto",
     "GEWERBE": "Comercial",
     "STELLPLATZ": "Vaga de estacionamento",
     "KELLER": "Porão",
@@ -502,6 +503,7 @@
   "rentComponentType": {
     "NEBENKOSTEN": "Adiantamento de encargos",
     "HEIZKOSTEN": "Adiantamento de aquecimento",
+    "PAUSCHALE": "Taxa fixa de despesas",
     "STELLPLATZ": "Aluguel de vaga",
     "MODERNISIERUNG": "Acréscimo por modernização",
     "SONSTIGES": "Outros"
@@ -879,7 +881,10 @@
     "editCost": "Editar item de custo",
     "unitTypes": "Somente unidades do tipo",
     "unitTypesHint": "Nada marcado = todas as unidades. Ex.: portão da garagem só para vagas, limpeza da escada só para apartamentos.",
-    "singlePdf": "Acerto individual (PDF)"
+    "singlePdf": "Acerto individual (PDF)",
+    "flatRate": "Taxa fixa, sem prestação de contas",
+    "splitCharges": "Cobranças: aluguel e despesas separados",
+    "splitChargesHint": "A geração de cobranças cria dois itens por contrato (aluguel e adiantamento de despesas ou taxa fixa), por exemplo quando vão para contas diferentes."
   },
   "costType": {
     "GRUNDSTEUER": "Imposto predial",

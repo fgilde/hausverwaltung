@@ -1,7 +1,5 @@
 "use server";
 
-import { recurringComponentAmountAt } from "@/lib/rent-components";
-
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
@@ -15,7 +13,7 @@ import {
 } from "@/lib/schemas";
 import { importCamtStatement } from "@/lib/bank-booking";
 import { ensureDefaultAccounts } from "@/lib/accounts";
-import { generateAreaCharges } from "@/lib/api-ops";
+import { generateAreaCharges, generateLeaseCharges } from "@/lib/api-ops";
 import { audit } from "@/lib/audit";
 import { saveFile } from "@/lib/storage";
 import { money } from "@/lib/format";
@@ -85,31 +83,7 @@ export async function generateCharges(_p: ActionState, fd: FormData): Promise<Ac
   const last = new Date(Date.UTC(y, m, 0));
   const due = new Date(Date.UTC(y, m - 1, 3));
 
-  const leases = await prisma.lease.findMany({
-    where: {
-      tenantId: user.tenantId,
-      startDate: { lte: last },
-      OR: [{ endDate: null }, { endDate: { gte: first } }],
-    },
-    include: { components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
-  });
-
-  let created = 0;
-  for (const l of leases) {
-    if (l.charges.length > 0) continue; // schon vorhanden
-    const warm = Number(l.rentCold) + recurringComponentAmountAt(l.components, first);
-    await prisma.charge.create({
-      data: {
-        tenantId: user.tenantId,
-        leaseId: l.id,
-        type: "MIETE",
-        period: first,
-        dueDate: due,
-        amount: warm,
-      },
-    });
-    created++;
-  }
+  let created = await generateLeaseCharges(user.tenantId, first, last, due);
   const areaCreated = await generateAreaCharges(user.tenantId, first, due, last);
   created += areaCreated;
   // Nichts angelegt: im Dialog stehen lassen statt „gespeichert“ (#106), mit dem Grund.
@@ -125,8 +99,11 @@ export async function generateCharges(_p: ActionState, fd: FormData): Promise<Ac
         property: { areaModel: true },
       },
     });
+    const activeLeases = await prisma.lease.count({
+      where: { tenantId: user.tenantId, startDate: { lte: last }, OR: [{ endDate: null }, { endDate: { gte: first } }] },
+    });
     return fail(
-      leases.length === 0 && activeAreas === 0
+      activeLeases === 0 && activeAreas === 0
         ? `Kein Mietverhältnis ist im ${r.data.month} aktiv. Beginn und Ende der Verträge prüfen.`
         : "Keine neuen Sollstellungen: für diesen Monat sind schon alle angelegt.",
     );

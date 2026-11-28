@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function StatementDefaults({ heatingConsumptionPct }: { heatingConsumptionPct: number | null }) {
+export function StatementDefaults({ heatingConsumptionPct, splitRentCharges }: { heatingConsumptionPct: number | null; splitRentCharges: boolean }) {
   const t = useTranslations("statements");
   const [state, action, pending] = useActionState<ActionState, FormData>(updateStatementDefaults, {});
 
@@ -37,6 +37,10 @@ export function StatementDefaults({ heatingConsumptionPct }: { heatingConsumptio
               className="w-28"
             />
           </div>
+          <label className="flex h-9 items-center gap-2 text-sm" title={t("splitChargesHint")}>
+            <input type="checkbox" name="splitRentCharges" defaultChecked={splitRentCharges} className="size-4" />
+            {t("splitCharges")}
+          </label>
           <Button type="submit" disabled={pending}>{t("save")}</Button>
           {state.error && (
             <span className="flex items-center gap-1.5 text-sm text-destructive">

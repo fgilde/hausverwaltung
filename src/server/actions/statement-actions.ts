@@ -63,7 +63,7 @@ export async function emailStatementToTenants(_p: ActionState, fd: FormData): Pr
   const ids: string[] = [];
 
   for (const u of st.units) {
-    if (u.renterEmails.length === 0) continue;
+    if (u.renterEmails.length === 0 || u.flatRate) continue; // Pauschale: keine Abrechnung (#110)
     const kind = u.balance >= 0 ? "Guthaben" : "Nachzahlung";
     const body =
       `Sehr geehrte Mieterin, sehr geehrter Mieter,\n\n` +

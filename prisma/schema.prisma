@@ -93,6 +93,7 @@ enum PropertyType {
 
 enum UnitType {
   WOHNUNG
+  ZIMMER // WG-Zimmer mit eigenem Mietvertrag (#107)
   GEWERBE
   STELLPLATZ
   KELLER
@@ -177,6 +178,8 @@ model Tenant {
   // HeizkostenV: Standard-Verbrauchsanteil in % (50–100, Rest nach Fläche).
   // null → 70 %. Je Kostenposition überschreibbar (CostEntry.consumptionSharePct).
   heatingConsumptionPct Int?
+  // Sollstellungslauf: Kaltmiete und Nebenkosten als getrennte Posten (#109)
+  splitRentCharges Boolean @default(false)
 
   // true bei geseedeten Demo-Daten → öffentliche Marketing-Seite als Fallback
   isDemo Boolean @default(false)
@@ -546,6 +549,7 @@ model Renter {
 enum RentComponentType {
   NEBENKOSTEN
   HEIZKOSTEN
+  PAUSCHALE // Betriebskostenpauschale, wird nicht abgerechnet (#110)
   STELLPLATZ
   MODERNISIERUNG
   SONSTIGES

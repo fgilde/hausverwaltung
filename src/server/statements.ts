@@ -1,9 +1,9 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { buildStatement, monthsActiveInYear, personSlices, type UnitInput, type CostInput, type StatementItem } from "@/lib/allocation/statement";
+import { buildStatement, leaseYearShare, monthsActiveInYear, personSlices, type UnitInput, type CostInput, type StatementItem } from "@/lib/allocation/statement";
 import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
-import { prepaymentForLeaseYear } from "@/lib/rent-components";
+import { FLAT_RATE_TYPE, prepaymentForLeaseYear } from "@/lib/rent-components";
 
 /** Heiz-/Warmwasserverbrauch einer Einheit im Jahr aus den Zählerständen (Ablesedifferenz). */
 export function meterConsumption(meters: { readings: { value: unknown; date: Date }[] }[]): number {
@@ -34,6 +34,10 @@ export interface StatementUnit {
   period: { from: Date; to: Date } | null;
   /** aktive Monate im Jahr (Grundlage der Vorauszahlung) */
   monthsActive: number;
+  /** Zeitanteil als Text: "7/12" oder bei Ein-/Auszug im Monat "139/365 Tage" (#108) */
+  timeShare: string;
+  /** Betriebskostenpauschale (#110): keine Abrechnung */
+  flatRate: boolean;
 }
 
 export interface StatementResult {
@@ -55,6 +59,10 @@ export async function computeStatement(
 ): Promise<StatementResult> {
   const yStart = new Date(Date.UTC(year, 0, 1));
   const yEnd = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
+  // ponytail: Pauschale gilt fürs ganze Jahr, sobald sie im Jahr irgendwann gilt; Wechsel Pauschale ↔
+  // Vorauszahlung im laufenden Jahr bräuchte eine Aufteilung der Abrechnung nach Zeiträumen.
+  const isFlatRate = (components: { type: string; effectiveDate: Date | null; endDate: Date | null }[]) =>
+    components.some((c) => c.type === FLAT_RATE_TYPE && (!c.effectiveDate || c.effectiveDate <= yEnd) && (!c.endDate || c.endDate >= yStart));
 
   const [property, dbUnits, costs] = await Promise.all([
     prisma.property.findFirst({
@@ -94,14 +102,13 @@ export async function computeStatement(
       personSlices: personSlices(u.leases, year),
       mea: u.mea ?? undefined,
       consumption,
-      leases: u.leases.map((l) => {
-        const months = monthsActiveInYear(l.startDate, l.endDate, year);
-        return {
-          id: l.id,
-          monthsActive: months,
-          prepayment: prepaymentForLeaseYear(l.components, l.startDate, l.endDate, year),
-        };
-      }),
+      leases: u.leases.map((l) => ({
+        id: l.id,
+        monthsActive: monthsActiveInYear(l.startDate, l.endDate, year),
+        fraction: leaseYearShare(l.startDate, l.endDate, year).fraction,
+        prepayment: prepaymentForLeaseYear(l.components, l.startDate, l.endDate, year),
+        flatRate: isFlatRate(l.components),
+      })),
     };
   });
 
@@ -161,6 +168,8 @@ export async function computeStatement(
           }
         : null,
       monthsActive: lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0,
+      timeShare: lease ? leaseYearShare(lease.startDate, lease.endDate, year).label : "",
+      flatRate: !!line.flatRate,
     };
   });
 

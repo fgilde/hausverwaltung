@@ -187,12 +187,16 @@ export default async function StatementsPage({
                     <TableCell className="text-right">{money(l.allocated, locale)}</TableCell>
                     <TableCell className="text-right">{money(l.prepayment, locale)}</TableCell>
                     <TableCell className="text-right">
-                      <Badge variant={l.balance >= 0 ? "secondary" : "destructive"}>
-                        {money(l.balance, locale)} · {l.balance >= 0 ? t("statements.credit") : t("statements.arrears")}
-                      </Badge>
+                      {l.flatRate ? (
+                        <Badge variant="outline">{t("statements.flatRate")}</Badge>
+                      ) : (
+                        <Badge variant={l.balance >= 0 ? "secondary" : "destructive"}>
+                          {money(l.balance, locale)} · {l.balance >= 0 ? t("statements.credit") : t("statements.arrears")}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>
-                      {l.leaseId && (
+                      {l.leaseId && !l.flatRate && (
                         <Button
                           variant="ghost"
                           size="icon"

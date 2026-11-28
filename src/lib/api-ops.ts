@@ -7,7 +7,7 @@ import { deliverEmail } from "@/server/outbox";
 import { importCamtStatement } from "@/lib/bank-booking";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
-import { recurringComponentAmountAt } from "@/lib/rent-components";
+import { monthCharges, NK_PREPAYMENT_DESC } from "@/lib/rent-components";
 
 // Dedizierte Operationen (kein reines CRUD) für REST-API + MCP.
 // Fachlogik gespiegelt aus den Server Actions, aber Bearer-Auth statt Session.
@@ -72,9 +72,36 @@ export async function generateAreaCharges(tenantId: string, first: Date, due: Da
 }
 
 
+/**
+ * Miet-Sollstellungen aller im Monat aktiven Verträge (#108 anteilig, #109 getrennt).
+ * Dedup: ein Vertrag mit Miet- oder NK-Vorauszahlungs-Sollstellung im Monat wird übersprungen.
+ */
+export async function generateLeaseCharges(tenantId: string, first: Date, last: Date, due: Date): Promise<number> {
+  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { splitRentCharges: true } });
+  const leases = await prisma.lease.findMany({
+    where: { tenantId, startDate: { lte: last }, OR: [{ endDate: null }, { endDate: { gte: first } }] },
+    include: {
+      components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } },
+      charges: {
+        where: { period: first, OR: [{ type: "MIETE" }, { type: "NEBENKOSTEN", description: { startsWith: NK_PREPAYMENT_DESC } }] },
+        select: { id: true },
+      },
+    },
+  });
+  let created = 0;
+  for (const l of leases) {
+    if (l.charges.length > 0) continue; // schon vorhanden
+    for (const c of monthCharges(l, first.getUTCFullYear(), first.getUTCMonth(), !!tenant?.splitRentCharges)) {
+      await prisma.charge.create({ data: { tenantId, leaseId: l.id, type: c.type, period: first, dueDate: due, amount: c.amount, description: c.description } });
+      created++;
+    }
+  }
+  return created;
+}
+
 export const OPERATIONS: Record<string, Op> = {
   run_charge_generation: {
-    description: "Sollstellungslauf: erzeugt für alle aktiven Mietverträge die Miet-Sollstellung des Monats (Dedup: bereits vorhandene bleiben). month = YYYY-MM.",
+    description: "Sollstellungslauf: erzeugt für alle aktiven Mietverträge die Miet-Sollstellung des Monats, bei Ein-/Auszug im Monat anteilig nach Tagen; mit der Einstellung \"Kaltmiete und Nebenkosten getrennt\" zwei Posten (MIETE, NEBENKOSTEN). Bereits vorhandene bleiben. month = YYYY-MM.",
     params: { month: "Abrechnungsmonat YYYY-MM" },
     required: ["month"],
     run: async (p, a) => {
@@ -84,19 +111,9 @@ export const OPERATIONS: Record<string, Op> = {
       const first = new Date(Date.UTC(y, m - 1, 1));
       const last = new Date(Date.UTC(y, m, 0));
       const due = new Date(Date.UTC(y, m - 1, 3));
-      const leases = await prisma.lease.findMany({
-        where: { tenantId: p.tenantId, startDate: { lte: last }, OR: [{ endDate: null }, { endDate: { gte: first } }] },
-        include: { components: { select: { type: true, amount: true, effectiveDate: true, endDate: true } }, charges: { where: { period: first, type: "MIETE" }, select: { id: true } } },
-      });
-      let created = 0;
-      for (const l of leases) {
-        if (l.charges.length > 0) continue;
-        const warm = Number(l.rentCold) + recurringComponentAmountAt(l.components, first);
-        await prisma.charge.create({ data: { tenantId: p.tenantId, leaseId: l.id, type: "MIETE", period: first, dueDate: due, amount: warm } });
-        created++;
-      }
+      let created = await generateLeaseCharges(p.tenantId, first, last, due);
       created += await generateAreaCharges(p.tenantId, first, due, last);
-      return { created, skipped: leases.length - created };
+      return { created };
     },
   },
 

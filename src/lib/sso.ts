@@ -12,6 +12,8 @@ export type OidcConfig = {
   issuer: string;
   clientId: string;
   clientSecret: string;
+  /** PKCE + state (#112): manche IdPs (z. B. Pocket ID) verlangen state */
+  checks: ("pkce" | "state")[];
 };
 
 /** Liefert die OIDC-Provider-Konfiguration aus der Umgebung oder null (deaktiviert). */
@@ -27,6 +29,7 @@ export function oidcConfigFromEnv(env: NodeJS.ProcessEnv = process.env): OidcCon
     issuer,
     clientId,
     clientSecret,
+    checks: ["pkce", "state"],
   };
 }
 

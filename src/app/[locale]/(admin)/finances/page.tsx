@@ -283,7 +283,10 @@ export default async function FinancesPage({
                 {pagedRows.map(({ c, open, status, dunLevel }) => (
                   <TableRow key={c.id}>
                     <TableCell>{date(c.period, df)}</TableCell>
-                    <TableCell>{t(`chargeType.${c.type}`)}</TableCell>
+                    <TableCell>
+                      {t(`chargeType.${c.type}`)}
+                      {c.description && <div className="text-xs text-muted-foreground">{c.description}</div>}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {c.lease ? (
                         <div className="flex flex-col">

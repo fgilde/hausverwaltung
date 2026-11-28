@@ -148,7 +148,7 @@ export default async function SettingsPage() {
 
   const advancedContent = (
     <>
-      {isAdmin && tenant && <StatementDefaults heatingConsumptionPct={tenant.heatingConsumptionPct} />}
+      {isAdmin && tenant && <StatementDefaults heatingConsumptionPct={tenant.heatingConsumptionPct} splitRentCharges={tenant.splitRentCharges} />}
       <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>

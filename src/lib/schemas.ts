@@ -66,7 +66,7 @@ export const buildingUpdateSchema = buildingSchema.omit({ propertyId: true });
 export const unitSchema = z.object({
   buildingId: z.string().min(1),
   label: z.string().trim().min(1),
-  type: z.enum(["WOHNUNG", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"]),
+  type: z.enum(["WOHNUNG", "ZIMMER", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"]),
   area: z
     .string()
     .transform(parseDecimal)
@@ -150,7 +150,7 @@ export const leaseUpdateSchema = z.object({
 
 export const rentComponentSchema = z.object({
   leaseId: z.string().min(1),
-  type: z.enum(["NEBENKOSTEN", "HEIZKOSTEN", "STELLPLATZ", "MODERNISIERUNG", "SONSTIGES"]),
+  type: z.enum(["NEBENKOSTEN", "HEIZKOSTEN", "PAUSCHALE", "STELLPLATZ", "MODERNISIERUNG", "SONSTIGES"]),
   amount: z.coerce.number().nonnegative(),
   effectiveDate: optionalDate,
   endDate: optionalDate,
@@ -231,6 +231,8 @@ export const paymentSchema = z.object({
   amount: z.coerce.number(),
   direction: z.enum(["EINGANG", "AUSGANG"]),
   reference: optionalStr,
+  // eigene ID aus dem Quellsystem (#111): ein zweiter Import mit derselben ID legt nichts neu an
+  externalId: optionalStr,
 });
 
 export const mandateSchema = z.object({

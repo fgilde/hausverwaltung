@@ -26,6 +26,11 @@ export interface LeaseSlice {
   monthsActive: number;
   /** NK-Vorauszahlung im Zeitraum (monatlich × aktive Monate). */
   prepayment: number;
+  /** Zeitanteil am Jahr (#108): bei ganzen Monaten Monate/12, bei Ein-/Auszug im Monat Tage/Tage im Jahr.
+   *  Fehlt → monthsActive/12. */
+  fraction?: number;
+  /** Betriebskostenpauschale (#110): keine Abrechnung, die Kosten trägt der Vermieter. */
+  flatRate?: boolean;
 }
 
 /** Zeitscheibe mit Personenzahl (#90): ein Mietverhältnis bzw. Leerstand (leaseId null)
@@ -100,6 +105,8 @@ export interface StatementLine {
   prepayment: number;
   balance: number; // >0 Guthaben, <0 Nachzahlung
   items: StatementItem[];
+  /** Pauschalmiete (#110): Kostenanteil nur zur Information, kein Saldo */
+  flatRate?: boolean;
 }
 
 function weightOf(u: UnitInput, method: AllocationMethod): number {
@@ -227,19 +234,20 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
       continue;
     }
 
-    const sumMonths = u.leases.reduce((a, l) => a + clampMonths(l.monthsActive), 0);
+    const shareOf = (l: LeaseSlice) => Math.min(1, Math.max(0, l.fraction ?? clampMonths(l.monthsActive) / 12));
+    const sumShares = u.leases.reduce((a, l) => a + shareOf(l), 0);
     const personWeight = weightOf(u, "PERSONS");
     for (const lease of u.leases) {
-      const m = clampMonths(lease.monthsActive);
+      const share = shareOf(lease);
       const leasePersons = (u.personSlices ?? [])
         .filter((s) => s.leaseId === lease.id)
         .reduce((a, s) => a + s.persons * s.fraction, 0);
       const raw = unitParts[u.id].map((p) => {
         const factor =
           p.pot === "time"
-            ? m / 12
+            ? share
             : p.pot === "cons"
-              ? sumMonths > 0 ? m / sumMonths : 0
+              ? sumShares > 0 ? share / sumShares : 0
               : personWeight > 0 ? leasePersons / personWeight : 0;
         return { p, factor, amount: p.amount * factor };
       });
@@ -250,8 +258,9 @@ export function buildStatement(units: UnitInput[], costs: CostInput[]) {
         leaseId: lease.id,
         label: u.label,
         allocated,
-        prepayment: round(lease.prepayment),
-        balance: round(lease.prepayment - allocated),
+        prepayment: lease.flatRate ? 0 : round(lease.prepayment),
+        balance: lease.flatRate ? 0 : round(lease.prepayment - allocated),
+        ...(lease.flatRate ? { flatRate: true } : {}),
         items: raw.map(({ p, factor }, i) => ({
           costId: p.costId,
           part: p.part,
@@ -313,4 +322,23 @@ export function personSlices(
   const vacant = yearDays - Math.min(yearDays, leased);
   if (vacant > 0) slices.push({ leaseId: null, persons: leases.at(-1)?.personCount ?? 1, fraction: vacant / yearDays });
   return slices;
+}
+
+/**
+ * Zeitanteil eines Mietverhältnisses am Abrechnungsjahr (#108). Beginnt und endet es an
+ * Monatsgrenzen, wie bisher Monate/12 ("7/12"); bei Ein- oder Auszug im Monat nach Tagen
+ * ("139/365 Tage"), damit bei Mieterwechsel am 15. nicht beide den ganzen Monat tragen.
+ */
+export function leaseYearShare(start: Date, end: Date | null, year: number): { fraction: number; label: string } {
+  const y0 = dayOf(new Date(Date.UTC(year, 0, 1)));
+  const y1 = dayOf(new Date(Date.UTC(year + 1, 0, 1)));
+  const from = Math.max(y0, dayOf(start));
+  const to = Math.min(y1, end ? dayOf(end) + 1 : y1); // exklusiv
+  const days = Math.max(0, to - from);
+  const onFirst = (d: number) => new Date(d * DAY).getUTCDate() === 1;
+  if (days === 0 || (onFirst(from) && onFirst(to))) {
+    const m = monthsActiveInYear(start, end, year);
+    return { fraction: m / 12, label: `${m}/12` };
+  }
+  return { fraction: days / (y1 - y0), label: `${days}/${y1 - y0} Tage` };
 }

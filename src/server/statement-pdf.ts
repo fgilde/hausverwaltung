@@ -127,6 +127,8 @@ export type StatementOverviewInput = Head & {
   propertyLine: string;
   costs: { label: string; key: string; amount: number }[];
   units: { label: string; allocated: number; prepayment: number; balance: number }[];
+  /** es gibt Pauschalmieten (#110), deren Anteil der Vermieter trägt */
+  flatRate?: boolean;
   totalUmlage: number;
 };
 
@@ -156,7 +158,9 @@ export function statementOverviewPdf(s: StatementOverviewInput): Promise<Buffer>
   doc.moveDown(0.5);
   sums(doc, [
     { label: "Summe Mieter", value: money(tenants) },
-    ...(Math.abs(landlord) >= 0.01 ? [{ label: "Leerstand (trägt der Vermieter)", value: money(landlord) }] : []),
+    ...(Math.abs(landlord) >= 0.01
+      ? [{ label: s.flatRate ? "Leerstand und Pauschalmieten (trägt der Vermieter)" : "Leerstand (trägt der Vermieter)", value: money(landlord) }]
+      : []),
     { label: "Umlagefähige Kosten gesamt", value: money(s.totalUmlage), bold: true },
   ]);
   return finish();
@@ -170,7 +174,7 @@ export function statementOverviewPdf(s: StatementOverviewInput): Promise<Buffer>
 export async function statementPdfFor(tenantId: string, propertyId: string, year: number, key?: string) {
   const st = await computeStatement(tenantId, propertyId, year);
   if (!st.property) return null;
-  const units = st.units.filter((u) => u.leaseId && (!key || u.key === key));
+  const units = st.units.filter((u) => u.leaseId && !u.flatRate && (!key || u.key === key));
   if (key && units.length === 0) return null;
 
   const t = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true, address: true, phone: true, smtpFrom: true, heatingConsumptionPct: true } });
@@ -187,10 +191,10 @@ export async function statementPdfFor(tenantId: string, propertyId: string, year
   const heatingPct = t?.heatingConsumptionPct ?? 70;
 
   const single = (u: (typeof units)[number]) => {
-    const rows = statementRows(u.items, st.costs, (k) => costLabel(k), u.monthsActive);
+    const rows = statementRows(u.items, st.costs, (k) => costLabel(k), u.timeShare);
     const first = recipients.get(u.renterPersonIds[0]) ?? [];
     const notes = [
-      "Zeitanteil: Monate Ihres Nutzungszeitraums von 12 Monaten; bei Verbrauchskosten Ihr Anteil am Verbrauch der Einheit. Kosten für Zeiten ohne Mietverhältnis (Leerstand) trägt der Vermieter.",
+      "Zeitanteil: Monate Ihres Nutzungszeitraums von 12 Monaten, bei Ein- oder Auszug im Laufe eines Monats Ihre Tage von den Tagen des Jahres; bei Verbrauchskosten Ihr Anteil am Verbrauch der Einheit. Kosten für Zeiten ohne Mietverhältnis (Leerstand) trägt der Vermieter.",
       ...(u.items.some((i) => i.part !== "full")
         ? [`Heiz- und Warmwasserkosten nach Heizkostenverordnung: Verbrauchskosten nach erfasstem Verbrauch (in der Regel ${heatingPct} %), Grundkosten nach Wohnfläche.`]
         : []),
@@ -232,7 +236,8 @@ export async function statementPdfFor(tenantId: string, propertyId: string, year
     costs: st.costs
       .filter((c) => c.umlagefaehig)
       .map((c) => ({ label: `${costLabel(c.type)}${c.note ? ` (${c.note})` : ""}`, key: keyLabel(c.method), amount: c.amount })),
-    units: st.units.filter((u) => u.leaseId).map((u) => ({ label: u.label, allocated: u.allocated, prepayment: u.prepayment, balance: u.balance })),
+    units: st.units.filter((u) => u.leaseId && !u.flatRate).map((u) => ({ label: u.label, allocated: u.allocated, prepayment: u.prepayment, balance: u.balance })),
+    flatRate: st.units.some((u) => u.flatRate),
     totalUmlage: st.totalUmlage,
   });
   const singles = await Promise.all(units.map(single));
