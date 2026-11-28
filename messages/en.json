@@ -75,7 +75,8 @@
     "groupFinance": "Finance & Statements",
     "groupOperations": "Operations",
     "groupMore": "More",
-    "groupAdmin": "Administration"
+    "groupAdmin": "Administration",
+    "notes": "Notes"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -446,7 +447,14 @@
     "wgSendTo": "Sent to: {to}",
     "wgNoEmail": "No tenant email address on record, PDF only.",
     "wgByLetter": "Send by post",
-    "wgSendLetter": "Send by post"
+    "wgSendLetter": "Send by post",
+    "occupancy": "Occupants (for allocation by persons)",
+    "occupancyAdd": "Change",
+    "occupancyFrom": "Valid from",
+    "occupancyHint": "E.g. when someone moves in or out. The statement uses the number valid on each day.",
+    "occupancyStart": "from lease start ({date})",
+    "occupancyFromDate": "from {date}",
+    "persons": "{count, plural, =1 {1 person} other {# persons}}"
   },
   "rentComponent": {
     "title": "Rent components",
@@ -534,7 +542,8 @@
     "category": "Category",
     "subject": "Subject",
     "body": "Body",
-    "placeholders": "Available placeholders"
+    "placeholders": "Available placeholders",
+    "bodyHint": "Placeholders are replaced when the template is used. Headings, bold/italic and lists carry over into emails and letters."
   },
   "templateCategory": {
     "ANSCHREIBEN": "Letter",
@@ -803,7 +812,12 @@
     "tab_accounts": "Accounts",
     "tab_mandates": "SEPA mandates",
     "tab_io": "Import/Export",
-    "dunLetter": "Send by post"
+    "dunLetter": "Send by post",
+    "existingPayment": "Assign existing transaction",
+    "newPayment": "— record a new payment —",
+    "existingPaymentHint": "Assign a receipt that already came in through bank sync or import instead of booking it twice. Matching amounts are listed first.",
+    "assignedCharge": "Charge",
+    "noCharge": "— none (unassigned) —"
   },
   "accountType": {
     "BANK": "Bank account",
@@ -853,7 +867,11 @@
     "mailed": "Statement drafts created in the outbox.",
     "explain": "AI: explain statement",
     "explaining": "Explaining…",
-    "explainHint": "Without ANTHROPIC_API_KEY only a short summary is shown."
+    "explainHint": "Without ANTHROPIC_API_KEY only a short summary is shown.",
+    "editCost": "Edit cost item",
+    "unitTypes": "Only units of type",
+    "unitTypesHint": "Nothing ticked = all units. E.g. garage door only on parking spaces, stairwell cleaning only on apartments.",
+    "singlePdf": "Individual statement (PDF)"
   },
   "costType": {
     "GRUNDSTEUER": "Property tax",
@@ -904,7 +922,8 @@
     },
     "hoa": "HOA information",
     "resolutions": "Resolutions",
-    "noResolutions": "No resolutions."
+    "noResolutions": "No resolutions.",
+    "visitAt": "Contractor visit"
   },
   "tickets": {
     "title": "Maintenance",
@@ -934,7 +953,12 @@
     "reminder": "Reminder",
     "assignee": "Assignee",
     "time": "Time",
-    "addTime": "Log +15 min"
+    "addTime": "Log +15 min",
+    "editContractor": "Edit contractor",
+    "editMaintenance": "Edit maintenance contract",
+    "visitAt": "Contractor visit",
+    "reporterMessage": "Message to the reporter",
+    "reporterHint": "The tenant sees status, visit and message in their portal; by email if enabled under Settings → Email notifications."
   },
   "ticketStatus": {
     "OFFEN": "Open",
@@ -973,7 +997,18 @@
     "preview": "Preview",
     "edit": "Edit document",
     "linkedTo": "Linked to",
-    "searchPlaceholder": "Search name…"
+    "searchPlaceholder": "Search name…",
+    "link": "Linked to",
+    "uploadHere": "Attach document here",
+    "linkedCount": "Show {count, plural, =1 {1 document} other {# documents}}",
+    "noneLinked": "No documents attached yet.",
+    "clearLinkFilter": "Show all documents",
+    "linkLease": "Lease",
+    "linkTicket": "Ticket",
+    "linkMaintenance": "Maintenance contract",
+    "linkInsurance": "Insurance",
+    "linkCost": "Costs",
+    "linkNote": "Note"
   },
   "documentCategory": {
     "VERTRAG": "Contract",
@@ -1217,7 +1252,9 @@
     "quote": "Quote",
     "link": "Insert link",
     "unlink": "Remove link",
-    "applyLink": "Apply"
+    "applyLink": "Apply",
+    "heading2": "Heading",
+    "heading3": "Subheading"
   },
   "letters": {
     "title": "Letters",
@@ -1328,6 +1365,21 @@
     "kind_ISSUE_REPORTED": "Damage reports",
     "kindHint_ISSUE_REPORTED": "A tenant reports damage through the portal",
     "kind_INBOUND_EMAIL": "Incoming emails",
-    "kindHint_INBOUND_EMAIL": "New mails in the inbox (IMAP fetch)"
+    "kindHint_INBOUND_EMAIL": "New mails in the inbox (IMAP fetch)",
+    "kind_TICKET_REPORTER": "Tenants about their reports",
+    "kindHint_TICKET_REPORTER": "Reporters get status changes, contractor visits and messages from the management by email"
+  },
+  "notes": {
+    "title": "Notes",
+    "subtitle": "Keep details about properties, units and people",
+    "new": "Note",
+    "edit": "Edit note",
+    "titleField": "Title",
+    "body": "Text",
+    "pinned": "Pin to top",
+    "empty": "No notes yet.",
+    "search": "Search title or text …",
+    "allUnits": "All units",
+    "allPersons": "All people"
   }
 }

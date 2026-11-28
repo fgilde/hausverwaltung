@@ -75,7 +75,8 @@
     "groupFinance": "Finanzen & Abrechnung",
     "groupOperations": "Betrieb",
     "groupMore": "Weitere",
-    "groupAdmin": "Administration"
+    "groupAdmin": "Administration",
+    "notes": "Notizen"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -446,7 +447,14 @@
     "wgSendTo": "Versand an: {to}",
     "wgNoEmail": "Kein Mieter mit E-Mail-Adresse hinterlegt, nur PDF möglich.",
     "wgByLetter": "Per Brief versenden",
-    "wgSendLetter": "Per Brief senden"
+    "wgSendLetter": "Per Brief senden",
+    "occupancy": "Personenzahl (für Umlage nach Personen)",
+    "occupancyAdd": "Änderung",
+    "occupancyFrom": "Gilt ab",
+    "occupancyHint": "Z. B. wenn jemand ein- oder auszieht. Die Abrechnung rechnet tagesgenau mit der jeweils gültigen Personenzahl.",
+    "occupancyStart": "ab Vertragsbeginn ({date})",
+    "occupancyFromDate": "ab {date}",
+    "persons": "{count, plural, =1 {1 Person} other {# Personen}}"
   },
   "rentComponent": {
     "title": "Miet-Bestandteile",
@@ -534,7 +542,8 @@
     "category": "Kategorie",
     "subject": "Betreff",
     "body": "Inhalt",
-    "placeholders": "Verfügbare Platzhalter"
+    "placeholders": "Verfügbare Platzhalter",
+    "bodyHint": "Platzhalter werden beim Einfügen ersetzt. Überschriften, Fett/Kursiv und Listen bleiben in E-Mails und Briefen erhalten."
   },
   "templateCategory": {
     "ANSCHREIBEN": "Anschreiben",
@@ -803,7 +812,12 @@
     "tab_accounts": "Konten",
     "tab_mandates": "SEPA-Mandate",
     "tab_io": "Import/Export",
-    "dunLetter": "Per Brief senden"
+    "dunLetter": "Per Brief senden",
+    "existingPayment": "Vorhandene Kontobewegung zuordnen",
+    "newPayment": "— neue Zahlung erfassen —",
+    "existingPaymentHint": "Bereits per Bank-Sync oder Import vorhandene Eingänge hier zuordnen, statt sie doppelt zu buchen. Passende Beträge stehen oben.",
+    "assignedCharge": "Sollstellung",
+    "noCharge": "— keine (nicht zugeordnet) —"
   },
   "accountType": {
     "BANK": "Bankkonto",
@@ -853,7 +867,11 @@
     "mailed": "Abrechnungs-Entwürfe im Postausgang erstellt.",
     "explain": "KI: Abrechnung erklären",
     "explaining": "Erkläre…",
-    "explainHint": "Ohne ANTHROPIC_API_KEY wird nur eine Kurzfassung gezeigt."
+    "explainHint": "Ohne ANTHROPIC_API_KEY wird nur eine Kurzfassung gezeigt.",
+    "editCost": "Kostenposition bearbeiten",
+    "unitTypes": "Nur Einheiten vom Typ",
+    "unitTypesHint": "Nichts angehakt = alle Einheiten. Z. B. Garagentor nur auf Stellplätze, Treppenhausreinigung nur auf Wohnungen.",
+    "singlePdf": "Einzelabrechnung (PDF)"
   },
   "costType": {
     "GRUNDSTEUER": "Grundsteuer",
@@ -904,7 +922,8 @@
     },
     "hoa": "WEG-Informationen",
     "resolutions": "Beschlüsse",
-    "noResolutions": "Keine Beschlüsse."
+    "noResolutions": "Keine Beschlüsse.",
+    "visitAt": "Handwerkertermin"
   },
   "tickets": {
     "title": "Instandhaltung",
@@ -934,7 +953,12 @@
     "reminder": "Wiedervorlage",
     "assignee": "Zuständig",
     "time": "Zeit",
-    "addTime": "+15 Min erfassen"
+    "addTime": "+15 Min erfassen",
+    "editContractor": "Handwerker bearbeiten",
+    "editMaintenance": "Wartungsvertrag bearbeiten",
+    "visitAt": "Handwerkertermin",
+    "reporterMessage": "Nachricht an den Melder",
+    "reporterHint": "Status, Termin und Nachricht sieht der Mieter in seinem Portal. Per E-Mail, wenn in den Einstellungen unter E-Mail-Benachrichtigungen eingeschaltet."
   },
   "ticketStatus": {
     "OFFEN": "Offen",
@@ -973,7 +997,18 @@
     "preview": "Vorschau",
     "edit": "Dokument bearbeiten",
     "linkedTo": "Verknüpft mit",
-    "searchPlaceholder": "Name suchen…"
+    "searchPlaceholder": "Name suchen…",
+    "link": "Vorgang",
+    "uploadHere": "Dokument hier hinterlegen",
+    "linkedCount": "{count, plural, =1 {1 Dokument} other {# Dokumente}} anzeigen",
+    "noneLinked": "Noch keine Dokumente hinterlegt.",
+    "clearLinkFilter": "Alle Dokumente anzeigen",
+    "linkLease": "Mietvertrag",
+    "linkTicket": "Ticket",
+    "linkMaintenance": "Wartungsvertrag",
+    "linkInsurance": "Versicherung",
+    "linkCost": "Kosten",
+    "linkNote": "Notiz"
   },
   "documentCategory": {
     "VERTRAG": "Vertrag",
@@ -1217,7 +1252,9 @@
     "quote": "Zitat",
     "link": "Link einfügen",
     "unlink": "Link entfernen",
-    "applyLink": "Übernehmen"
+    "applyLink": "Übernehmen",
+    "heading2": "Überschrift",
+    "heading3": "Zwischenüberschrift"
   },
   "letters": {
     "title": "Briefe",
@@ -1328,6 +1365,21 @@
     "kind_ISSUE_REPORTED": "Schadensmeldungen",
     "kindHint_ISSUE_REPORTED": "Mieter meldet einen Schaden über das Portal",
     "kind_INBOUND_EMAIL": "Eingehende E-Mails",
-    "kindHint_INBOUND_EMAIL": "Neue Mails im Posteingang (IMAP-Abruf)"
+    "kindHint_INBOUND_EMAIL": "Neue Mails im Posteingang (IMAP-Abruf)",
+    "kind_TICKET_REPORTER": "Mieter zu ihren Schadensmeldungen",
+    "kindHint_TICKET_REPORTER": "Melder erhalten Statuswechsel, Handwerkertermin und Nachrichten der Verwaltung per E-Mail"
+  },
+  "notes": {
+    "title": "Notizen",
+    "subtitle": "Besonderheiten zu Objekten, Einheiten und Personen festhalten",
+    "new": "Notiz",
+    "edit": "Notiz bearbeiten",
+    "titleField": "Titel",
+    "body": "Text",
+    "pinned": "Oben anheften",
+    "empty": "Noch keine Notizen.",
+    "search": "Titel oder Text suchen …",
+    "allUnits": "Alle Einheiten",
+    "allPersons": "Alle Personen"
   }
 }

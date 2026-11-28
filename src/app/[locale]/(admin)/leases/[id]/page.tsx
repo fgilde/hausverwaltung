@@ -1,4 +1,4 @@
-import { ArrowLeft, X, Check } from "lucide-react";
+import { ArrowLeft, X, Check, FileText } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/rbac";
@@ -24,13 +24,16 @@ import {
   AdjustmentDialog,
   DepositDialog,
   RenterDialog,
+  OccupancyDialog,
 } from "@/components/lease-dialogs";
 import { DeleteButton } from "@/components/delete-button";
+import { LinkedDocs } from "@/components/document-dialog";
 import { WohnungsgeberDialog } from "@/components/wohnungsgeber-dialog";
 import { configuredProviders } from "@/server/letters";
 import {
   deleteLease,
   deleteRenter,
+  deleteOccupancy,
   deleteComponent,
   deleteAdjustment,
   applyAdjustment,
@@ -51,6 +54,8 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
       unit: { include: { building: { include: { property: true } } } },
       renters: { include: { person: true } },
       components: { orderBy: { type: "asc" } },
+      occupancies: { orderBy: { validFrom: "asc" } },
+      documents: { select: { id: true, name: true, category: true, createdAt: true }, orderBy: { createdAt: "desc" } },
       adjustments: { orderBy: { effectiveDate: "asc" } },
       deposit: { include: { account: true } },
     },
@@ -157,6 +162,33 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                 </div>
               ))
             )}
+            {/* Personenzahl je Zeitraum für die Umlage nach Personen (#90) */}
+            <div className="space-y-1.5 border-t pt-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">{t("leases.occupancy")}</span>
+                <OccupancyDialog leaseId={lease.id} />
+              </div>
+              <div className="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm">
+                <span>
+                  {t("leases.occupancyStart", { date: date(lease.startDate, df) })}
+                </span>
+                <span className="font-medium">{t("leases.persons", { count: lease.personCount })}</span>
+              </div>
+              {lease.occupancies.map((o) => (
+                <div key={o.id} className="flex items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm">
+                  <span>{t("leases.occupancyFromDate", { date: date(o.validFrom, df) })}</span>
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium">{t("leases.persons", { count: o.persons })}</span>
+                    <form action={deleteOccupancy}>
+                      <input type="hidden" name="id" value={o.id} />
+                      <Button type="submit" variant="ghost" size="icon" aria-label={t("common.delete")}>
+                        <X className="size-4" />
+                      </Button>
+                    </form>
+                  </span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -307,6 +339,46 @@ export default async function LeaseDetailPage({ params }: { params: Promise<{ id
                 ))}
               </TableBody>
             </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Mietvertrag, Nachträge, Übergabeprotokolle direkt am Vertrag (#99) */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">{t("documents.title")}</CardTitle>
+          <LinkedDocs
+            link={`lease:${lease.id}`}
+            count={0}
+            preset={{
+              propertyId: lease.unit.building.property.id,
+              unitId: lease.unitId,
+              personId: lease.renters[0]?.personId ?? null,
+              category: "VERTRAG",
+            }}
+          />
+        </CardHeader>
+        <CardContent className="space-y-1.5">
+          {lease.documents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("documents.noneLinked")}</p>
+          ) : (
+            lease.documents.map((d) => (
+              <a
+                key={d.id}
+                href={`/api/documents/${d.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <FileText className="size-4 shrink-0" />
+                  <span className="truncate">{d.name}</span>
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {t(`documentCategory.${d.category}`)} · {date(d.createdAt, df)}
+                </span>
+              </a>
+            ))
           )}
         </CardContent>
       </Card>

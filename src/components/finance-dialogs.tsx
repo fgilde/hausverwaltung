@@ -117,10 +117,13 @@ export async function PaymentDialog({
   chargeId,
   defaultAmount,
   accounts,
+  existing = [],
 }: {
   chargeId: string;
   defaultAmount: number;
   accounts: Opt[];
+  /** nicht zugeordnete Eingänge, z. B. aus dem Bank-Sync (#106) */
+  existing?: Opt[];
 }) {
   const t = await getTranslations();
   return (
@@ -136,6 +139,16 @@ export async function PaymentDialog({
     >
       <input type="hidden" name="chargeId" value={chargeId} />
       <input type="hidden" name="direction" value="EINGANG" />
+      {existing.length > 0 && (
+        <>
+          <SelectField
+            name="existingPaymentId"
+            label={t("finances.existingPayment")}
+            options={[{ value: "", label: t("finances.newPayment") }, ...existing]}
+          />
+          <p className="text-xs text-muted-foreground">{t("finances.existingPaymentHint")}</p>
+        </>
+      )}
       <TextField name="date" label={t("fields.date")} type="date" defaultValue={today()} />
       <TextField
         name="amount"

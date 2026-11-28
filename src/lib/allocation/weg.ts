@@ -15,6 +15,7 @@ export interface WegUnit {
   mea: number;
   consumption?: number;
   subcommunityId: string | null;
+  type?: string; // Einheitstyp für Positionen nur bestimmter Typen (#105)
 }
 
 export interface WegOwner {
@@ -30,6 +31,7 @@ export interface WegCost {
   heating?: boolean;
   consumptionShare?: number;
   subcommunityId: string | null;
+  unitTypes?: string[]; // nur Einheiten dieser Typen, leer = alle (#105)
 }
 
 export interface WegPlan {
@@ -59,7 +61,12 @@ export function buildWegStatement(units: WegUnit[], owners: WegOwner[], costs: W
     costs.map((c) => ({
       ...c,
       umlagefaehig: true,
-      unitIds: c.subcommunityId ? scopeUnits(units, c.subcommunityId).map((u) => u.id) : undefined,
+      unitIds:
+        c.subcommunityId || c.unitTypes?.length
+          ? scopeUnits(units, c.subcommunityId)
+              .filter((u) => !c.unitTypes?.length || (u.type != null && c.unitTypes.includes(u.type)))
+              .map((u) => u.id)
+          : undefined,
     })),
   );
   const unitCost = new Map(lines.map((l) => [l.unitId, l.allocated]));

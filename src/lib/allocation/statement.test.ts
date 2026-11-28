@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildStatement, monthsActiveInYear } from "./statement";
+import { buildStatement, monthsActiveInYear, personSlices } from "./statement";
 
 const d = (s: string) => new Date(s + "T00:00:00Z");
 
@@ -241,5 +241,124 @@ describe("buildStatement mit Verteilerkreis (#42)", () => {
     ]);
     const by = Object.fromEntries(lines.map((l) => [l.unitId, l.allocated]));
     expect(by).toEqual({ a: 150, b: 150, c: 0 });
+  });
+});
+
+describe("Einzelabrechnung (#94)", () => {
+  it("Rechenschritte je Position, Summe = umgelegte Kosten", () => {
+    const { lines } = buildStatement(
+      [
+        { id: "a", label: "A", area: 60, persons: 1, consumption: 30, leases: [{ id: "la", monthsActive: 6, prepayment: 0 }] },
+        { id: "b", label: "B", area: 40, persons: 2, consumption: 70, leases: fy("lb") },
+      ],
+      [
+        { id: "grund", amount: 333.33, method: "AREA", umlagefaehig: true },
+        { id: "heiz", amount: 1000, method: "CONSUMPTION", umlagefaehig: true, heating: true },
+      ],
+    );
+    const a = lines[0];
+    expect(a.items.map((i) => [i.costId, i.part, i.method])).toEqual([
+      ["grund", "full", "AREA"],
+      ["heiz", "base", "AREA"],
+      ["heiz", "consumption", "CONSUMPTION"],
+    ]);
+    const grund = a.items[0];
+    expect(grund).toMatchObject({ total: 333.33, totalBasis: 100, unitBasis: 60, leaseFactor: 0.5 });
+    expect(grund.amount).toBe(100); // 333,33 · 60/100 = 200 → halbes Jahr = 100
+    const sum = a.items.reduce((s, i) => s + Math.round(i.amount * 100), 0);
+    expect(sum).toBe(Math.round(a.allocated * 100));
+  });
+});
+
+describe("Personen mit Zeitraum (#90)", () => {
+  // Beispiel aus dem Issue: Wohnung A bis Juni 2 Personen (Vormieter), ab Juli 1 Person
+  // (Nachmieter); Wohnung B ganzjährig 2 Personen. 1200 € nach Personen.
+  const half = 181 / 365;
+  const units = [
+    {
+      id: "a", label: "A", area: 50, persons: 1,
+      personSlices: [
+        { leaseId: "vor", persons: 2, fraction: half },
+        { leaseId: "nach", persons: 1, fraction: 1 - half },
+      ],
+      leases: [
+        { id: "vor", monthsActive: 6, prepayment: 0 },
+        { id: "nach", monthsActive: 6, prepayment: 0 },
+      ],
+    },
+    { id: "b", label: "B", area: 50, persons: 2, personSlices: [{ leaseId: "lb", persons: 2, fraction: 1 }], leases: fy("lb") },
+  ];
+
+  it("rechnet Personen-Tage statt Personenzahl des letzten Vertrags", () => {
+    const { lines } = buildStatement(units, [{ id: "w", amount: 1200, method: "PERSONS", umlagefaehig: true }]);
+    const by = Object.fromEntries(lines.map((l) => [l.leaseId, l.allocated]));
+    const totalPY = 2 * half + (1 - half) + 2;
+    expect(by.vor).toBeCloseTo((1200 * 2 * half) / totalPY, 1);
+    expect(by.nach).toBeCloseTo((1200 * (1 - half)) / totalPY, 1);
+    expect(by.lb).toBeCloseTo((1200 * 2) / totalPY, 1);
+    expect(Math.round((by.vor + by.nach + by.lb) * 100)).toBe(120000);
+    // Vormieter trägt mehr als der Nachmieter, obwohl beide 6 Monate wohnen
+    expect(by.vor).toBeGreaterThan(by.nach);
+  });
+
+  it("Leerstand trägt der Vermieter (keine Zeile, Personen der Leerstandsscheibe)", () => {
+    const { lines } = buildStatement(
+      [
+        { id: "a", label: "A", area: 50, persons: 1, personSlices: [{ leaseId: "la", persons: 2, fraction: 0.5 }, { leaseId: null, persons: 1, fraction: 0.5 }], leases: [{ id: "la", monthsActive: 6, prepayment: 0 }] },
+        { id: "b", label: "B", area: 50, persons: 2, personSlices: [{ leaseId: "lb", persons: 2, fraction: 1 }], leases: fy("lb") },
+      ],
+      [{ id: "w", amount: 350, method: "PERSONS", umlagefaehig: true }],
+    );
+    // Gewichte: A = 2·0,5 + 1·0,5 = 1,5 (davon Mieter 1), B = 2 → A-Mieter 100, B 200, Leerstand 50
+    expect(lines.map((l) => l.allocated)).toEqual([100, 200]);
+  });
+
+  it("Personenzahl 0 (z. B. Stellplatz, #104) trägt nichts", () => {
+    const { lines } = buildStatement(
+      [
+        { id: "w", label: "W", area: 50, persons: 2, leases: fy("lw") },
+        { id: "s", label: "S", area: 12, persons: 0, leases: fy("ls") },
+      ],
+      [{ id: "m", amount: 100, method: "PERSONS", umlagefaehig: true }],
+    );
+    expect(lines.map((l) => l.allocated)).toEqual([100, 0]);
+  });
+});
+
+describe("personSlices (#90)", () => {
+  it("Mieterwechsel zum 01.07. tagesgenau", () => {
+    const s = personSlices(
+      [
+        { id: "vor", startDate: d("2020-01-01"), endDate: d("2026-06-30"), personCount: 2 },
+        { id: "nach", startDate: d("2026-07-01"), endDate: null, personCount: 1 },
+      ],
+      2026,
+    );
+    expect(s).toEqual([
+      { leaseId: "vor", persons: 2, fraction: 181 / 365 },
+      { leaseId: "nach", persons: 1, fraction: 184 / 365 },
+    ]);
+  });
+
+  it("Änderung im laufenden Vertrag (Partner zieht am 01.10. ein)", () => {
+    const s = personSlices(
+      [{ id: "l", startDate: d("2024-05-01"), endDate: null, personCount: 1, occupancies: [{ validFrom: d("2026-10-01"), persons: 2 }] }],
+      2026,
+    );
+    expect(s).toEqual([
+      { leaseId: "l", persons: 1, fraction: 273 / 365 },
+      { leaseId: "l", persons: 2, fraction: 92 / 365 },
+    ]);
+  });
+
+  it("frühere Änderung gilt ab Jahresbeginn, Leerstand mit letzter Personenzahl", () => {
+    const s = personSlices(
+      [{ id: "l", startDate: d("2020-01-01"), endDate: d("2026-03-31"), personCount: 1, occupancies: [{ validFrom: d("2023-01-01"), persons: 3 }] }],
+      2026,
+    );
+    expect(s).toEqual([
+      { leaseId: "l", persons: 3, fraction: 90 / 365 },
+      { leaseId: null, persons: 1, fraction: 275 / 365 },
+    ]);
   });
 });

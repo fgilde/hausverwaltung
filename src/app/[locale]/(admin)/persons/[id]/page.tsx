@@ -3,6 +3,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { NoteCards, NoteDialog } from "@/components/notes";
 import { Link } from "@/i18n/navigation";
 import { money, date, dateTime, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
@@ -24,6 +25,12 @@ import { Download, FileText, Paperclip, Send } from "lucide-react";
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireUser();
+  // Notizen (#89)
+  const notes = await prisma.note.findMany({
+    where: { tenantId: user.tenantId, personId: id },
+    include: { _count: { select: { documents: true } } },
+    orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
+  });
   const t = await getTranslations();
   const locale = await getLocale();
   const df = await getDateLocale(locale);
@@ -343,6 +350,20 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
           </CardContent>
         </Card>
       )}
+
+      {/* Notizen (#89) */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">{t("notes.title")}</CardTitle>
+          {roleAllows(user.role, WRITE_ROLES) && <NoteDialog preset={{ personId: id }} />}
+        </CardHeader>
+        <CardContent>
+          <NoteCards
+            canWrite={roleAllows(user.role, WRITE_ROLES)}
+            notes={notes.map((n) => ({ ...n, documentCount: n._count.documents }))}
+          />
+        </CardContent>
+      </Card>
     </div>
     </AttachmentImportProvider>
   );

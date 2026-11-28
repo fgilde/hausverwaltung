@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { InsuranceDialog } from "@/components/niche-dialogs";
 import { DeleteButton } from "@/components/delete-button";
+import { LinkedDocs } from "@/components/document-dialog";
 import { deleteInsurance, bookInsuranceAsCost } from "@/server/actions/niche";
 import { Button } from "@/components/ui/button";
 
@@ -29,7 +30,7 @@ export default async function InsurancePage() {
   const [insurances, properties] = await Promise.all([
     prisma.insurance.findMany({
       where: { tenantId },
-      include: { property: { select: { name: true } } },
+      include: { property: { select: { name: true } }, _count: { select: { documents: true } } },
       orderBy: [{ property: { name: "asc" } }, { type: "asc" }],
     }),
     prisma.property.findMany({ where: { tenantId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -88,6 +89,8 @@ export default async function InsurancePage() {
                             </Button>
                           </form>
                         ) : null}
+                        {/* Police, Beitragsrechnungen, Schadenschriftverkehr (#99) */}
+                        <LinkedDocs link={`insurance:${i.id}`} count={i._count.documents} preset={{ propertyId: i.propertyId, category: "VERTRAG" }} />
                         <DeleteButton action={deleteInsurance} id={i.id} />
                       </div>
                     </TableCell>

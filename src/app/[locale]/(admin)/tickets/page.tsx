@@ -17,6 +17,7 @@ import {
 import { Clock } from "lucide-react";
 import { TicketDialog, ContractorDialog, MaintenanceDialog } from "@/components/ticket-dialogs";
 import { DeleteButton } from "@/components/delete-button";
+import { LinkedDocs } from "@/components/document-dialog";
 import {
   deleteTicket,
   deleteContractor,
@@ -35,11 +36,15 @@ export default async function TicketsPage() {
   const [tickets, contractors, maintenance, properties, units, users] = await Promise.all([
     prisma.ticket.findMany({
       where: { tenantId },
-      include: { property: true, unit: true, contractor: true, assignee: true },
+      include: { property: true, unit: true, contractor: true, assignee: true, _count: { select: { documents: true } } },
       orderBy: [{ status: "asc" }, { dueDate: "asc" }, { createdAt: "desc" }],
     }),
     prisma.contractor.findMany({ where: { tenantId }, orderBy: { name: "asc" } }),
-    prisma.maintenanceContract.findMany({ where: { tenantId }, include: { property: true, contractor: true }, orderBy: { nextDue: "asc" } }),
+    prisma.maintenanceContract.findMany({
+      where: { tenantId },
+      include: { property: true, contractor: true, _count: { select: { documents: true } } },
+      orderBy: { nextDue: "asc" },
+    }),
     prisma.property.findMany({ where: { tenantId }, orderBy: { createdAt: "asc" }, select: { id: true, name: true } }),
     prisma.unit.findMany({ where: { tenantId }, include: { building: { include: { property: true } } }, orderBy: { createdAt: "asc" } }),
     prisma.user.findMany({ where: { tenantId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -111,6 +116,12 @@ export default async function TicketsPage() {
                       <TableCell className="text-right text-muted-foreground">{fmtTime(tk.timeSpentMin)}</TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
+                          {/* Fotos, Kostenvoranschläge, Rechnungen am Ticket (#99) */}
+                          <LinkedDocs
+                            link={`ticket:${tk.id}`}
+                            count={tk._count.documents}
+                            preset={{ propertyId: tk.propertyId, unitId: tk.unitId }}
+                          />
                           {/* Zeit erfassen: +15 min Schnellbuchung */}
                           <form action={addTicketTime}>
                             <input type="hidden" name="id" value={tk.id} />
@@ -137,6 +148,8 @@ export default async function TicketsPage() {
                               assigneeId: tk.assigneeId,
                               dueDate: tk.dueDate,
                               reminderDate: tk.reminderDate,
+                              visitAt: tk.visitAt,
+                              hasReporter: !!tk.reporterId,
                             }}
                           />
                           <DeleteButton action={deleteTicket} id={tk.id} />
@@ -171,7 +184,10 @@ export default async function TicketsPage() {
                       <div className="text-xs text-muted-foreground">{[c.phone, c.email].filter(Boolean).join(" · ")}</div>
                     ) : null}
                   </div>
-                  <DeleteButton action={deleteContractor} id={c.id} />
+                  <div className="flex items-center">
+                    <ContractorDialog contractor={c} />
+                    <DeleteButton action={deleteContractor} id={c.id} />
+                  </div>
                 </div>
               ))
             )}
@@ -208,6 +224,8 @@ export default async function TicketsPage() {
                         {t("tickets.markNext")}
                       </Button>
                     </form>
+                    <LinkedDocs link={`maintenance:${m.id}`} count={m._count.documents} preset={{ propertyId: m.propertyId, category: "PROTOKOLL" }} />
+                    <MaintenanceDialog properties={propertyOpts} contractors={contractorOpts} contract={m} />
                     <DeleteButton action={deleteMaintenance} id={m.id} />
                   </div>
                 </div>

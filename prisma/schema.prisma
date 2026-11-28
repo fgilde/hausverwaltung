@@ -270,6 +270,7 @@ model Property {
   appointments  Appointment[]
   insurances    Insurance[]
   propertyTax   PropertyTax?
+  noteEntries Note[] // Notizen (#89)
   createdAt     DateTime       @default(now())
 
   @@index([tenantId])
@@ -341,6 +342,7 @@ model Unit {
   tickets    Ticket[]
   documents  Document[]
   custom     Json     @default("{}")
+  noteEntries Note[] // Notizen (#89)
   createdAt  DateTime @default(now())
 
   @@index([tenantId])
@@ -407,6 +409,7 @@ model Person {
   letters   Letter[]
   custom    Json          @default("{}")
   appointments Appointment[] // Termine, an denen der Kontakt teilnimmt (#74)
+  noteEntries Note[] // Notizen (#89)
   createdAt DateTime @default(now())
 
   @@index([tenantId])
@@ -475,8 +478,9 @@ model Lease {
   startDate     DateTime
   endDate       DateTime?
   rentCold      Decimal          @db.Decimal(10, 2)
-  personCount   Int              @default(1)
+  personCount   Int              @default(1) // ab Vertragsbeginn; spätere Änderungen in occupancies (#90)
   noticePeriodM Int? // Kündigungsfrist in Monaten
+  occupancies   LeaseOccupancy[]
   renters       Renter[]
   components    RentComponent[]
   adjustments   RentAdjustment[]
@@ -484,10 +488,48 @@ model Lease {
   charges       Charge[]
   areaAllocations AreaAllocation[]
   custom        Json             @default("{}")
+  documents     Document[] // hinterlegte Dokumente (#99)
   createdAt     DateTime         @default(now())
 
   @@index([tenantId])
   @@index([unitId])
+}
+
+// Personenzahl ab einem Datum während des Mietverhältnisses (#90), z. B. Partner zieht ein.
+// Gilt bis zur nächsten Änderung; davor gilt Lease.personCount.
+model LeaseOccupancy {
+  id        String   @id @default(cuid())
+  tenantId  String
+  leaseId   String
+  lease     Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  validFrom DateTime
+  persons   Int
+  createdAt DateTime @default(now())
+
+  @@unique([leaseId, validFrom])
+  @@index([tenantId])
+}
+
+// Zentrale Notizen (#89): formatierter Text, optional einem Objekt, einer Einheit oder
+// Person zugeordnet; Bilder/Dateien als Dokumente am Vorgang "note".
+model Note {
+  id         String     @id @default(cuid())
+  tenantId   String
+  title      String
+  body       String // Editor-HTML, beim Speichern bereinigt
+  pinned     Boolean    @default(false)
+  propertyId String?
+  property   Property?  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  unitId     String?
+  unit       Unit?      @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  personId   String?
+  person     Person?    @relation(fields: [personId], references: [id], onDelete: SetNull)
+  author     String?
+  documents  Document[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([tenantId])
 }
 
 model Renter {
@@ -829,10 +871,28 @@ model Ticket {
   priority     TicketPriority @default(MITTEL)
   dueDate      DateTime?
   reminderDate DateTime? // Wiedervorlage
+  visitAt      DateTime? // Handwerkertermin, dem Melder mitgeteilt (#100)
   timeSpentMin Int            @default(0) // erfasste Zeit in Minuten
+  updates      TicketUpdate[]
+  documents    Document[] // hinterlegte Dokumente (#99)
   createdAt    DateTime       @default(now())
 
   @@index([tenantId])
+}
+
+// Für den Melder sichtbarer Verlauf (#100): Statuswechsel, Nachricht, Handwerkertermin.
+model TicketUpdate {
+  id        String        @id @default(cuid())
+  tenantId  String
+  ticketId  String
+  ticket    Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  status    TicketStatus? // neuer Status, falls geändert
+  visitAt   DateTime? // neuer Handwerkertermin, falls geändert
+  message   String? // Nachricht an den Melder
+  author    String? // Name des Bearbeiters
+  createdAt DateTime      @default(now())
+
+  @@index([ticketId])
 }
 
 model MaintenanceContract {
@@ -846,6 +906,7 @@ model MaintenanceContract {
   intervalMonths Int
   nextDue        DateTime
   note           String?
+  documents      Document[] // hinterlegte Dokumente (#99)
   createdAt      DateTime    @default(now())
 
   @@index([tenantId])
@@ -876,6 +937,19 @@ model Document {
   unit       Unit?            @relation(fields: [unitId], references: [id], onDelete: SetNull)
   personId   String?
   person     Person?          @relation(fields: [personId], references: [id], onDelete: SetNull)
+  // Vorgang, bei dem das Dokument hinterlegt ist (#99); höchstens einer gesetzt
+  leaseId               String?
+  lease                 Lease?               @relation(fields: [leaseId], references: [id], onDelete: SetNull)
+  ticketId              String?
+  ticket                Ticket?              @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  maintenanceContractId String?
+  maintenanceContract   MaintenanceContract? @relation(fields: [maintenanceContractId], references: [id], onDelete: SetNull)
+  insuranceId           String?
+  insurance             Insurance?           @relation(fields: [insuranceId], references: [id], onDelete: SetNull)
+  costEntryId           String?
+  costEntry             CostEntry?           @relation(fields: [costEntryId], references: [id], onDelete: SetNull)
+  noteId                String?
+  noteEntry             Note?                @relation(fields: [noteId], references: [id], onDelete: SetNull)
   mime       String
   size       Int
   storageKey String // Dateiname im Storage
@@ -1191,10 +1265,12 @@ model CostEntry {
   umlagefaehig Boolean            @default(true)
   subcommunityId String? // nur Einheiten dieser Untergemeinschaft tragen die Kosten (#42)
   subcommunity   Subcommunity?    @relation(fields: [subcommunityId], references: [id], onDelete: SetNull)
+  unitTypes      UnitType[]       @default([]) // nur Einheiten dieser Typen tragen die Kosten, leer = alle (#105)
   // Nur bei Heiz-/Warmwasserkosten: Verbrauchsanteil in % (50–100). null →
   // Mandanten-Standard (Tenant.heatingConsumptionPct) → 70.
   consumptionSharePct Int?
   note         String?
+  documents    Document[] // hinterlegte Dokumente (#99)
   createdAt    DateTime           @default(now())
 
   @@index([tenantId])
@@ -1224,6 +1300,7 @@ model Insurance {
   startDate  DateTime?
   endDate    DateTime?
   note       String?
+  documents  Document[] // hinterlegte Dokumente (#99)
   createdAt  DateTime      @default(now())
 
   @@index([tenantId])

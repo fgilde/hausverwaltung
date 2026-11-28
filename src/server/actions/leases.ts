@@ -93,6 +93,29 @@ export async function addRenter(_p: ActionState, fd: FormData): Promise<ActionSt
   return done();
 }
 
+// Personenzahl ab Datum während des Vertrags (#90); gleiches Datum überschreibt.
+export async function addOccupancy(_p: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireWriter();
+  const leaseId = String(fd.get("leaseId") ?? "");
+  const validFrom = new Date(`${String(fd.get("validFrom") ?? "")}T00:00:00Z`);
+  const persons = Number(fd.get("persons"));
+  if (Number.isNaN(validFrom.getTime())) return fail("Datum fehlt");
+  if (!Number.isInteger(persons) || persons < 0) return fail("Personenzahl muss 0 oder größer sein");
+  if (!(await assertLease(user.tenantId, leaseId))) return fail("Vertrag nicht gefunden");
+  await prisma.leaseOccupancy.upsert({
+    where: { leaseId_validFrom: { leaseId, validFrom } },
+    create: { tenantId: user.tenantId, leaseId, validFrom, persons },
+    update: { persons },
+  });
+  return done();
+}
+
+export async function deleteOccupancy(fd: FormData): Promise<void> {
+  const user = await requireWriter();
+  await prisma.leaseOccupancy.deleteMany({ where: { id: String(fd.get("id") ?? ""), tenantId: user.tenantId } });
+  revalidatePath("/", "layout");
+}
+
 export async function deleteRenter(fd: FormData): Promise<void> {
   const user = await requireWriter();
   await prisma.renter.deleteMany({ where: { id: String(fd.get("id") ?? ""), tenantId: user.tenantId } });

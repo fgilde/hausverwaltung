@@ -140,7 +140,8 @@ people: {
       <li><strong>Anhänge eingehender Mails</strong> werden gespeichert, wenn „Anhänge speichern“ aktiv ist (Standard), und zwar unabhängig vom Absender. Sie liegen zunächst nur an der Mail und lassen sich dort ansehen und herunterladen. Über <strong>„Übernehmen“</strong> wird ein Anhang zum regulären Dokument: Kategorie „E-Mail-Anhang“, Kontakt sowie Objekt und Einheit aus dem laufenden Mietvertrag (bzw. der Eigentumseinheit) sind vorbelegt und änderbar. Nicht übernommene Anhänge gelangen nie in die Dokumentenablage. Grenzen: einstellbare Maximalgröße je Datei (Standard 10 MB, 1 bis 50 MB), höchstens 20 Anhänge je Mail; eingebettete Bilder (z. B. Signatur-Logos) werden übersprungen.</li>
       <li><strong>Löschen</strong>: Einzelne eingegangene Mails lassen sich im Posteingang löschen, ganze Unterhaltungen (ein- und ausgehend) auf ihrer Seite, z. B. für Spam oder nach Ablauf der Aufbewahrungsfrist. Nicht übernommene Anhänge werden dabei mit entfernt, bereits übernommene Dokumente bleiben erhalten.</li>
       <li>CSV-Import fürs Adressbuch: Spalten <code>firstName, lastName</code> Pflicht, optional <code>email, phone, type, note</code>.</li>
-    </ul>`,
+    </ul>
+    <p><strong>Vorlagen formatieren:</strong> Vorlagentexte haben denselben Editor wie E-Mails und Briefe: Überschriften, fett, kursiv, unterstrichen, Listen, Zitate und Links. Die Formatierung bleibt beim Einfügen in E-Mail und Brief erhalten.</p>`,
   en: `
     <h2>People &amp; address book</h2>
     <p>All contacts live under <em>People</em>, grouped by contact type: tenant, owner, <strong>prospect</strong>, contractor, broker, bank, other. Group filters let you quickly find, say, all prospective tenants.</p>
@@ -157,7 +158,8 @@ people: {
       <li><strong>Attachments of incoming mail</strong> are saved when "Save attachments" is enabled (default), regardless of the sender. They are first kept with the email only, where they can be viewed and downloaded. <strong>"Import"</strong> turns an attachment into a regular document: category "Email attachment", the contact plus property and unit from the current lease (or owned unit) are prefilled and can be changed. Attachments that are not imported never reach the document store. Limits: configurable maximum size per file (default 10 MB, 1 to 50 MB), at most 20 attachments per email; embedded images (e.g. signature logos) are skipped.</li>
       <li><strong>Deleting</strong>: single incoming emails can be deleted in the inbox, whole conversations (incoming and outgoing) on their page, e.g. for spam or once the retention period has ended. Attachments that were not imported are removed as well; documents already imported are kept.</li>
       <li>Address-book CSV import: columns <code>firstName, lastName</code> required, optional <code>email, phone, type, note</code>.</li>
-    </ul>`
+    </ul>
+    <p><strong>Formatted templates:</strong> template texts use the same editor as emails and letters: headings, bold, italic, underline, lists, quotes and links. Formatting carries over into emails and letters.</p>`
 },
 
 leases: {
@@ -177,7 +179,8 @@ leases: {
     <h3>Wohnungsgeberbestätigung</h3>
     <p>Über „Wohnungsgeberbestätigung" wird eine PDF nach <strong>§ 19 BMG</strong> erzeugt — Mieter, Wohnung, Einzugsdatum und Wohnungsgeber werden automatisch übernommen. Der Mieter braucht sie für die An-/Ummeldung beim Amt.</p>
     <p>Vor dem Erzeugen öffnet ein Dialog mit <strong>Name und Anschrift des Wohnungsgebers</strong>. Vorbelegt sind Name und Anschrift der Verwaltung (Einstellungen → Allgemein → „Anschrift der Verwaltung“). Ist der Eigentümer oder eine andere Stelle Wohnungsgeber, lassen sich die Angaben dort für diese Bestätigung ändern.</p>
-    <p><strong>Ort und Datum</strong> sind vorausgefüllt, unterschrieben wird direkt im Dialog mit Maus, Finger oder Stift. Danach entweder <strong>„PDF erstellen“</strong> (zum Drucken/Speichern) oder <strong>„Per E-Mail senden“</strong>: Die Bestätigung geht als PDF-Anhang an alle Mieter mit E-Mail-Adresse und wird als Dokument beim Vertrag abgelegt.</p>`,
+    <p><strong>Ort und Datum</strong> sind vorausgefüllt, unterschrieben wird direkt im Dialog mit Maus, Finger oder Stift. Danach entweder <strong>„PDF erstellen“</strong> (zum Drucken/Speichern) oder <strong>„Per E-Mail senden“</strong>: Die Bestätigung geht als PDF-Anhang an alle Mieter mit E-Mail-Adresse und wird als Dokument beim Vertrag abgelegt.</p>
+    <p><strong>Personenzahl:</strong> darf 0 sein (Stellplatz, Garage). Ändert sie sich im laufenden Vertrag (Partner zieht ein), unter <em>Personenzahl → Änderung</em> mit Datum eintragen. Die Abrechnung rechnet tagesgenau mit Personenjahren, auch bei Mieterwechsel. Unter <em>Dokumente</em> lassen sich Vertrag, Nachträge und Übergabeprotokolle direkt am Mietverhältnis hinterlegen.</p>`,
   en: `
     <h2>Leases</h2>
     <p>A lease links a <strong>unit</strong> to one or more <strong>tenants</strong>. It carries base rent, service-charge/heating prepayment (as rent components), term, occupant count and notice period.</p>
@@ -194,7 +197,8 @@ leases: {
     <h3>Landlord confirmation</h3>
     <p>"Landlord confirmation" generates a PDF per <strong>§ 19 BMG</strong> (German residence registration) — tenant, dwelling, move-in date and landlord are filled in automatically. Tenants need it to register their address with the authorities.</p>
     <p>Before generating, a dialog shows the <strong>landlord name and address</strong>. They are prefilled with the management name and address (Settings → General → "Management address"). If the owner or another party is the landlord, adjust the details there for this confirmation.</p>
-    <p><strong>Place and date</strong> are prefilled, and you sign right in the dialog with mouse, finger or pen. Then either <strong>"Create PDF"</strong> (to print/save) or <strong>"Send by email"</strong>: the confirmation goes as a PDF attachment to all tenants with an email address and is filed as a document on the lease.</p>`
+    <p><strong>Place and date</strong> are prefilled, and you sign right in the dialog with mouse, finger or pen. Then either <strong>"Create PDF"</strong> (to print/save) or <strong>"Send by email"</strong>: the confirmation goes as a PDF attachment to all tenants with an email address and is filed as a document on the lease.</p>
+    <p><strong>Occupants:</strong> may be 0 (parking space, garage). If the number changes during a lease (a partner moves in), add it under <em>Occupants → Change</em> with a date. The statement uses person-years per day, also across tenant changes. Under <em>Documents</em> you can attach the lease, addenda and handover reports right on the lease.</p>`
 },
 
 area: {
@@ -250,7 +254,8 @@ finance: {
     <h3>Kontobewegungen</h3>
     <p>Die Liste <strong>Kontobewegungen</strong> zeigt alle Zahlungen (Ein- und Ausgänge, auch aus dem Bank-Sync) mit Konto, Betrag, Verwendungszweck und Saldo. Je Buchung lassen sich eine <strong>Notiz</strong> hinterlegen und <strong>Belege/Dokumente</strong> aus der Dokumentenverwaltung verknüpfen (z. B. Rechnungen). <strong>Zahler/Empfänger</strong> (Name, IBAN) kommen aus Bank-Sync bzw. camt.053; darüber lässt sich nach Text, Konto, Datum, Betrag und Ein-/Ausgang filtern.</p>
     <h3>Kaution in Raten</h3>
-    <p>Für Kautionszahlungen in Raten legt man je Rate eine Sollstellung vom Typ <strong>Kaution</strong> an (mit Betrag und Fälligkeit). Die Raten erscheinen als offene Posten und Zahlungseingänge werden ihnen zugeordnet — wie bei Miete.</p>`,
+    <p>Für Kautionszahlungen in Raten legt man je Rate eine Sollstellung vom Typ <strong>Kaution</strong> an (mit Betrag und Fälligkeit). Die Raten erscheinen als offene Posten und Zahlungseingänge werden ihnen zugeordnet — wie bei Miete.</p>
+    <p><strong>Bankbuchung zuordnen:</strong> Kam eine Zahlung schon per Bank-Sync oder Import herein, wählt man sie unter <em>Zahlung erfassen</em> an der Sollstellung aus, statt sie doppelt zu buchen (passende Beträge stehen oben). Eine falsche Zuordnung lässt sich an der Kontobewegung über <em>Bearbeiten</em> ändern oder lösen. Legt der Sollstellungslauf nichts an, sagt der Dialog warum (kein aktiver Vertrag im Monat oder schon alles vorhanden).</p>`,
   en: `
     <h2>Accounts, charges, payments</h2>
     <p>Under <em>Finances</em> you manage accounts, generate charges and book payments. Positive = credit, negative = arrears.</p>
@@ -272,7 +277,8 @@ finance: {
     <h3>Account transactions</h3>
     <p>The <strong>account transactions</strong> list shows all payments (incoming and outgoing, including those from bank sync) with account, amount, reference and running balance. Each entry can carry a <strong>note</strong> and be linked to <strong>documents</strong> from the document store (e.g. invoices/receipts).</p>
     <h3>Deposit in instalments</h3>
-    <p>For a deposit paid in instalments, create one charge of type <strong>Deposit</strong> per instalment (amount + due date). They show as open items and incoming payments are matched to them — just like rent.</p>`
+    <p>For a deposit paid in instalments, create one charge of type <strong>Deposit</strong> per instalment (amount + due date). They show as open items and incoming payments are matched to them — just like rent.</p>
+    <p><strong>Assign bank transactions:</strong> if a payment already came in via bank sync or import, pick it under <em>Record payment</em> on the charge instead of booking it twice (matching amounts first). A wrong assignment can be changed or removed via <em>Edit</em> on the transaction. If the charge run creates nothing, the dialog says why (no active lease that month, or everything exists already).</p>`
 },
 
 bank: {
@@ -350,7 +356,8 @@ statements: {
     <h3>Mieterwechsel</h3>
     <p>Wechselt der Mieter innerhalb des Abrechnungsjahres, erscheint <strong>je Mietverhältnis eine eigene Zeile</strong> (Vor- und Nachmieter) mit eigener Vorauszahlung und zeitanteiligem Kostenanteil — die Summe ergibt wieder die vollen Kosten (etwaiger Leerstand bleibt beim Vermieter).</p>
     <h3>Grundsteuer &amp; Versicherung</h3>
-    <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen. Bei <strong>Versicherungen</strong> wird der auf das Kalenderjahr entfallende Anteil <strong>aller</strong> Policen des Objekts gebucht — unterjährig laufende Policen (12 Monate ab Beginn) werden zeitanteilig berücksichtigt (z. B. zwei sich überlappende Jahresprämien anteilig summiert).</p>`,
+    <p>Diese liegen als Referenz in eigenen Reitern und lassen sich per „Als Kosten buchen" direkt als Kostenposition ins Abrechnungsjahr übernehmen. Bei <strong>Versicherungen</strong> wird der auf das Kalenderjahr entfallende Anteil <strong>aller</strong> Policen des Objekts gebucht — unterjährig laufende Policen (12 Monate ab Beginn) werden zeitanteilig berücksichtigt (z. B. zwei sich überlappende Jahresprämien anteilig summiert).</p>
+    <p><strong>Einzelabrechnung als PDF:</strong> <em>Druckansicht / PDF</em> liefert eine Übersicht plus je Mietverhältnis eine Einzelabrechnung mit allen Kostenarten, Gesamtkosten, Schlüssel, Gesamt- und eigener Verteilungsgrundlage, Zeitanteil und Ergebnis; das Dokumentsymbol in der Ergebnistabelle nur die eines Mieters. <em>An Mieter mailen</em> hängt diese Einzelabrechnung an. Kostenpositionen lassen sich nachträglich bearbeiten und auf Einheitstypen beschränken (z. B. Garagentor nur auf Stellplätze, Treppenhausreinigung nur auf Wohnungen); Rechnungen hängt man über das Büroklammer-Symbol direkt an die Position.</p>`,
   en: `
     <h2>Service-charge statements</h2>
     <p>Under <em>Statements</em> you record cost items per property/year (German BetrKV) and allocate them to units by <strong>distribution key</strong>.</p>
@@ -373,7 +380,8 @@ statements: {
     <h3>Tenant change</h3>
     <p>If the tenant changes within the statement year, there is <strong>one line per lease</strong> (previous and new tenant) with its own prepayment and time-share of the costs — the sum adds back up to the full costs (any vacancy stays with the landlord).</p>
     <h3>Property tax &amp; insurance</h3>
-    <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost". For <strong>insurance</strong> the amount booked is the calendar-year share of <strong>all</strong> of the property's policies — part-year policies (12 months from their start) are prorated (e.g. two overlapping annual premiums summed proportionally).</p>`
+    <p>These sit as a reference in their own tabs and can be pulled into the statement year directly via "book as cost". For <strong>insurance</strong> the amount booked is the calendar-year share of <strong>all</strong> of the property's policies — part-year policies (12 months from their start) are prorated (e.g. two overlapping annual premiums summed proportionally).</p>
+    <p><strong>Individual statement as PDF:</strong> <em>Print / PDF</em> returns an overview plus one statement per lease with every cost type, total, key, total and own basis, time share and result; the document icon in the result table returns just one tenant's. <em>Email tenants</em> attaches that statement. Cost items can be edited later and limited to unit types (e.g. garage door only on parking spaces, stairwell cleaning only on apartments); attach invoices to an item via the paperclip.</p>`
 },
 
 weg: {
@@ -415,14 +423,24 @@ documents: {
     <h2>Dokumente</h2>
     <p>Unter <em>Dokumente</em> legst du Dateien ab (Verträge, Rechnungen, Protokolle, Abrechnungen), verknüpfst sie mit Objekt/Einheit/Person und filterst nach Kategorie. Über das <strong>Augen-Symbol</strong> öffnet sich eine Datei-Vorschau direkt im Dialog (PDF, Bilder, Office-Dokumente, Markdown und Audio).</p>
     <p>Angelegte Dokumente lassen sich über das <strong>Stift-Symbol</strong> nachträglich bearbeiten (Name, Kategorie, Zuordnung zu Objekt/Einheit/Person). Die Filterleiste sucht nach Name, Kategorie, Objekt, Einheit und Person; Dokumente erscheinen zusätzlich in der <strong>globalen Suche</strong> (⌘K) und lassen sich von dort direkt öffnen.</p>
-    <p><strong>E-Rechnungen</strong> (ZUGFeRD/XRechnung, XML-Syntaxen) werden beim Upload automatisch ausgelesen (Rechnungsnummer, Betrag). Ablage GoBD-orientiert.</p>`,
+    <p><strong>E-Rechnungen</strong> (ZUGFeRD/XRechnung, XML-Syntaxen) werden beim Upload automatisch ausgelesen (Rechnungsnummer, Betrag). Ablage GoBD-orientiert.</p>
+    <p><strong>Am Vorgang hinterlegen:</strong> Dokumente lassen sich zusätzlich einem Vorgang zuordnen: Mietvertrag, Ticket, Wartungsvertrag, Versicherung, Kostenposition oder Notiz. Das Büroklammer-Symbol am jeweiligen Eintrag lädt direkt dorthin hoch, die Zahl daneben öffnet die passende Dokumentenliste.</p>`,
   en: `
     <h2>Documents</h2>
     <p>Under <em>Documents</em> you store files (contracts, invoices, minutes, statements), link them to property/unit/person and filter by category. The <strong>eye icon</strong> opens a file preview right in the dialog (PDF, images, office documents, markdown and audio).</p>
     <p>Existing documents can be edited later via the <strong>pencil icon</strong> (name, category, link to property/unit/person). The filter bar searches by name, category, property, unit and person; documents also appear in the <strong>global search</strong> (⌘K) and open straight from there.</p>
-    <p><strong>E-invoices</strong> (ZUGFeRD/XRechnung XML syntaxes) are parsed on upload (invoice number, total). Storage is GoBD-oriented.</p>`
+    <p><strong>E-invoices</strong> (ZUGFeRD/XRechnung XML syntaxes) are parsed on upload (invoice number, total). Storage is GoBD-oriented.</p>
+    <p><strong>Attach to a record:</strong> documents can also belong to a record: lease, ticket, maintenance contract, insurance, cost item or note. The paperclip on the record uploads right there, the number next to it opens the matching document list.</p>`
 },
 
+notes: {
+  de: `
+    <h2>Notizen</h2>
+    <p>Unter <em>Notizen</em> hält man Besonderheiten fest: technische Anlagen, Zugänge und Sanierungen am Objekt, Zustand und Ausstattung der Einheit, Absprachen und Gesprächsnotizen bei Personen. Notizen haben Überschriften, Hervorhebungen und Listen, lassen sich oben anheften und einem Objekt, einer Einheit oder Person zuordnen; dort erscheinen sie auch auf der Detailseite. Bilder und Dateien hängt man über die Büroklammer als Dokumente an.</p>`,
+  en: `
+    <h2>Notes</h2>
+    <p>Use <em>Notes</em> to keep details: technical equipment, access and renovations of a property, condition and fittings of a unit, agreements and conversation notes for people. Notes support headings, emphasis and lists, can be pinned, and belong to a property, unit or person, where they also show on the detail page. Attach images and files as documents via the paperclip.</p>`
+},
 tickets: {
   de: `
     <h2>Instandhaltung</h2>
@@ -431,7 +449,8 @@ tickets: {
       <li><strong>Handwerker</strong> als Kontakte, <strong>Wartungsverträge</strong> mit Intervall und nächster Fälligkeit („fortschreiben").</li>
       <li>Schadensmeldungen aus dem Portal landen hier als Ticket (Kategorie Störung) — der/die Verwalter werden benachrichtigt.</li>
       <li>Statusänderung benachrichtigt den meldenden Mieter im Portal.</li>
-    </ul>`,
+    </ul>
+    <p>Handwerker und Wartungsverträge lassen sich nachträglich bearbeiten. Bei Meldungen aus dem Mieterportal gibt es im Ticket <em>Handwerkertermin</em> und <em>Nachricht an den Melder</em>: Statuswechsel, Termin und Nachricht sieht der Mieter als Verlauf im Portal und bekommt sie per E-Mail, wenn das unter E-Mail-Benachrichtigungen eingeschaltet ist.</p>`,
   en: `
     <h2>Maintenance</h2>
     <p>Under <em>Maintenance</em> you manage tickets (fault, damage, servicing …) with status (open, in progress, waiting, done), priority, assignee, due/follow-up date and <strong>time tracking</strong>.</p>
@@ -439,7 +458,8 @@ tickets: {
       <li><strong>Contractors</strong> as contacts, <strong>service contracts</strong> with interval and next-due ("advance").</li>
       <li>Issues reported from the portal arrive here as a ticket (category fault) — managers get notified.</li>
       <li>A status change notifies the reporting tenant in the portal.</li>
-    </ul>`
+    </ul>
+    <p>Contractors and maintenance contracts can be edited later. For reports from the tenant portal the ticket has <em>Contractor visit</em> and <em>Message to the reporter</em>: the tenant sees status changes, visit and message as a history in the portal and gets them by email if enabled under email notifications.</p>`
 },
 
 leasing: {
@@ -490,7 +510,8 @@ notifications: {
       <li>Meldet ein Mieter einen Schaden, werden alle Verwalter benachrichtigt (Klick → Instandhaltung).</li>
       <li>Ändert sich der Status einer Meldung, wird der meldende Mieter im Portal benachrichtigt.</li>
     </ul>
-    <p>Klick markiert gelesen und springt zum Ziel; „Alle gelesen" leert den Zähler. Einzelne Hinweise lassen sich per <strong>×</strong> entfernen (z. B. eine Meldung zu einem bereits gelöschten Ticket).</p>`,
+    <p>Klick markiert gelesen und springt zum Ziel; „Alle gelesen" leert den Zähler. Einzelne Hinweise lassen sich per <strong>×</strong> entfernen (z. B. eine Meldung zu einem bereits gelöschten Ticket).</p>
+    <p><strong>Mieter zu ihren Schadensmeldungen:</strong> eigene Option unter E-Mail-Benachrichtigungen. Melder erhalten Statuswechsel, Handwerkertermin und Nachrichten der Verwaltung an ihre Login-Adresse.</p>`,
   en: `
     <h2>Notifications</h2>
     <p>Top right a <strong>bell</strong> shows unread hints with a counter. Events create in-app notifications for the affected users:</p>
@@ -498,7 +519,8 @@ notifications: {
       <li>When a tenant reports an issue, all managers are notified (click → Maintenance).</li>
       <li>When a report's status changes, the reporting tenant is notified in the portal.</li>
     </ul>
-    <p>Clicking marks it read and jumps to the target; "mark all read" clears the counter. Single hints can be removed with <strong>×</strong> (e.g. a notice for an already-deleted ticket).</p>`
+    <p>Clicking marks it read and jumps to the target; "mark all read" clears the counter. Single hints can be removed with <strong>×</strong> (e.g. a notice for an already-deleted ticket).</p>
+    <p><strong>Tenants about their reports:</strong> separate option under email notifications. Reporters get status changes, contractor visits and messages from the management at their login address.</p>`
 },
 
 ai: {
@@ -536,7 +558,8 @@ api: {
     <pre><code>{ "mcpServers": { "havewa": {
   "url": "https://DEINE-DOMAIN/api/mcp",
   "headers": { "Authorization": "Bearer DEIN_TOKEN" }
-} } }</code></pre>`,
+} } }</code></pre>
+    <p>Dokumente lassen sich per <code>PATCH</code> auch einem Vorgang zuordnen (<code>leaseId</code>, <code>ticketId</code>, <code>maintenanceContractId</code>, <code>insuranceId</code>, <code>costEntryId</code>, <code>noteId</code>). Neue Entitäten: <code>note</code> (Notizen) und <code>occupancy</code> (Personenzahl ab Datum).</p>`,
   en: `
     <h2>API &amp; MCP</h2>
     <p>Every user creates personal <strong>API tokens</strong> under <em>Settings → AI &amp; API</em> (admins also for others). Auth via <code>Authorization: Bearer &lt;token&gt;</code>. All access is scoped to the token's tenant.</p>
@@ -552,7 +575,8 @@ api: {
     <pre><code>{ "mcpServers": { "havewa": {
   "url": "https://YOUR-DOMAIN/api/mcp",
   "headers": { "Authorization": "Bearer YOUR_TOKEN" }
-} } }</code></pre>`
+} } }</code></pre>
+    <p>Documents can also be linked to a record via <code>PATCH</code> (<code>leaseId</code>, <code>ticketId</code>, <code>maintenanceContractId</code>, <code>insuranceId</code>, <code>costEntryId</code>, <code>noteId</code>). New entities: <code>note</code> and <code>occupancy</code> (number of occupants from a date).</p>`
 },
 
 io: {
@@ -643,7 +667,8 @@ deploy: {
     <pre><code>bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"</code></pre>
     <h3>Backup &amp; Wiederherstellung</h3>
     <p><code>deploy/backup.sh</code> sichert Datenbank, alle Tabellen als CSV, Dokumente und Konfiguration (inkl. <code>AUTH_SECRET</code>) in ein Archiv mit Manifest und Prüfsummen und spielt jedes Backup probeweise in eine Wegwerf-Datenbank ein. <code>backup.sh restore DATEI</code> stellt wieder her (mit Sicherheits-Backup vorher). Die Proxmox-Installation sichert täglich automatisch nach <code>/var/lib/havewa/backups</code>; bei Docker per Cron einplanen. Archive vom Rechner wegkopieren.</p>
-    <p>Details in der <a href="https://github.com/fgilde/hausverwaltung#readme" target="_blank" rel="noreferrer">README</a>.</p>`,
+    <p>Details in der <a href="https://github.com/fgilde/hausverwaltung#readme" target="_blank" rel="noreferrer">README</a>.</p>
+    <p><strong>Nur SSO:</strong> <code>AUTH_PASSWORD_LOGIN=false</code> schaltet die Anmeldung per E-Mail/Passwort ab (wirkt nur mit eingerichtetem OIDC). <code>OIDC_AUTO_LOGIN=true</code> leitet die Login-Seite sofort zum Identity Provider weiter; <code>/login?local=1</code> zeigt die normale Seite.</p>`,
   en: `
     <h2>Install &amp; hosting</h2>
     <p>HaVeWa runs as a Docker image (<code>ghcr.io/fgilde/hausverwaltung:latest</code>) with PostgreSQL. Migrations and the optional bootstrap run automatically on start.</p>
@@ -669,7 +694,8 @@ deploy: {
     <pre><code>bash -c "$(wget -qO- https://raw.githubusercontent.com/fgilde/hausverwaltung/main/deploy/proxmox/install.sh)"</code></pre>
     <h3>Backup &amp; restore</h3>
     <p><code>deploy/backup.sh</code> saves the database, every table as CSV, the documents and the configuration (incl. <code>AUTH_SECRET</code>) into one archive with a manifest and checksums, and test-restores every backup into a scratch database. <code>backup.sh restore FILE</code> puts it back (after a safety backup). The Proxmox install backs up daily to <code>/var/lib/havewa/backups</code>; with Docker, schedule it via cron. Copy the archives off the machine.</p>
-    <p>Details in the <a href="https://github.com/fgilde/hausverwaltung#readme" target="_blank" rel="noreferrer">README</a>.</p>`
+    <p>Details in the <a href="https://github.com/fgilde/hausverwaltung#readme" target="_blank" rel="noreferrer">README</a>.</p>
+    <p><strong>SSO only:</strong> <code>AUTH_PASSWORD_LOGIN=false</code> disables email/password sign-in (only with OIDC configured). <code>OIDC_AUTO_LOGIN=true</code> sends the login page straight to the identity provider; <code>/login?local=1</code> shows the normal page.</p>`
 },
 
 faq: {

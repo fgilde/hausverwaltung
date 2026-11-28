@@ -1,8 +1,9 @@
 import { ArrowLeft, Percent } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/rbac";
+import { requireUser, roleAllows, WRITE_ROLES } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { NoteCards, NoteDialog } from "@/components/notes";
 import { money, date, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { computeMgmtFee, type FeeType } from "@/lib/fee";
@@ -44,6 +45,12 @@ export default async function PropertyDetailPage({
   const { id } = await params;
   const { areaYear: areaYearParam } = await searchParams;
   const user = await requireUser();
+  // Notizen (#89)
+  const notes = await prisma.note.findMany({
+    where: { tenantId: user.tenantId, propertyId: id },
+    include: { _count: { select: { documents: true } } },
+    orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
+  });
   const t = await getTranslations();
   const locale = await getLocale();
   const df = await getDateLocale(locale);
@@ -413,6 +420,20 @@ export default async function PropertyDetailPage({
           </Card>
         ))
       )}
+
+      {/* Notizen (#89) */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">{t("notes.title")}</CardTitle>
+          {roleAllows(user.role, WRITE_ROLES) && <NoteDialog preset={{ propertyId: id }} />}
+        </CardHeader>
+        <CardContent>
+          <NoteCards
+            canWrite={roleAllows(user.role, WRITE_ROLES)}
+            notes={notes.map((n) => ({ ...n, documentCount: n._count.documents }))}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

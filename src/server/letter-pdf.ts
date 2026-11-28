@@ -10,7 +10,7 @@ import { letterBlocks } from "@/lib/letter-html";
 // der Post-Schablone (ab y 69,2 mm) liegt: 4 Zeilen à 9 pt ab y 70 mm.
 
 const FONTS = path.join(process.cwd(), "src/assets/fonts");
-const mm = (v: number) => v * 2.834645669;
+export const mm = (v: number) => v * 2.834645669;
 
 export type LetterInput = {
   sender: { name: string; lines: string[] }; // Absender (Verwaltung), Anschrift zeilenweise
@@ -23,7 +23,12 @@ export type LetterInput = {
 
 export const MAX_RECIPIENT_LINES = 4; // mehr passt nicht in beide Fensterzonen
 
-export function letterPdf(l: LetterInput): Promise<Buffer> {
+/**
+ * Neues A4-Dokument mit Briefkopf, Anschriftfeld, Ort/Datum und Betreff; der Text beginnt
+ * danach an doc.y. Geteilt von Brief (#58) und Einzelabrechnung (#94). `finish` setzt
+ * bei mehreren Seiten „Seite x von y“ und liefert das PDF.
+ */
+export function openLetter(l: Omit<LetterInput, "body">) {
   const doc = new PDFDocument({
     size: "A4",
     margins: { top: mm(20), bottom: mm(25), left: mm(25), right: mm(20) },
@@ -60,6 +65,25 @@ export function letterPdf(l: LetterInput): Promise<Buffer> {
   });
   doc.font("B").fontSize(11).text(l.subject, mm(25), mm(106), { width: mm(165) });
 
+  const finish = () => {
+    // Seitenzahlen bei mehrseitigen Dokumenten
+    const { start, count } = doc.bufferedPageRange();
+    if (count > 1) {
+      for (let i = start; i < start + count; i++) {
+        doc.switchToPage(i);
+        doc.page.margins.bottom = 0; // sonst legt pdfkit beim Schreiben im Rand eine neue Seite an
+        doc.font("R").fontSize(8).text(`Seite ${i + 1} von ${count}`, mm(25), mm(285), { width: mm(165), align: "right" });
+      }
+    }
+    doc.end();
+    return done;
+  };
+  return { doc, finish };
+}
+
+export function letterPdf(l: LetterInput): Promise<Buffer> {
+  const { doc, finish } = openLetter(l);
+
   // Text; Seitenumbrüche macht pdfkit selbst (Folgeseiten ab dem oberen Rand)
   doc.font("R").fontSize(11).moveDown(1.2);
   // Formatierter Text (#67): fett, kursiv (schräggestellt), unterstrichen, Listen, Zitate
@@ -89,15 +113,5 @@ export function letterPdf(l: LetterInput): Promise<Buffer> {
     if (next) doc.moveDown(b.marker && next.marker ? 0.3 : 0.8);
   });
 
-  // Seitenzahlen bei mehrseitigen Briefen
-  const { start, count } = doc.bufferedPageRange();
-  if (count > 1) {
-    for (let i = start; i < start + count; i++) {
-      doc.switchToPage(i);
-      doc.page.margins.bottom = 0; // sonst legt pdfkit beim Schreiben im Rand eine neue Seite an
-      doc.font("R").fontSize(8).text(`Seite ${i + 1} von ${count}`, mm(25), mm(285), { width: mm(165), align: "right" });
-    }
-  }
-  doc.end();
-  return done;
+  return finish();
 }

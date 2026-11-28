@@ -31,7 +31,12 @@ type Def = {
   upsertBy?: string[]; // Felder für Upsert-Where (statt create)
 };
 
-const DOCUMENT_RELATIONS = { propertyId: "property", unitId: "unit", personId: "person" };
+// Zuordnungen inkl. Vorgang (#99); PATCH löst mit null/"" eine Zuordnung
+const DOCUMENT_RELATIONS = {
+  propertyId: "property", unitId: "unit", personId: "person",
+  leaseId: "lease", ticketId: "ticket", maintenanceContractId: "maintenanceContract", insuranceId: "insurance", costEntryId: "costEntry",
+  noteId: "note",
+};
 
 /**
  * Teil-Update eines Dokuments (#86): nur gesendete Felder ändern sich, `null` oder `""`
@@ -53,7 +58,7 @@ export function documentPatch(body: Record<string, unknown>) {
   for (const k of Object.keys(DOCUMENT_RELATIONS)) {
     if (k in body) data[k] = body[k] === null || body[k] === "" ? null : String(body[k]);
   }
-  if (!Object.keys(data).length) throw new ApiWriteError("Keine änderbaren Felder (name, category, propertyId, unitId, personId)", 400);
+  if (!Object.keys(data).length) throw new ApiWriteError(`Keine änderbaren Felder (name, category, ${Object.keys(DOCUMENT_RELATIONS).join(", ")})`, 400);
   return data;
 }
 
@@ -79,6 +84,8 @@ export const REGISTRY: Record<string, Def> = {
     custom: true,
     special: "lease",
   },
+  note: { model: "note", create: S.noteSchema, update: S.noteSchema, relations: { propertyId: "property", unitId: "unit", personId: "person" } },
+  occupancy: { model: "leaseOccupancy", create: S.occupancySchema, relations: { leaseId: "lease" }, upsertBy: ["leaseId", "validFrom"] },
   component: { model: "rentComponent", create: S.rentComponentSchema, relations: { leaseId: "lease" } },
   adjustment: { model: "rentAdjustment", create: S.rentAdjustmentSchema, relations: { leaseId: "lease" } },
   deposit: { model: "deposit", create: S.depositSchema, relations: { leaseId: "lease", accountId: "account" }, upsertBy: ["leaseId"] },
@@ -86,7 +93,7 @@ export const REGISTRY: Record<string, Def> = {
   charge: { model: "charge", create: S.chargeSchema, relations: { leaseId: "lease" } },
   payment: { model: "payment", create: S.paymentSchema, relations: { chargeId: "charge", accountId: "account" } },
   mandate: { model: "sepaMandate", create: S.mandateSchema, relations: { personId: "person" } },
-  cost: { model: "costEntry", create: S.costEntrySchema, relations: { propertyId: "property", subcommunityId: "subcommunity" } },
+  cost: { model: "costEntry", create: S.costEntrySchema, update: S.costEntrySchema, relations: { propertyId: "property", subcommunityId: "subcommunity" } },
   "economic-plan": { model: "economicPlan", create: S.economicPlanSchema, relations: { propertyId: "property" }, upsertBy: ["propertyId", "year"] },
   reserve: { model: "reserve", create: S.reserveSchema, relations: { propertyId: "property", subcommunityId: "subcommunity" } },
   "reserve-transaction": { model: "reserveTransaction", create: S.reserveTxSchema, relations: { reserveId: "reserve" } },
@@ -97,7 +104,7 @@ export const REGISTRY: Record<string, Def> = {
   task: { model: "task", create: S.taskSchema, update: S.taskSchema },
   contractor: { model: "contractor", create: S.contractorSchema, update: S.contractorSchema },
   ticket: { model: "ticket", create: S.ticketCreateSchema, update: S.ticketUpdateSchema, relations: { propertyId: "property", unitId: "unit", contractorId: "contractor" } },
-  maintenance: { model: "maintenanceContract", create: S.maintenanceSchema, relations: { propertyId: "property", contractorId: "contractor" } },
+  maintenance: { model: "maintenanceContract", create: S.maintenanceSchema, update: S.maintenanceSchema, relations: { propertyId: "property", contractorId: "contractor" } },
   insurance: { model: "insurance", create: S.insuranceSchema, update: S.insuranceSchema, relations: { propertyId: "property" } },
   "property-tax": { model: "propertyTax", create: S.propertyTaxSchema, relations: { propertyId: "property" }, upsertBy: ["propertyId"] },
   template: { model: "template", create: S.templateSchema, update: S.templateSchema },

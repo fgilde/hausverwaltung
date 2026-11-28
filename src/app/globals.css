@@ -150,6 +150,8 @@
 /* Formatierte E-Mails (#56): Editor und Anzeige teilen sich die Darstellung. */
 @layer components {
   .mail-html p { margin: 0 0 0.6em; }
+  .mail-html h2 { font-size: 1.15em; font-weight: 600; margin: 0.4em 0 0.4em; }
+  .mail-html h3 { font-size: 1.05em; font-weight: 600; margin: 0.4em 0 0.3em; }
   .mail-html p:last-child { margin-bottom: 0; }
   .mail-html ul { list-style: disc; padding-left: 1.4em; margin: 0 0 0.6em; }
   .mail-html ol { list-style: decimal; padding-left: 1.4em; margin: 0 0 0.6em; }

@@ -6,7 +6,7 @@ import sanitizeHtml from "sanitize-html";
 // angezeigt oder versendet wird.
 export function sanitizeMailHtml(html: string): string {
   return sanitizeHtml(html, {
-    allowedTags: ["p", "br", "strong", "b", "em", "i", "u", "s", "ul", "ol", "li", "a", "blockquote"],
+    allowedTags: ["p", "br", "h2", "h3", "strong", "b", "em", "i", "u", "s", "ul", "ol", "li", "a", "blockquote"],
     allowedAttributes: { a: ["href", "target", "rel"] }, // target/rel setzt transformTags fest
     allowedSchemes: ["http", "https", "mailto"],
     transformTags: {

@@ -108,14 +108,47 @@ export async function generateCharges(_p: ActionState, fd: FormData): Promise<Ac
     });
     created++;
   }
-  created += await generateAreaCharges(user.tenantId, first, due, last);
+  const areaCreated = await generateAreaCharges(user.tenantId, first, due, last);
+  created += areaCreated;
+  // Nichts angelegt: im Dialog stehen lassen statt „gespeichert“ (#106), mit dem Grund.
+  if (created === 0) {
+    // gleiche Bedingung wie generateAreaCharges: im Monat aktive Teilflächen mit €/m²
+    const activeAreas = await prisma.areaAllocation.count({
+      where: {
+        tenantId: user.tenantId,
+        outdoor: false,
+        pricePerSqm: { not: null },
+        from: { lte: last },
+        OR: [{ to: null }, { to: { gte: first } }],
+        property: { areaModel: true },
+      },
+    });
+    return fail(
+      leases.length === 0 && activeAreas === 0
+        ? `Kein Mietverhältnis ist im ${r.data.month} aktiv. Beginn und Ende der Verträge prüfen.`
+        : "Keine neuen Sollstellungen: für diesen Monat sind schon alle angelegt.",
+    );
+  }
   revalidatePath("/", "layout");
-  return { ok: true, error: created === 0 ? "Keine neuen Sollstellungen (bereits vorhanden)" : undefined };
+  return done();
 }
 
 // --- Payment ---
 export async function createPayment(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
+  // Vorhandene Kontobewegung (Bank-Sync/Import) der Sollstellung zuordnen statt doppelt zu buchen (#106).
+  const existingId = String(fd.get("existingPaymentId") ?? "");
+  if (existingId) {
+    const chargeId = String(fd.get("chargeId") ?? "");
+    const [p, c] = await Promise.all([
+      prisma.payment.findFirst({ where: { id: existingId, tenantId: user.tenantId, direction: "EINGANG" }, select: { id: true } }),
+      prisma.charge.findFirst({ where: { id: chargeId, tenantId: user.tenantId }, select: { id: true } }),
+    ]);
+    if (!p) return fail("Kontobewegung nicht gefunden");
+    if (!c) return fail("Sollstellung nicht gefunden");
+    await prisma.payment.update({ where: { id: p.id }, data: { chargeId: c.id } });
+    return done();
+  }
   const r = paymentSchema.safeParse(Object.fromEntries(fd));
   if (!r.success) return fail(r.error.issues[0]?.message);
   // Zugehörigkeit prüfen (Charge/Account des Mandanten)
@@ -139,8 +172,15 @@ export async function updatePaymentDetails(_p: ActionState, fd: FormData): Promi
   const note = String(fd.get("note") ?? "").trim() || null;
   const documentIds = [...new Set(fd.getAll("documentIds").map(String).filter(Boolean))];
 
-  const payment = await prisma.payment.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true } });
+  const payment = await prisma.payment.findFirst({ where: { id, tenantId: user.tenantId }, select: { id: true, direction: true } });
   if (!payment) return fail("Buchung nicht gefunden");
+  // Zuordnung zur Sollstellung ändern oder lösen, z. B. nach falscher Auto-Zuordnung (#106).
+  const chargeId = fd.has("chargeId") ? String(fd.get("chargeId") ?? "") || null : undefined;
+  if (chargeId) {
+    if (payment.direction !== "EINGANG") return fail("Nur Eingänge können einer Sollstellung zugeordnet werden");
+    if (!(await prisma.charge.findFirst({ where: { id: chargeId, tenantId: user.tenantId }, select: { id: true } })))
+      return fail("Sollstellung nicht gefunden");
+  }
   if (documentIds.length) {
     const cnt = await prisma.document.count({ where: { tenantId: user.tenantId, id: { in: documentIds } } });
     if (cnt !== documentIds.length) return fail("Dokument nicht gefunden");
@@ -148,7 +188,7 @@ export async function updatePaymentDetails(_p: ActionState, fd: FormData): Promi
 
   await prisma.payment.update({
     where: { id: payment.id },
-    data: { note, documents: { set: documentIds.map((docId) => ({ id: docId })) } },
+    data: { note, chargeId, documents: { set: documentIds.map((docId) => ({ id: docId })) } },
   });
   return done();
 }

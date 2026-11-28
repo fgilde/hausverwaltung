@@ -63,7 +63,7 @@ export default async function FinancesPage({
   const payWhere = { tenantId, ...txnWhere(txnFilter) };
   const letterProviders = await configuredProviders(tenantId); // Mahnung per Brief (#78)
 
-  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks, payments, paymentCount, paymentSums, allDocuments] = await Promise.all([
+  const [charges, accounts, mandates, leases, persons, bankConnector, bankLinks, payments, paymentCount, paymentSums, allDocuments, unassigned] = await Promise.all([
     prisma.charge.findMany({
       where: { tenantId },
       include: {
@@ -95,6 +95,14 @@ export default async function FinancesPage({
     prisma.payment.count({ where: payWhere }),
     prisma.payment.groupBy({ by: ["direction"], where: payWhere, _sum: { amount: true } }),
     prisma.document.findMany({ where: { tenantId }, select: { id: true, name: true }, orderBy: { createdAt: "desc" } }),
+    // Nicht zugeordnete Eingänge (Bank-Sync/Import) zum Zuordnen an einer Sollstellung (#106).
+    // ponytail: die neuesten 300; ältere über die Suche in Kontobewegungen + Bearbeiten.
+    prisma.payment.findMany({
+      where: { tenantId, direction: "EINGANG", chargeId: null },
+      select: { id: true, date: true, amount: true, counterparty: true, reference: true },
+      orderBy: { date: "desc" },
+      take: 300,
+    }),
   ]);
   // Ein-/Ausgang/Saldo über alle Kontobewegungen, nicht nur die aktuelle Seite.
   const txnSummary = summarizeTransactions(
@@ -145,6 +153,27 @@ export default async function FinancesPage({
     label: `${l.unit.building.property.name} · ${l.unit.label}`,
   }));
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.lastName}, ${p.firstName}` }));
+  // Je Sollstellung: passende Beträge zuerst, sonst neueste zuerst (#106).
+  const unassignedFor = (open: number) =>
+    [...unassigned]
+      .sort((a, b) => Number(Math.abs(Number(b.amount) - open) < 0.005) - Number(Math.abs(Number(a.amount) - open) < 0.005))
+      .map((p) => ({
+        value: p.id,
+        label: [date(p.date, df), money(Number(p.amount), locale), p.counterparty, p.reference].filter(Boolean).join(" · "),
+      }));
+  // Offene Sollstellungen als Ziel beim Bearbeiten einer Kontobewegung (#106).
+  const chargeLabel = (c: (typeof charges)[number]) =>
+    [
+      date(c.period, df),
+      c.lease ? `${c.lease.unit.building.property.name} · ${c.lease.unit.label}` : null,
+      t(`chargeType.${c.type}`),
+      money(Number(c.amount), locale),
+    ].filter(Boolean).join(" · ");
+  const openChargeOpts = rows.filter((r) => r.status !== "PAID").map((r) => ({ value: r.c.id, label: chargeLabel(r.c) }));
+  const chargeOptsFor = (chargeId: string | null) => {
+    const current = chargeId && !openChargeOpts.some((o) => o.value === chargeId) ? charges.find((c) => c.id === chargeId) : undefined;
+    return current ? [{ value: current.id, label: chargeLabel(current) }, ...openChargeOpts] : openChargeOpts;
+  };
 
   const filterCls = "flex h-8 rounded-lg border border-input bg-transparent px-2 text-sm dark:bg-input/30";
   const statusVariant = (s: string) =>
@@ -285,7 +314,7 @@ export default async function FinancesPage({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
-                        <PaymentDialog chargeId={c.id} defaultAmount={Math.max(0, open)} accounts={accountOpts} />
+                        <PaymentDialog chargeId={c.id} defaultAmount={Math.max(0, open)} accounts={accountOpts} existing={unassignedFor(open)} />
                         {status === "OVERDUE" && dunLevel < 3 && (
                           <DunningDialog
                             chargeId={c.id}
@@ -434,8 +463,9 @@ export default async function FinancesPage({
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <PaymentEditDialog
-                          payment={{ id: p.id, note: p.note, documentIds: p.documents.map((d) => d.id) }}
+                          payment={{ id: p.id, note: p.note, documentIds: p.documents.map((d) => d.id), chargeId: p.chargeId }}
                           documents={allDocuments}
+                          charges={p.direction === "EINGANG" ? chargeOptsFor(p.chargeId) : undefined}
                         />
                         <DeleteButton action={deletePayment} id={p.id} />
                       </div>

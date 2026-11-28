@@ -145,6 +145,11 @@ melden sich **nur bereits angelegte Benutzer** an (Abgleich per E-Mail) — Roll
 Mandant stammen aus dem vorhandenen Benutzer, kein Auto-Provisioning. Redirect-URI
 beim IdP: `https://<DOMAIN>/api/auth/callback/oidc`.
 
+`AUTH_PASSWORD_LOGIN=false` schaltet die Anmeldung per E-Mail/Passwort ab, dann bleibt nur
+SSO (ohne OIDC wirkungslos, sonst käme niemand hinein; Mieter im Portal brauchen dann auch
+einen Zugang beim IdP). `OIDC_AUTO_LOGIN=true` leitet die Login-Seite sofort zum Identity
+Provider weiter; `/login?local=1` zeigt die normale Seite, z. B. für einen lokalen Admin.
+
 #### Bank-Sync via Open Banking (optional)
 
 Unter **Finanzen → Bank-Sync** hinterlegt ein Admin eigene **Enable-Banking**-Zugangsdaten

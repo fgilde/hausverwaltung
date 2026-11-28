@@ -2,7 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { Plus } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
-import { money, date, decimal } from "@/lib/format";
+import { money, date, dateTime, wallTime, decimal } from "@/lib/format";
 import { getDateLocale } from "@/lib/date-locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,7 @@ export default async function PortalPage() {
 
   const myTickets = await prisma.ticket.findMany({
     where: { tenantId: user.tenantId, reporterId: user.id },
+    include: { updates: { orderBy: { createdAt: "desc" } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -142,14 +143,34 @@ export default async function PortalPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             {myTickets.map((tk) => (
-              <div key={tk.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm">
-                <div>
-                  <div className="font-medium">{tk.title}</div>
-                  <div className="text-xs text-muted-foreground">{date(tk.createdAt, df)}</div>
+              <div key={tk.id} className="space-y-2 rounded-md border px-3 py-2 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="font-medium">{tk.title}</div>
+                    <div className="text-xs text-muted-foreground">{date(tk.createdAt, df)}</div>
+                  </div>
+                  <Badge variant={tk.status === "ERLEDIGT" ? "secondary" : "outline"}>
+                    {t(`ticketStatus.${tk.status}`)}
+                  </Badge>
                 </div>
-                <Badge variant={tk.status === "ERLEDIGT" ? "secondary" : "outline"}>
-                  {t(`ticketStatus.${tk.status}`)}
-                </Badge>
+                {tk.visitAt && tk.status !== "ERLEDIGT" && (
+                  <div className="text-xs">
+                    {t("portal.visitAt")}: <span className="font-medium">{wallTime(tk.visitAt, df)}</span>
+                  </div>
+                )}
+                {/* Verlauf: Status, Termin, Nachrichten der Verwaltung (#100) */}
+                {tk.updates.length > 0 && (
+                  <ul className="space-y-1 border-l-2 pl-3 text-xs text-muted-foreground">
+                    {tk.updates.map((u) => (
+                      <li key={u.id}>
+                        <span>{dateTime(u.createdAt, df)}</span>
+                        {u.status && <> · {t(`ticketStatus.${u.status}`)}</>}
+                        {u.visitAt && <> · {t("portal.visitAt")}: {wallTime(u.visitAt, df)}</>}
+                        {u.message && <div className="whitespace-pre-line text-foreground">{u.message}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </CardContent>

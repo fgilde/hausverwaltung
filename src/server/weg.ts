@@ -35,7 +35,11 @@ export async function computeWeg(tenantId: string, propertyId: string, year: num
     prisma.economicPlan.findUnique({ where: { propertyId_year: { propertyId, year } } }),
     prisma.subcommunityPlan.findMany({ where: { tenantId, year, subcommunity: { propertyId } } }),
     prisma.reserve.findMany({ where: { tenantId, propertyId }, include: { transactions: { orderBy: { date: "desc" } } }, orderBy: { createdAt: "asc" } }),
-    prisma.costEntry.findMany({ where: { tenantId, propertyId, year }, orderBy: { type: "asc" } }),
+    prisma.costEntry.findMany({
+      where: { tenantId, propertyId, year },
+      include: { _count: { select: { documents: true } } },
+      orderBy: { type: "asc" },
+    }),
   ]);
 
   const units = dbUnits.map((u) => ({
@@ -45,6 +49,7 @@ export async function computeWeg(tenantId: string, propertyId: string, year: num
     mea: u.mea ?? 0,
     consumption: meterConsumption(u.meters),
     subcommunityId: u.subcommunityId,
+    type: u.type,
   }));
   const tenantPct = property?.tenant.heatingConsumptionPct ?? null;
   const calc = buildWegStatement(
@@ -60,6 +65,7 @@ export async function computeWeg(tenantId: string, propertyId: string, year: num
         heating,
         consumptionShare: heating && pct != null ? pct / 100 : undefined,
         subcommunityId: c.subcommunityId,
+        unitTypes: c.unitTypes,
       };
     }),
     [

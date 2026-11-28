@@ -188,6 +188,11 @@ exist** can sign in (matched by email) — role and tenant come from the existin
 user, there is no auto-provisioning. Redirect URI at the IdP:
 `https://<DOMAIN>/api/auth/callback/oidc`.
 
+`AUTH_PASSWORD_LOGIN=false` turns off email/password sign-in so only SSO is left (ignored
+without OIDC, nobody would get in otherwise; tenant-portal users then need an IdP account too).
+`OIDC_AUTO_LOGIN=true` sends the login page straight to the identity provider;
+`/login?local=1` shows the normal page, e.g. to sign in as a local admin.
+
 #### Bank sync via open banking (optional)
 
 Under **Finances → Bank sync** an admin can store their own **Enable Banking**

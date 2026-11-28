@@ -7,6 +7,7 @@ import { saveFile, deleteFile } from "@/lib/storage";
 import { isEInvoice, parseEInvoice } from "@/lib/adapters/erechnung";
 import { documentEditSchema, type ActionState } from "@/lib/schemas";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload-limit";
+import { resolveDocumentLink } from "@/server/document-links";
 
 export async function uploadDocument(_p: ActionState, fd: FormData): Promise<ActionState> {
   const user = await requireWriter();
@@ -33,6 +34,10 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
     if (!pn) return { error: "Person nicht gefunden" };
   }
 
+  // Vorgang (#99): Mietvertrag, Ticket, Wartungsvertrag, Versicherung, Kostenposition
+  const link = await resolveDocumentLink(user.tenantId, fd.get("link"));
+  if (!link.data) return { error: link.error };
+
   const buffer = Buffer.from(await file.arrayBuffer());
   const storageKey = await saveFile(buffer, file.name);
   const eInvoice = isEInvoice(file.type, file.name) || category === "ERECHNUNG";
@@ -46,6 +51,7 @@ export async function uploadDocument(_p: ActionState, fd: FormData): Promise<Act
       propertyId,
       unitId,
       personId,
+      ...link.data,
       name,
       category: category as never,
       mime: file.type || "application/octet-stream",
@@ -77,6 +83,9 @@ export async function updateDocument(_p: ActionState, fd: FormData): Promise<Act
     return { error: "Einheit nicht gefunden" };
   if (personId && !(await prisma.person.findFirst({ where: { id: personId, tenantId: user.tenantId }, select: { id: true } })))
     return { error: "Person nicht gefunden" };
+  // Vorgang nur ändern, wenn das Formular ihn mitschickt (#99)
+  const link = fd.has("link") ? await resolveDocumentLink(user.tenantId, fd.get("link")) : { data: {}, error: undefined };
+  if (!link.data) return { error: link.error };
 
   await prisma.document.update({
     where: { id: doc.id },
@@ -86,6 +95,7 @@ export async function updateDocument(_p: ActionState, fd: FormData): Promise<Act
       propertyId: propertyId ?? null,
       unitId: unitId ?? null,
       personId: personId ?? null,
+      ...link.data,
     },
   });
   revalidatePath("/", "layout");

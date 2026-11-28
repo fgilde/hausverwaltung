@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { OwnerDialog, PlanDialog, ReserveDialog, ReserveTxDialog, SubcommunityDialog } from "@/components/weg-dialogs";
 import { CostDialog } from "@/components/cost-dialog";
+import { LinkedDocs } from "@/components/document-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteOwner, deleteReserve, deleteReserveTx, deleteSubcommunity } from "@/server/actions/weg";
 import { deleteCost } from "@/server/actions/costs";
@@ -280,10 +281,20 @@ export default async function WegPage({
                     <TableCell>
                       <Badge variant={c.subcommunityId ? "outline" : "secondary"}>{scopeLabel(c.subcommunityId)}</Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{t(`allocationMethod.${c.method}`)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {t(`allocationMethod.${c.method}`)}
+                      {c.unitTypes.length > 0 && <> · {c.unitTypes.map((u) => t(`unitType.${u}`)).join(", ")}</>}
+                    </TableCell>
                     <TableCell className="text-right">{money(Number(c.amount), locale)}</TableCell>
                     <TableCell>
                       <div className="flex justify-end">
+                        <LinkedDocs link={`cost:${c.id}`} count={c._count.documents} preset={{ propertyId, category: "RECHNUNG" }} />
+                        <CostDialog
+                          propertyId={propertyId}
+                          year={year}
+                          subcommunities={subOpts}
+                          cost={{ ...c, amount: Number(c.amount) }}
+                        />
                         <DeleteButton action={deleteCost} id={c.id} />
                       </div>
                     </TableCell>

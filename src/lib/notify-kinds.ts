@@ -12,6 +12,7 @@ export const NOTIFY_KINDS = [
   "APPOINTMENT_PERSONS", // Erinnerung auch an die Teilnehmer des Termins
   "ISSUE_REPORTED", // Schadensmeldung aus dem Mieterportal
   "INBOUND_EMAIL", // neue eingegangene E-Mails
+  "TICKET_REPORTER", // Mieter über Änderungen an ihren Schadensmeldungen informieren (#100)
 ] as const;
 export type NotifyKind = (typeof NOTIFY_KINDS)[number];
 

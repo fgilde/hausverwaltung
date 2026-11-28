@@ -9,7 +9,7 @@ import { CrudDialog } from "@/components/crud-dialog";
 import { SelectField } from "@/components/form-fields";
 import { cn } from "@/lib/utils";
 import { RichTextEditor } from "@/components/rich-text-editor";
-import { textToHtml } from "@/lib/mail-html";
+import { templateHtml } from "@/lib/mail-html";
 
 type Tpl = { id: string; name: string; subject: string | null; body: string };
 
@@ -36,7 +36,7 @@ export function BulkEmailDialog({
     const tpl = templates.find((x) => x.id === id);
     if (!tpl) return;
     setSubject(tpl.subject ?? "");
-    setInitialHtml(textToHtml(tpl.body));
+    setInitialHtml(templateHtml(tpl.body));
     setEditorKey((k) => k + 1);
   }
 

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { RichTextEditor } from "@/components/rich-text-editor";
-import { textToHtml } from "@/lib/mail-html";
+import { templateHtml } from "@/lib/mail-html";
 
 export type ProviderInfo = { id: "PINGEN" | "EPOST"; test: boolean };
 type Recipient = { id: string; label: string; address: string[] };
@@ -140,7 +140,7 @@ export function LetterDialog({
     const tpl = templates.find((x) => x.id === id);
     if (!tpl) return;
     if (tpl.subject) setSubject(tpl.subject);
-    setInitialBody(textToHtml(tpl.body));
+    setInitialBody(templateHtml(tpl.body));
     setEditorKey((k) => k + 1); // Editor mit Vorlage neu aufbauen
   }
 

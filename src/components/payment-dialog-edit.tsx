@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { updatePaymentDetails } from "@/server/actions/finances";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
-import { TextAreaField } from "@/components/form-fields";
+import { SelectField, TextAreaField } from "@/components/form-fields";
 
 type Doc = { id: string; name: string };
 
@@ -13,9 +13,12 @@ type Doc = { id: string; name: string };
 export function PaymentEditDialog({
   payment,
   documents,
+  charges,
 }: {
-  payment: { id: string; note: string | null; documentIds: string[] };
+  payment: { id: string; note: string | null; documentIds: string[]; chargeId: string | null };
   documents: Doc[];
+  /** offene Sollstellungen, nur bei Eingängen (#106) */
+  charges?: { value: string; label: string }[];
 }) {
   const t = useTranslations();
   return (
@@ -30,6 +33,14 @@ export function PaymentEditDialog({
       submitLabel={t("common.save")}
     >
       <input type="hidden" name="id" value={payment.id} />
+      {charges && (
+        <SelectField
+          name="chargeId"
+          label={t("finances.assignedCharge")}
+          defaultValue={payment.chargeId ?? ""}
+          options={[{ value: "", label: t("finances.noCharge") }, ...charges]}
+        />
+      )}
       <TextAreaField name="note" label={t("finances.note")} defaultValue={payment.note ?? undefined} />
       {documents.length > 0 && (
         <div className="space-y-1.5">

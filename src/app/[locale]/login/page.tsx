@@ -7,11 +7,16 @@ import { needsSetup } from "@/lib/setup";
 import { listBackgroundVideos } from "@/lib/videos";
 import { BackgroundVideo } from "@/components/background-video";
 import { LoginForm } from "@/components/login-form";
-import { oidcConfigFromEnv } from "@/lib/sso";
+import { oidcConfigFromEnv, passwordLoginEnabled, ssoAutoLogin } from "@/lib/sso";
 import { APP_VERSION_LABEL, APP_VERSION_FULL } from "@/lib/version";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; local?: string }>;
+}) {
   if (await needsSetup()) redirect("/setup");
+  const sp = await searchParams;
   const session = await auth();
   if (session?.user) redirect("/");
   const t = await getTranslations();
@@ -106,6 +111,9 @@ export default async function LoginPage() {
             tenantName={tenantName}
             ssoEnabled={!!sso}
             ssoName={sso?.name ?? "SSO"}
+            passwordLogin={passwordLoginEnabled()}
+            // Direkt zum IdP (#101); nicht nach einem Fehler (sonst Schleife) und nicht mit ?local
+            autoSso={ssoAutoLogin() && !sp.error && sp.local === undefined}
           />
 
           {isDemo && (

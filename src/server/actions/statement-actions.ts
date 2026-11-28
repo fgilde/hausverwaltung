@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireWriter } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { money } from "@/lib/format";
-import { simplePdf } from "@/lib/pdf";
+import { statementPdfFor } from "@/server/statement-pdf";
 import { saveFile } from "@/lib/storage";
 import { computeStatement } from "@/server/statements";
 import { queueEmails } from "@/server/outbox";
@@ -73,16 +73,11 @@ export async function emailStatementToTenants(_p: ActionState, fd: FormData): Pr
       `Ergebnis: ${money(Math.abs(u.balance))} ${kind}\n\n` +
       `Mit freundlichen Grüßen\n${st.property?.tenantName ?? ""}`;
 
-    // PDF erzeugen, im Storage ablegen und als Dokument (Kategorie ABRECHNUNG) archivieren.
-    const pdf = simplePdf(`Betriebskostenabrechnung ${year}`, [
-      `${propName} - ${u.label}`,
-      "",
-      `Umgelegte Kosten: ${money(u.allocated)}`,
-      `Vorauszahlungen:  ${money(u.prepayment)}`,
-      `Ergebnis: ${money(Math.abs(u.balance))} ${kind}`,
-      "",
-      "Heiz-/Warmwasserkosten nach HeizkostenV (30% Flaeche / 70% Verbrauch).",
-    ]);
+    // Einzelabrechnung mit allen Rechenschritten (#94) im Storage ablegen und als Dokument archivieren.
+    // ponytail: rechnet die Abrechnung je Mietverhältnis neu; bei sehr großen Objekten einmal rechnen und durchreichen.
+    const single = await statementPdfFor(user.tenantId, propertyId, year, u.key);
+    if (!single) continue;
+    const pdf = single.pdf;
     const name = `Abrechnung ${year} - ${u.label}.pdf`;
     const storageKey = await saveFile(pdf, name);
     const doc = await prisma.document.create({

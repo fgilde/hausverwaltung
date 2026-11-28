@@ -193,7 +193,7 @@ const TOOLS: Tool[] = [
   },
   {
     name: "update_record",
-    description: "Datensatz ändern. entity + id + data (nur zu ändernde Felder). Nur bei aktualisierbaren Entitäten (siehe list_entities.writable). Dokumente (entity document): name, category, propertyId, unitId, personId; null oder \"\" löst eine Zuordnung.",
+    description: "Datensatz ändern. entity + id + data (nur zu ändernde Felder). Nur bei aktualisierbaren Entitäten (siehe list_entities.writable). Dokumente (entity document): name, category, propertyId, unitId, personId sowie Vorgang leaseId, ticketId, maintenanceContractId, insuranceId, costEntryId, noteId; null oder \"\" löst eine Zuordnung.",
     inputSchema: obj({ entity: entityEnum, id: str, data: rec }, ["entity", "id", "data"]),
     run: (p, a) => apiUpdate(p, String(a.entity), String(a.id), (a.data as Record<string, unknown>) ?? {}),
   },

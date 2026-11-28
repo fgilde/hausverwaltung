@@ -75,7 +75,8 @@
     "groupFinance": "Financeiro e demonstrativos",
     "groupOperations": "Operações",
     "groupMore": "Mais",
-    "groupAdmin": "Administração"
+    "groupAdmin": "Administração",
+    "notes": "Notas"
   },
   "dashboard": {
     "title": "Painel",
@@ -446,7 +447,14 @@
     "wgSendTo": "Envio para: {to}",
     "wgNoEmail": "Nenhum inquilino com e-mail cadastrado, apenas PDF.",
     "wgByLetter": "Enviar por correio",
-    "wgSendLetter": "Enviar por correio"
+    "wgSendLetter": "Enviar por correio",
+    "occupancy": "Ocupantes (para rateio por pessoas)",
+    "occupancyAdd": "Alteração",
+    "occupancyFrom": "Válido a partir de",
+    "occupancyHint": "Ex.: quando alguém entra ou sai. O acerto usa, dia a dia, o número válido.",
+    "occupancyStart": "desde o início do contrato ({date})",
+    "occupancyFromDate": "a partir de {date}",
+    "persons": "{count, plural, =1 {1 pessoa} other {# pessoas}}"
   },
   "rentComponent": {
     "title": "Componentes do aluguel",
@@ -534,7 +542,8 @@
     "category": "Categoria",
     "subject": "Assunto",
     "body": "Conteúdo",
-    "placeholders": "Marcadores disponíveis"
+    "placeholders": "Marcadores disponíveis",
+    "bodyHint": "Os marcadores são substituídos ao usar o modelo. Títulos, negrito/itálico e listas são mantidos em e-mails e cartas."
   },
   "templateCategory": {
     "ANSCHREIBEN": "Carta",
@@ -803,7 +812,12 @@
     "tab_accounts": "Contas",
     "tab_mandates": "Mandatos SEPA",
     "tab_io": "Importar/Exportar",
-    "dunLetter": "Enviar por correio"
+    "dunLetter": "Enviar por correio",
+    "existingPayment": "Atribuir movimento existente",
+    "newPayment": "— registrar novo pagamento —",
+    "existingPaymentHint": "Atribua aqui um recebimento já importado ou sincronizado com o banco, em vez de lançá-lo duas vezes. Valores correspondentes aparecem primeiro.",
+    "assignedCharge": "Cobrança",
+    "noCharge": "— nenhuma (não atribuído) —"
   },
   "accountType": {
     "BANK": "Conta bancária",
@@ -853,7 +867,11 @@
     "mailed": "Rascunhos do demonstrativo criados na caixa de saída.",
     "explain": "IA: explicar demonstrativo",
     "explaining": "Explicando…",
-    "explainHint": "Sem ANTHROPIC_API_KEY, apenas um resumo curto é exibido."
+    "explainHint": "Sem ANTHROPIC_API_KEY, apenas um resumo curto é exibido.",
+    "editCost": "Editar item de custo",
+    "unitTypes": "Somente unidades do tipo",
+    "unitTypesHint": "Nada marcado = todas as unidades. Ex.: portão da garagem só para vagas, limpeza da escada só para apartamentos.",
+    "singlePdf": "Acerto individual (PDF)"
   },
   "costType": {
     "GRUNDSTEUER": "Imposto predial",
@@ -904,7 +922,8 @@
     },
     "hoa": "Informações do condomínio",
     "resolutions": "Deliberações",
-    "noResolutions": "Nenhuma deliberação."
+    "noResolutions": "Nenhuma deliberação.",
+    "visitAt": "Visita do prestador"
   },
   "tickets": {
     "title": "Manutenção",
@@ -934,7 +953,12 @@
     "reminder": "Lembrete",
     "assignee": "Responsável",
     "time": "Tempo",
-    "addTime": "Registrar +15 min"
+    "addTime": "Registrar +15 min",
+    "editContractor": "Editar prestador",
+    "editMaintenance": "Editar contrato de manutenção",
+    "visitAt": "Visita do prestador",
+    "reporterMessage": "Mensagem para quem reportou",
+    "reporterHint": "O inquilino vê status, visita e mensagem no portal; por e-mail, se ativado em Configurações → Notificações por e-mail."
   },
   "ticketStatus": {
     "OFFEN": "Em aberto",
@@ -973,7 +997,18 @@
     "preview": "Visualizar",
     "edit": "Editar documento",
     "linkedTo": "Vinculado a",
-    "searchPlaceholder": "Pesquisar por nome…"
+    "searchPlaceholder": "Pesquisar por nome…",
+    "link": "Vinculado a",
+    "uploadHere": "Anexar documento aqui",
+    "linkedCount": "Mostrar {count, plural, =1 {1 documento} other {# documentos}}",
+    "noneLinked": "Nenhum documento anexado ainda.",
+    "clearLinkFilter": "Mostrar todos os documentos",
+    "linkLease": "Contrato de locação",
+    "linkTicket": "Chamado",
+    "linkMaintenance": "Contrato de manutenção",
+    "linkInsurance": "Seguro",
+    "linkCost": "Custos",
+    "linkNote": "Nota"
   },
   "documentCategory": {
     "VERTRAG": "Contrato",
@@ -1217,7 +1252,9 @@
     "quote": "Citação",
     "link": "Inserir link",
     "unlink": "Remover link",
-    "applyLink": "Aplicar"
+    "applyLink": "Aplicar",
+    "heading2": "Título",
+    "heading3": "Subtítulo"
   },
   "letters": {
     "title": "Cartas",
@@ -1328,6 +1365,21 @@
     "kind_ISSUE_REPORTED": "Relatos de danos",
     "kindHint_ISSUE_REPORTED": "Inquilino relata um dano pelo portal",
     "kind_INBOUND_EMAIL": "E-mails recebidos",
-    "kindHint_INBOUND_EMAIL": "Novos e-mails na caixa de entrada (IMAP)"
+    "kindHint_INBOUND_EMAIL": "Novos e-mails na caixa de entrada (IMAP)",
+    "kind_TICKET_REPORTER": "Inquilinos sobre seus chamados",
+    "kindHint_TICKET_REPORTER": "Quem reportou recebe por e-mail mudanças de status, visitas e mensagens da administração"
+  },
+  "notes": {
+    "title": "Notas",
+    "subtitle": "Registre particularidades de imóveis, unidades e pessoas",
+    "new": "Nota",
+    "edit": "Editar nota",
+    "titleField": "Título",
+    "body": "Texto",
+    "pinned": "Fixar no topo",
+    "empty": "Nenhuma nota ainda.",
+    "search": "Buscar título ou texto …",
+    "allUnits": "Todas as unidades",
+    "allPersons": "Todas as pessoas"
   }
 }

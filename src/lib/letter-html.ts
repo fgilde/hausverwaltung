@@ -1,7 +1,8 @@
 import { decodeEntities, textToHtml } from "@/lib/mail-html";
 
 // Brieftext (#67): Editor-HTML (Tiptap) → Absätze mit formatierten Textstücken
-// für den PDF-Satz. Unterstützt fett, kursiv, unterstrichen, Listen, Zitate, Zeilenumbrüche.
+// für den PDF-Satz. Unterstützt fett, kursiv, unterstrichen, Listen, Zitate, Zeilenumbrüche,
+// Überschriften (#98, als fetter Absatz).
 // Alles andere wird als Klartext übernommen. Ältere Briefe/Vorlagen sind reiner Text.
 
 export type Run = { text: string; bold?: boolean; italic?: boolean; underline?: boolean };
@@ -46,6 +47,10 @@ export function letterBlocks(body: string): Block[] {
     if (INLINE[tag]) style[INLINE[tag]] += end ? -1 : 1;
     else if (tag === "br") block().runs.push({ text: "\n" });
     else if (tag === "p") close();
+    else if (tag === "h1" || tag === "h2" || tag === "h3") {
+      close();
+      style.bold += end ? -1 : 1;
+    }
     else if (tag === "ul" || tag === "ol") {
       close();
       if (end) lists.pop();

@@ -135,7 +135,7 @@ export const leaseCreateSchema = z.object({
   startDate: z.coerce.date(),
   endDate: optionalDate,
   rentCold: z.coerce.number().nonnegative(),
-  personCount: z.coerce.number().int().positive(),
+  personCount: z.coerce.number().int().min(0),
   noticePeriodM: optionalNum,
 });
 
@@ -144,7 +144,7 @@ export const leaseUpdateSchema = z.object({
   startDate: z.coerce.date(),
   endDate: optionalDate,
   rentCold: z.coerce.number().nonnegative(),
-  personCount: z.coerce.number().int().positive(),
+  personCount: z.coerce.number().int().min(0),
   noticePeriodM: optionalNum,
 });
 
@@ -179,6 +179,26 @@ export const depositSchema = z.object({
 export const renterSchema = z.object({
   leaseId: z.string().min(1),
   personId: z.string().min(1),
+});
+
+// Notiz (#89): Text als Editor-HTML, optional Objekt/Einheit/Person
+export const noteSchema = z.object({
+  title: z.string().trim().min(1),
+  body: z.string().trim().default(""),
+  pinned: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform((v) => v === true || v === "true" || v === "on"),
+  propertyId: optionalStr,
+  unitId: optionalStr,
+  personId: optionalStr,
+});
+
+// Personenzahl ab Datum im laufenden Vertrag (#90)
+export const occupancySchema = z.object({
+  leaseId: z.string().min(1),
+  validFrom: z.coerce.date(),
+  persons: z.coerce.number().int().min(0),
 });
 
 export const accountSchema = z.object({
@@ -444,6 +464,9 @@ export const ticketCreateSchema = z.object(ticketBase);
 export const ticketUpdateSchema = z.object({
   ...ticketBase,
   status: z.enum(["OFFEN", "IN_ARBEIT", "WARTEND", "ERLEDIGT"]),
+  // Handwerkertermin (#100): datetime-local ohne Zeitzone, wie eingegeben als UTC (siehe wallTime)
+  visitAt: z.string().trim().optional().transform((v) => (v ? new Date(/T\d\d:\d\d$/.test(v) ? `${v}:00Z` : v) : undefined)),
+  reporterMessage: optionalStr, // Nachricht an den Melder (#100)
 });
 
 export const ticketTimeSchema = z.object({

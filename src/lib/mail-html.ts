@@ -12,6 +12,11 @@ export function textToHtml(text: string): string {
   return paras.map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`).join("");
 }
 
+/** Vorlagentext als Editor-HTML (#98): formatierte Vorlagen sind HTML, ältere reiner Text. */
+export function templateHtml(body: string): string {
+  return /<[a-z][^>]*>/i.test(body) ? body : textToHtml(body);
+}
+
 /** Antwort-Vorbelegung: leere Zeile zum Schreiben, darunter die zitierte Nachricht. */
 export function quoteHtml(text: string): string {
   return `<p></p><blockquote>${textToHtml(text)}</blockquote>`;

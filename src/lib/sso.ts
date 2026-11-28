@@ -32,6 +32,19 @@ export function oidcConfigFromEnv(env: NodeJS.ProcessEnv = process.env): OidcCon
 
 export const isSsoEnabled = () => oidcConfigFromEnv() !== null;
 
+/**
+ * Anmeldung per E-Mail/Passwort (#101). AUTH_PASSWORD_LOGIN=false schaltet sie ab, aber nur
+ * wenn SSO eingerichtet ist: sonst käme niemand mehr hinein.
+ */
+export function passwordLoginEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.AUTH_PASSWORD_LOGIN?.trim().toLowerCase() !== "false" || oidcConfigFromEnv(env) === null;
+}
+
+/** OIDC_AUTO_LOGIN=true: Login-Seite leitet sofort zum Identity Provider weiter (#101). */
+export function ssoAutoLogin(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.OIDC_AUTO_LOGIN?.trim().toLowerCase() === "true" && oidcConfigFromEnv(env) !== null;
+}
+
 /** Bestehenden Benutzer per E-Mail (case-insensitive) auflösen. */
 export async function resolveSsoUser(email: string | null | undefined) {
   const e = email?.trim();

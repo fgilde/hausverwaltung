@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { cn } from "@/lib/utils";
 import { RichTextEditor } from "@/components/rich-text-editor";
-import { textToHtml, quoteHtml } from "@/lib/mail-html";
+import { quoteHtml, templateHtml } from "@/lib/mail-html";
 
 type Person = { id: string; label: string; email: string };
 type Doc = { id: string; name: string };
@@ -59,7 +59,7 @@ export function EmailCompose({
     const tpl = templates.find((x) => x.id === id);
     if (!tpl) return;
     setSubject(tpl.subject ?? "");
-    setInitialHtml(textToHtml(tpl.body));
+    setInitialHtml(templateHtml(tpl.body));
     setEditorKey((k) => k + 1);
   }
 

@@ -1,9 +1,9 @@
-import { Plus, Receipt } from "lucide-react";
+import { Pencil, Plus, Receipt } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
 import { TextField, SelectField } from "@/components/form-fields";
-import { createCost } from "@/server/actions/costs";
+import { createCost, updateCost } from "@/server/actions/costs";
 import { ScopeField } from "@/components/weg-dialogs";
 
 const COST_TYPES = [
@@ -12,6 +12,20 @@ const COST_TYPES = [
   "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "INSTANDHALTUNG", "VERWALTUNG", "SONSTIGE",
 ];
 const METHODS = ["AREA", "UNITS", "PERSONS", "CONSUMPTION", "MEA"];
+const UNIT_TYPES = ["WOHNUNG", "GEWERBE", "STELLPLATZ", "KELLER", "SONSTIGES"];
+
+/** Vorhandene Position zum Bearbeiten (#97). */
+export type CostEdit = {
+  id: string;
+  type: string;
+  amount: number;
+  method: string;
+  umlagefaehig: boolean;
+  subcommunityId: string | null;
+  unitTypes: string[];
+  consumptionSharePct: number | null;
+  note: string | null;
+};
 
 export async function CostDialog({
   propertyId,
@@ -19,6 +33,7 @@ export async function CostDialog({
   subcommunities = [],
   properties,
   defaults,
+  cost,
 }: {
   propertyId?: string | null;
   year: number;
@@ -26,6 +41,7 @@ export async function CostDialog({
   /** Aus Dokument (#64): Objekt und Jahr wählbar, Betrag/Notiz vorbefüllt. */
   properties?: { value: string; label: string }[];
   defaults?: { amount?: string; note?: string };
+  cost?: CostEdit;
 }) {
   const t = await getTranslations();
   const typeOpts = await getTranslations("costType").then((tt) =>
@@ -34,11 +50,16 @@ export async function CostDialog({
   const methodOpts = await getTranslations("allocationMethod").then((tt) =>
     METHODS.map((k) => ({ value: k, label: tt(k) })),
   );
+  const tUnit = await getTranslations("unitType");
 
   return (
     <CrudDialog
       trigger={
-        properties ? (
+        cost ? (
+          <Button variant="ghost" size="icon" aria-label={t("common.edit")} title={t("common.edit")}>
+            <Pencil className="size-4" />
+          </Button>
+        ) : properties ? (
           <Button variant="ghost" size="icon" aria-label={t("documents.toCost")} title={t("documents.toCost")}>
             <Receipt className="size-4" />
           </Button>
@@ -49,10 +70,11 @@ export async function CostDialog({
           </Button>
         )
       }
-      title={t("statements.addCost")}
-      action={createCost}
-      submitLabel={t("common.create")}
+      title={cost ? t("statements.editCost") : t("statements.addCost")}
+      action={cost ? updateCost : createCost}
+      submitLabel={cost ? t("common.save") : t("common.create")}
     >
+      {cost && <input type="hidden" name="id" value={cost.id} />}
       {properties ? (
         <>
           <SelectField name="propertyId" label={t("units.property")} options={properties} defaultValue={propertyId ?? undefined} />
@@ -64,28 +86,42 @@ export async function CostDialog({
           <input type="hidden" name="year" value={year} />
         </>
       )}
-      <SelectField name="type" label={t("fields.type")} options={typeOpts} />
-      <TextField name="amount" label={t("fields.amount")} type="number" step="0.01" defaultValue={defaults?.amount} />
-      <SelectField name="method" label={t("statements.method")} options={methodOpts} />
+      <SelectField name="type" label={t("fields.type")} options={typeOpts} defaultValue={cost?.type} />
+      <TextField name="amount" label={t("fields.amount")} type="number" step="0.01" defaultValue={cost?.amount ?? defaults?.amount} />
+      <SelectField name="method" label={t("statements.method")} options={methodOpts} defaultValue={cost?.method} />
       {subcommunities.length > 0 && (
-        <ScopeField subcommunities={subcommunities} label={t("weg.scope")} wholeLabel={t("weg.wholeCommunity")} />
+        <ScopeField subcommunities={subcommunities} label={t("weg.scope")} wholeLabel={t("weg.wholeCommunity")} defaultValue={cost?.subcommunityId} />
       )}
+      {/* Verteilerkreis nach Einheitstyp (#105): z. B. Garagentor nur auf Stellplätze */}
+      <fieldset className="space-y-1.5">
+        <legend className="text-sm font-medium">{t("statements.unitTypes")}</legend>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {UNIT_TYPES.map((k) => (
+            <label key={k} className="flex items-center gap-1.5 text-sm">
+              <input type="checkbox" name="unitTypes" value={k} defaultChecked={cost?.unitTypes.includes(k)} className="size-4" />
+              {tUnit(k)}
+            </label>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">{t("statements.unitTypesHint")}</p>
+      </fieldset>
       <TextField
         name="consumptionSharePct"
         label={t("statements.consumptionShare")}
         type="number"
         required={false}
+        defaultValue={cost?.consumptionSharePct ?? undefined}
       />
       <SelectField
         name="umlagefaehig"
         label={t("statements.umlagefaehig")}
-        defaultValue="true"
+        defaultValue={cost ? String(cost.umlagefaehig) : "true"}
         options={[
           { value: "true", label: t("common.yes") },
           { value: "false", label: t("common.no") },
         ]}
       />
-      <TextField name="note" label={t("rentComponent.note")} required={false} defaultValue={defaults?.note} />
+      <TextField name="note" label={t("rentComponent.note")} required={false} defaultValue={cost?.note ?? defaults?.note} />
     </CrudDialog>
   );
 }

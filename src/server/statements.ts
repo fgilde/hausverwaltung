@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { buildStatement, monthsActiveInYear, type UnitInput, type CostInput } from "@/lib/allocation/statement";
+import { buildStatement, monthsActiveInYear, personSlices, type UnitInput, type CostInput, type StatementItem } from "@/lib/allocation/statement";
 import { extrapolateConsumption } from "@/lib/allocation/heating-degree-days";
 import type { AllocationMethod } from "@/lib/allocation";
 
@@ -23,14 +23,21 @@ export interface StatementUnit {
   leaseId: string | null;
   renterEmails: string[];
   renterNames: string[];
+  renterPersonIds: string[];
   allocated: number;
   prepayment: number;
   balance: number; // >0 Guthaben, <0 Nachzahlung
+  /** Rechenschritte je Kostenposition für die Einzelabrechnung (#94) */
+  items: StatementItem[];
+  /** Zeitraum des Mietverhältnisses im Abrechnungsjahr */
+  period: { from: Date; to: Date } | null;
+  /** aktive Monate im Jahr (Grundlage der Vorauszahlung) */
+  monthsActive: number;
 }
 
 export interface StatementResult {
   property: { id: string; name: string; street: string; zip: string; city: string; tenantName: string } | null;
-  costs: { id: string; type: string; amount: number; method: string; umlagefaehig: boolean; note: string | null; subcommunityId: string | null }[];
+  costs: { id: string; type: string; amount: number; method: string; umlagefaehig: boolean; note: string | null; subcommunityId: string | null; unitTypes: string[]; consumptionSharePct: number | null; documentCount: number }[];
   units: StatementUnit[];
   totalUmlage: number;
 }
@@ -59,7 +66,7 @@ export async function computeStatement(
         // ALLE Mietverhältnisse im Jahr (Mieterwechsel!) — nicht nur das neueste.
         leases: {
           where: { startDate: { lte: yEnd }, OR: [{ endDate: null }, { endDate: { gte: yStart } }] },
-          include: { components: true, renters: { include: { person: true } } },
+          include: { components: true, renters: { include: { person: true } }, occupancies: true },
           orderBy: { startDate: "asc" },
         },
         meters: {
@@ -68,7 +75,11 @@ export async function computeStatement(
         },
       },
     }),
-    prisma.costEntry.findMany({ where: { tenantId, propertyId, year }, orderBy: { type: "asc" } }),
+    prisma.costEntry.findMany({
+      where: { tenantId, propertyId, year },
+      include: { _count: { select: { documents: true } } },
+      orderBy: { type: "asc" },
+    }),
   ]);
 
   const prepaymentMonthlyOf = (lease: (typeof dbUnits)[number]["leases"][number]) =>
@@ -82,9 +93,9 @@ export async function computeStatement(
       id: u.id,
       label: u.label,
       area: Number(u.area),
-      // Personenzahl als Umlage-Gewicht: repräsentativ das jüngste Mietverhältnis.
-      // ponytail: keine personen·monat-Gewichtung bei unterjährigem Wechsel.
       persons: u.leases.at(-1)?.personCount ?? 1,
+      // Personen tagesgenau je Mietverhältnis und Änderung (#90), nicht mehr die des letzten Vertrags
+      personSlices: personSlices(u.leases, year),
       mea: u.mea ?? undefined,
       consumption,
       leases: u.leases.map((l) => {
@@ -106,8 +117,13 @@ export async function computeStatement(
       umlagefaehig: c.umlagefaehig,
       heating,
       consumptionShare: heating && pct != null ? pct / 100 : undefined,
-      // Untergemeinschaft (#42): nur deren Einheiten tragen die Position.
-      unitIds: c.subcommunityId ? dbUnits.filter((u) => u.subcommunityId === c.subcommunityId).map((u) => u.id) : undefined,
+      // Untergemeinschaft (#42) und Einheitstypen (#105): nur diese Einheiten tragen die Position.
+      unitIds:
+        c.subcommunityId || c.unitTypes.length
+          ? dbUnits
+              .filter((u) => (!c.subcommunityId || u.subcommunityId === c.subcommunityId) && (!c.unitTypes.length || c.unitTypes.includes(u.type)))
+              .map((u) => u.id)
+          : undefined,
     };
   });
 
@@ -133,9 +149,18 @@ export async function computeStatement(
       leaseId: line.leaseId,
       renterEmails: renters.map((r) => r.person.email).filter((e): e is string => !!e),
       renterNames: names,
+      renterPersonIds: renters.map((r) => r.person.id),
       allocated: line.allocated,
       prepayment: line.prepayment,
       balance: line.balance,
+      items: line.items,
+      period: lease
+        ? {
+            from: lease.startDate > yStart ? lease.startDate : yStart,
+            to: lease.endDate && lease.endDate < yEnd ? lease.endDate : yEnd,
+          }
+        : null,
+      monthsActive: lease ? monthsActiveInYear(lease.startDate, lease.endDate, year) : 0,
     };
   });
 
@@ -145,7 +170,8 @@ export async function computeStatement(
       : null,
     costs: costs.map((c) => ({
       id: c.id, type: c.type, amount: Number(c.amount), method: c.method, umlagefaehig: c.umlagefaehig, note: c.note,
-      subcommunityId: c.subcommunityId,
+      subcommunityId: c.subcommunityId, unitTypes: c.unitTypes, consumptionSharePct: c.consumptionSharePct,
+      documentCount: c._count.documents,
     })),
     units,
     totalUmlage,

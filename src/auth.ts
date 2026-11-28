@@ -4,9 +4,12 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { oidcConfigFromEnv, resolveSsoUser } from "@/lib/sso";
+import { oidcConfigFromEnv, passwordLoginEnabled, resolveSsoUser } from "@/lib/sso";
 
-const providers: Provider[] = [
+const providers: Provider[] = [];
+
+// E-Mail/Passwort, außer per AUTH_PASSWORD_LOGIN=false abgeschaltet (nur mit SSO, #101)
+if (passwordLoginEnabled()) providers.push(
   Credentials({
     credentials: { email: {}, password: {} },
     authorize: async (creds) => {
@@ -28,7 +31,7 @@ const providers: Provider[] = [
       };
     },
   }),
-];
+);
 
 // Optionales OIDC/SSO — nur wenn per Env konfiguriert.
 const oidc = oidcConfigFromEnv();

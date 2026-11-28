@@ -18,6 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DocumentDialog } from "@/components/document-dialog";
+import { DOCUMENT_LINKS, documentLinkOf, parseDocumentLink } from "@/lib/document-links";
+import { Link } from "@/i18n/navigation";
+import { documentLinkOptions } from "@/server/document-links";
 import { DocumentPreview } from "@/components/document-preview";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteDocument } from "@/server/actions/documents";
@@ -33,7 +36,7 @@ function fmtSize(bytes: number) {
 export default async function DocumentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; cat?: string; prop?: string; unit?: string; person?: string }>;
+  searchParams: Promise<{ q?: string; cat?: string; prop?: string; unit?: string; person?: string; link?: string }>;
 }) {
   const sp = await searchParams;
   const user = await requireUser();
@@ -47,6 +50,8 @@ export default async function DocumentsPage({
   const unitId = (sp.unit ?? "").trim();
   const personId = (sp.person ?? "").trim();
   const cat = sp.cat && CATS.includes(sp.cat) ? sp.cat : "";
+  // Dokumente eines Vorgangs (#99), z. B. aus Ticket oder Mietvertrag verlinkt
+  const link = parseDocumentLink(sp.link);
 
   const [documents, properties, units, persons] = await Promise.all([
     prisma.document.findMany({
@@ -57,6 +62,7 @@ export default async function DocumentsPage({
         ...(propId ? { propertyId: propId } : {}),
         ...(unitId ? { unitId } : {}),
         ...(personId ? { personId } : {}),
+        ...(link ? { [DOCUMENT_LINKS[link.kind].column]: link.id } : {}),
       },
       include: {
         property: { select: { name: true } },
@@ -76,6 +82,8 @@ export default async function DocumentsPage({
   const propertyOpts = properties.map((p) => ({ value: p.id, label: p.name }));
   const unitOpts = units.map((u) => ({ value: u.id, label: `${u.building.property.name} · ${u.label}` }));
   const personOpts = persons.map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
+  const linkOpts = await documentLinkOptions(tenantId, locale);
+  const linkLabel = new Map(linkOpts.map((o) => [o.value, o.label]));
 
   return (
     <div className="space-y-6">
@@ -84,8 +92,16 @@ export default async function DocumentsPage({
           <h1 className="text-2xl font-semibold tracking-tight">{t("documents.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("documents.subtitle")}</p>
         </div>
-        <DocumentDialog properties={propertyOpts} units={unitOpts} persons={personOpts} />
+        <DocumentDialog properties={propertyOpts} units={unitOpts} persons={personOpts} links={linkOpts} />
       </div>
+      {link && sp.link && (
+        <p className="flex items-center gap-2 text-sm">
+          <Badge variant="secondary">{linkLabel.get(sp.link) ?? sp.link}</Badge>
+          <Link href="/documents" className="text-muted-foreground underline">
+            {t("documents.clearLinkFilter")}
+          </Link>
+        </p>
+      )}
 
       {/* Filter */}
       <form className="flex flex-wrap items-end gap-3">
@@ -159,6 +175,7 @@ export default async function DocumentsPage({
                     d.property?.name,
                     d.unit?.label,
                     d.person ? `${d.person.firstName} ${d.person.lastName}` : null,
+                    linkLabel.get(documentLinkOf(d)),
                   ].filter(Boolean).join(" · ");
                   return (
                     <TableRow key={d.id}>
@@ -198,6 +215,7 @@ export default async function DocumentsPage({
                             properties={propertyOpts}
                             units={unitOpts}
                             persons={personOpts}
+                            links={linkOpts}
                             doc={{
                               id: d.id,
                               name: d.name,
@@ -205,6 +223,7 @@ export default async function DocumentsPage({
                               propertyId: d.propertyId,
                               unitId: d.unitId,
                               personId: d.personId,
+                              link: documentLinkOf(d),
                             }}
                           />
                           <Button variant="ghost" size="icon" aria-label={t("documents.download")} render={<a href={`/api/documents/${d.id}`} />}>

@@ -34,3 +34,14 @@ describe("letterBlocks (#67)", () => {
     expect(letterBlocks("<p></p><script>alert(1)</script><p> x </p>")).toEqual([{ indent: 0, runs: [{ text: "x" }] }]);
   });
 });
+
+describe("Überschriften (#98)", () => {
+  it("h2/h3 werden eigene fette Absätze", () => {
+    const b = letterBlocks("<h2>Titel</h2><p>Text <strong>fett</strong></p><h3>Unter</h3>");
+    expect(b.map((x) => x.runs)).toEqual([
+      [{ text: "Titel", bold: true }],
+      [{ text: "Text " }, { text: "fett", bold: true }],
+      [{ text: "Unter", bold: true }],
+    ]);
+  });
+});

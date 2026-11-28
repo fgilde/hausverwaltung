@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Italic, Underline, List, ListOrdered, Link2, Link2Off, Quote } from "lucide-react";
+import { Bold, Italic, Underline, List, ListOrdered, Link2, Link2Off, Quote, Heading2, Heading3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,7 @@ export function RichTextEditor({
     immediatelyRender: false, // SSR: erst im Browser rendern (sonst Hydration-Fehler)
     extensions: [
       StarterKit.configure({
-        heading: false,
+        heading: { levels: [2, 3] }, // Überschriften für Vorlagen, Briefe, Mails (#98)
         codeBlock: false,
         code: false,
         horizontalRule: false,
@@ -57,6 +57,8 @@ export function RichTextEditor({
       bullet: e?.isActive("bulletList") ?? false,
       ordered: e?.isActive("orderedList") ?? false,
       quote: e?.isActive("blockquote") ?? false,
+      h2: e?.isActive("heading", { level: 2 }) ?? false,
+      h3: e?.isActive("heading", { level: 3 }) ?? false,
       link: e?.isActive("link") ?? false,
     }),
   });
@@ -88,6 +90,9 @@ export function RichTextEditor({
   return (
     <div className="rounded-lg border border-input shadow-xs focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
       <div className="flex flex-wrap items-center gap-0.5 border-b px-1 py-1">
+        {tool(t("heading2"), active?.h2, () => editor?.chain().focus().toggleHeading({ level: 2 }).run(), Heading2)}
+        {tool(t("heading3"), active?.h3, () => editor?.chain().focus().toggleHeading({ level: 3 }).run(), Heading3)}
+        <span className="mx-1 h-5 w-px bg-border" />
         {tool(t("bold"), active?.bold, () => editor?.chain().focus().toggleBold().run(), Bold)}
         {tool(t("italic"), active?.italic, () => editor?.chain().focus().toggleItalic().run(), Italic)}
         {tool(t("underline"), active?.underline, () => editor?.chain().focus().toggleUnderline().run(), Underline)}

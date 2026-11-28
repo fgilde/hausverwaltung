@@ -10,6 +10,7 @@ import {
   createAdjustment,
   upsertDeposit,
   addRenter,
+  addOccupancy,
 } from "@/server/actions/leases";
 
 type Opt = { value: string; label: string };
@@ -251,6 +252,24 @@ export async function DepositDialog({
         required={false}
         defaultValue={iso(deposit?.returnedDate)}
       />
+    </CrudDialog>
+  );
+}
+
+// Personenzahl ändert sich im laufenden Vertrag, z. B. Partner zieht ein (#90).
+export async function OccupancyDialog({ leaseId }: { leaseId: string }) {
+  const t = await getTranslations();
+  return (
+    <CrudDialog
+      trigger={<CreateTrigger label={t("leases.occupancyAdd")} variant="outline" />}
+      title={t("leases.occupancyAdd")}
+      action={addOccupancy}
+      submitLabel={t("common.add")}
+    >
+      <input type="hidden" name="leaseId" value={leaseId} />
+      <TextField name="validFrom" label={t("leases.occupancyFrom")} type="date" />
+      <TextField name="persons" label={t("leases.personCount")} type="number" />
+      <p className="text-xs text-muted-foreground">{t("leases.occupancyHint")}</p>
     </CrudDialog>
   );
 }

@@ -2,7 +2,9 @@ import { Plus, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { CrudDialog } from "@/components/crud-dialog";
-import { TextField, SelectField, TextAreaField } from "@/components/form-fields";
+import { TextField, SelectField } from "@/components/form-fields";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { templateHtml } from "@/lib/mail-html";
 import { createTemplate, updateTemplate } from "@/server/actions/templates";
 
 const CATS = ["ANSCHREIBEN", "ABRECHNUNG", "MAHNUNG", "VERTRAG", "PROTOKOLL", "SONSTIGES"];
@@ -45,7 +47,12 @@ export async function TemplateDialog({ template }: { template?: TemplateData }) 
         <TextField name="name" label={t("fields.name")} defaultValue={template?.name} />
       </div>
       <TextField name="subject" label={t("templates.subject")} required={false} defaultValue={template?.subject ?? undefined} />
-      <TextAreaField name="body" label={t("templates.body")} required defaultValue={template?.body} rows={8} />
+      {/* Formatierung wie im Mail-/Brief-Editor (#98) */}
+      <div className="space-y-2">
+        <label htmlFor="tplBody" className="text-sm font-medium">{t("templates.body")}</label>
+        <RichTextEditor id="tplBody" name="body" initialHtml={template ? templateHtml(template.body) : ""} />
+        <p className="text-xs text-muted-foreground">{t("templates.bodyHint")}</p>
+      </div>
     </CrudDialog>
   );
 }

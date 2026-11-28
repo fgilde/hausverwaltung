@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Loader2, Check, Eye, EyeOff } from "lucide-react";
@@ -14,11 +14,17 @@ export function LoginForm({
   tenantName,
   ssoEnabled = false,
   ssoName = "SSO",
+  passwordLogin = true,
+  autoSso = false,
 }: {
   initialEmail?: string;
   tenantName?: string;
   ssoEnabled?: boolean;
   ssoName?: string;
+  /** false: nur SSO (AUTH_PASSWORD_LOGIN=false, #101) */
+  passwordLogin?: boolean;
+  /** sofort zum Identity Provider weiterleiten (OIDC_AUTO_LOGIN, #101) */
+  autoSso?: boolean;
 }) {
   const t = useTranslations("login");
   const router = useRouter();
@@ -28,6 +34,10 @@ export function LoginForm({
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
   const [showPw, setShowPw] = useState(false);
+
+  useEffect(() => {
+    if (autoSso) void signIn("oidc", { callbackUrl: "/" });
+  }, [autoSso]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,48 +59,56 @@ export function LoginForm({
         onSubmit={onSubmit}
         className={`space-y-4 transition-all duration-500 ${ok ? "-translate-x-6 opacity-0" : ""}`}
       >
-        <div className="space-y-2">
-          <Label htmlFor="email">{t("email")}</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">{t("password")}</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPw ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPw((s) => !s)}
-              className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
-              aria-label={showPw ? t("hidePassword") : t("showPassword")}
-              title={showPw ? t("hidePassword") : t("showPassword")}
-            >
-              {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
-          </div>
-        </div>
-        {error && <p className="text-sm text-destructive">{t("error")}</p>}
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading && <Loader2 className="size-4 animate-spin" />}
-          {t("submit")}
-        </Button>
+        {passwordLogin && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="email">{t("email")}</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">{t("password")}</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw((s) => !s)}
+                  className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
+                  aria-label={showPw ? t("hidePassword") : t("showPassword")}
+                  title={showPw ? t("hidePassword") : t("showPassword")}
+                >
+                  {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+            {error && <p className="text-sm text-destructive">{t("error")}</p>}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="size-4 animate-spin" />}
+              {t("submit")}
+            </Button>
+          </>
+        )}
         {ssoEnabled && (
           <>
-            <div className="flex items-center gap-3 py-1 text-xs text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />{t("or")}<span className="h-px flex-1 bg-border" />
-            </div>
+            {passwordLogin && (
+              <div className="flex items-center gap-3 py-1 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />{t("or")}<span className="h-px flex-1 bg-border" />
+              </div>
+            )}
             <Button
               type="button"
-              variant="outline"
+              variant={passwordLogin ? "outline" : "default"}
               className="w-full"
+              disabled={autoSso}
               onClick={() => signIn("oidc", { callbackUrl: "/" })}
             >
+              {autoSso && <Loader2 className="size-4 animate-spin" />}
               {t("ssoSubmit", { provider: ssoName })}
             </Button>
           </>

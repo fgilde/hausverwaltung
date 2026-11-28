@@ -106,7 +106,7 @@ const spec = {
         tags: ["Schreiben"],
         summary: "Datensatz ändern (generisch)",
         description:
-          "Nur gesendete Felder ändern sich. Dokumente (entity document): name, category, propertyId, unitId, personId; null oder \"\" löst eine Zuordnung. Dokumente werden über die Operation upload_document angelegt.",
+          "Nur gesendete Felder ändern sich. Dokumente (entity document): name, category, propertyId, unitId, personId sowie Vorgang leaseId, ticketId, maintenanceContractId, insuranceId, costEntryId, noteId; null oder \"\" löst eine Zuordnung. Dokumente werden über die Operation upload_document angelegt.",
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: "entity", in: "path", required: true, schema: { type: "string" } },

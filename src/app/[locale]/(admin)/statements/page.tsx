@@ -1,5 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
-import { Printer } from "lucide-react";
+import { FileText, Printer } from "lucide-react";
 import { requireUser } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { money } from "@/lib/format";
@@ -16,11 +16,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CostDialog } from "@/components/cost-dialog";
+import { LinkedDocs } from "@/components/document-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteCost } from "@/server/actions/costs";
 import { StatementActions } from "@/components/statement-actions";
 import { ExplainStatement } from "@/components/explain-statement";
-import { Link } from "@/i18n/navigation";
 
 export default async function StatementsPage({
   searchParams,
@@ -66,7 +66,8 @@ export default async function StatementsPage({
           <Button
             variant="outline"
             size="sm"
-            render={<Link href={`/print/statement?propertyId=${propertyId}&year=${year}`} target="_blank" />}
+            // PDF statt Druckansicht (#102): Übersicht + Einzelabrechnung je Mietverhältnis (#94)
+            render={<a href={`/api/statements/pdf?propertyId=${propertyId}&year=${year}`} target="_blank" rel="noopener noreferrer" />}
           >
             <Printer className="size-4" />
             {t("print.printPdf")}
@@ -129,11 +130,17 @@ export default async function StatementsPage({
                     <TableCell>
                       {t(`allocationMethod.${c.method}`)}
                       {c.subcommunityId && <span className="text-muted-foreground"> · {subName.get(c.subcommunityId)}</span>}
+                      {c.unitTypes.length > 0 && (
+                        <span className="text-muted-foreground"> · {c.unitTypes.map((u) => t(`unitType.${u}`)).join(", ")}</span>
+                      )}
                     </TableCell>
                     <TableCell>{c.umlagefaehig ? t("common.yes") : t("common.no")}</TableCell>
                     <TableCell className="text-right">{money(c.amount, locale)}</TableCell>
                     <TableCell>
                       <div className="flex justify-end">
+                        {/* Rechnungen zur Position (#99) */}
+                        <LinkedDocs link={`cost:${c.id}`} count={c.documentCount} preset={{ propertyId, category: "RECHNUNG" }} />
+                        <CostDialog propertyId={propertyId} year={year} subcommunities={subOpts} cost={c} />
                         <DeleteButton action={deleteCost} id={c.id} />
                       </div>
                     </TableCell>
@@ -170,6 +177,7 @@ export default async function StatementsPage({
                   <TableHead className="text-right">{t("statements.allocated")}</TableHead>
                   <TableHead className="text-right">{t("statements.prepayment")}</TableHead>
                   <TableHead className="text-right">{t("statements.balance")}</TableHead>
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -182,6 +190,25 @@ export default async function StatementsPage({
                       <Badge variant={l.balance >= 0 ? "secondary" : "destructive"}>
                         {money(l.balance, locale)} · {l.balance >= 0 ? t("statements.credit") : t("statements.arrears")}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {l.leaseId && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("statements.singlePdf")}
+                          title={t("statements.singlePdf")}
+                          render={
+                            <a
+                              href={`/api/statements/pdf?propertyId=${propertyId}&year=${year}&key=${l.key}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            />
+                          }
+                        >
+                          <FileText className="size-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

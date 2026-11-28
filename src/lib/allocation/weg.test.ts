@@ -49,3 +49,22 @@ describe("WEG-Abrechnung mit Untergemeinschaften (#42)", () => {
     expect(amounts).toEqual([50, 50.01]);
   });
 });
+
+describe("Kosten nur für bestimmte Einheitstypen (#105)", () => {
+  const typed: WegUnit[] = [
+    { id: "w1", label: "W1", area: 80, mea: 400, subcommunityId: null, type: "WOHNUNG" },
+    { id: "w2", label: "W2", area: 80, mea: 400, subcommunityId: null, type: "WOHNUNG" },
+    { id: "s1", label: "S1", area: 12, mea: 100, subcommunityId: null, type: "STELLPLATZ" },
+    { id: "s2", label: "S2", area: 12, mea: 100, subcommunityId: null, type: "STELLPLATZ" },
+  ];
+  const o = typed.map((u) => ({ id: `o-${u.id}`, unitId: u.id, share: 1000 }));
+  it("Garagentor nur auf Stellplätze, Treppenhaus nur auf Wohnungen, je nach Einheiten", () => {
+    const r = byOwner(
+      buildWegStatement(typed, o, [
+        { id: "tor", amount: 300, method: "UNITS", subcommunityId: null, unitTypes: ["STELLPLATZ"] },
+        { id: "treppe", amount: 1000, method: "UNITS", subcommunityId: null, unitTypes: ["WOHNUNG"] },
+      ], []),
+    );
+    expect([r.w1.allocated, r.w2.allocated, r.s1.allocated, r.s2.allocated]).toEqual([500, 500, 150, 150]);
+  });
+});

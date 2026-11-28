@@ -27,6 +27,8 @@ services:
       OIDC_CLIENT_ID: "${OIDC_CLIENT_ID:-}"
       OIDC_CLIENT_SECRET: "${OIDC_CLIENT_SECRET:-}"
       OIDC_NAME: "${OIDC_NAME:-}"
+      AUTH_PASSWORD_LOGIN: "${AUTH_PASSWORD_LOGIN:-}"
+      OIDC_AUTO_LOGIN: "${OIDC_AUTO_LOGIN:-}"
     expose:
       - "3000"
     volumes:

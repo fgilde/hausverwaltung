@@ -45,3 +45,10 @@ export function dateTime(value: Date | string | null | undefined, fmt = "de") {
   const locale = intlLocale(fmt);
   return new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short", timeZone: tz }).format(d);
 }
+
+/** Datum + Uhrzeit aus einem datetime-local-Feld: wie eingegeben (naiv als UTC gespeichert, wie Termine). */
+export function wallTime(value: Date | string | null | undefined, fmt = "de") {
+  if (!value) return "—";
+  const d = typeof value === "string" ? new Date(value) : value;
+  return new Intl.DateTimeFormat(intlLocale(fmt === "iso" ? "de" : fmt), { dateStyle: "short", timeStyle: "short", timeZone: "UTC" }).format(d);
+}
