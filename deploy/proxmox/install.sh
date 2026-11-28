@@ -67,7 +67,7 @@ su postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'
 note "finding the current release"
 # Same code and build number as the current Docker image (ghcr.io/fgilde/hausverwaltung:latest):
 # the commit of the newest successful image build on main. Version shown = package.json + build,
-# e.g. 0.4.0.93. Git tags are not used (they are not created per release).
+# e.g. 0.4.1.160. Releases are also tagged (v0.4.1), see CHANGELOG.md.
 RUN="$(curl -fsSL "https://api.github.com/repos/${REPO}/actions/workflows/docker-publish.yml/runs?branch=main&status=success&per_page=1" || true)"
 APP_SHA="$(printf '%s' "$RUN" | grep -o '"head_sha": *"[0-9a-f]*"' | head -1 | sed 's/.*"\([0-9a-f]*\)"$/\1/')"
 APP_BUILD="$(printf '%s' "$RUN" | grep -o '"run_number": *[0-9]*' | head -1 | sed 's/[^0-9]//g')"
