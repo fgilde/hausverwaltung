@@ -52,6 +52,15 @@ export const propertySchema = z.object({
     .optional()
     .transform((v) => v === "true"),
   totalArea: optionalNum,
+  // Steuer (#103); leer = null, damit sich ein Wert auch wieder entfernen lässt
+  buildYear: optionalNum.transform((v) => (v === undefined ? null : Math.trunc(v))),
+  afaBasis: optionalNum.transform((v) => v ?? null),
+  afaStart: optionalDate.transform((v) => v ?? null),
+  afaRate: optionalNum.transform((v) => v ?? null),
+  afaDegressive: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => v === "true"),
 });
 
 export const buildingSchema = z.object({
@@ -251,7 +260,7 @@ export const costEntrySchema = z.object({
   type: z.enum([
     "GRUNDSTEUER", "WASSER", "ENTWAESSERUNG", "HEIZUNG", "WARMWASSER", "AUFZUG",
     "STRASSENREINIGUNG", "MUELL", "GEBAEUDEREINIGUNG", "GARTENPFLEGE", "BELEUCHTUNG",
-    "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "INSTANDHALTUNG", "VERWALTUNG", "SONSTIGE",
+    "SCHORNSTEIN", "VERSICHERUNG", "HAUSWART", "KABEL", "INSTANDHALTUNG", "VERWALTUNG", "SCHULDZINSEN", "SONSTIGE",
   ]),
   amount: z.coerce.number().nonnegative(),
   method: z.enum(["AREA", "UNITS", "PERSONS", "CONSUMPTION", "MEA"]),

@@ -76,7 +76,8 @@
     "groupOperations": "Betrieb",
     "groupMore": "Weitere",
     "groupAdmin": "Administration",
-    "notes": "Notizen"
+    "notes": "Notizen",
+    "tax": "Steuer"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -899,7 +900,8 @@
     "KABEL": "Kabel/Antenne",
     "SONSTIGE": "Sonstige",
     "INSTANDHALTUNG": "Instandhaltung",
-    "VERWALTUNG": "Verwaltung"
+    "VERWALTUNG": "Verwaltung",
+    "SCHULDZINSEN": "Schuldzinsen"
   },
   "allocationMethod": {
     "AREA": "Wohnfläche",
@@ -1389,5 +1391,36 @@
     "search": "Titel oder Text suchen …",
     "allUnits": "Alle Einheiten",
     "allPersons": "Alle Personen"
+  },
+  "tax": {
+    "title": "Steuer",
+    "subtitle": "Anlage-V-Übersicht je Objekt und Jahr zur Übernahme in die Steuererklärung",
+    "anlageV": "Anlage V · Einkünfte aus Vermietung {year}",
+    "section": "Steuer (AfA)",
+    "afaBasis": "AfA-Bemessungsgrundlage Gebäude (€)",
+    "afaStart": "AfA ab (Anschaffung/Fertigstellung)",
+    "buildYear": "Baujahr",
+    "afaRate": "AfA-Satz % p. a.",
+    "afaMethod": "AfA-Methode",
+    "linear": "linear",
+    "degressive": "degressiv, % vom Restwert (§ 7 Abs. 5a EStG)",
+    "afaHint": "Satz leer: linear 2 % (Baujahr vor 1925: 2,5 %, ab 2023: 3 %), degressiv 5 %. Im ersten Jahr monatsgenau, der Anschaffungsmonat zählt voll.",
+    "income": "Einnahmen",
+    "rentResidential": "Mieteinnahmen Wohnungen (ohne Umlagen)",
+    "rentOther": "Mieteinnahmen andere Räume (Gewerbe, Stellplätze, Teilflächen)",
+    "umlagen": "Umlagen, verrechnet mit Erstattungen",
+    "otherIncome": "Sonstige Einnahmen",
+    "incomeTotal": "Summe Einnahmen",
+    "expenses": "Werbungskosten",
+    "afa": "AfA Gebäude",
+    "expenseTotal": "Summe Werbungskosten",
+    "surplus": "Überschuss (Einnahmen − Werbungskosten)",
+    "noteIncome": "Einnahmen nach Zahlungsdatum (Zuflussprinzip): Eingänge, die Sollstellungen dieses Objekts zugeordnet sind. Miete-Sollstellungen werden anteilig nach Kaltmiete und Vorauszahlungen des Vertrags aufgeteilt, Kautionen zählen nicht.",
+    "noteCosts": "Werbungskosten aus den Kostenpositionen des Jahres (nach Kostenjahr, nicht Zahlungsdatum). Darlehenszinsen als Kostenart „Schuldzinsen“ erfassen, nicht umlagefähig.",
+    "noteAfaRest": "Restwert des Gebäudes nach der AfA dieses Jahres: {rest}",
+    "noteNoAfa": "Keine AfA: Bemessungsgrundlage und Beginn am Objekt unter „Steuer (AfA)“ eintragen.",
+    "noteUnassigned": "Nicht mitgezählt: {count, plural, one {# nicht zugeordneter Eingang} other {# nicht zugeordnete Eingänge}} im Jahr (alle Objekte).",
+    "noteDisclaimer": "Übersicht zur Vorbereitung, keine Steuerberatung. Die Zeilennummern der Anlage V ändern sich jährlich und stehen deshalb nicht dabei.",
+    "noProperty": "Noch kein Objekt angelegt."
   }
 }

@@ -76,7 +76,8 @@
     "groupOperations": "Operações",
     "groupMore": "Mais",
     "groupAdmin": "Administração",
-    "notes": "Notas"
+    "notes": "Notas",
+    "tax": "Impostos"
   },
   "dashboard": {
     "title": "Painel",
@@ -899,7 +900,8 @@
     "KABEL": "Cabo/antena",
     "SONSTIGE": "Outros",
     "INSTANDHALTUNG": "Manutenção",
-    "VERWALTUNG": "Administração"
+    "VERWALTUNG": "Administração",
+    "SCHULDZINSEN": "Juros de empréstimo"
   },
   "allocationMethod": {
     "AREA": "Área privativa",
@@ -1389,5 +1391,36 @@
     "search": "Buscar título ou texto …",
     "allUnits": "Todas as unidades",
     "allPersons": "Todas as pessoas"
+  },
+  "tax": {
+    "title": "Impostos",
+    "subtitle": "Resumo da renda de aluguel (Anlage V alemã) por imóvel e ano para a declaração",
+    "anlageV": "Anlage V · renda de aluguel {year}",
+    "section": "Impostos (depreciação)",
+    "afaBasis": "Base de depreciação do edifício (€)",
+    "afaStart": "Depreciação a partir de (aquisição/conclusão)",
+    "buildYear": "Ano de construção",
+    "afaRate": "Taxa de depreciação % a. a.",
+    "afaMethod": "Método de depreciação",
+    "linear": "linear",
+    "degressive": "decrescente, % do valor residual (§ 7 (5a) EStG)",
+    "afaHint": "Taxa vazia: linear 2 % (construído antes de 1925: 2,5 %, a partir de 2023: 3 %), decrescente 5 %. No primeiro ano por mês, o mês da aquisição conta inteiro.",
+    "income": "Receitas",
+    "rentResidential": "Aluguel de apartamentos (sem rateios)",
+    "rentOther": "Aluguel de outros espaços (comercial, vagas, áreas parciais)",
+    "umlagen": "Rateios, descontados os reembolsos",
+    "otherIncome": "Outras receitas",
+    "incomeTotal": "Total de receitas",
+    "expenses": "Despesas",
+    "afa": "Depreciação do edifício",
+    "expenseTotal": "Total de despesas",
+    "surplus": "Resultado (receitas − despesas)",
+    "noteIncome": "Receitas pela data de pagamento (regime de caixa): entradas vinculadas a cobranças deste imóvel. Cobranças de aluguel são divididas pelo aluguel base e adiantamentos do contrato, cauções não contam.",
+    "noteCosts": "Despesas a partir dos custos do ano (pelo ano do custo, não pela data de pagamento). Registre juros de empréstimo como tipo de custo “Juros de empréstimo”, não rateável.",
+    "noteAfaRest": "Valor residual do edifício após a depreciação deste ano: {rest}",
+    "noteNoAfa": "Sem depreciação: informe base e início no imóvel em “Impostos (depreciação)”.",
+    "noteUnassigned": "Não contabilizado: {count, plural, one {# entrada não vinculada} other {# entradas não vinculadas}} no ano (todos os imóveis).",
+    "noteDisclaimer": "Resumo para preparação, não é consultoria tributária. Os números de linha da Anlage V mudam todo ano e por isso não aparecem.",
+    "noProperty": "Nenhum imóvel cadastrado."
   }
 }

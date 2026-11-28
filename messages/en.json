@@ -76,7 +76,8 @@
     "groupOperations": "Operations",
     "groupMore": "More",
     "groupAdmin": "Administration",
-    "notes": "Notes"
+    "notes": "Notes",
+    "tax": "Tax"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -899,7 +900,8 @@
     "KABEL": "Cable/antenna",
     "SONSTIGE": "Other",
     "INSTANDHALTUNG": "Maintenance",
-    "VERWALTUNG": "Administration"
+    "VERWALTUNG": "Administration",
+    "SCHULDZINSEN": "Loan interest"
   },
   "allocationMethod": {
     "AREA": "Living area",
@@ -1389,5 +1391,36 @@
     "search": "Search title or text …",
     "allUnits": "All units",
     "allPersons": "All people"
+  },
+  "tax": {
+    "title": "Tax",
+    "subtitle": "Rental income overview (German Anlage V) per property and year for the tax return",
+    "anlageV": "Anlage V · rental income {year}",
+    "section": "Tax (depreciation)",
+    "afaBasis": "Depreciation basis building (€)",
+    "afaStart": "Depreciation from (acquisition/completion)",
+    "buildYear": "Year built",
+    "afaRate": "Depreciation rate % p. a.",
+    "afaMethod": "Depreciation method",
+    "linear": "straight-line",
+    "degressive": "declining balance, % of remaining value (§ 7 (5a) EStG)",
+    "afaHint": "Empty rate: straight-line 2 % (built before 1925: 2.5 %, from 2023: 3 %), declining 5 %. First year by month, the month of acquisition counts in full.",
+    "income": "Income",
+    "rentResidential": "Rent from apartments (without service charges)",
+    "rentOther": "Rent from other premises (commercial, parking, partial areas)",
+    "umlagen": "Service charges, net of refunds",
+    "otherIncome": "Other income",
+    "incomeTotal": "Total income",
+    "expenses": "Expenses",
+    "afa": "Building depreciation",
+    "expenseTotal": "Total expenses",
+    "surplus": "Surplus (income − expenses)",
+    "noteIncome": "Income by payment date (cash basis): receipts assigned to charges of this property. Rent charges are split by the lease's cold rent and prepayments, deposits are excluded.",
+    "noteCosts": "Expenses from the cost items of the year (by cost year, not payment date). Record loan interest as cost type “Loan interest”, not allocable.",
+    "noteAfaRest": "Remaining building value after this year's depreciation: {rest}",
+    "noteNoAfa": "No depreciation: enter basis and start on the property under “Tax (depreciation)”.",
+    "noteUnassigned": "Not counted: {count, plural, one {# unassigned receipt} other {# unassigned receipts}} in the year (all properties).",
+    "noteDisclaimer": "Overview for preparation, not tax advice. Anlage V line numbers change every year and are therefore not shown.",
+    "noProperty": "No property yet."
   }
 }

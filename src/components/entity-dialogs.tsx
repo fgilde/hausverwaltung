@@ -51,7 +51,24 @@ type PropertyData = {
   areaModel?: boolean;
   totalArea?: string;
   custom?: Record<string, string>;
+  /** Steuer (#103) */
+  buildYear?: number | null;
+  afaBasis?: string;
+  afaStart?: Date | null;
+  afaRate?: string;
+  afaDegressive?: boolean;
 };
+
+/** AfA-Felder eines Objekts für PropertyDialog (#103). */
+export function propertyTaxData(p: { buildYear: number | null; afaBasis: unknown; afaStart: Date | null; afaRate: unknown; afaDegressive: boolean }) {
+  return {
+    buildYear: p.buildYear,
+    afaBasis: p.afaBasis != null ? String(p.afaBasis) : undefined,
+    afaStart: p.afaStart,
+    afaRate: p.afaRate != null ? String(p.afaRate) : undefined,
+    afaDegressive: p.afaDegressive,
+  };
+}
 
 export async function PropertyDialog({
   property,
@@ -131,6 +148,23 @@ export async function PropertyDialog({
           defaultValue={property?.totalArea}
         />
       </div>
+      <p className="pt-2 text-sm font-medium">{t("tax.section")}</p>
+      <div className="grid grid-cols-2 gap-4">
+        <TextField name="afaBasis" label={t("tax.afaBasis")} type="number" step="0.01" required={false} defaultValue={property?.afaBasis} />
+        <TextField name="afaStart" label={t("tax.afaStart")} type="date" required={false} defaultValue={property?.afaStart?.toISOString().slice(0, 10)} />
+        <TextField name="buildYear" label={t("tax.buildYear")} type="number" step="1" required={false} defaultValue={property?.buildYear != null ? String(property.buildYear) : undefined} />
+        <TextField name="afaRate" label={t("tax.afaRate")} type="number" step="0.01" required={false} defaultValue={property?.afaRate} />
+      </div>
+      <SelectField
+        name="afaDegressive"
+        label={t("tax.afaMethod")}
+        defaultValue={property?.afaDegressive ? "true" : "false"}
+        options={[
+          { value: "false", label: t("tax.linear") },
+          { value: "true", label: t("tax.degressive") },
+        ]}
+      />
+      <p className="text-xs text-muted-foreground">{t("tax.afaHint")}</p>
       {customDefs.map((d) => (
         <TextField
           key={d.key}

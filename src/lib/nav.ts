@@ -23,6 +23,7 @@ import {
   ClipboardList,
   Handshake,
   Building,
+  Percent,
   type LucideIcon,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ export const navGroups: NavGroup[] = [
       { key: "nav.finances", href: "/finances", icon: Banknote },
       { key: "nav.dunning", href: "/dunning", icon: AlertTriangle },
       { key: "nav.statements", href: "/statements", icon: Calculator },
+      { key: "nav.tax", href: "/tax", icon: Percent },
       { key: "nav.weg", href: "/weg", icon: Landmark },
       { key: "nav.meetings", href: "/meetings", icon: Gavel },
     ],
