@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import {
   PropertyDialog,
+  propertyTaxData,
   BuildingDialog,
   UnitDialog,
 } from "@/components/entity-dialogs";
@@ -196,6 +197,7 @@ export default async function PropertyDetailPage({
               feeValue: String(property.feeValue),
               areaModel: property.areaModel,
               totalArea: property.totalArea != null ? String(property.totalArea) : undefined,
+              ...propertyTaxData(property),
               custom: customValues,
             }}
           />

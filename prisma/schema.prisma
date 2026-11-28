@@ -259,6 +259,12 @@ model Property {
   // Flächenmodell (Gewerbe): zeitanteilige Teilflächen aus einem Pool statt fester Unit-Fläche.
   areaModel     Boolean        @default(false)
   totalArea     Decimal?       @db.Decimal(12, 2) // Gesamtfläche des Pools
+  // Steuer (#103): AfA auf das Gebäude. Satz leer = Vorschlag nach Baujahr.
+  buildYear     Int?
+  afaBasis      Decimal?       @db.Decimal(14, 2) // Bemessungsgrundlage Gebäude
+  afaStart      DateTime? // Anschaffung bzw. Fertigstellung
+  afaRate       Decimal?       @db.Decimal(5, 2) // % p. a.
+  afaDegressive Boolean        @default(false) // § 7 Abs. 5a EStG: 5 % vom Restwert
   areaAllocations AreaAllocation[]
   buildings     Building[]
   subcommunities Subcommunity[]
@@ -795,6 +801,7 @@ enum CostType {
   KABEL
   INSTANDHALTUNG // WEG: Instandhaltung/-setzung (nicht umlagefähig)
   VERWALTUNG // WEG: Verwaltungskosten (nicht umlagefähig)
+  SCHULDZINSEN // Steuer (#103): Darlehenszinsen (nicht umlagefähig)
   SONSTIGE
 }
 

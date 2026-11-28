@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PropertyDialog } from "@/components/entity-dialogs";
+import { PropertyDialog, propertyTaxData } from "@/components/entity-dialogs";
 import { ImportDialog } from "@/components/import-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteProperty } from "@/server/actions/objects";
@@ -112,6 +112,7 @@ export default async function PropertiesPage() {
                             feeValue: String(p.feeValue),
                             areaModel: p.areaModel,
                             totalArea: p.totalArea != null ? String(p.totalArea) : undefined,
+                            ...propertyTaxData(p),
                             custom: (p.custom as Record<string, string>) ?? {},
                           }}
                         />

@@ -394,6 +394,26 @@ statements: {
     <p><strong>Tenant change during a month:</strong> leases starting and ending at month boundaries are still counted in months (e.g. 7/12). With a move-in or move-out during a month the time share is counted in days (e.g. 139/365 days), so a change on the 14th/15th bills the unit for exactly one year. Prepayments in the partial month count pro rata as well.</p>`
 },
 
+tax: {
+  de: `
+    <h2>Steuer (Anlage V)</h2>
+    <p>Unter <em>Steuer</em> steht je Objekt und Jahr eine Übersicht der Einkünfte aus Vermietung zum Übertragen in die Anlage V (Mein ELSTER oder Steuerberater), als CSV und Druckansicht.</p>
+    <ul>
+      <li><strong>Einnahmen</strong> nach Zahlungsdatum (Zuflussprinzip): Eingänge, die Sollstellungen des Objekts zugeordnet sind. Miete-Sollstellungen werden anteilig in Kaltmiete und Umlagen aufgeteilt (nach Kaltmiete und Vorauszahlungen bzw. Pauschale des Vertrags im Sollmonat), Nebenkosten-Sollstellungen zählen als Umlagen, Erstattungen an Mieter mindern sie. Kautionen zählen nicht. Wohnungen und Zimmer stehen getrennt von anderen Räumen (Gewerbe, Stellplätze, Teilflächen). Nicht zugeordnete Eingänge zählen nicht mit, die Seite nennt ihre Anzahl.</li>
+      <li><strong>Werbungskosten:</strong> AfA und die Kostenpositionen des Jahres nach Kostenart (nach Kostenjahr, nicht Zahlungsdatum). Darlehenszinsen als Kostenart <em>Schuldzinsen</em> erfassen, nicht umlagefähig.</li>
+      <li><strong>AfA:</strong> am Objekt unter <em>Steuer (AfA)</em> Bemessungsgrundlage des Gebäudes, Beginn (Anschaffung bzw. Fertigstellung), Baujahr und optional den Satz eintragen. Ohne Satz: linear 2 %, vor 1925 2,5 %, ab Baujahr 2023 3 %; degressiv (§ 7 Abs. 5a EStG) 5 % vom Restwert. Im ersten Jahr monatsgenau, der Anschaffungsmonat zählt voll.</li>
+    </ul>
+    <p>Die Übersicht bereitet vor und ersetzt keine Steuerberatung. Zeilennummern der Anlage V ändern sich jährlich und stehen deshalb nicht dabei. Eine direkte Übermittlung an ELSTER gibt es bewusst nicht: Dafür bräuchte jede Installation eine eigene Hersteller-ID und jeder Steuerpflichtige ein eigenes Zertifikat, und die Anlage V gehört zur ganzen Einkommensteuererklärung.</p>`,
+  en: `
+    <h2>Tax (Anlage V)</h2>
+    <p>Under <em>Tax</em> you get an overview of rental income per property and year for the German Anlage V (Mein ELSTER or your tax advisor), as CSV and print view.</p>
+    <ul>
+      <li><strong>Income</strong> by payment date (cash basis): receipts assigned to charges of the property. Rent charges are split into cold rent and service charges (by the lease's cold rent and prepayments or flat rate in that month), service charge items count as service charges, refunds to tenants reduce them. Deposits are excluded. Apartments and rooms are listed apart from other premises (commercial, parking, partial areas). Unassigned receipts are not counted; the page shows how many there are.</li>
+      <li><strong>Expenses:</strong> depreciation and the cost items of the year by type (by cost year, not payment date). Record loan interest as cost type <em>Loan interest</em>, not allocable.</li>
+      <li><strong>Depreciation:</strong> on the property under <em>Tax (depreciation)</em> enter the building basis, start (acquisition or completion), year built and optionally the rate. Without a rate: straight-line 2 %, before 1925 2.5 %, built from 2023 3 %; declining balance (§ 7 (5a) EStG) 5 % of the remaining value. First year by month, the month of acquisition counts in full.</li>
+    </ul>
+    <p>The overview is for preparation and is not tax advice. Anlage V line numbers change every year and are not shown. There is deliberately no direct ELSTER submission: every installation would need its own manufacturer ID and every taxpayer their own certificate, and Anlage V is part of the full income tax return.</p>`
+},
 weg: {
   de: `
     <h2>WEG-Verwaltung</h2>
